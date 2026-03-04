@@ -17,18 +17,18 @@ export default function ProjectDetailPage() {
   const projectId = params.id as string;
   const { user } = useAuth();
   const [project, setProject] = useState<Project | null>(null);
-  const { shares, addShare, removeShare } = useProjectShares(projectId);
+  const { shares, addShare, updateRole, removeShare } = useProjectShares(projectId);
   const [shareEmail, setShareEmail] = useState("");
   const [shareRole, setShareRole] = useState<"viewer" | "editor">("viewer");
   const [shareError, setShareError] = useState("");
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchProject = async () => {
       const supabase = createClient();
       const { data } = await supabase.from("projects").select("*").eq("id", projectId).single();
       if (data) setProject(data);
     };
-    fetch();
+    fetchProject();
   }, [projectId]);
 
   const handleAddShare = async () => {
@@ -41,12 +41,33 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleRoleChange = async (shareId: string, newRole: "viewer" | "editor") => {
+    try {
+      await updateRole(shareId, newRole);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to update role");
+    }
+  };
+
+  const handleRemove = async (shareId: string, email: string) => {
+    if (!confirm(`Remove access for ${email}?`)) return;
+    try {
+      await removeShare(shareId);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to remove share");
+    }
+  };
+
   if (!project) return <div className="container mx-auto p-6 text-muted-foreground">Loading...</div>;
 
   const isOwner = user?.id === project.user_id;
 
   return (
     <div className="container mx-auto p-6 max-w-2xl">
+      <Link href="/projects" className="text-sm text-muted-foreground hover:underline mb-4 inline-block">
+        &larr; Back to Projects
+      </Link>
+
       <h1 className="text-2xl font-bold mb-2">{project.name}</h1>
       <p className="text-muted-foreground mb-6">{project.description || "No description"}</p>
 
@@ -87,17 +108,40 @@ export default function ProjectDetailPage() {
 
             {shares.length > 0 && (
               <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Shared with</p>
                 {shares.map((s) => (
                   <div key={s.id} className="flex items-center justify-between text-sm border rounded-md p-2">
                     <span>{s.email || s.shared_with_id}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-secondary">{s.role}</span>
-                      <Button size="sm" variant="ghost" onClick={() => removeShare(s.id)}>Remove</Button>
+                      <Select
+                        value={s.role}
+                        onChange={(e) => handleRoleChange(s.id, e.target.value as "viewer" | "editor")}
+                        options={[
+                          { value: "viewer", label: "Viewer" },
+                          { value: "editor", label: "Editor" },
+                        ]}
+                        className="h-7 text-xs w-28"
+                      />
+                      <Button size="sm" variant="ghost" onClick={() => handleRemove(s.id, s.email || s.shared_with_id)}>
+                        Remove
+                      </Button>
                     </div>
                   </div>
                 ))}
               </div>
             )}
+
+            {shares.length === 0 && (
+              <p className="text-sm text-muted-foreground">Not shared with anyone yet.</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {!isOwner && (
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-sm text-muted-foreground">This project is shared with you. Only the owner can manage sharing settings.</p>
           </CardContent>
         </Card>
       )}

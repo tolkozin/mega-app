@@ -165,6 +165,18 @@ export function useProjectShares(projectId: string | null) {
     [supabase, projectId, fetchShares]
   );
 
+  const updateRole = useCallback(
+    async (shareId: string, role: "viewer" | "editor") => {
+      const { error } = await supabase
+        .from("project_shares")
+        .update({ role })
+        .eq("id", shareId);
+      if (error) throw error;
+      await fetchShares();
+    },
+    [supabase, fetchShares]
+  );
+
   const removeShare = useCallback(
     async (shareId: string) => {
       const { error } = await supabase.from("project_shares").delete().eq("id", shareId);
@@ -174,5 +186,48 @@ export function useProjectShares(projectId: string | null) {
     [supabase, fetchShares]
   );
 
-  return { shares, fetchShares, addShare, removeShare };
+  return { shares, fetchShares, addShare, updateRole, removeShare };
+}
+
+export interface SharedProject extends Project {
+  role: "viewer" | "editor";
+  owner_email?: string;
+}
+
+export function useSharedProjects() {
+  const [sharedProjects, setSharedProjects] = useState<SharedProject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  const fetchSharedProjects = useCallback(async () => {
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("project_shares")
+      .select("role, projects(*), profiles!project_shares_owner_id_fkey(email)")
+      .eq("shared_with_id", user.id);
+
+    if (!error && data) {
+      const mapped = data
+        .filter((s: Record<string, unknown>) => s.projects)
+        .map((s: Record<string, unknown>) => ({
+          ...(s.projects as Project),
+          role: s.role as "viewer" | "editor",
+          owner_email: (s.profiles as Record<string, string>)?.email,
+        }));
+      setSharedProjects(mapped);
+    }
+    setLoading(false);
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchSharedProjects();
+  }, [fetchSharedProjects]);
+
+  return { sharedProjects, loading, fetchSharedProjects };
 }
