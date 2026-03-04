@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useCurrentProject } from "@/hooks/useCurrentProject";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { SubscriptionCharts } from "@/components/dashboard/charts/SubscriptionCharts";
 import { Milestones, KeyMetrics } from "@/components/dashboard/executive/KPICards";
@@ -12,6 +13,7 @@ import { exportCSV } from "@/lib/api";
 export default function SubscriptionDashboardPage() {
   const config = useConfigStore((s) => s.subscriptionConfig);
   const { results, loading, error, debouncedRun } = useDashboard("subscription");
+  const { project } = useCurrentProject("subscription");
 
   const buildScenarioParams = useCallback(() => {
     const base = {
@@ -62,7 +64,7 @@ export default function SubscriptionDashboardPage() {
 
   return (
     <div className="flex">
-      <Sidebar />
+      <Sidebar projectId={project?.id ?? null} />
       <div className="flex-1 overflow-y-auto h-[calc(100vh-3.5rem)] p-6 space-y-6">
         {loading && !results && (
           <div className="flex items-center justify-center py-20">

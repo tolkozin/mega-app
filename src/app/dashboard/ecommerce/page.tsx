@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useCurrentProject } from "@/hooks/useCurrentProject";
 import { EcomSidebar } from "@/components/layout/EcomSidebar";
 import { EcommerceCharts } from "@/components/dashboard/charts/EcommerceCharts";
 import { Milestones, EcomKeyMetrics } from "@/components/dashboard/executive/KPICards";
@@ -12,6 +13,7 @@ import { exportCSV } from "@/lib/api";
 export default function EcommerceDashboardPage() {
   const config = useConfigStore((s) => s.ecommerceConfig);
   const { results, loading, error, debouncedRun } = useDashboard("ecommerce");
+  const { project } = useCurrentProject("ecommerce");
 
   const buildScenarioParams = useCallback(() => {
     const base = {
@@ -62,7 +64,7 @@ export default function EcommerceDashboardPage() {
 
   return (
     <div className="flex">
-      <EcomSidebar />
+      <EcomSidebar projectId={project?.id ?? null} />
       <div className="flex-1 overflow-y-auto h-[calc(100vh-3.5rem)] p-6 space-y-6">
         {loading && !results && (
           <div className="flex items-center justify-center py-20">

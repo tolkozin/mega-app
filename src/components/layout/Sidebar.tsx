@@ -4,6 +4,7 @@ import { useConfigStore } from "@/stores/config-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
 import type { PhaseConfig } from "@/lib/types";
 
 function NumberField({ label, value, onChange, min, max, step, help }: {
@@ -102,7 +103,7 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
   );
 }
 
-export function Sidebar() {
+export function Sidebar({ projectId }: { projectId: string | null }) {
   const config = useConfigStore((s) => s.subscriptionConfig);
   const setConfig = useConfigStore((s) => s.setSubscriptionConfig);
 
@@ -111,6 +112,8 @@ export function Sidebar() {
       <div className="p-3 border-b">
         <h2 className="font-semibold text-sm">Subscription Model Config</h2>
       </div>
+
+      <ScenarioPanel projectId={projectId} modelType="subscription" />
 
       <Accordion title="General" defaultOpen>
         <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} />

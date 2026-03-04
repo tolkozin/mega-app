@@ -3,6 +3,7 @@
 import { useConfigStore } from "@/stores/config-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
 import type { EcomPhaseConfig } from "@/lib/types";
 
 function NumberField({ label, value, onChange, min, max, step, help }: {
@@ -55,7 +56,7 @@ function EcomPhaseSection({ phase, phaseNum }: { phase: EcomPhaseConfig; phaseNu
   );
 }
 
-export function EcomSidebar() {
+export function EcomSidebar({ projectId }: { projectId: string | null }) {
   const config = useConfigStore((s) => s.ecommerceConfig);
   const setConfig = useConfigStore((s) => s.setEcommerceConfig);
 
@@ -64,6 +65,8 @@ export function EcomSidebar() {
       <div className="p-3 border-b">
         <h2 className="font-semibold text-sm">E-commerce Model Config</h2>
       </div>
+
+      <ScenarioPanel projectId={projectId} modelType="ecommerce" />
 
       <Accordion title="General" defaultOpen>
         <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} />
