@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getAllPosts } from "@/lib/blog";
+import { BlogCard } from "@/components/blog/BlogCard";
 
 const features = [
   {
@@ -49,6 +51,8 @@ const plans = [
 ];
 
 export default function LandingPage() {
+  const featuredPosts = getAllPosts().slice(0, 3);
+
   return (
     <div>
       {/* Hero */}
@@ -126,6 +130,25 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* From the Blog */}
+      {featuredPosts.length > 0 && (
+        <section className="py-20 bg-muted/50">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-10">
+              <h2 className="text-3xl font-bold">From the Blog</h2>
+              <Link href="/blog">
+                <Button variant="outline">View All Articles</Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {featuredPosts.map((post) => (
+                <BlogCard key={post.slug} post={post} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="border-t py-8">

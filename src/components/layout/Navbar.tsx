@@ -22,6 +22,9 @@ export function Navbar() {
         </Link>
 
         <div className="flex flex-1 items-center space-x-4">
+          <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Blog
+          </Link>
           {user && (
             <>
               <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

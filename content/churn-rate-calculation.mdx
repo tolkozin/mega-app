@@ -1,0 +1,139 @@
+---
+title: "Churn Rate Calculation: Formulas, Benchmarks, and Reduction Strategies"
+description: "Churn rate measures the percentage of customers or revenue lost over a period. Learn the exact formulas for customer churn, revenue churn, and net revenue retention."
+date: "2026-02-25"
+author: "Mega App Team"
+category: "saas-metrics"
+tags:
+  - churn
+  - retention
+  - saas
+  - metrics
+image: "/blog/churn-rate-calculation/cover.jpg"
+imageAlt: "Churn rate analysis showing customer retention cohort curves"
+featured: false
+draft: false
+faq:
+  - question: "What is a good churn rate for SaaS?"
+    answer: "For B2B SaaS, a good monthly churn rate is under 2% (under 5% annual). For B2C SaaS, under 5% monthly is considered good. Enterprise SaaS often achieves under 1% monthly churn."
+  - question: "What is the difference between customer churn and revenue churn?"
+    answer: "Customer churn measures the percentage of customers who cancel, while revenue churn measures the percentage of MRR lost. Revenue churn is more important because it accounts for the value of lost customers."
+howTo:
+  name: "How to Calculate Churn Rate"
+  description: "Calculate your SaaS churn rate using customer count or revenue data"
+  steps:
+    - name: "Choose your churn type"
+      text: "Decide whether to measure customer churn (logo churn) or revenue churn (MRR churn). Revenue churn is generally more useful."
+    - name: "Select the time period"
+      text: "Choose monthly or annual. Monthly is standard for operational metrics, annual for investor reporting."
+    - name: "Apply the formula"
+      text: "Monthly Customer Churn = (Customers Lost in Month / Customers at Start of Month) × 100. Monthly Revenue Churn = (MRR Lost in Month / MRR at Start of Month) × 100."
+    - name: "Calculate net revenue retention"
+      text: "NRR = (Starting MRR + Expansion - Contraction - Churned) / Starting MRR × 100. NRR above 100% means net negative churn."
+---
+
+Churn rate is the percentage of customers or revenue your business loses over a given period. For SaaS businesses, it's the metric that determines whether you're building on a solid foundation or filling a leaky bucket. A 5% monthly churn rate means you need to replace nearly half your customer base every year just to stay flat.
+
+## Customer Churn vs. Revenue Churn
+
+There are two ways to measure churn, and both matter:
+
+### Customer Churn Rate (Logo Churn)
+
+```
+Customer Churn Rate = (Customers Lost During Period / Customers at Start of Period) × 100
+```
+
+Example: Start the month with 500 customers, lose 15 → **3% monthly customer churn**.
+
+### Revenue Churn Rate (MRR Churn)
+
+```
+Revenue Churn Rate = (MRR Lost During Period / MRR at Start of Period) × 100
+```
+
+Example: Start with $100K MRR, lose $4K to cancellations → **4% monthly revenue churn**.
+
+Revenue churn is more important because losing one $500/month enterprise customer hurts more than losing five $20/month customers, even though the customer churn numbers are reversed.
+
+## Gross vs. Net Revenue Churn
+
+**Gross revenue churn** only counts losses:
+
+```
+Gross Revenue Churn = (Churned MRR + Contraction MRR) / Starting MRR × 100
+```
+
+**Net revenue churn** factors in expansion:
+
+```
+Net Revenue Churn = (Churned MRR + Contraction MRR - Expansion MRR) / Starting MRR × 100
+```
+
+When net revenue churn is negative, you have **net negative churn** — existing customers grow faster than they leave. This is the most powerful growth lever in SaaS.
+
+## Net Revenue Retention (NRR)
+
+NRR is the inverse perspective:
+
+```
+NRR = (Starting MRR + Expansion - Contraction - Churned) / Starting MRR × 100
+```
+
+| NRR Range | Interpretation |
+|---|---|
+| Below 80% | Significant retention problem |
+| 80-100% | Acceptable for SMB SaaS |
+| 100-120% | Good — net negative churn |
+| 120%+ | Excellent — strong expansion |
+
+Top SaaS companies like Snowflake (158%), Twilio (131%), and Datadog (130%) achieve NRR well above 120%.
+
+## Churn Benchmarks by Segment
+
+| Segment | Good Monthly Churn | Median Annual Churn |
+|---|---|---|
+| Enterprise | < 0.5% | 5-7% |
+| Mid-Market | < 1% | 10-15% |
+| SMB | < 2% | 20-30% |
+| Consumer/B2C | < 5% | 40-60% |
+
+## The Compounding Impact of Churn
+
+Churn compounds. Here's what different monthly churn rates do over 12 months, starting from 1,000 customers:
+
+| Monthly Churn | Customers After 12 Months | Lost |
+|---|---|---|
+| 1% | 886 | 11.4% |
+| 2% | 785 | 21.5% |
+| 3% | 694 | 30.6% |
+| 5% | 540 | 46.0% |
+| 10% | 282 | 71.8% |
+
+## Churn Reduction Strategies
+
+### 1. Improve Onboarding
+
+The first 30 days determine retention. Customers who reach their "aha moment" quickly churn at half the rate. Track activation milestones and intervene when customers stall.
+
+### 2. Monitor Health Scores
+
+Build a customer health score from usage data: login frequency, feature adoption, support tickets, and NPS responses. Proactively reach out to at-risk accounts.
+
+### 3. Implement Annual Plans
+
+Annual billing reduces churn by 20-30% compared to monthly billing. Offer meaningful discounts (15-20%) to incentivize longer commitments.
+
+### 4. Build Expansion Loops
+
+The best retention strategy is making your product more valuable over time. Usage-based pricing, add-on features, and seat-based growth create natural expansion.
+
+## How Churn Fits Your Financial Model
+
+Churn rate is a critical input in your [SaaS financial model](/blog/saas-financial-modeling-guide). It directly affects:
+
+- **[MRR projections](/blog/understanding-mrr-metrics)** — net MRR = new + expansion - churned
+- **LTV calculations** — LTV = ARPA / Monthly Churn Rate
+- **Cash flow** — higher churn means more CAC spending to maintain revenue
+
+Use Mega App to model different churn scenarios and see their compounding impact on your 36-month projections.
