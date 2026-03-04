@@ -1,0 +1,62 @@
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+async function apiRequest<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const res = await fetch(`${API_URL}${endpoint}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+    ...options,
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(error.detail || "API request failed");
+  }
+
+  return res.json();
+}
+
+export interface RunResult {
+  dataframe: Record<string, unknown>[];
+  milestones: Record<string, unknown>;
+  retention_matrix?: number[][];
+}
+
+export async function runSubscriptionModel(
+  config: Record<string, unknown>,
+  sensitivity?: Record<string, number>
+): Promise<RunResult> {
+  return apiRequest<RunResult>("/api/run/subscription", {
+    method: "POST",
+    body: JSON.stringify({ config, sensitivity }),
+  });
+}
+
+export async function runEcommerceModel(
+  config: Record<string, unknown>,
+  sensitivity?: Record<string, number>
+): Promise<RunResult> {
+  return apiRequest<RunResult>("/api/run/ecommerce", {
+    method: "POST",
+    body: JSON.stringify({ config, sensitivity }),
+  });
+}
+
+export async function exportCSV(
+  model_type: "subscription" | "ecommerce",
+  config: Record<string, unknown>,
+  sensitivity?: Record<string, number>
+): Promise<Blob> {
+  const res = await fetch(`${API_URL}/api/export/csv`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model_type, config, sensitivity }),
+  });
+
+  if (!res.ok) throw new Error("Export failed");
+  return res.blob();
+}
