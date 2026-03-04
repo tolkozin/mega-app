@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useScenarios } from "@/hooks/useProject";
+import type { Project } from "@/lib/types";
 import { useConfigStore } from "@/stores/config-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +13,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 
 export default function ScenariosPage() {
   const params = useParams();
+  const router = useRouter();
   const projectId = params.id as string;
   const { scenarios, loading, saveScenario, deleteScenario } = useScenarios(projectId);
   const subscriptionConfig = useConfigStore((s) => s.subscriptionConfig);
@@ -18,11 +21,24 @@ export default function ScenariosPage() {
   const loadSub = useConfigStore((s) => s.loadSubscriptionConfig);
   const loadEcom = useConfigStore((s) => s.loadEcommerceConfig);
 
+  const [project, setProject] = useState<Project | null>(null);
   const [showSave, setShowSave] = useState(false);
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [configType, setConfigType] = useState<"subscription" | "ecommerce">("subscription");
+
+  useEffect(() => {
+    const fetchProject = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from("projects").select("*").eq("id", projectId).single();
+      if (data) {
+        setProject(data as Project);
+        setConfigType(data.product_type);
+      }
+    };
+    fetchProject();
+  }, [projectId]);
 
   const handleSave = async () => {
     if (!name.trim()) return;
@@ -44,12 +60,13 @@ export default function ScenariosPage() {
 
   const handleLoad = (config: unknown) => {
     const cfg = config as Record<string, unknown>;
-    if (cfg.product_type === "ecommerce") {
+    const type = cfg.product_type === "ecommerce" ? "ecommerce" : (project?.product_type ?? "subscription");
+    if (type === "ecommerce") {
       loadEcom(cfg as unknown as import("@/lib/types").EcomConfig);
     } else {
       loadSub(cfg as unknown as import("@/lib/types").ModelConfig);
     }
-    alert("Scenario loaded into sidebar. Go to Dashboard to see results.");
+    router.push(`/dashboard/${type}`);
   };
 
   const handleDelete = async (id: string, scenarioName: string) => {
