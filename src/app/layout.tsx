@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Lato } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
 import { OrganizationJsonLd } from "@/components/blog/StructuredData";
 
-const inter = Inter({ subsets: ["latin", "cyrillic"] });
+const lato = Lato({ subsets: ["latin", "latin-ext"], weight: ["400", "700", "900"] });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://megaapp.io";
 
@@ -41,10 +40,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={lato.className}>
         <OrganizationJsonLd />
-        <Navbar />
-        <main className="min-h-[calc(100vh-3.5rem)]">{children}</main>
+        {children}
       </body>
     </html>
   );

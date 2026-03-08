@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { AppShell } from "@/components/layout/AppShell";
 import type { Project } from "@/lib/types";
 
 export default function DashboardPage() {
@@ -18,7 +19,6 @@ export default function DashboardPage() {
         return;
       }
 
-      // Get first project to determine dashboard type
       const { data: projects } = await supabase
         .from("projects")
         .select("*")
@@ -39,9 +39,11 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
-        <div className="text-muted-foreground">Loading dashboard...</div>
-      </div>
+      <AppShell>
+        <div className="flex items-center justify-center h-[calc(100vh-3.5rem)]">
+          <div className="text-[#8181A5]">Loading dashboard...</div>
+        </div>
+      </AppShell>
     );
   }
 

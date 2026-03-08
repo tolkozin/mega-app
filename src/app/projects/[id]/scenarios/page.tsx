@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useScenarios } from "@/hooks/useProject";
 import type { Project } from "@/lib/types";
 import { useConfigStore } from "@/stores/config-store";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppShell } from "@/components/layout/AppShell";
 
 export default function ScenariosPage() {
   const params = useParams();
@@ -18,15 +16,17 @@ export default function ScenariosPage() {
   const { scenarios, loading, saveScenario, deleteScenario } = useScenarios(projectId);
   const subscriptionConfig = useConfigStore((s) => s.subscriptionConfig);
   const ecommerceConfig = useConfigStore((s) => s.ecommerceConfig);
+  const saasConfig = useConfigStore((s) => s.saasConfig);
   const loadSub = useConfigStore((s) => s.loadSubscriptionConfig);
   const loadEcom = useConfigStore((s) => s.loadEcommerceConfig);
+  const loadSaas = useConfigStore((s) => s.loadSaasConfig);
 
   const [project, setProject] = useState<Project | null>(null);
   const [showSave, setShowSave] = useState(false);
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
-  const [configType, setConfigType] = useState<"subscription" | "ecommerce">("subscription");
+  const [configType, setConfigType] = useState<"subscription" | "ecommerce" | "saas">("subscription");
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -46,6 +46,8 @@ export default function ScenariosPage() {
     try {
       const config = configType === "subscription"
         ? JSON.parse(JSON.stringify(subscriptionConfig))
+        : configType === "saas"
+        ? JSON.parse(JSON.stringify(saasConfig))
         : JSON.parse(JSON.stringify(ecommerceConfig));
       await saveScenario(name, notes, config);
       setName("");
@@ -60,9 +62,11 @@ export default function ScenariosPage() {
 
   const handleLoad = (config: unknown) => {
     const cfg = config as Record<string, unknown>;
-    const type = cfg.product_type === "ecommerce" ? "ecommerce" : (project?.product_type ?? "subscription");
+    const type = (cfg.product_type as string) || project?.product_type || "subscription";
     if (type === "ecommerce") {
       loadEcom(cfg as unknown as import("@/lib/types").EcomConfig);
+    } else if (type === "saas") {
+      loadSaas(cfg as unknown as import("@/lib/types").SaasConfig);
     } else {
       loadSub(cfg as unknown as import("@/lib/types").ModelConfig);
     }
@@ -78,88 +82,115 @@ export default function ScenariosPage() {
     }
   };
 
+  const configTypeOptions = [
+    { value: "subscription", label: "Subscription" },
+    { value: "ecommerce", label: "E-commerce" },
+    { value: "saas", label: "SaaS" },
+  ];
+
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Scenarios</h1>
-        <Button onClick={() => setShowSave(!showSave)}>
-          {showSave ? "Cancel" : "Save Current Config"}
-        </Button>
-      </div>
+    <AppShell title="Scenarios">
+      <div className="p-6 max-w-3xl">
+        <Link href={`/projects/${projectId}`} className="text-sm text-[#8181A5] hover:text-[#5E81F4] transition-colors mb-4 inline-flex items-center gap-1">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <path d="M10 12L6 8l4-4" />
+          </svg>
+          Back to Project
+        </Link>
 
-      {showSave && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Save Scenario</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Name</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Scenario name" />
-            </div>
-            <div className="space-y-2">
-              <Label>Notes</Label>
-              <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional notes" />
-            </div>
-            <div className="space-y-2">
-              <Label>Config Type</Label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="radio"
-                    checked={configType === "subscription"}
-                    onChange={() => setConfigType("subscription")}
-                  />
-                  Subscription
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="radio"
-                    checked={configType === "ecommerce"}
-                    onChange={() => setConfigType("ecommerce")}
-                  />
-                  E-commerce
-                </label>
+        <div className="flex items-center justify-between mt-4 mb-6">
+          <h2 className="text-xl font-bold text-[#1C1D21]">{project?.name ?? "Scenarios"}</h2>
+          <button
+            onClick={() => setShowSave(!showSave)}
+            className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
+          >
+            {showSave ? "Cancel" : "Save Current Config"}
+          </button>
+        </div>
+
+        {showSave && (
+          <div className="bg-white rounded-xl border border-[#ECECF2] p-5 mb-6">
+            <h3 className="text-[15px] font-bold text-[#1C1D21] mb-4">Save Scenario</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-[#1C1D21] mb-2">Name</label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Scenario name"
+                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]"
+                />
               </div>
+              <div>
+                <label className="block text-sm font-bold text-[#1C1D21] mb-2">Notes</label>
+                <input
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Optional notes"
+                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-[#1C1D21] mb-2">Config Type</label>
+                <div className="flex gap-4">
+                  {configTypeOptions.map((opt) => (
+                    <label key={opt.value} className="flex items-center gap-2 text-sm text-[#1C1D21] cursor-pointer">
+                      <input
+                        type="radio"
+                        checked={configType === opt.value}
+                        onChange={() => setConfigType(opt.value as "subscription" | "ecommerce" | "saas")}
+                        className="accent-[#5E81F4]"
+                      />
+                      {opt.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <button
+                onClick={handleSave}
+                disabled={saving || !name.trim()}
+                className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
             </div>
-          </CardContent>
-          <CardFooter>
-            <Button onClick={handleSave} disabled={saving || !name.trim()}>
-              {saving ? "Saving..." : "Save"}
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
+          </div>
+        )}
 
-      {loading ? (
-        <p className="text-muted-foreground">Loading scenarios...</p>
-      ) : scenarios.length === 0 ? (
-        <p className="text-muted-foreground">No saved scenarios. Configure the model and save a scenario.</p>
-      ) : (
-        <div className="space-y-3">
-          {scenarios.map((scenario) => (
-            <Card key={scenario.id}>
-              <CardContent className="flex items-center justify-between p-4">
+        {loading ? (
+          <p className="text-[#8181A5]">Loading scenarios...</p>
+        ) : scenarios.length === 0 ? (
+          <p className="text-[#8181A5]">No saved scenarios. Configure the model and save a scenario.</p>
+        ) : (
+          <div className="space-y-3">
+            {scenarios.map((scenario) => (
+              <div key={scenario.id} className="bg-white rounded-xl border border-[#ECECF2] flex items-center justify-between p-4">
                 <div>
-                  <p className="font-medium">{scenario.name}</p>
-                  {scenario.notes && <p className="text-sm text-muted-foreground">{scenario.notes}</p>}
-                  <p className="text-xs text-muted-foreground">
+                  <p className="font-bold text-[#1C1D21] text-sm">{scenario.name}</p>
+                  {scenario.notes && <p className="text-sm text-[#8181A5]">{scenario.notes}</p>}
+                  <p className="text-xs text-[#8181A5] mt-1">
                     {new Date(scenario.created_at).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => handleLoad(scenario.config)}>
+                  <button
+                    onClick={() => handleLoad(scenario.config)}
+                    className="h-8 px-3 bg-[#5E81F4] text-white text-xs font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
+                  >
                     Load
-                  </Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(scenario.id, scenario.name)}>
+                  </button>
+                  <button
+                    onClick={() => handleDelete(scenario.id, scenario.name)}
+                    className="h-8 px-3 bg-red-50 text-red-600 text-xs font-bold rounded-lg hover:bg-red-100 transition-colors"
+                  >
                     Delete
-                  </Button>
+                  </button>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </AppShell>
   );
 }

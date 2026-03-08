@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { runSubscriptionModel, runEcommerceModel, type RunResult } from "@/lib/api";
+import { runSubscriptionModel, runEcommerceModel, runSaasModel, type RunResult } from "@/lib/api";
 
 interface DashboardState {
   results: Record<string, RunResult> | null;
@@ -9,7 +9,7 @@ interface DashboardState {
   error: string | null;
 }
 
-export function useDashboard(modelType: "subscription" | "ecommerce") {
+export function useDashboard(modelType: "subscription" | "ecommerce" | "saas") {
   const [state, setState] = useState<DashboardState>({
     results: null,
     loading: false,
@@ -22,7 +22,7 @@ export function useDashboard(modelType: "subscription" | "ecommerce") {
       setState((s) => ({ ...s, loading: true, error: null }));
 
       try {
-        const runFn = modelType === "subscription" ? runSubscriptionModel : runEcommerceModel;
+        const runFn = modelType === "subscription" ? runSubscriptionModel : modelType === "ecommerce" ? runEcommerceModel : runSaasModel;
 
         // Run 3 scenarios in parallel
         const scenarios = scenarioParams || {

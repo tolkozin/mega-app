@@ -4,10 +4,6 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -35,62 +31,68 @@ function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Sign In</CardTitle>
-        <CardDescription>Enter your email and password to access your account</CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          {error && (
-            <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">{error}</div>
-          )}
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Signing in..." : "Sign In"}
-          </Button>
-          <div className="flex justify-between w-full text-sm">
-            <Link href="/auth/register" className="text-primary hover:underline">
-              Create account
-            </Link>
-            <Link href="/auth/reset" className="text-muted-foreground hover:underline">
-              Forgot password?
-            </Link>
-          </div>
-        </CardFooter>
+    <>
+      <div className="mb-8">
+        <Link href="/" className="text-2xl font-bold text-[#1C1D21]">Mega App</Link>
+      </div>
+
+      <h1 className="text-[28px] font-bold text-[#1C1D21] mb-2">Sign In</h1>
+      <p className="text-[#8181A5] text-sm mb-8">Enter your email and password to access your account</p>
+
+      {error && (
+        <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">{error}</div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label htmlFor="email" className="block text-sm font-bold text-[#1C1D21] mb-2">Email</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full h-11 px-4 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] transition-colors"
+          />
+        </div>
+        <div>
+          <label htmlFor="password" className="block text-sm font-bold text-[#1C1D21] mb-2">Password</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full h-11 px-4 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] transition-colors"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full h-11 bg-[#5E81F4] hover:bg-[#4B6FE0] text-white font-bold text-sm rounded-lg transition-colors disabled:opacity-50"
+        >
+          {loading ? "Signing in..." : "Sign In"}
+        </button>
       </form>
-    </Card>
+
+      <div className="flex justify-between mt-6 text-sm">
+        <Link href="/auth/register" className="text-[#5E81F4] hover:underline">
+          Create account
+        </Link>
+        <Link href="/auth/reset" className="text-[#8181A5] hover:text-[#5E81F4] transition-colors">
+          Forgot password?
+        </Link>
+      </div>
+    </>
   );
 }
 
 export default function LoginPage() {
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)] p-4">
-      <Suspense fallback={<div className="text-muted-foreground">Loading...</div>}>
-        <LoginForm />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div className="text-[#8181A5]">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

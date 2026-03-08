@@ -46,8 +46,18 @@ export async function runEcommerceModel(
   });
 }
 
+export async function runSaasModel(
+  config: Record<string, unknown>,
+  sensitivity?: Record<string, number>
+): Promise<RunResult> {
+  return apiRequest<RunResult>("/api/run/saas", {
+    method: "POST",
+    body: JSON.stringify({ config, sensitivity }),
+  });
+}
+
 export async function exportCSV(
-  model_type: "subscription" | "ecommerce",
+  model_type: "subscription" | "ecommerce" | "saas",
   config: Record<string, unknown>,
   sensitivity?: Record<string, number>
 ): Promise<Blob> {

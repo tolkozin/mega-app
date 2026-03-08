@@ -5,22 +5,22 @@ import { useConfigStore } from "@/stores/config-store";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useCurrentProject } from "@/hooks/useCurrentProject";
 import { AppShell } from "@/components/layout/AppShell";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { SubscriptionCharts } from "@/components/dashboard/charts/SubscriptionCharts";
-import { Milestones, KeyMetrics } from "@/components/dashboard/executive/KPICards";
-import { SubscriptionReports } from "@/components/dashboard/reports/FinancialReports";
+import { SaasSidebar } from "@/components/layout/SaasSidebar";
+import { SaasCharts } from "@/components/dashboard/charts/SaasCharts";
+import { SaasMilestones, SaasKeyMetrics } from "@/components/dashboard/executive/SaasKPICards";
+import { SaasReports } from "@/components/dashboard/reports/SaasReports";
 import { exportCSV } from "@/lib/api";
 
-export default function SubscriptionDashboardPage() {
-  const config = useConfigStore((s) => s.subscriptionConfig);
-  const { results, loading, error, debouncedRun } = useDashboard("subscription");
-  const { project } = useCurrentProject("subscription");
+export default function SaasDashboardPage() {
+  const config = useConfigStore((s) => s.saasConfig);
+  const { results, loading, error, debouncedRun } = useDashboard("saas");
+  const { project } = useCurrentProject("saas");
 
   const buildScenarioParams = useCallback(() => {
     const base = {
       conv: config.sens_conv / 100,
       churn: config.sens_churn / 100,
-      cpi: config.sens_cpi / 100,
+      expansion: config.sens_expansion / 100,
       organic: config.sens_organic / 100,
     };
     const bound = config.scenario_bound / 100;
@@ -29,17 +29,17 @@ export default function SubscriptionDashboardPage() {
       pessimistic: {
         conv: base.conv - bound,
         churn: base.churn + bound,
-        cpi: base.cpi + bound,
+        expansion: base.expansion - bound,
         organic: base.organic - bound,
       },
       optimistic: {
         conv: base.conv + bound,
         churn: base.churn - bound,
-        cpi: base.cpi - bound,
+        expansion: base.expansion + bound,
         organic: base.organic + bound,
       },
     };
-  }, [config.sens_conv, config.sens_churn, config.sens_cpi, config.sens_organic, config.scenario_bound]);
+  }, [config.sens_conv, config.sens_churn, config.sens_expansion, config.sens_organic, config.scenario_bound]);
 
   useEffect(() => {
     const configDict = JSON.parse(JSON.stringify(config));
@@ -48,11 +48,11 @@ export default function SubscriptionDashboardPage() {
 
   const handleExport = async () => {
     try {
-      const blob = await exportCSV("subscription", JSON.parse(JSON.stringify(config)));
+      const blob = await exportCSV("saas", JSON.parse(JSON.stringify(config)));
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "subscription_model.csv";
+      a.download = "saas_model.csv";
       a.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -64,9 +64,9 @@ export default function SubscriptionDashboardPage() {
   const p2End = config.phase1_dur + config.phase2_dur;
 
   return (
-    <AppShell title="Subscription Dashboard">
+    <AppShell title="SaaS Dashboard">
       <div className="flex h-[calc(100vh-3.5rem)]">
-        <Sidebar projectId={project?.id ?? null} />
+        <SaasSidebar projectId={project?.id ?? null} />
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {loading && !results && (
             <div className="flex items-center justify-center py-20">
@@ -75,17 +75,15 @@ export default function SubscriptionDashboardPage() {
           )}
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-lg">
-              {error}
-            </div>
+            <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>
           )}
 
           {results && (
             <>
-              <Milestones milestones={results.base.milestones} />
-              <KeyMetrics results={results.base} milestones={results.base.milestones} />
-              <SubscriptionCharts results={results} p1End={p1End} p2End={p2End} />
-              <SubscriptionReports results={results.base} onExport={handleExport} />
+              <SaasMilestones milestones={results.base.milestones} />
+              <SaasKeyMetrics results={results.base} milestones={results.base.milestones} />
+              <SaasCharts results={results} p1End={p1End} p2End={p2End} />
+              <SaasReports results={results.base} onExport={handleExport} />
             </>
           )}
 

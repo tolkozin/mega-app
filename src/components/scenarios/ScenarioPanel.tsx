@@ -5,19 +5,21 @@ import { useScenarios } from "@/hooks/useProject";
 import { useConfigStore } from "@/stores/config-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { ModelConfig, EcomConfig } from "@/lib/types";
+import type { ModelConfig, EcomConfig, SaasConfig } from "@/lib/types";
 
 interface ScenarioPanelProps {
   projectId: string | null;
-  modelType: "subscription" | "ecommerce";
+  modelType: "subscription" | "ecommerce" | "saas";
 }
 
 export function ScenarioPanel({ projectId, modelType }: ScenarioPanelProps) {
   const { scenarios, loading, saveScenario, deleteScenario } = useScenarios(projectId);
   const subscriptionConfig = useConfigStore((s) => s.subscriptionConfig);
   const ecommerceConfig = useConfigStore((s) => s.ecommerceConfig);
+  const saasConfig = useConfigStore((s) => s.saasConfig);
   const loadSub = useConfigStore((s) => s.loadSubscriptionConfig);
   const loadEcom = useConfigStore((s) => s.loadEcommerceConfig);
+  const loadSaas = useConfigStore((s) => s.loadSaasConfig);
 
   const [showSave, setShowSave] = useState(false);
   const [name, setName] = useState("");
@@ -30,7 +32,9 @@ export function ScenarioPanel({ projectId, modelType }: ScenarioPanelProps) {
     try {
       const config = modelType === "subscription"
         ? JSON.parse(JSON.stringify(subscriptionConfig))
-        : JSON.parse(JSON.stringify(ecommerceConfig));
+        : modelType === "ecommerce"
+        ? JSON.parse(JSON.stringify(ecommerceConfig))
+        : JSON.parse(JSON.stringify(saasConfig));
       await saveScenario(name, notes, config);
       setName("");
       setNotes("");
@@ -44,7 +48,9 @@ export function ScenarioPanel({ projectId, modelType }: ScenarioPanelProps) {
 
   const handleLoad = (config: unknown) => {
     const cfg = config as Record<string, unknown>;
-    if (modelType === "ecommerce" || cfg.product_type === "ecommerce") {
+    if (modelType === "saas" || cfg.product_type === "saas") {
+      loadSaas(cfg as unknown as SaasConfig);
+    } else if (modelType === "ecommerce" || cfg.product_type === "ecommerce") {
       loadEcom(cfg as unknown as EcomConfig);
     } else {
       loadSub(cfg as unknown as ModelConfig);

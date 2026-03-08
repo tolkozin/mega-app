@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { ModelConfig, PhaseConfig, EcomConfig, EcomPhaseConfig } from "@/lib/types";
+import type { ModelConfig, PhaseConfig, EcomConfig, EcomPhaseConfig, SaasConfig, SaasPhaseConfig } from "@/lib/types";
 
 // Default PhaseConfigs matching Python dataclass defaults
 const defaultPhase1: PhaseConfig = {
@@ -72,6 +72,38 @@ export const defaultEcomConfig: EcomConfig = {
   mc_enabled: false, mc_iterations: 200, mc_variance: 20,
 };
 
+const defaultSaasPhase1: SaasPhaseConfig = {
+  seats_per_account: 3, price_per_seat: 39, annual_contract_pct: 50, annual_discount: 15,
+  ad_budget: 3000, cpl: 200, lead_to_demo: 20, demo_to_close: 15,
+  sales_cycle_months: 2, expansion_rate: 1, contraction_rate: 0.5, logo_churn_rate: 3,
+  cogs_per_seat: 6, organic_leads_pct: 10,
+};
+
+const defaultSaasPhase2: SaasPhaseConfig = {
+  seats_per_account: 5, price_per_seat: 49, annual_contract_pct: 70, annual_discount: 15,
+  ad_budget: 8000, cpl: 150, lead_to_demo: 30, demo_to_close: 25,
+  sales_cycle_months: 1, expansion_rate: 3, contraction_rate: 1, logo_churn_rate: 2,
+  cogs_per_seat: 5, organic_leads_pct: 20,
+};
+
+const defaultSaasPhase3: SaasPhaseConfig = {
+  seats_per_account: 8, price_per_seat: 49, annual_contract_pct: 80, annual_discount: 15,
+  ad_budget: 20000, cpl: 120, lead_to_demo: 35, demo_to_close: 30,
+  sales_cycle_months: 1, expansion_rate: 5, contraction_rate: 1, logo_churn_rate: 1.5,
+  cogs_per_seat: 4, organic_leads_pct: 30,
+};
+
+export const defaultSaasConfig: SaasConfig = {
+  product_type: "saas",
+  total_months: 36, phase1_dur: 3, phase2_dur: 9,
+  phase1: defaultSaasPhase1, phase2: defaultSaasPhase2, phase3: defaultSaasPhase3,
+  salaries_base: 8000, salaries_growth: 3, misc_costs: 3000,
+  corporate_tax: 1,
+  initial_customers: 0, initial_seats: 0, investment: 100000,
+  sens_conv: 0, sens_churn: 0, sens_expansion: 0, sens_organic: 0, scenario_bound: 20,
+  mc_enabled: false, mc_iterations: 200, mc_variance: 20,
+};
+
 interface ConfigStore {
   subscriptionConfig: ModelConfig;
   ecommerceConfig: EcomConfig;
@@ -83,6 +115,11 @@ interface ConfigStore {
   loadEcommerceConfig: (config: EcomConfig) => void;
   resetSubscription: () => void;
   resetEcommerce: () => void;
+  saasConfig: SaasConfig;
+  setSaasConfig: (config: Partial<SaasConfig>) => void;
+  setSaasPhase: (phase: 1 | 2 | 3, config: Partial<SaasPhaseConfig>) => void;
+  loadSaasConfig: (config: SaasConfig) => void;
+  resetSaas: () => void;
 }
 
 export const useConfigStore = create<ConfigStore>((set) => ({
@@ -125,4 +162,25 @@ export const useConfigStore = create<ConfigStore>((set) => ({
   loadEcommerceConfig: (config) => set({ ecommerceConfig: config }),
   resetSubscription: () => set({ subscriptionConfig: defaultModelConfig }),
   resetEcommerce: () => set({ ecommerceConfig: defaultEcomConfig }),
+
+  saasConfig: defaultSaasConfig,
+
+  setSaasConfig: (partial) =>
+    set((state) => ({
+      saasConfig: { ...state.saasConfig, ...partial },
+    })),
+
+  setSaasPhase: (phase, partial) =>
+    set((state) => {
+      const key = `phase${phase}` as "phase1" | "phase2" | "phase3";
+      return {
+        saasConfig: {
+          ...state.saasConfig,
+          [key]: { ...state.saasConfig[key], ...partial },
+        },
+      };
+    }),
+
+  loadSaasConfig: (config) => set({ saasConfig: config }),
+  resetSaas: () => set({ saasConfig: defaultSaasConfig }),
 }));

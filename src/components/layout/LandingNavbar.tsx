@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
-export function Navbar() {
+export function LandingNavbar() {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
 

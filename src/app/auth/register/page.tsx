@@ -1,13 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -17,7 +12,6 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,78 +30,86 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)] p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Check Your Email</CardTitle>
-            <CardDescription>
-              We sent a verification link to <strong>{email}</strong>. Click the link to activate your account.
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <Link href="/auth/login" className="w-full">
-              <Button variant="outline" className="w-full">Back to Sign In</Button>
-            </Link>
-          </CardFooter>
-        </Card>
-      </div>
+      <>
+        <div className="mb-8">
+          <Link href="/" className="text-2xl font-bold text-[#1C1D21]">Mega App</Link>
+        </div>
+        <h1 className="text-[28px] font-bold text-[#1C1D21] mb-2">Check Your Email</h1>
+        <p className="text-[#8181A5] text-sm mb-8">
+          We sent a verification link to <strong className="text-[#1C1D21]">{email}</strong>. Click the link to activate your account.
+        </p>
+        <Link href="/auth/login">
+          <button className="w-full h-11 border border-[#ECECF2] text-[#1C1D21] font-bold text-sm rounded-lg hover:bg-[#F8F8FC] transition-colors">
+            Back to Sign In
+          </button>
+        </Link>
+      </>
     );
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)] p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Create Account</CardTitle>
-          <CardDescription>Start building your financial models</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">{error}</div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="name">Display Name</Label>
-              <Input
-                id="name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Your name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating account..." : "Create Account"}
-            </Button>
-            <Link href="/auth/login" className="text-sm text-primary hover:underline">
-              Already have an account? Sign in
-            </Link>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+    <>
+      <div className="mb-8">
+        <Link href="/" className="text-2xl font-bold text-[#1C1D21]">Mega App</Link>
+      </div>
+
+      <h1 className="text-[28px] font-bold text-[#1C1D21] mb-2">Create Account</h1>
+      <p className="text-[#8181A5] text-sm mb-8">Start building your financial models</p>
+
+      {error && (
+        <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">{error}</div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label htmlFor="name" className="block text-sm font-bold text-[#1C1D21] mb-2">Display Name</label>
+          <input
+            id="name"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Your name"
+            className="w-full h-11 px-4 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] transition-colors"
+          />
+        </div>
+        <div>
+          <label htmlFor="email" className="block text-sm font-bold text-[#1C1D21] mb-2">Email</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full h-11 px-4 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] transition-colors"
+          />
+        </div>
+        <div>
+          <label htmlFor="password" className="block text-sm font-bold text-[#1C1D21] mb-2">Password</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            className="w-full h-11 px-4 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] transition-colors"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full h-11 bg-[#5E81F4] hover:bg-[#4B6FE0] text-white font-bold text-sm rounded-lg transition-colors disabled:opacity-50"
+        >
+          {loading ? "Creating account..." : "Create Account"}
+        </button>
+      </form>
+
+      <div className="mt-6 text-center text-sm">
+        <Link href="/auth/login" className="text-[#5E81F4] hover:underline">
+          Already have an account? Sign in
+        </Link>
+      </div>
+    </>
   );
 }

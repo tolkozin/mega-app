@@ -3,10 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
@@ -31,46 +27,53 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)] p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Reset Password</CardTitle>
-          <CardDescription>
-            {sent
-              ? `A reset link has been sent to ${email}`
-              : "Enter your email to receive a password reset link"}
-          </CardDescription>
-        </CardHeader>
-        {!sent && (
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              {error && (
-                <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">{error}</div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Sending..." : "Send Reset Link"}
-              </Button>
-            </CardFooter>
+    <>
+      <div className="mb-8">
+        <Link href="/" className="text-2xl font-bold text-[#1C1D21]">Mega App</Link>
+      </div>
+
+      <h1 className="text-[28px] font-bold text-[#1C1D21] mb-2">Reset Password</h1>
+      <p className="text-[#8181A5] text-sm mb-8">
+        {sent
+          ? `A reset link has been sent to ${email}`
+          : "Enter your email to receive a password reset link"}
+      </p>
+
+      {!sent && (
+        <>
+          {error && (
+            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">{error}</div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label htmlFor="email" className="block text-sm font-bold text-[#1C1D21] mb-2">Email</label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full h-11 px-4 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] transition-colors"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-11 bg-[#5E81F4] hover:bg-[#4B6FE0] text-white font-bold text-sm rounded-lg transition-colors disabled:opacity-50"
+            >
+              {loading ? "Sending..." : "Send Reset Link"}
+            </button>
           </form>
-        )}
-        <CardFooter>
-          <Link href="/auth/login" className="text-sm text-primary hover:underline">
-            Back to Sign In
-          </Link>
-        </CardFooter>
-      </Card>
-    </div>
+        </>
+      )}
+
+      <div className="mt-6 text-sm">
+        <Link href="/auth/login" className="text-[#5E81F4] hover:underline">
+          Back to Sign In
+        </Link>
+      </div>
+    </>
   );
 }

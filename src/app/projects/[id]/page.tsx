@@ -6,10 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useProjectShares } from "@/hooks/useProject";
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppShell } from "@/components/layout/AppShell";
 import type { Project } from "@/lib/types";
 
 export default function ProjectDetailPage() {
@@ -58,93 +55,108 @@ export default function ProjectDetailPage() {
     }
   };
 
-  if (!project) return <div className="container mx-auto p-6 text-muted-foreground">Loading...</div>;
+  if (!project) {
+    return (
+      <AppShell title="Project">
+        <div className="p-6 text-[#8181A5]">Loading...</div>
+      </AppShell>
+    );
+  }
 
   const isOwner = user?.id === project.user_id;
 
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
-      <Link href="/projects" className="text-sm text-muted-foreground hover:underline mb-4 inline-block">
-        &larr; Back to Projects
-      </Link>
-
-      <h1 className="text-2xl font-bold mb-2">{project.name}</h1>
-      <p className="text-muted-foreground mb-6">{project.description || "No description"}</p>
-
-      <div className="flex gap-2 mb-8">
-        <Link href={`/dashboard/${project.product_type}`}>
-          <Button>Open Dashboard</Button>
+    <AppShell title={project.name}>
+      <div className="p-6 max-w-2xl">
+        <Link href="/projects" className="text-sm text-[#8181A5] hover:text-[#5E81F4] transition-colors mb-4 inline-flex items-center gap-1">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <path d="M10 12L6 8l4-4" />
+          </svg>
+          Back to Projects
         </Link>
-        <Link href={`/projects/${project.id}/scenarios`}>
-          <Button variant="outline">Scenarios</Button>
-        </Link>
-      </div>
 
-      {isOwner && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Sharing</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Input
+        <div className="mt-4 mb-6">
+          <p className="text-[#8181A5] text-sm">{project.description || "No description"}</p>
+        </div>
+
+        <div className="flex gap-2 mb-8">
+          <Link href={`/dashboard/${project.product_type}`}>
+            <button className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors">
+              Open Dashboard
+            </button>
+          </Link>
+          <Link href={`/projects/${project.id}/scenarios`}>
+            <button className="h-9 px-4 border border-[#ECECF2] text-[#1C1D21] text-sm font-bold rounded-lg hover:bg-[#F8F8FC] transition-colors">
+              Scenarios
+            </button>
+          </Link>
+        </div>
+
+        {isOwner && (
+          <div className="bg-white rounded-xl border border-[#ECECF2] p-5">
+            <h3 className="text-[15px] font-bold text-[#1C1D21] mb-4">Sharing</h3>
+            <div className="flex gap-2 mb-4">
+              <input
                 placeholder="Email address"
                 value={shareEmail}
                 onChange={(e) => setShareEmail(e.target.value)}
-                className="flex-1"
+                className="flex-1 h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]"
               />
-              <Select
+              <select
                 value={shareRole}
                 onChange={(e) => setShareRole(e.target.value as "viewer" | "editor")}
-                options={[
-                  { value: "viewer", label: "Viewer" },
-                  { value: "editor", label: "Editor" },
-                ]}
-                className="w-32"
-              />
-              <Button onClick={handleAddShare} disabled={!shareEmail.trim()}>Share</Button>
+                className="w-28 h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] focus:outline-none focus:border-[#5E81F4]"
+              >
+                <option value="viewer">Viewer</option>
+                <option value="editor">Editor</option>
+              </select>
+              <button
+                onClick={handleAddShare}
+                disabled={!shareEmail.trim()}
+                className="h-10 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors disabled:opacity-50"
+              >
+                Share
+              </button>
             </div>
-            {shareError && <p className="text-sm text-destructive">{shareError}</p>}
+            {shareError && <p className="text-sm text-red-500 mb-3">{shareError}</p>}
 
-            {shares.length > 0 && (
+            {shares.length > 0 ? (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Shared with</p>
+                <p className="text-xs font-bold text-[#8181A5] uppercase tracking-wider mb-2">Shared with</p>
                 {shares.map((s) => (
-                  <div key={s.id} className="flex items-center justify-between text-sm border rounded-md p-2">
-                    <span>{s.email || s.shared_with_id}</span>
+                  <div key={s.id} className="flex items-center justify-between text-sm border border-[#ECECF2] rounded-lg p-3">
+                    <span className="text-[#1C1D21]">{s.email || s.shared_with_id}</span>
                     <div className="flex items-center gap-2">
-                      <Select
+                      <select
                         value={s.role}
                         onChange={(e) => handleRoleChange(s.id, e.target.value as "viewer" | "editor")}
-                        options={[
-                          { value: "viewer", label: "Viewer" },
-                          { value: "editor", label: "Editor" },
-                        ]}
-                        className="h-7 text-xs w-28"
-                      />
-                      <Button size="sm" variant="ghost" onClick={() => handleRemove(s.id, s.email || s.shared_with_id)}>
+                        className="h-7 text-xs w-24 rounded-md border border-[#ECECF2] bg-white px-2 focus:outline-none focus:border-[#5E81F4]"
+                      >
+                        <option value="viewer">Viewer</option>
+                        <option value="editor">Editor</option>
+                      </select>
+                      <button
+                        onClick={() => handleRemove(s.id, s.email || s.shared_with_id)}
+                        className="text-xs text-[#8181A5] hover:text-red-500 transition-colors"
+                      >
                         Remove
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
+            ) : (
+              <p className="text-sm text-[#8181A5]">Not shared with anyone yet.</p>
             )}
+          </div>
+        )}
 
-            {shares.length === 0 && (
-              <p className="text-sm text-muted-foreground">Not shared with anyone yet.</p>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {!isOwner && (
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">This project is shared with you. Only the owner can manage sharing settings.</p>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+        {!isOwner && (
+          <div className="bg-white rounded-xl border border-[#ECECF2] p-5">
+            <p className="text-sm text-[#8181A5]">This project is shared with you. Only the owner can manage sharing settings.</p>
+          </div>
+        )}
+      </div>
+    </AppShell>
   );
 }

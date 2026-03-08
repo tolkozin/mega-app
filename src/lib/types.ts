@@ -94,12 +94,54 @@ export interface EcomConfig {
   mc_variance: number;
 }
 
+export interface SaasPhaseConfig {
+  seats_per_account: number;
+  price_per_seat: number;
+  annual_contract_pct: number;
+  annual_discount: number;
+  ad_budget: number;
+  cpl: number;
+  lead_to_demo: number;
+  demo_to_close: number;
+  sales_cycle_months: number;
+  expansion_rate: number;
+  contraction_rate: number;
+  logo_churn_rate: number;
+  cogs_per_seat: number;
+  organic_leads_pct: number;
+}
+
+export interface SaasConfig {
+  product_type: "saas";
+  total_months: number;
+  phase1_dur: number;
+  phase2_dur: number;
+  phase1: SaasPhaseConfig;
+  phase2: SaasPhaseConfig;
+  phase3: SaasPhaseConfig;
+  salaries_base: number;
+  salaries_growth: number;
+  misc_costs: number;
+  corporate_tax: number;
+  initial_customers: number;
+  initial_seats: number;
+  investment: number;
+  sens_conv: number;
+  sens_churn: number;
+  sens_expansion: number;
+  sens_organic: number;
+  scenario_bound: number;
+  mc_enabled: boolean;
+  mc_iterations: number;
+  mc_variance: number;
+}
+
 export interface Project {
   id: string;
   user_id: string;
   name: string;
   description: string;
-  product_type: "subscription" | "ecommerce";
+  product_type: "subscription" | "ecommerce" | "saas";
   created_at: string;
   public_token?: string;
   is_public?: boolean;
@@ -111,7 +153,7 @@ export interface Scenario {
   user_id: string;
   name: string;
   notes: string;
-  config: ModelConfig | EcomConfig;
+  config: ModelConfig | EcomConfig | SaasConfig;
   created_at: string;
 }
 
@@ -130,5 +172,31 @@ export interface ProjectShare {
   owner_id: string;
   shared_with_id: string;
   role: "viewer" | "editor";
+  created_at: string;
+}
+
+export type InvoiceStatus = "paid" | "scheduled" | "unpaid";
+
+export interface InvoiceItem {
+  description: string;
+  quantity: number;
+  unit_price: number;
+}
+
+export interface Invoice {
+  id: string;
+  user_id: string;
+  invoice_number: string;
+  customer_name: string;
+  customer_email: string;
+  status: InvoiceStatus;
+  issue_date: string;
+  due_date: string;
+  items: InvoiceItem[];
+  subtotal: number;
+  tax_rate: number;
+  tax_amount: number;
+  total: number;
+  notes: string;
   created_at: string;
 }

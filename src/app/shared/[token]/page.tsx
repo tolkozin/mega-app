@@ -23,7 +23,6 @@ export default function SharedDashboardPage() {
     const fetchShared = async () => {
       const supabase = createClient();
 
-      // Fetch public project by token
       const { data: proj, error: projError } = await supabase
         .from("projects")
         .select("*")
@@ -39,7 +38,6 @@ export default function SharedDashboardPage() {
       setProject(proj);
       setModelType(proj.product_type as "subscription" | "ecommerce");
 
-      // Get latest scenario for this project
       const { data: scenarios } = await supabase
         .from("scenarios")
         .select("*")
@@ -67,16 +65,16 @@ export default function SharedDashboardPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
-        <p className="text-muted-foreground">{error}</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-[#8181A5]">{error}</p>
       </div>
     );
   }
 
   if (!project || loading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
-        <p className="text-muted-foreground">Loading shared dashboard...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-[#8181A5]">Loading shared dashboard...</p>
       </div>
     );
   }
@@ -89,8 +87,8 @@ export default function SharedDashboardPage() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{project.name}</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl font-bold text-[#1C1D21]">{project.name}</h1>
+          <p className="text-sm text-[#8181A5]">
             Public dashboard &middot; {project.product_type} &middot; Read-only
           </p>
         </div>
