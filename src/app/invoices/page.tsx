@@ -6,6 +6,8 @@ import { AppShell } from "@/components/layout/AppShell";
 import { useInvoices } from "@/hooks/useInvoices";
 import type { InvoiceStatus } from "@/lib/types";
 
+// Invoices are read-only — creation will be auto-generated in the future
+
 const statusColors: Record<InvoiceStatus, { bg: string; text: string; label: string }> = {
   paid: { bg: "bg-[#E6F9F1]", text: "text-[#14A660]", label: "Paid" },
   scheduled: { bg: "bg-[#E8EEFF]", text: "text-[#5E81F4]", label: "Scheduled" },
@@ -22,7 +24,7 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
 }
 
 export default function InvoicesPage() {
-  const { invoices, loading, deleteInvoice } = useInvoices();
+  const { invoices, loading } = useInvoices();
   const [filter, setFilter] = useState<InvoiceStatus | "all">("all");
 
   const filtered = filter === "all" ? invoices : invoices.filter((inv) => inv.status === filter);
@@ -38,28 +40,11 @@ export default function InvoicesPage() {
 
   const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
-  const handleDelete = async (id: string, num: string) => {
-    if (!confirm(`Delete invoice ${num}?`)) return;
-    try {
-      await deleteInvoice(id);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete");
-    }
-  };
-
   return (
     <AppShell title="Invoices">
       <div className="flex h-[calc(100vh-3.5rem)]">
         {/* Left sidebar with stats */}
         <div className="w-[280px] border-r border-[#ECECF2] bg-white p-5 shrink-0 overflow-y-auto">
-          <div className="mb-6">
-            <Link href="/invoices/new">
-              <button className="w-full h-10 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors">
-                + New Invoice
-              </button>
-            </Link>
-          </div>
-
           <div className="space-y-4">
             <button
               onClick={() => setFilter("all")}
@@ -126,8 +111,7 @@ export default function InvoicesPage() {
               <div className="p-5 text-[#8181A5] text-sm">Loading invoices...</div>
             ) : filtered.length === 0 ? (
               <div className="p-5 text-[#8181A5] text-sm">
-                No invoices yet.{" "}
-                <Link href="/invoices/new" className="text-[#5E81F4] hover:underline">Create your first invoice</Link>
+                No invoices yet.
               </div>
             ) : (
               <table className="w-full">
@@ -138,7 +122,6 @@ export default function InvoicesPage() {
                     <th className="text-left px-5 py-3">Customer</th>
                     <th className="text-left px-5 py-3">Status</th>
                     <th className="text-right px-5 py-3">Amount</th>
-                    <th className="text-right px-5 py-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -161,14 +144,6 @@ export default function InvoicesPage() {
                       </td>
                       <td className="px-5 py-3 text-sm font-bold text-[#1C1D21] text-right">
                         {fmt(Number(inv.total))}
-                      </td>
-                      <td className="px-5 py-3 text-right">
-                        <button
-                          onClick={() => handleDelete(inv.id, inv.invoice_number)}
-                          className="text-xs text-[#8181A5] hover:text-red-500 transition-colors"
-                        >
-                          Delete
-                        </button>
                       </td>
                     </tr>
                   ))}

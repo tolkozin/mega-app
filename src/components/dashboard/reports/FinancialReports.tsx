@@ -2,6 +2,8 @@
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { formatCurrency } from "@/lib/utils";
+import { AdvancedTable } from "@/components/ui/advanced-table";
+import { getBenchmarkLabel } from "@/lib/benchmarks";
 import type { RunResult } from "@/lib/api";
 
 interface ReportsProps {
@@ -9,52 +11,26 @@ interface ReportsProps {
   onExport: () => void;
 }
 
-function DataTable({ data, columns }: {
-  data: Record<string, unknown>[];
-  columns: { key: string; label: string; format?: (v: unknown) => string }[];
-}) {
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs">
-        <thead>
-          <tr className="border-b">
-            {columns.map((col) => (
-              <th key={col.key} className="text-left p-2 font-medium text-muted-foreground whitespace-nowrap">
-                {col.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, i) => (
-            <tr key={i} className="border-b hover:bg-muted/50">
-              {columns.map((col) => (
-                <td key={col.key} className="p-2 whitespace-nowrap">
-                  {col.format ? col.format(row[col.key]) : String(row[col.key] ?? "—")}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 const fmtMoney = (v: unknown) => {
   const n = Number(v);
-  return isNaN(n) ? "—" : formatCurrency(n);
+  return isNaN(n) ? "\u2014" : formatCurrency(n);
 };
 
 const fmtPct = (v: unknown) => {
   const n = Number(v);
-  return isNaN(n) ? "—" : `${(n * 100).toFixed(1)}%`;
+  return isNaN(n) ? "\u2014" : `${(n * 100).toFixed(1)}%`;
 };
 
 const fmtNum = (v: unknown) => {
   const n = Number(v);
-  return isNaN(n) ? "—" : n.toFixed(0);
+  return isNaN(n) ? "\u2014" : n.toFixed(0);
 };
+
+function BenchmarkFootnote({ metricKey }: { metricKey: string }) {
+  const label = getBenchmarkLabel(metricKey);
+  if (!label) return null;
+  return <p className="text-[10px] text-[#8181A5] mt-1">Industry benchmark: {label}</p>;
+}
 
 export function SubscriptionReports({ results, onExport }: ReportsProps) {
   const data = results.dataframe;
@@ -81,24 +57,24 @@ export function SubscriptionReports({ results, onExport }: ReportsProps) {
         </TabsList>
 
         <TabsContent value="pnl">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
               { key: "Product Phase", label: "Phase", format: fmtNum },
               { key: "Total Gross Revenue", label: "Gross Revenue", format: fmtMoney },
               { key: "Net Revenue", label: "Net Revenue", format: fmtMoney },
-              { key: "Total COGS", label: "COGS", format: fmtMoney },
-              { key: "Total OpEx", label: "OpEx", format: fmtMoney },
+              { key: "COGS", label: "COGS", format: fmtMoney },
               { key: "EBITDA", label: "EBITDA", format: fmtMoney },
               { key: "Net Profit", label: "Net Profit", format: fmtMoney },
-              { key: "Net Margin %", label: "Net Margin", format: fmtPct },
             ]}
+            pinnedColumns={["Month", "Product Phase"]}
+            pageSize={25}
           />
         </TabsContent>
 
         <TabsContent value="revenue">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
@@ -109,52 +85,65 @@ export function SubscriptionReports({ results, onExport }: ReportsProps) {
               { key: "Gross Revenue Store", label: "Store Revenue", format: fmtMoney },
               { key: "Gross Revenue Web", label: "Web Revenue", format: fmtMoney },
             ]}
+            pinnedColumns={["Month"]}
+            pageSize={25}
           />
         </TabsContent>
 
         <TabsContent value="costs">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
-              { key: "Ad Spend", label: "Ad Spend", format: fmtMoney },
+              { key: "Ad Budget", label: "Ad Spend", format: fmtMoney },
               { key: "Organic Spend", label: "Organic Spend", format: fmtMoney },
               { key: "Salaries", label: "Salaries", format: fmtMoney },
-              { key: "Misc", label: "Misc Costs", format: fmtMoney },
-              { key: "Total COGS", label: "COGS", format: fmtMoney },
-              { key: "Total OpEx", label: "Total OpEx", format: fmtMoney },
+              { key: "Misc Costs", label: "Misc Costs", format: fmtMoney },
+              { key: "COGS", label: "COGS", format: fmtMoney },
+              { key: "Total Expenses", label: "Total Expenses", format: fmtMoney },
             ]}
+            pinnedColumns={["Month"]}
+            pageSize={25}
           />
         </TabsContent>
 
         <TabsContent value="metrics">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
-              { key: "Active Users", label: "Active Users", format: fmtNum },
-              { key: "CAC", label: "CAC", format: fmtMoney },
+              { key: "Total Active Users", label: "Active Users", format: fmtNum },
+              { key: "Blended CAC", label: "CAC", format: fmtMoney },
               { key: "LTV", label: "LTV", format: fmtMoney },
               { key: "LTV/CAC", label: "LTV/CAC", format: (v) => `${Number(v ?? 0).toFixed(2)}x` },
               { key: "ARPU", label: "ARPU", format: fmtMoney },
               { key: "Gross Margin %", label: "Gross Margin", format: fmtPct },
               { key: "Cumulative ROAS", label: "ROAS", format: (v) => `${Number(v ?? 0).toFixed(1)}x` },
             ]}
+            pinnedColumns={["Month"]}
+            pageSize={25}
           />
+          <div className="mt-2 space-y-0.5">
+            <BenchmarkFootnote metricKey="LTV/CAC" />
+            <BenchmarkFootnote metricKey="Gross Margin %" />
+            <BenchmarkFootnote metricKey="ROAS" />
+          </div>
         </TabsContent>
 
         <TabsContent value="summary">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
               { key: "Product Phase", label: "Phase", format: fmtNum },
               { key: "Cash Balance", label: "Cash Balance", format: fmtMoney },
-              { key: "Cumulative Profit", label: "Cumulative Profit", format: fmtMoney },
+              { key: "Cumulative Net Profit", label: "Cum. Profit", format: fmtMoney },
               { key: "ROI %", label: "ROI", format: (v) => `${Number(v ?? 0).toFixed(0)}%` },
               { key: "Burn Rate", label: "Burn Rate", format: fmtMoney },
-              { key: "Runway (Months)", label: "Runway", format: (v) => v ? `${Number(v).toFixed(0)} mo` : "∞" },
+              { key: "Runway (Months)", label: "Runway", format: (v) => v ? `${Number(v).toFixed(0)} mo` : "\u221e" },
             ]}
+            pinnedColumns={["Month", "Product Phase"]}
+            pageSize={25}
           />
         </TabsContent>
       </Tabs>
@@ -182,7 +171,7 @@ export function EcommerceReports({ results, onExport }: ReportsProps) {
         </TabsList>
 
         <TabsContent value="pnl">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
@@ -190,27 +179,31 @@ export function EcommerceReports({ results, onExport }: ReportsProps) {
               { key: "Gross Revenue", label: "Gross Revenue", format: fmtMoney },
               { key: "Net Revenue", label: "Net Revenue", format: fmtMoney },
               { key: "COGS", label: "COGS", format: fmtMoney },
-              { key: "Total OpEx", label: "OpEx", format: fmtMoney },
+              { key: "EBITDA", label: "EBITDA", format: fmtMoney },
               { key: "Net Profit", label: "Net Profit", format: fmtMoney },
             ]}
+            pinnedColumns={["Month", "Product Phase"]}
+            pageSize={25}
           />
         </TabsContent>
 
         <TabsContent value="cashflow">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
               { key: "Cash Balance", label: "Cash Balance", format: fmtMoney },
-              { key: "Cumulative Profit", label: "Cum. Profit", format: fmtMoney },
+              { key: "Cumulative Net Profit", label: "Cum. Profit", format: fmtMoney },
               { key: "Burn Rate", label: "Burn Rate", format: fmtMoney },
-              { key: "Runway (Months)", label: "Runway", format: (v) => v ? `${Number(v).toFixed(0)} mo` : "∞" },
+              { key: "Runway (Months)", label: "Runway", format: (v) => v ? `${Number(v).toFixed(0)} mo` : "\u221e" },
             ]}
+            pinnedColumns={["Month"]}
+            pageSize={25}
           />
         </TabsContent>
 
         <TabsContent value="metrics">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
@@ -219,9 +212,15 @@ export function EcommerceReports({ results, onExport }: ReportsProps) {
               { key: "LTV", label: "LTV", format: fmtMoney },
               { key: "LTV/CAC", label: "LTV/CAC", format: (v) => `${Number(v ?? 0).toFixed(2)}x` },
               { key: "ROAS", label: "ROAS", format: (v) => `${Number(v ?? 0).toFixed(1)}x` },
-              { key: "Gross Margin %", label: "Gross Margin", format: fmtPct },
+              { key: "Gross Margin %", label: "Gross Margin", format: (v) => `${Number(v ?? 0).toFixed(1)}%` },
             ]}
+            pinnedColumns={["Month"]}
+            pageSize={25}
           />
+          <div className="mt-2 space-y-0.5">
+            <BenchmarkFootnote metricKey="LTV/CAC" />
+            <BenchmarkFootnote metricKey="ROAS" />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

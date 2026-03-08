@@ -12,6 +12,12 @@ CREATE TABLE public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     email TEXT NOT NULL,
     display_name TEXT DEFAULT '',
+    username TEXT DEFAULT '',
+    telegram TEXT DEFAULT '',
+    company_name TEXT DEFAULT '',
+    company_address TEXT DEFAULT '',
+    tax_id TEXT DEFAULT '',
+    bank_details TEXT DEFAULT '',
     stripe_customer_id TEXT DEFAULT NULL,
     plan TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'pro', 'enterprise')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -100,6 +106,12 @@ RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO public.profiles (id, email, display_name)
     VALUES (NEW.id, NEW.email, COALESCE(NEW.raw_user_meta_data->>'display_name', ''));
+
+    INSERT INTO public.projects (user_id, name, description, product_type) VALUES
+      (NEW.id, 'My Subscription App', 'Subscription model project', 'subscription'),
+      (NEW.id, 'My E-commerce Store', 'E-commerce model project', 'ecommerce'),
+      (NEW.id, 'My SaaS Platform', 'SaaS model project', 'saas');
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

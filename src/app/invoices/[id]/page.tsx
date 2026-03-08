@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { AppShell } from "@/components/layout/AppShell";
-import { useInvoices } from "@/hooks/useInvoices";
 import type { Invoice, InvoiceStatus, InvoiceItem } from "@/lib/types";
 
 const statusColors: Record<InvoiceStatus, { bg: string; text: string; label: string }> = {
@@ -18,7 +17,6 @@ export default function InvoiceDetailPage() {
   const params = useParams();
   const invoiceId = params.id as string;
   const [invoice, setInvoice] = useState<Invoice | null>(null);
-  const { updateInvoice } = useInvoices();
 
   useEffect(() => {
     const fetch = async () => {
@@ -28,16 +26,6 @@ export default function InvoiceDetailPage() {
     };
     fetch();
   }, [invoiceId]);
-
-  const handleStatusChange = async (newStatus: InvoiceStatus) => {
-    if (!invoice) return;
-    try {
-      await updateInvoice(invoice.id, { status: newStatus });
-      setInvoice({ ...invoice, status: newStatus });
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to update");
-    }
-  };
 
   const fmt = (n: number) => Number(n).toLocaleString("en-US", { style: "currency", currency: "USD" });
 
@@ -129,33 +117,6 @@ export default function InvoiceDetailPage() {
             </div>
           )}
 
-          {/* Status actions */}
-          <div className="flex gap-2 pt-4 border-t border-[#ECECF2]">
-            {invoice.status !== "paid" && (
-              <button
-                onClick={() => handleStatusChange("paid")}
-                className="h-9 px-4 bg-[#14A660] text-white text-sm font-bold rounded-lg hover:bg-[#0E8F4F] transition-colors"
-              >
-                Mark as Paid
-              </button>
-            )}
-            {invoice.status !== "scheduled" && (
-              <button
-                onClick={() => handleStatusChange("scheduled")}
-                className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
-              >
-                Mark as Scheduled
-              </button>
-            )}
-            {invoice.status !== "unpaid" && (
-              <button
-                onClick={() => handleStatusChange("unpaid")}
-                className="h-9 px-4 border border-[#ECECF2] text-[#1C1D21] text-sm font-bold rounded-lg hover:bg-[#F8F8FC] transition-colors"
-              >
-                Mark as Unpaid
-              </button>
-            )}
-          </div>
         </div>
       </div>
     </AppShell>

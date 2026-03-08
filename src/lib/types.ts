@@ -2,7 +2,7 @@
 
 export interface PhaseConfig {
   investment: number;
-  salaries_total: number;
+  monthly_salary: number;
   misc_total: number;
   ad_budget: number;
   cpi: number;
@@ -70,6 +70,7 @@ export interface EcomPhaseConfig {
   click_to_purchase: number;
   organic_pct: number;
   discount_rate: number;
+  monthly_salary: number;
 }
 
 export interface EcomConfig {
@@ -80,8 +81,6 @@ export interface EcomConfig {
   phase1: EcomPhaseConfig;
   phase2: EcomPhaseConfig;
   phase3: EcomPhaseConfig;
-  salaries_base: number;
-  salaries_growth: number;
   misc_costs: number;
   corporate_tax: number;
   sens_conv: number;
@@ -109,6 +108,7 @@ export interface SaasPhaseConfig {
   logo_churn_rate: number;
   cogs_per_seat: number;
   organic_leads_pct: number;
+  monthly_salary: number;
 }
 
 export interface SaasConfig {
@@ -119,8 +119,6 @@ export interface SaasConfig {
   phase1: SaasPhaseConfig;
   phase2: SaasPhaseConfig;
   phase3: SaasPhaseConfig;
-  salaries_base: number;
-  salaries_growth: number;
   misc_costs: number;
   corporate_tax: number;
   initial_customers: number;
@@ -161,6 +159,12 @@ export interface Profile {
   id: string;
   email: string;
   display_name: string;
+  username: string;
+  telegram: string;
+  company_name: string;
+  company_address: string;
+  tax_id: string;
+  bank_details: string;
   stripe_customer_id?: string;
   plan: "free" | "pro" | "enterprise";
   created_at: string;

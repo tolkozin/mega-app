@@ -6,13 +6,19 @@ import { Label } from "@/components/ui/label";
 import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
 import type { EcomPhaseConfig } from "@/lib/types";
 
+function InfoIcon({ tooltip }: { tooltip: string }) {
+  return (
+    <span title={tooltip} className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#ECECF2] text-[#8181A5] text-[9px] font-bold cursor-help ml-1">i</span>
+  );
+}
+
 function NumberField({ label, value, onChange, min, max, step, help }: {
   label: string; value: number; onChange: (v: number) => void;
   min?: number; max?: number; step?: number; help?: string;
 }) {
   return (
     <div className="space-y-1">
-      <Label className="text-xs">{label}</Label>
+      <Label className="text-xs">{label}{help && <InfoIcon tooltip={help} />}</Label>
       <Input
         type="number"
         value={value}
@@ -52,6 +58,7 @@ function EcomPhaseSection({ phase, phaseNum }: { phase: EcomPhaseConfig; phaseNu
       <NumberField label="Click-to-Purchase (%)" value={phase.click_to_purchase} onChange={(v) => update({ click_to_purchase: v })} min={0} max={100} step={0.5} />
       <NumberField label="Organic (%)" value={phase.organic_pct} onChange={(v) => update({ organic_pct: v })} min={0} max={100} step={1} />
       <NumberField label="Discount Rate (%)" value={phase.discount_rate} onChange={(v) => update({ discount_rate: v })} min={0} max={100} step={1} />
+      <NumberField label="Monthly Salary ($)" value={phase.monthly_salary} onChange={(v) => update({ monthly_salary: v })} min={0} step={500} />
     </Accordion>
   );
 }
@@ -75,8 +82,6 @@ export function EcomSidebar({ projectId }: { projectId: string | null }) {
       </Accordion>
 
       <Accordion title="OpEx">
-        <NumberField label="Base Salaries ($/mo)" value={config.salaries_base} onChange={(v) => setConfig({ salaries_base: v })} min={0} step={500} />
-        <NumberField label="Salary Growth (%/mo)" value={config.salaries_growth} onChange={(v) => setConfig({ salaries_growth: v })} min={0} step={0.5} />
         <NumberField label="Misc Costs ($/mo)" value={config.misc_costs} onChange={(v) => setConfig({ misc_costs: v })} min={0} step={100} />
         <NumberField label="Corporate Tax (%)" value={config.corporate_tax} onChange={(v) => setConfig({ corporate_tax: v })} min={0} max={100} step={0.5} />
       </Accordion>

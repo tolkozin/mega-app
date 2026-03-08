@@ -6,13 +6,19 @@ import { Label } from "@/components/ui/label";
 import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
 import type { SaasPhaseConfig } from "@/lib/types";
 
+function InfoIcon({ tooltip }: { tooltip: string }) {
+  return (
+    <span title={tooltip} className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#ECECF2] text-[#8181A5] text-[9px] font-bold cursor-help ml-1">i</span>
+  );
+}
+
 function NumberField({ label, value, onChange, min, max, step, help }: {
   label: string; value: number; onChange: (v: number) => void;
   min?: number; max?: number; step?: number; help?: string;
 }) {
   return (
     <div className="space-y-1">
-      <Label className="text-xs">{label}</Label>
+      <Label className="text-xs">{label}{help && <InfoIcon tooltip={help} />}</Label>
       <Input
         type="number"
         value={value}
@@ -56,6 +62,7 @@ function SaasPhaseSection({ phase, phaseNum }: { phase: SaasPhaseConfig; phaseNu
       <NumberField label="Logo Churn Rate (%/mo)" value={phase.logo_churn_rate} onChange={(v) => update({ logo_churn_rate: v })} min={0} max={50} step={0.5} />
       <NumberField label="COGS per Seat ($/mo)" value={phase.cogs_per_seat} onChange={(v) => update({ cogs_per_seat: v })} min={0} step={1} />
       <NumberField label="Organic Leads (%)" value={phase.organic_leads_pct} onChange={(v) => update({ organic_leads_pct: v })} min={0} max={100} step={1} />
+      <NumberField label="Monthly Salary ($)" value={phase.monthly_salary} onChange={(v) => update({ monthly_salary: v })} min={0} step={500} />
     </Accordion>
   );
 }
@@ -82,8 +89,6 @@ export function SaasSidebar({ projectId }: { projectId: string | null }) {
       </Accordion>
 
       <Accordion title="OpEx">
-        <NumberField label="Base Salaries ($/mo)" value={config.salaries_base} onChange={(v) => setConfig({ salaries_base: v })} min={0} step={500} />
-        <NumberField label="Salary Growth (%/mo)" value={config.salaries_growth} onChange={(v) => setConfig({ salaries_growth: v })} min={0} step={0.5} />
         <NumberField label="Misc Costs ($/mo)" value={config.misc_costs} onChange={(v) => setConfig({ misc_costs: v })} min={0} step={100} />
         <NumberField label="Corporate Tax (%)" value={config.corporate_tax} onChange={(v) => setConfig({ corporate_tax: v })} min={0} max={100} step={0.5} />
       </Accordion>

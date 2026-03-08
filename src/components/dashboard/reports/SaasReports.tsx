@@ -2,43 +2,13 @@
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { formatCurrency } from "@/lib/utils";
+import { AdvancedTable } from "@/components/ui/advanced-table";
+import { getBenchmarkLabel } from "@/lib/benchmarks";
 import type { RunResult } from "@/lib/api";
 
 interface ReportsProps {
   results: RunResult;
   onExport: () => void;
-}
-
-function DataTable({ data, columns }: {
-  data: Record<string, unknown>[];
-  columns: { key: string; label: string; format?: (v: unknown) => string }[];
-}) {
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs">
-        <thead>
-          <tr className="border-b">
-            {columns.map((col) => (
-              <th key={col.key} className="text-left p-2 font-medium text-muted-foreground whitespace-nowrap">
-                {col.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, i) => (
-            <tr key={i} className="border-b hover:bg-muted/50">
-              {columns.map((col) => (
-                <td key={col.key} className="p-2 whitespace-nowrap">
-                  {col.format ? col.format(row[col.key]) : String(row[col.key] ?? "\u2014")}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
 }
 
 const fmtMoney = (v: unknown) => {
@@ -61,6 +31,12 @@ const fmtRatio = (v: unknown) => {
   return isNaN(n) ? "\u2014" : n.toFixed(2);
 };
 
+function BenchmarkFootnote({ metricKey }: { metricKey: string }) {
+  const label = getBenchmarkLabel(metricKey);
+  if (!label) return null;
+  return <p className="text-[10px] text-[#8181A5] mt-1">Industry benchmark: {label}</p>;
+}
+
 export function SaasReports({ results, onExport }: ReportsProps) {
   const data = results.dataframe;
 
@@ -82,7 +58,7 @@ export function SaasReports({ results, onExport }: ReportsProps) {
         </TabsList>
 
         <TabsContent value="pnl">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
@@ -93,11 +69,13 @@ export function SaasReports({ results, onExport }: ReportsProps) {
               { key: "EBITDA", label: "EBITDA", format: fmtMoney },
               { key: "Net Profit", label: "Net Profit", format: fmtMoney },
             ]}
+            pinnedColumns={["Month", "Phase"]}
+            pageSize={25}
           />
         </TabsContent>
 
         <TabsContent value="mrr">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
@@ -109,11 +87,13 @@ export function SaasReports({ results, onExport }: ReportsProps) {
               { key: "Total MRR", label: "Total MRR", format: fmtMoney },
               { key: "ARR", label: "ARR", format: fmtMoney },
             ]}
+            pinnedColumns={["Month"]}
+            pageSize={25}
           />
         </TabsContent>
 
         <TabsContent value="pipeline">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
@@ -123,11 +103,13 @@ export function SaasReports({ results, onExport }: ReportsProps) {
               { key: "CAC", label: "CAC", format: fmtMoney },
               { key: "Organic %", label: "Organic %", format: fmtPct },
             ]}
+            pinnedColumns={["Month"]}
+            pageSize={25}
           />
         </TabsContent>
 
         <TabsContent value="saas">
-          <DataTable
+          <AdvancedTable
             data={data}
             columns={[
               { key: "Month", label: "Month", format: fmtNum },
@@ -138,7 +120,17 @@ export function SaasReports({ results, onExport }: ReportsProps) {
               { key: "Magic Number", label: "Magic Number", format: fmtRatio },
               { key: "LTV/CAC", label: "LTV/CAC", format: (v) => `${Number(v ?? 0).toFixed(2)}x` },
             ]}
+            pinnedColumns={["Month"]}
+            pageSize={25}
           />
+          <div className="mt-2 space-y-0.5">
+            <BenchmarkFootnote metricKey="NRR %" />
+            <BenchmarkFootnote metricKey="GRR %" />
+            <BenchmarkFootnote metricKey="Rule of 40" />
+            <BenchmarkFootnote metricKey="Quick Ratio" />
+            <BenchmarkFootnote metricKey="LTV/CAC" />
+            <BenchmarkFootnote metricKey="Magic Number" />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

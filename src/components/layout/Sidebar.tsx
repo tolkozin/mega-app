@@ -7,13 +7,19 @@ import { Select } from "@/components/ui/select";
 import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
 import type { PhaseConfig } from "@/lib/types";
 
+function InfoIcon({ tooltip }: { tooltip: string }) {
+  return (
+    <span title={tooltip} className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#ECECF2] text-[#8181A5] text-[9px] font-bold cursor-help ml-1">i</span>
+  );
+}
+
 function NumberField({ label, value, onChange, min, max, step, help }: {
   label: string; value: number; onChange: (v: number) => void;
   min?: number; max?: number; step?: number; help?: string;
 }) {
   return (
     <div className="space-y-1">
-      <Label className="text-xs">{label}</Label>
+      <Label className="text-xs">{label}{help && <InfoIcon tooltip={help} />}</Label>
       <Input
         type="number"
         value={value}
@@ -44,7 +50,7 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
   return (
     <Accordion title={`Phase ${phaseNum}`}>
       <NumberField label="Investment ($)" value={phase.investment} onChange={(v) => update({ investment: v })} min={0} step={1000} />
-      <NumberField label="Salaries ($/mo)" value={phase.salaries_total} onChange={(v) => update({ salaries_total: v })} min={0} step={100} />
+      <NumberField label="Monthly Salary ($)" value={phase.monthly_salary} onChange={(v) => update({ monthly_salary: v })} min={0} step={500} />
       <NumberField label="Misc Costs ($/mo)" value={phase.misc_total} onChange={(v) => update({ misc_total: v })} min={0} step={100} />
       <NumberField label="Ad Budget ($/mo)" value={phase.ad_budget} onChange={(v) => update({ ad_budget: v })} min={0} step={500} />
       <NumberField label="CPI ($)" value={phase.cpi} onChange={(v) => update({ cpi: v })} min={0.01} step={0.5} />
