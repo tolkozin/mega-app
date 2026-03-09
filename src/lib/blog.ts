@@ -41,6 +41,7 @@ function parseMdxFile(fileName: string): BlogPost | null {
     twitterHook: data.twitterHook,
     linkedinStub: data.linkedinStub,
     keyword: data.keyword,
+    canonicalUrl: data.canonicalUrl,
   };
 }
 

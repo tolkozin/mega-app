@@ -40,6 +40,14 @@ sitemapPriority: 0.8
 sitemapChangeFreq: "monthly"
 # "weekly" for actively updated guides, "monthly" for evergreen, "yearly" for reference
 
+# ── Canonical URL (critical for cross-posting) ──
+# canonicalUrl: "https://megaapp.io/blog/your-slug"
+# UNCOMMENT AND SET if you cross-post this article to Medium, Dev.to, Substack, or newsletters.
+# When set, Google treats THIS URL as the original source. All other copies should point here.
+# If not set, defaults to https://megaapp.io/blog/{slug} automatically.
+# IMPORTANT: Always publish on megaapp.io FIRST, wait for Google to index (1-3 days),
+# then cross-post with this canonical URL in the other platform's settings.
+
 # ── GEO fields (AI/voice assistant optimization) ──
 speakable: "A concise 1-2 sentence answer that an AI assistant would read aloud. Write this as if answering the user's question directly. This is the #1 most important field for GEO."
 # Example: "Monthly Recurring Revenue (MRR) is the predictable monthly income from all active subscriptions. Calculate it by multiplying active subscribers by average revenue per account."
@@ -97,10 +105,15 @@ faq:
   ║     LTV = ARPA / Monthly Churn Rate                        ║
   ║     ```                                                    ║
   ║                                                           ║
-  ║  7. KEY TAKEAWAYS at end: Bulleted summary.                ║
+  ║  7. CALCULATOR: Every article MUST include a                ║
+  ║     <MetricCalculator> for the metric being discussed.     ║
+  ║     Place it after the "How to calculate" section.         ║
+  ║     See example below in the template body.                ║
+  ║                                                           ║
+  ║  8. KEY TAKEAWAYS at end: Bulleted summary.                ║
   ║     AI assistants often cite these directly.               ║
   ║                                                           ║
-  ║  8. WORD COUNT: Aim for 1,500-2,500 words.                 ║
+  ║  9. WORD COUNT: Aim for 1,500-2,500 words.                 ║
   ║     Long enough for depth, short enough for focus.         ║
   ║                                                           ║
   ╚═══════════════════════════════════════════════════════════╝
@@ -143,6 +156,37 @@ Continue with clear, actionable instructions.
 ### Step 3: [Action]
 
 Wrap up the process.
+
+## Calculate Your [Metric]
+
+{/* ── CALCULATOR — REQUIRED IN EVERY ARTICLE ──
+    Replace the example below with the metric relevant to your article.
+    Props:
+      title       — calculator heading
+      description — one-line explanation
+      fields      — array of inputs: { name, label, defaultValue, prefix, suffix, min, max, step }
+      result      — { label, prefix, suffix }
+      formula     — JS function: (values) => number
+      color       — optional accent (default: #5E81F4)
+
+    EXAMPLES FOR COMMON METRICS:
+    - MRR:    fields=[subscribers, arpa] → formula: v => v.subscribers * v.arpa
+    - Churn:  fields=[lost, start] → formula: v => (v.lost / v.start) * 100
+    - LTV:    fields=[arpa, churnRate] → formula: v => v.arpa / (v.churnRate / 100)
+    - CAC:    fields=[marketingSpend, newCustomers] → formula: v => v.marketingSpend / v.newCustomers
+    - AOV:    fields=[revenue, orders] → formula: v => v.revenue / v.orders
+*/}
+
+<MetricCalculator
+  title="MRR Calculator"
+  description="Calculate your Monthly Recurring Revenue"
+  fields={[
+    { name: "subscribers", label: "Active Subscribers", defaultValue: 100, min: 0 },
+    { name: "arpa", label: "Avg Revenue Per Account", defaultValue: 49, prefix: "$", min: 0, step: 0.01 },
+  ]}
+  result={{ label: "Monthly Recurring Revenue (MRR)", prefix: "$" }}
+  formula={(v) => v.subscribers * v.arpa}
+/>
 
 ## [Comparison/Benchmark] Table
 

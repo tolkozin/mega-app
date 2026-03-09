@@ -29,6 +29,8 @@ export interface BlogPost {
   linkedinStub?: string;
   /* SEO — keyword targeting */
   keyword?: string;
+  /* SEO — canonical URL override (for cross-posted articles) */
+  canonicalUrl?: string;
 }
 
 export interface TOCItem {

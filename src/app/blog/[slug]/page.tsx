@@ -47,7 +47,7 @@ export async function generateMetadata({
       images: [`${SITE_URL}${post.image}`],
     },
     alternates: {
-      canonical: `${SITE_URL}/blog/${post.slug}`,
+      canonical: post.canonicalUrl ?? `${SITE_URL}/blog/${post.slug}`,
     },
   };
 }

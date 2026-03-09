@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { MDXComponents } from "mdx/types";
+import { MetricCalculator } from "./MetricCalculator";
 
 function CustomImage(props: React.ImgHTMLAttributes<HTMLImageElement>) {
   const { src, alt, width, height } = props;
@@ -66,4 +67,5 @@ export const mdxComponents: MDXComponents = {
   img: CustomImage as any,
   a: CustomLink as any,
   Callout,
+  MetricCalculator,
 };
