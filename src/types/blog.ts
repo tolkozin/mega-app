@@ -3,6 +3,7 @@ export interface BlogPost {
   title: string;
   description: string;
   date: string;
+  dateModified?: string;
   author: string;
   category: string;
   tags: string[];
@@ -18,6 +19,16 @@ export interface BlogPost {
     description: string;
     steps: { name: string; text: string }[];
   };
+  /* SEO — per-article sitemap hints */
+  sitemapPriority?: number;
+  sitemapChangeFreq?: "daily" | "weekly" | "monthly" | "yearly";
+  /* GEO — speakable excerpt for voice/AI assistants */
+  speakable?: string;
+  /* Distribution — ready-to-copy social snippets */
+  twitterHook?: string;
+  linkedinStub?: string;
+  /* SEO — keyword targeting */
+  keyword?: string;
 }
 
 export interface TOCItem {

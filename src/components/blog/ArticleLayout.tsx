@@ -79,10 +79,12 @@ export function ArticleLayout({ post }: { post: BlogPost }) {
           </span>
           <span>{post.readingTime}</span>
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+        <h1 data-speakable="headline" className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
           {post.title}
         </h1>
-        <p className="text-lg text-muted-foreground">{post.description}</p>
+        <p data-speakable="summary" className="text-lg text-muted-foreground">
+          {post.speakable ?? post.description}
+        </p>
         <p className="mt-3 text-sm text-muted-foreground">
           By {post.author}
         </p>

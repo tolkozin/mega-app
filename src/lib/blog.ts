@@ -34,6 +34,13 @@ function parseMdxFile(fileName: string): BlogPost | null {
     content,
     faq: data.faq,
     howTo: data.howTo,
+    dateModified: data.dateModified,
+    sitemapPriority: data.sitemapPriority,
+    sitemapChangeFreq: data.sitemapChangeFreq,
+    speakable: data.speakable,
+    twitterHook: data.twitterHook,
+    linkedinStub: data.linkedinStub,
+    keyword: data.keyword,
   };
 }
 

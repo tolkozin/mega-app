@@ -1,0 +1,166 @@
+---
+# ═══════════════════════════════════════════════════════════════
+# MEGA APP — BLOG ARTICLE TEMPLATE
+# ═══════════════════════════════════════════════════════════════
+# File name = URL slug. Example: my-article.mdx → /blog/my-article
+#
+# IMAGES: Put cover image at:
+#   public/blog/{slug}/cover.jpg  (1200×630px, OG-compatible)
+#   Additional images:
+#   public/blog/{slug}/screenshot-1.jpg
+#   Reference in MDX as: ![Alt text](/blog/{slug}/screenshot-1.jpg)
+# ═══════════════════════════════════════════════════════════════
+
+# ── Core fields (required) ──
+title: "Your Article Title — Include Primary Keyword"
+description: "2-3 sentence summary that answers the user's search query directly. This appears in Google snippets, OG cards, and is the default speakable text for AI assistants. Max 160 chars ideal."
+date: "2026-03-15"
+author: "Mega App Team"
+category: "saas-metrics"
+# Categories: saas-metrics | ecommerce | financial-modeling | fundraising | general
+tags:
+  - primary-keyword
+  - secondary-keyword
+  - related-topic
+image: "/blog/your-slug/cover.jpg"
+imageAlt: "Descriptive alt text with keyword — what does the image show?"
+featured: false
+draft: true
+
+# ── SEO fields ──
+keyword: "primary keyword phrase"
+# The exact keyword you're targeting. Used in structured data and for internal tracking.
+# Example: "saas financial modeling", "churn rate calculation"
+
+dateModified: "2026-03-15"
+# Update this whenever you edit the article. Google favors fresh content.
+
+sitemapPriority: 0.8
+# 0.9 = pillar/cornerstone content, 0.8 = standard article, 0.7 = supplementary
+sitemapChangeFreq: "monthly"
+# "weekly" for actively updated guides, "monthly" for evergreen, "yearly" for reference
+
+# ── GEO fields (AI/voice assistant optimization) ──
+speakable: "A concise 1-2 sentence answer that an AI assistant would read aloud. Write this as if answering the user's question directly. This is the #1 most important field for GEO."
+# Example: "Monthly Recurring Revenue (MRR) is the predictable monthly income from all active subscriptions. Calculate it by multiplying active subscribers by average revenue per account."
+
+# ── Distribution fields (optional — for social sharing) ──
+twitterHook: "Thread-opening hook for Twitter/X. Punchy, curiosity-driven. Example: 'Most founders get churn rate wrong. Here are 3 calculation methods and when to use each:'"
+linkedinStub: "LinkedIn post opening. More professional tone. Example: 'After analyzing 200+ SaaS financial models, here are the 5 metrics that actually predict success...'"
+
+# ── FAQ (strongly recommended — powers FAQ rich snippets in Google + AI answers) ──
+faq:
+  - question: "What is [topic]?"
+    answer: "Direct, concise answer. 1-3 sentences. This appears as a rich snippet in Google and is used by AI assistants to answer questions."
+  - question: "How do you calculate [metric]?"
+    answer: "Step-by-step formula or explanation. Include numbers where possible."
+  - question: "Why is [topic] important for [audience]?"
+    answer: "Explain the business impact. Connect to real outcomes."
+
+# ── HowTo (optional — powers HowTo rich snippets) ──
+# howTo:
+#   name: "How to Build a SaaS Financial Model"
+#   description: "Step-by-step guide to creating an investor-ready financial model."
+#   steps:
+#     - name: "Define assumptions"
+#       text: "Start with current MRR, customer count, ARPA, and churn rate."
+#     - name: "Build revenue projections"
+#       text: "Model each MRR component: new, expansion, and churned."
+#     - name: "Run scenarios"
+#       text: "Create base, optimistic, and pessimistic cases."
+---
+
+<!--
+  ╔═══════════════════════════════════════════════════════════╗
+  ║  WRITING GUIDELINES FOR SEO + GEO OPTIMIZATION          ║
+  ╠═══════════════════════════════════════════════════════════╣
+  ║                                                           ║
+  ║  1. FIRST PARAGRAPH: Answer the search query directly.    ║
+  ║     AI models extract the first 2-3 sentences as the      ║
+  ║     canonical answer. Don't bury the lede.                 ║
+  ║                                                           ║
+  ║  2. USE H2/H3 HEADINGS: Each H2 = potential featured      ║
+  ║     snippet. Phrase H2s as questions when possible.        ║
+  ║     "What Is MRR?" beats "MRR Overview"                   ║
+  ║                                                           ║
+  ║  3. INCLUDE DEFINITIONS: Start key sections with           ║
+  ║     "X is..." pattern. AI models love clear definitions.   ║
+  ║                                                           ║
+  ║  4. ADD TABLES: Google and AI models parse tables well.    ║
+  ║     Use for comparisons, formulas, benchmarks.             ║
+  ║                                                           ║
+  ║  5. INTERNAL LINKS: Link to other Mega App blog posts.     ║
+  ║     Use [anchor text](/blog/slug) format.                  ║
+  ║                                                           ║
+  ║  6. CODE BLOCKS for formulas:                              ║
+  ║     ```                                                    ║
+  ║     LTV = ARPA / Monthly Churn Rate                        ║
+  ║     ```                                                    ║
+  ║                                                           ║
+  ║  7. KEY TAKEAWAYS at end: Bulleted summary.                ║
+  ║     AI assistants often cite these directly.               ║
+  ║                                                           ║
+  ║  8. WORD COUNT: Aim for 1,500-2,500 words.                 ║
+  ║     Long enough for depth, short enough for focus.         ║
+  ║                                                           ║
+  ╚═══════════════════════════════════════════════════════════╝
+
+  DELETE THIS COMMENT BLOCK BEFORE PUBLISHING.
+-->
+
+Your opening paragraph goes here. **Answer the user's query in the first 2-3 sentences.** This is what AI assistants will extract and what Google may use as a featured snippet. Include your primary keyword naturally.
+
+Follow with 1-2 sentences of context about why this matters.
+
+## What Is [Topic]?
+
+Start with a clear definition. "[Topic] is..." pattern works best for both Google featured snippets and AI assistant answers.
+
+Expand with context, examples, or a brief analogy.
+
+## Why [Topic] Matters for [Audience]
+
+Connect the topic to business outcomes. Use specific numbers where possible.
+
+- **Point 1** — Explain with data
+- **Point 2** — Explain with data
+- **Point 3** — Explain with data
+
+## How to [Action] — Step by Step
+
+### Step 1: [Action]
+
+Explain the first step clearly. Include formulas if relevant:
+
+```
+Formula = Input A / Input B × 100
+```
+
+### Step 2: [Action]
+
+Continue with clear, actionable instructions.
+
+### Step 3: [Action]
+
+Wrap up the process.
+
+## [Comparison/Benchmark] Table
+
+| Metric | Good | Average | Poor |
+|--------|------|---------|------|
+| Example | >X% | X-Y% | <Y% |
+
+## Common Mistakes to Avoid
+
+1. **Mistake 1** — Why it's wrong and what to do instead
+2. **Mistake 2** — Why it's wrong and what to do instead
+3. **Mistake 3** — Why it's wrong and what to do instead
+
+## Key Takeaways
+
+1. First key insight — actionable and specific
+2. Second key insight — connects to the reader's goals
+3. Third key insight — mention Mega App naturally if relevant
+4. Fourth key insight — forward-looking or call to action
+
+A financial model is a living document. The companies that win are the ones that model rigorously and adapt quickly. [Try building your first model with Mega App](/auth/register) — it takes less than 5 minutes.

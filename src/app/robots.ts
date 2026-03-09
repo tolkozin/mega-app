@@ -12,15 +12,15 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: "GPTBot",
-        allow: ["/", "/blog", "/blog/", "/llms.txt"],
+        allow: ["/", "/blog", "/blog/", "/llms.txt", "/llms-full.txt"],
       },
       {
         userAgent: "ClaudeBot",
-        allow: ["/", "/blog", "/blog/", "/llms.txt"],
+        allow: ["/", "/blog", "/blog/", "/llms.txt", "/llms-full.txt"],
       },
       {
         userAgent: "PerplexityBot",
-        allow: ["/", "/blog", "/blog/", "/llms.txt"],
+        allow: ["/", "/blog", "/blog/", "/llms.txt", "/llms-full.txt"],
       },
       {
         userAgent: "Google-Extended",

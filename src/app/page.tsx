@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getAllPosts } from "@/lib/blog";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { LandingNavbar } from "@/components/layout/LandingNavbar";
+import { SoftwareApplicationJsonLd } from "@/components/blog/StructuredData";
 
 /* ─── Data ─── */
 
@@ -289,6 +290,7 @@ export default function LandingPage() {
 
   return (
     <>
+      <SoftwareApplicationJsonLd />
       <LandingNavbar />
 
       {/* ── Section 1: Hero ── */}
