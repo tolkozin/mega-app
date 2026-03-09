@@ -20,8 +20,12 @@ export function ScenarioPanel({ projectId, modelType }: ScenarioPanelProps) {
   const loadSub = useConfigStore((s) => s.loadSubscriptionConfig);
   const loadEcom = useConfigStore((s) => s.loadEcommerceConfig);
   const loadSaas = useConfigStore((s) => s.loadSaasConfig);
+  const resetSub = useConfigStore((s) => s.resetSubscription);
+  const resetEcom = useConfigStore((s) => s.resetEcommerce);
+  const resetSaas = useConfigStore((s) => s.resetSaas);
 
   const [showSave, setShowSave] = useState(false);
+  const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
@@ -46,7 +50,7 @@ export function ScenarioPanel({ projectId, modelType }: ScenarioPanelProps) {
     }
   };
 
-  const handleLoad = (config: unknown) => {
+  const handleLoad = (id: string, config: unknown) => {
     const cfg = config as Record<string, unknown>;
     if (modelType === "saas" || cfg.product_type === "saas") {
       loadSaas(cfg as unknown as SaasConfig);
@@ -55,6 +59,14 @@ export function ScenarioPanel({ projectId, modelType }: ScenarioPanelProps) {
     } else {
       loadSub(cfg as unknown as ModelConfig);
     }
+    setActiveScenarioId(id);
+  };
+
+  const handleNew = () => {
+    if (modelType === "subscription") resetSub();
+    else if (modelType === "ecommerce") resetEcom();
+    else resetSaas();
+    setActiveScenarioId(null);
   };
 
   const handleDelete = async (id: string, scenarioName: string) => {
@@ -78,14 +90,24 @@ export function ScenarioPanel({ projectId, modelType }: ScenarioPanelProps) {
     <div className="border-t">
       <div className="p-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold">Scenarios</h3>
-        <Button
-          size="sm"
-          variant={showSave ? "outline" : "default"}
-          onClick={() => setShowSave(!showSave)}
-          className="h-7 text-xs"
-        >
-          {showSave ? "Cancel" : "Save Current"}
-        </Button>
+        <div className="flex gap-1">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleNew}
+            className="h-7 text-xs"
+          >
+            New
+          </Button>
+          <Button
+            size="sm"
+            variant={showSave ? "outline" : "default"}
+            onClick={() => setShowSave(!showSave)}
+            className="h-7 text-xs"
+          >
+            {showSave ? "Cancel" : "Save"}
+          </Button>
+        </div>
       </div>
 
       {showSave && (
@@ -119,35 +141,38 @@ export function ScenarioPanel({ projectId, modelType }: ScenarioPanelProps) {
         ) : scenarios.length === 0 ? (
           <p className="text-xs text-muted-foreground">No saved scenarios</p>
         ) : (
-          scenarios.map((s) => (
-            <div
-              key={s.id}
-              className="flex items-center justify-between border rounded-md p-2 text-xs hover:bg-muted/50"
-            >
-              <div className="flex-1 min-w-0 mr-2">
-                <p className="font-medium truncate">{s.name}</p>
-                {s.notes && <p className="text-muted-foreground truncate">{s.notes}</p>}
+          scenarios.map((s) => {
+            const isActive = activeScenarioId === s.id;
+            return (
+              <div
+                key={s.id}
+                className={`flex items-center justify-between border rounded-md p-2 text-xs hover:bg-muted/50 ${isActive ? "border-[#5E81F4] bg-[#F4F6FF]" : ""}`}
+              >
+                <div className="flex-1 min-w-0 mr-2">
+                  <p className="font-medium truncate">{s.name}{isActive && <span className="text-[#5E81F4] ml-1">(active)</span>}</p>
+                  {s.notes && <p className="text-muted-foreground truncate">{s.notes}</p>}
+                </div>
+                <div className="flex gap-1 flex-shrink-0">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleLoad(s.id, s.config)}
+                    className="h-6 px-2 text-xs"
+                  >
+                    Load
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDelete(s.id, s.name)}
+                    className="h-6 px-2 text-xs text-destructive hover:text-destructive"
+                  >
+                    Del
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-1 flex-shrink-0">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleLoad(s.config)}
-                  className="h-6 px-2 text-xs"
-                >
-                  Load
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleDelete(s.id, s.name)}
-                  className="h-6 px-2 text-xs text-destructive hover:text-destructive"
-                >
-                  Del
-                </Button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

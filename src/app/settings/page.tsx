@@ -650,14 +650,10 @@ function DeleteAccountTab({ profile }: { profile: Profile }) {
     setError("");
     setDeleting(true);
     try {
-      // Delete the profile row — cascade will clean up projects/scenarios/shares
-      const { error: profileErr } = await supabase
-        .from("profiles")
-        .delete()
-        .eq("id", profile.id);
-      if (profileErr) throw profileErr;
+      const res = await fetch("/api/account/delete", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete account");
 
-      // Sign out and delete the auth user
       await supabase.auth.signOut();
       router.push("/auth/login");
     } catch (e) {
