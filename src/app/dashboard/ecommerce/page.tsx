@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useCurrentProject } from "@/hooks/useCurrentProject";
@@ -9,11 +9,15 @@ import { EcomSidebar } from "@/components/layout/EcomSidebar";
 import { EcommerceCharts } from "@/components/dashboard/charts/EcommerceCharts";
 import { Milestones, EcomKeyMetrics } from "@/components/dashboard/executive/KPICards";
 import { EcommerceReports } from "@/components/dashboard/reports/FinancialReports";
+import { EcommerceInvestorReport } from "@/components/dashboard/investor/EcommerceInvestorReport";
+import { exportToPDF } from "@/lib/pdf-export";
 import { exportCSV } from "@/lib/api";
 
 export default function EcommerceDashboardPage() {
   const config = useConfigStore((s) => s.ecommerceConfig);
-  const { results, loading, error, debouncedRun } = useDashboard("ecommerce");
+  const { results, loading, error, debouncedRun, monthRange, setMonthRange, totalMonths } = useDashboard("ecommerce");
+  const reportRef = useRef<HTMLDivElement>(null);
+  const [showInvestorReport, setShowInvestorReport] = useState(false);
   const { project } = useCurrentProject("ecommerce");
 
   const buildScenarioParams = useCallback(() => {
@@ -64,7 +68,7 @@ export default function EcommerceDashboardPage() {
   const p2End = config.phase1_dur + config.phase2_dur;
 
   return (
-    <AppShell title="E-commerce Dashboard">
+    <AppShell title="E-commerce Dashboard" monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
       <div className="flex h-[calc(100vh-3.5rem)]">
         <EcomSidebar projectId={project?.id ?? null} />
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -84,6 +88,32 @@ export default function EcommerceDashboardPage() {
               <EcomKeyMetrics results={results.base} milestones={results.base.milestones} />
               <EcommerceCharts results={results} p1End={p1End} p2End={p2End} />
               <EcommerceReports results={results.base} onExport={handleExport} />
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  onClick={() => setShowInvestorReport((v) => !v)}
+                  className="text-sm px-4 py-2 bg-[#5E81F4] text-white rounded-md hover:bg-[#4B6FE0]"
+                >
+                  {showInvestorReport ? "Hide Investor Report" : "Investor Report"}
+                </button>
+                {showInvestorReport && (
+                  <button
+                    onClick={() => exportToPDF(reportRef, `${project?.name ?? "ecommerce"}_investor_report.pdf`)}
+                    className="text-sm px-4 py-2 border rounded-md hover:bg-muted"
+                  >
+                    Download PDF
+                  </button>
+                )}
+              </div>
+
+              {showInvestorReport && (
+                <div ref={reportRef}>
+                  <EcommerceInvestorReport
+                    projectName={project?.name ?? "E-commerce Model"}
+                    data={results.base}
+                  />
+                </div>
+              )}
             </>
           )}
 

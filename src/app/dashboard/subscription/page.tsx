@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useCurrentProject } from "@/hooks/useCurrentProject";
@@ -9,11 +9,15 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { SubscriptionCharts } from "@/components/dashboard/charts/SubscriptionCharts";
 import { Milestones, KeyMetrics } from "@/components/dashboard/executive/KPICards";
 import { SubscriptionReports } from "@/components/dashboard/reports/FinancialReports";
+import { SubscriptionInvestorReport } from "@/components/dashboard/investor/SubscriptionInvestorReport";
+import { exportToPDF } from "@/lib/pdf-export";
 import { exportCSV } from "@/lib/api";
 
 export default function SubscriptionDashboardPage() {
   const config = useConfigStore((s) => s.subscriptionConfig);
-  const { results, loading, error, debouncedRun } = useDashboard("subscription");
+  const { results, loading, error, debouncedRun, monthRange, setMonthRange, totalMonths } = useDashboard("subscription");
+  const reportRef = useRef<HTMLDivElement>(null);
+  const [showInvestorReport, setShowInvestorReport] = useState(false);
   const { project } = useCurrentProject("subscription");
 
   const buildScenarioParams = useCallback(() => {
@@ -64,7 +68,7 @@ export default function SubscriptionDashboardPage() {
   const p2End = config.phase1_dur + config.phase2_dur;
 
   return (
-    <AppShell title="Subscription Dashboard">
+    <AppShell title="Subscription Dashboard" monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
       <div className="flex h-[calc(100vh-3.5rem)]">
         <Sidebar projectId={project?.id ?? null} />
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -86,6 +90,32 @@ export default function SubscriptionDashboardPage() {
               <KeyMetrics results={results.base} milestones={results.base.milestones} />
               <SubscriptionCharts results={results} p1End={p1End} p2End={p2End} />
               <SubscriptionReports results={results.base} onExport={handleExport} />
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  onClick={() => setShowInvestorReport((v) => !v)}
+                  className="text-sm px-4 py-2 bg-[#5E81F4] text-white rounded-md hover:bg-[#4B6FE0]"
+                >
+                  {showInvestorReport ? "Hide Investor Report" : "Investor Report"}
+                </button>
+                {showInvestorReport && (
+                  <button
+                    onClick={() => exportToPDF(reportRef, `${project?.name ?? "subscription"}_investor_report.pdf`)}
+                    className="text-sm px-4 py-2 border rounded-md hover:bg-muted"
+                  >
+                    Download PDF
+                  </button>
+                )}
+              </div>
+
+              {showInvestorReport && (
+                <div ref={reportRef}>
+                  <SubscriptionInvestorReport
+                    projectName={project?.name ?? "Subscription Model"}
+                    data={results.base}
+                  />
+                </div>
+              )}
             </>
           )}
 

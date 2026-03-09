@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useCurrentProject } from "@/hooks/useCurrentProject";
@@ -9,11 +9,15 @@ import { SaasSidebar } from "@/components/layout/SaasSidebar";
 import { SaasCharts } from "@/components/dashboard/charts/SaasCharts";
 import { SaasMilestones, SaasKeyMetrics } from "@/components/dashboard/executive/SaasKPICards";
 import { SaasReports } from "@/components/dashboard/reports/SaasReports";
+import { SaasInvestorReport } from "@/components/dashboard/investor/SaasInvestorReport";
+import { exportToPDF } from "@/lib/pdf-export";
 import { exportCSV } from "@/lib/api";
 
 export default function SaasDashboardPage() {
   const config = useConfigStore((s) => s.saasConfig);
-  const { results, loading, error, debouncedRun } = useDashboard("saas");
+  const { results, loading, error, debouncedRun, monthRange, setMonthRange, totalMonths } = useDashboard("saas");
+  const reportRef = useRef<HTMLDivElement>(null);
+  const [showInvestorReport, setShowInvestorReport] = useState(false);
   const { project } = useCurrentProject("saas");
 
   const buildScenarioParams = useCallback(() => {
@@ -64,7 +68,7 @@ export default function SaasDashboardPage() {
   const p2End = config.phase1_dur + config.phase2_dur;
 
   return (
-    <AppShell title="SaaS Dashboard">
+    <AppShell title="SaaS Dashboard" monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
       <div className="flex h-[calc(100vh-3.5rem)]">
         <SaasSidebar projectId={project?.id ?? null} />
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -84,6 +88,32 @@ export default function SaasDashboardPage() {
               <SaasKeyMetrics results={results.base} milestones={results.base.milestones} />
               <SaasCharts results={results} p1End={p1End} p2End={p2End} />
               <SaasReports results={results.base} onExport={handleExport} />
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  onClick={() => setShowInvestorReport((v) => !v)}
+                  className="text-sm px-4 py-2 bg-[#5E81F4] text-white rounded-md hover:bg-[#4B6FE0]"
+                >
+                  {showInvestorReport ? "Hide Investor Report" : "Investor Report"}
+                </button>
+                {showInvestorReport && (
+                  <button
+                    onClick={() => exportToPDF(reportRef, `${project?.name ?? "saas"}_investor_report.pdf`)}
+                    className="text-sm px-4 py-2 border rounded-md hover:bg-muted"
+                  >
+                    Download PDF
+                  </button>
+                )}
+              </div>
+
+              {showInvestorReport && (
+                <div ref={reportRef}>
+                  <SaasInvestorReport
+                    projectName={project?.name ?? "SaaS Model"}
+                    data={results.base}
+                  />
+                </div>
+              )}
             </>
           )}
 
