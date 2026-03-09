@@ -86,12 +86,7 @@ export default function SubscriptionDashboardPage() {
 
           {results && (
             <>
-              <Milestones milestones={results.base.milestones} />
-              <KeyMetrics results={results.base} milestones={results.base.milestones} />
-              <SubscriptionCharts results={results} p1End={p1End} p2End={p2End} />
-              <SubscriptionReports results={results.base} onExport={handleExport} />
-
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowInvestorReport((v) => !v)}
                   className="text-sm px-4 py-2 bg-[#5E81F4] text-white rounded-md hover:bg-[#4B6FE0]"
@@ -116,6 +111,11 @@ export default function SubscriptionDashboardPage() {
                   />
                 </div>
               )}
+
+              <Milestones milestones={results.base.milestones} />
+              <KeyMetrics results={results.base} milestones={results.base.milestones} />
+              <SubscriptionCharts results={results} p1End={p1End} p2End={p2End} />
+              <SubscriptionReports results={results.base} onExport={handleExport} />
             </>
           )}
 

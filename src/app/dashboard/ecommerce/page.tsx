@@ -84,12 +84,7 @@ export default function EcommerceDashboardPage() {
 
           {results && (
             <>
-              <Milestones milestones={results.base.milestones} />
-              <EcomKeyMetrics results={results.base} milestones={results.base.milestones} />
-              <EcommerceCharts results={results} p1End={p1End} p2End={p2End} />
-              <EcommerceReports results={results.base} onExport={handleExport} />
-
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowInvestorReport((v) => !v)}
                   className="text-sm px-4 py-2 bg-[#5E81F4] text-white rounded-md hover:bg-[#4B6FE0]"
@@ -114,6 +109,11 @@ export default function EcommerceDashboardPage() {
                   />
                 </div>
               )}
+
+              <Milestones milestones={results.base.milestones} />
+              <EcomKeyMetrics results={results.base} milestones={results.base.milestones} />
+              <EcommerceCharts results={results} p1End={p1End} p2End={p2End} />
+              <EcommerceReports results={results.base} onExport={handleExport} />
             </>
           )}
 

@@ -30,7 +30,12 @@ export function AppHeader({ title, monthRange, onMonthRangeChange, totalMonths }
   const activeCategory = categories.find((c) => pathname?.startsWith(c.href))?.key;
 
   const monthOptions = totalMonths
-    ? Array.from({ length: totalMonths }, (_, i) => i + 1)
+    ? Array.from({ length: totalMonths }, (_, i) => {
+        const m = i + 1;
+        const yr = Math.ceil(m / 12);
+        const mo = ((m - 1) % 12) + 1;
+        return { value: m, label: `M${m} (Y${yr})` };
+      })
     : [];
 
   return (
@@ -68,7 +73,7 @@ export function AppHeader({ title, monthRange, onMonthRangeChange, totalMonths }
               className="h-8 px-2 text-xs rounded-md border border-[#ECECF2] bg-white text-[#1C1D21] focus:outline-none focus:border-[#5E81F4]"
             >
               {monthOptions.map((m) => (
-                <option key={m} value={m}>M{m}</option>
+                <option key={m.value} value={m.value}>{m.label}</option>
               ))}
             </select>
             <span className="text-xs text-[#8181A5]">to</span>
@@ -82,7 +87,7 @@ export function AppHeader({ title, monthRange, onMonthRangeChange, totalMonths }
               className="h-8 px-2 text-xs rounded-md border border-[#ECECF2] bg-white text-[#1C1D21] focus:outline-none focus:border-[#5E81F4]"
             >
               {monthOptions.map((m) => (
-                <option key={m} value={m}>M{m}</option>
+                <option key={m.value} value={m.value}>{m.label}</option>
               ))}
             </select>
             {monthRange && (

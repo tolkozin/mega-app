@@ -3,7 +3,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { formatCurrency } from "@/lib/utils";
 import { AdvancedTable } from "@/components/ui/advanced-table";
-import { getBenchmarkLabel } from "@/lib/benchmarks";
+import { getBenchmarkLabel, benchmarks } from "@/lib/benchmarks";
 import type { RunResult } from "@/lib/api";
 
 interface ReportsProps {
@@ -31,10 +31,49 @@ const fmtRatio = (v: unknown) => {
   return isNaN(n) ? "\u2014" : n.toFixed(2);
 };
 
-function BenchmarkFootnote({ metricKey }: { metricKey: string }) {
-  const label = getBenchmarkLabel(metricKey);
-  if (!label) return null;
-  return <p className="text-[10px] text-[#8181A5] mt-1">Industry benchmark: {label}</p>;
+const fmtMonth = (v: unknown) => {
+  const n = Number(v);
+  if (isNaN(n)) return "\u2014";
+  const yr = Math.ceil(n / 12);
+  const mo = ((n - 1) % 12) + 1;
+  return `M${n} (Y${yr}·${mo.toString().padStart(2, "0")})`;
+};
+
+function BenchmarkLegend({ metrics }: { metrics: string[] }) {
+  const items = metrics
+    .map((key) => {
+      const b = benchmarks[key];
+      if (!b) return null;
+      const label = getBenchmarkLabel(key);
+      if (!label) return null;
+      return { key, label, b };
+    })
+    .filter(Boolean) as { key: string; label: string; b: typeof benchmarks[string] }[];
+
+  if (!items.length) return null;
+
+  return (
+    <div className="mt-3 p-3 rounded-lg bg-[#F8F8FC] border border-[#ECECF2] space-y-1.5">
+      <p className="text-[11px] font-semibold text-[#1C1D21] mb-1">Benchmark Color Guide</p>
+      {items.map(({ key, b }) => (
+        <div key={key} className="flex items-center gap-2 text-[10px] text-[#8181A5]">
+          <span className="font-medium text-[#1C1D21] min-w-[80px]">{key}</span>
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#22C55E] inline-block" />
+            {b.direction === "higher_better" ? `>${b.good}` : `<${b.good}`}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#EAB308] inline-block" />
+            {b.direction === "higher_better" ? `>${b.warning}` : `<${b.warning}`}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#EF4444] inline-block" />
+            {b.direction === "higher_better" ? `<${b.warning}` : `>${b.warning}`}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function SaasReports({ results, onExport }: ReportsProps) {
@@ -61,7 +100,7 @@ export function SaasReports({ results, onExport }: ReportsProps) {
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "Phase", label: "Phase", format: fmtNum },
               { key: "Gross Revenue", label: "Revenue", format: fmtMoney },
               { key: "COGS", label: "COGS", format: fmtMoney },
@@ -78,7 +117,7 @@ export function SaasReports({ results, onExport }: ReportsProps) {
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "New MRR", label: "New MRR", format: fmtMoney },
               { key: "Expansion MRR", label: "Expansion", format: fmtMoney },
               { key: "Contraction MRR", label: "Contraction", format: fmtMoney },
@@ -96,7 +135,7 @@ export function SaasReports({ results, onExport }: ReportsProps) {
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "Total Leads", label: "Leads", format: fmtNum },
               { key: "Demos", label: "Demos", format: fmtNum },
               { key: "New Deals", label: "Deals", format: fmtNum },
@@ -112,7 +151,7 @@ export function SaasReports({ results, onExport }: ReportsProps) {
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "NRR %", label: "NRR %", format: fmtPct },
               { key: "GRR %", label: "GRR %", format: fmtPct },
               { key: "Quick Ratio", label: "Quick Ratio", format: fmtRatio },
@@ -123,14 +162,7 @@ export function SaasReports({ results, onExport }: ReportsProps) {
             pinnedColumns={["Month"]}
             pageSize={25}
           />
-          <div className="mt-2 space-y-0.5">
-            <BenchmarkFootnote metricKey="NRR %" />
-            <BenchmarkFootnote metricKey="GRR %" />
-            <BenchmarkFootnote metricKey="Rule of 40" />
-            <BenchmarkFootnote metricKey="Quick Ratio" />
-            <BenchmarkFootnote metricKey="LTV/CAC" />
-            <BenchmarkFootnote metricKey="Magic Number" />
-          </div>
+          <BenchmarkLegend metrics={["NRR %", "GRR %", "Rule of 40", "Quick Ratio", "LTV/CAC", "Magic Number"]} />
         </TabsContent>
       </Tabs>
     </div>

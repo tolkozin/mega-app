@@ -3,7 +3,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { formatCurrency } from "@/lib/utils";
 import { AdvancedTable } from "@/components/ui/advanced-table";
-import { getBenchmarkLabel } from "@/lib/benchmarks";
+import { getBenchmarkLabel, benchmarks } from "@/lib/benchmarks";
 import type { RunResult } from "@/lib/api";
 
 interface ReportsProps {
@@ -26,10 +26,49 @@ const fmtNum = (v: unknown) => {
   return isNaN(n) ? "\u2014" : n.toFixed(0);
 };
 
-function BenchmarkFootnote({ metricKey }: { metricKey: string }) {
-  const label = getBenchmarkLabel(metricKey);
-  if (!label) return null;
-  return <p className="text-[10px] text-[#8181A5] mt-1">Industry benchmark: {label}</p>;
+const fmtMonth = (v: unknown) => {
+  const n = Number(v);
+  if (isNaN(n)) return "\u2014";
+  const yr = Math.ceil(n / 12);
+  const mo = ((n - 1) % 12) + 1;
+  return `M${n} (Y${yr}·${mo.toString().padStart(2, "0")})`;
+};
+
+function BenchmarkLegend({ metrics }: { metrics: string[] }) {
+  const items = metrics
+    .map((key) => {
+      const b = benchmarks[key];
+      if (!b) return null;
+      const label = getBenchmarkLabel(key);
+      if (!label) return null;
+      return { key, label, b };
+    })
+    .filter(Boolean) as { key: string; label: string; b: typeof benchmarks[string] }[];
+
+  if (!items.length) return null;
+
+  return (
+    <div className="mt-3 p-3 rounded-lg bg-[#F8F8FC] border border-[#ECECF2] space-y-1.5">
+      <p className="text-[11px] font-semibold text-[#1C1D21] mb-1">Benchmark Color Guide</p>
+      {items.map(({ key, b }) => (
+        <div key={key} className="flex items-center gap-2 text-[10px] text-[#8181A5]">
+          <span className="font-medium text-[#1C1D21] min-w-[80px]">{key}</span>
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#22C55E] inline-block" />
+            {b.direction === "higher_better" ? `>${b.good}` : `<${b.good}`}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#EAB308] inline-block" />
+            {b.direction === "higher_better" ? `>${b.warning}` : `<${b.warning}`}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#EF4444] inline-block" />
+            {b.direction === "higher_better" ? `<${b.warning}` : `>${b.warning}`}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function SubscriptionReports({ results, onExport }: ReportsProps) {
@@ -60,7 +99,7 @@ export function SubscriptionReports({ results, onExport }: ReportsProps) {
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "Product Phase", label: "Phase", format: fmtNum },
               { key: "Total Gross Revenue", label: "Gross Revenue", format: fmtMoney },
               { key: "Net Revenue", label: "Net Revenue", format: fmtMoney },
@@ -77,7 +116,7 @@ export function SubscriptionReports({ results, onExport }: ReportsProps) {
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "MRR Weekly", label: "MRR Weekly", format: fmtMoney },
               { key: "MRR Monthly", label: "MRR Monthly", format: fmtMoney },
               { key: "MRR Annual", label: "MRR Annual", format: fmtMoney },
@@ -94,7 +133,7 @@ export function SubscriptionReports({ results, onExport }: ReportsProps) {
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "Ad Budget", label: "Ad Spend", format: fmtMoney },
               { key: "Organic Spend", label: "Organic Spend", format: fmtMoney },
               { key: "Salaries", label: "Salaries", format: fmtMoney },
@@ -111,7 +150,7 @@ export function SubscriptionReports({ results, onExport }: ReportsProps) {
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "Total Active Users", label: "Active Users", format: fmtNum },
               { key: "Blended CAC", label: "CAC", format: fmtMoney },
               { key: "LTV", label: "LTV", format: fmtMoney },
@@ -123,18 +162,14 @@ export function SubscriptionReports({ results, onExport }: ReportsProps) {
             pinnedColumns={["Month"]}
             pageSize={25}
           />
-          <div className="mt-2 space-y-0.5">
-            <BenchmarkFootnote metricKey="LTV/CAC" />
-            <BenchmarkFootnote metricKey="Gross Margin %" />
-            <BenchmarkFootnote metricKey="ROAS" />
-          </div>
+          <BenchmarkLegend metrics={["LTV/CAC", "Gross Margin %", "Cumulative ROAS"]} />
         </TabsContent>
 
         <TabsContent value="summary">
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "Product Phase", label: "Phase", format: fmtNum },
               { key: "Cash Balance", label: "Cash Balance", format: fmtMoney },
               { key: "Cumulative Net Profit", label: "Cum. Profit", format: fmtMoney },
@@ -174,7 +209,7 @@ export function EcommerceReports({ results, onExport }: ReportsProps) {
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "Product Phase", label: "Phase", format: fmtNum },
               { key: "Gross Revenue", label: "Gross Revenue", format: fmtMoney },
               { key: "Net Revenue", label: "Net Revenue", format: fmtMoney },
@@ -191,7 +226,7 @@ export function EcommerceReports({ results, onExport }: ReportsProps) {
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "Cash Balance", label: "Cash Balance", format: fmtMoney },
               { key: "Cumulative Net Profit", label: "Cum. Profit", format: fmtMoney },
               { key: "Burn Rate", label: "Burn Rate", format: fmtMoney },
@@ -206,7 +241,7 @@ export function EcommerceReports({ results, onExport }: ReportsProps) {
           <AdvancedTable
             data={data}
             columns={[
-              { key: "Month", label: "Month", format: fmtNum },
+              { key: "Month", label: "Month", format: fmtMonth },
               { key: "Total Orders", label: "Orders", format: fmtNum },
               { key: "CAC", label: "CAC", format: fmtMoney },
               { key: "LTV", label: "LTV", format: fmtMoney },
@@ -217,10 +252,7 @@ export function EcommerceReports({ results, onExport }: ReportsProps) {
             pinnedColumns={["Month"]}
             pageSize={25}
           />
-          <div className="mt-2 space-y-0.5">
-            <BenchmarkFootnote metricKey="LTV/CAC" />
-            <BenchmarkFootnote metricKey="ROAS" />
-          </div>
+          <BenchmarkLegend metrics={["LTV/CAC", "ROAS", "Gross Margin %"]} />
         </TabsContent>
       </Tabs>
     </div>
