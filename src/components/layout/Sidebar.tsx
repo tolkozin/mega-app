@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,8 +9,21 @@ import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
 import type { PhaseConfig } from "@/lib/types";
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
+  const [hover, setHover] = useState(false);
   return (
-    <span title={tooltip} className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#ECECF2] text-[#8181A5] text-[9px] font-bold cursor-help ml-1">?</span>
+    <span
+      className="relative inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#ECECF2] text-[#8181A5] text-[9px] font-bold cursor-help ml-1"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      ?
+      {hover && (
+        <span className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-[#1C1D21] text-white text-[10px] leading-relaxed rounded-lg shadow-lg w-[200px] whitespace-normal pointer-events-none">
+          {tooltip}
+          <span className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#1C1D21]" />
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -26,7 +40,6 @@ function NumberField({ label, value, onChange, min, max, step, help }: {
         onChange={(e) => onChange(Number(e.target.value))}
         min={min} max={max} step={step || 1}
         className="h-8 text-sm"
-        title={help}
       />
     </div>
   );
