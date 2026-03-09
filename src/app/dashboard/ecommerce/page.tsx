@@ -18,7 +18,7 @@ export default function EcommerceDashboardPage() {
   const { results, loading, error, debouncedRun, monthRange, setMonthRange, totalMonths } = useDashboard("ecommerce");
   const reportRef = useRef<HTMLDivElement>(null);
   const [showInvestorReport, setShowInvestorReport] = useState(false);
-  const { project } = useCurrentProject("ecommerce");
+  const { project, setProjectId } = useCurrentProject("ecommerce");
 
   const buildScenarioParams = useCallback(() => {
     const base = {
@@ -70,7 +70,7 @@ export default function EcommerceDashboardPage() {
   return (
     <AppShell title="E-commerce Dashboard" monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
       <div className="flex h-[calc(100vh-3.5rem)]">
-        <EcomSidebar projectId={project?.id ?? null} />
+        <EcomSidebar projectId={project?.id ?? null} onProjectCreated={setProjectId} />
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {loading && !results && (
             <div className="flex items-center justify-center py-20">

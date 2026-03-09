@@ -122,7 +122,7 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
   );
 }
 
-export function Sidebar({ projectId }: { projectId: string | null }) {
+export function Sidebar({ projectId, onProjectCreated }: { projectId: string | null; onProjectCreated?: (id: string) => void }) {
   const config = useConfigStore((s) => s.subscriptionConfig);
   const setConfig = useConfigStore((s) => s.setSubscriptionConfig);
 
@@ -132,7 +132,7 @@ export function Sidebar({ projectId }: { projectId: string | null }) {
         <h2 className="font-semibold text-sm">Subscription Model Config</h2>
       </div>
 
-      <ScenarioPanel projectId={projectId} modelType="subscription" />
+      <ScenarioPanel projectId={projectId} modelType="subscription" onProjectCreated={onProjectCreated} />
 
       <Accordion title="General" defaultOpen>
         <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} help="Total forecast horizon in months" />

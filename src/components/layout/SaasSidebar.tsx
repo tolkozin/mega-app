@@ -80,7 +80,7 @@ function SaasPhaseSection({ phase, phaseNum }: { phase: SaasPhaseConfig; phaseNu
   );
 }
 
-export function SaasSidebar({ projectId }: { projectId: string | null }) {
+export function SaasSidebar({ projectId, onProjectCreated }: { projectId: string | null; onProjectCreated?: (id: string) => void }) {
   const config = useConfigStore((s) => s.saasConfig);
   const setConfig = useConfigStore((s) => s.setSaasConfig);
 
@@ -90,7 +90,7 @@ export function SaasSidebar({ projectId }: { projectId: string | null }) {
         <h2 className="font-semibold text-sm">B2B SaaS Model Config</h2>
       </div>
 
-      <ScenarioPanel projectId={projectId} modelType="saas" />
+      <ScenarioPanel projectId={projectId} modelType="saas" onProjectCreated={onProjectCreated} />
 
       <Accordion title="General" defaultOpen>
         <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} help="Total forecast horizon in months" />

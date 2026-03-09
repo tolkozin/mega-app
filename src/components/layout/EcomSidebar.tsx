@@ -76,7 +76,7 @@ function EcomPhaseSection({ phase, phaseNum }: { phase: EcomPhaseConfig; phaseNu
   );
 }
 
-export function EcomSidebar({ projectId }: { projectId: string | null }) {
+export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string | null; onProjectCreated?: (id: string) => void }) {
   const config = useConfigStore((s) => s.ecommerceConfig);
   const setConfig = useConfigStore((s) => s.setEcommerceConfig);
 
@@ -86,7 +86,7 @@ export function EcomSidebar({ projectId }: { projectId: string | null }) {
         <h2 className="font-semibold text-sm">E-commerce Model Config</h2>
       </div>
 
-      <ScenarioPanel projectId={projectId} modelType="ecommerce" />
+      <ScenarioPanel projectId={projectId} modelType="ecommerce" onProjectCreated={onProjectCreated} />
 
       <Accordion title="General" defaultOpen>
         <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} help="Total forecast horizon in months" />

@@ -18,7 +18,7 @@ export default function SubscriptionDashboardPage() {
   const { results, loading, error, debouncedRun, monthRange, setMonthRange, totalMonths } = useDashboard("subscription");
   const reportRef = useRef<HTMLDivElement>(null);
   const [showInvestorReport, setShowInvestorReport] = useState(false);
-  const { project } = useCurrentProject("subscription");
+  const { project, setProjectId } = useCurrentProject("subscription");
 
   const buildScenarioParams = useCallback(() => {
     const base = {
@@ -70,7 +70,7 @@ export default function SubscriptionDashboardPage() {
   return (
     <AppShell title="Subscription Dashboard" monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
       <div className="flex h-[calc(100vh-3.5rem)]">
-        <Sidebar projectId={project?.id ?? null} />
+        <Sidebar projectId={project?.id ?? null} onProjectCreated={setProjectId} />
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {loading && !results && (
             <div className="flex items-center justify-center py-20">
