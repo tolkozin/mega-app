@@ -23,7 +23,7 @@ function parseMdxFile(fileName: string): BlogPost | null {
     title: data.title ?? "",
     description: data.description ?? "",
     date: data.date ?? "",
-    author: data.author ?? "Mega App Team",
+    author: data.author ?? "Revenue Map Team",
     category: data.category ?? "general",
     tags: data.tags ?? [],
     image: data.image ?? "/blog/default-cover.jpg",

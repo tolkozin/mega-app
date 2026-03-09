@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts, getCategories, getTags } from "@/lib/blog";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://megaapp.io";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts();

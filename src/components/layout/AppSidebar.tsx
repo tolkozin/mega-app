@@ -46,7 +46,7 @@ export function AppSidebar() {
       {/* Logo */}
       <Link href="/dashboard" className="mb-8">
         <div className="w-9 h-9 rounded-lg bg-[#5E81F4] flex items-center justify-center">
-          <span className="text-white font-bold text-sm">M</span>
+          <span className="text-white font-bold text-sm">R</span>
         </div>
       </Link>
 

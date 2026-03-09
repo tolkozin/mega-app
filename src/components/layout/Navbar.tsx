@@ -18,9 +18,9 @@ export function Navbar() {
       <div className="container mx-auto flex h-14 items-center px-4">
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <div className="w-8 h-8 rounded-lg bg-[#5E81F4] flex items-center justify-center mr-2">
-            <span className="text-white font-bold text-sm">M</span>
+            <span className="text-white font-bold text-sm">R</span>
           </div>
-          <span className="text-lg font-bold text-[#1C1D21]">Mega App</span>
+          <span className="text-lg font-bold text-[#1C1D21]">Revenue Map</span>
         </Link>
 
         <div className="flex flex-1 items-center space-x-4">

@@ -1,5 +1,5 @@
 -- ============================================================
--- Mega App — Full Supabase Schema
+-- Revenue Map — Full Supabase Schema
 -- Run this in Supabase SQL Editor on a fresh project
 -- ============================================================
 

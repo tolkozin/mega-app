@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getAllPosts, getPostBySlug } from "@/lib/blog";
 import { ArticleLayout } from "@/components/blog/ArticleLayout";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://megaapp.io";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export async function generateStaticParams() {
   const posts = getAllPosts();

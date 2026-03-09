@@ -1,16 +1,16 @@
 import { getAllPosts } from "@/lib/blog";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://megaapp.io";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export async function GET() {
   const posts = getAllPosts();
 
   const lines = [
-    "# Mega App",
+    "# Revenue Map",
     "",
     "> Financial modeling platform for SaaS and e-commerce businesses.",
     "",
-    "Mega App helps founders, CFOs, and financial analysts build investor-ready financial models. The platform supports subscription (SaaS), e-commerce, and SaaS B2B business models with features including Monte Carlo simulation, scenario analysis, and automated P&L projections.",
+    "Revenue Map helps founders, CFOs, and financial analysts build investor-ready financial models. The platform supports subscription (SaaS), e-commerce, and SaaS B2B business models with features including Monte Carlo simulation, scenario analysis, and automated P&L projections.",
     "",
     "## Topics Covered",
     "",

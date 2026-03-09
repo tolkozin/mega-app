@@ -32,7 +32,7 @@ export default function RegisterPage() {
     return (
       <>
         <div className="mb-8">
-          <Link href="/" className="text-2xl font-bold text-[#1C1D21]">Mega App</Link>
+          <Link href="/" className="text-2xl font-bold text-[#1C1D21]">Revenue Map</Link>
         </div>
         <h1 className="text-[28px] font-bold text-[#1C1D21] mb-2">Check Your Email</h1>
         <p className="text-[#8181A5] text-sm mb-8">
@@ -50,7 +50,7 @@ export default function RegisterPage() {
   return (
     <>
       <div className="mb-8">
-        <Link href="/" className="text-2xl font-bold text-[#1C1D21]">Mega App</Link>
+        <Link href="/" className="text-2xl font-bold text-[#1C1D21]">Revenue Map</Link>
       </div>
 
       <h1 className="text-[28px] font-bold text-[#1C1D21] mb-2">Create Account</h1>

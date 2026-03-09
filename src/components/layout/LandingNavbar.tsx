@@ -31,9 +31,9 @@ export function LandingNavbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 shrink-0">
           <div className="w-8 h-8 rounded-lg bg-[#5E81F4] flex items-center justify-center">
-            <span className="text-white font-bold text-sm">M</span>
+            <span className="text-white font-bold text-sm">R</span>
           </div>
-          <span className="text-lg font-bold text-[#1C1D21]">Mega App</span>
+          <span className="text-lg font-bold text-[#1C1D21]">Revenue Map</span>
         </Link>
 
         {/* Center nav links */}

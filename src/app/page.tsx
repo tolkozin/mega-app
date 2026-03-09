@@ -155,7 +155,7 @@ function DashboardPreview() {
         {/* Mini sidebar */}
         <div className="hidden md:flex flex-col w-14 bg-[#1C1D21] py-4 items-center gap-4">
           <div className="w-7 h-7 rounded-lg bg-[#5E81F4] flex items-center justify-center">
-            <span className="text-white text-[10px] font-bold">M</span>
+            <span className="text-white text-[10px] font-bold">R</span>
           </div>
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="w-6 h-6 rounded bg-white/10" />
@@ -542,7 +542,7 @@ export default function LandingPage() {
             Ready to Build Your Financial Model?
           </h2>
           <p className="text-white/80 max-w-lg mx-auto mb-8">
-            Join hundreds of founders using Mega App to make better financial decisions.
+            Join hundreds of founders using Revenue Map to make better financial decisions.
           </p>
           <Link href="/auth/register">
             <button className="h-12 px-8 bg-white text-[#5E81F4] font-bold text-sm rounded-lg hover:bg-white/90 transition-colors shadow-lg">
@@ -560,9 +560,9 @@ export default function LandingPage() {
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-[#5E81F4] flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">M</span>
+                  <span className="text-white font-bold text-sm">R</span>
                 </div>
-                <span className="text-lg font-bold text-white">Mega App</span>
+                <span className="text-lg font-bold text-white">Revenue Map</span>
               </div>
               <p className="text-sm text-[#8181A5]">
                 Financial modeling for modern businesses.
@@ -586,7 +586,7 @@ export default function LandingPage() {
           </div>
           <div className="border-t border-white/10 pt-8 text-center">
             <p className="text-sm text-[#8181A5]">
-              &copy; {new Date().getFullYear()} Mega App. All rights reserved.
+              &copy; {new Date().getFullYear()} Revenue Map. All rights reserved.
             </p>
           </div>
         </div>

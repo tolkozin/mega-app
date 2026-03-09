@@ -33,7 +33,7 @@ function LoginForm() {
   return (
     <>
       <div className="mb-8">
-        <Link href="/" className="text-2xl font-bold text-[#1C1D21]">Mega App</Link>
+        <Link href="/" className="text-2xl font-bold text-[#1C1D21]">Revenue Map</Link>
       </div>
 
       <h1 className="text-[28px] font-bold text-[#1C1D21] mb-2">Sign In</h1>

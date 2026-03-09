@@ -1,13 +1,13 @@
 import { Feed } from "feed";
 import { getAllPosts } from "@/lib/blog";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://megaapp.io";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export async function GET() {
   const posts = getAllPosts();
 
   const feed = new Feed({
-    title: "Mega App Blog",
+    title: "Revenue Map Blog",
     description:
       "Insights on SaaS metrics, financial modeling, and e-commerce analytics.",
     id: `${SITE_URL}/blog`,
@@ -15,12 +15,12 @@ export async function GET() {
     language: "en",
     image: `${SITE_URL}/logo.png`,
     favicon: `${SITE_URL}/favicon.ico`,
-    copyright: `All rights reserved ${new Date().getFullYear()}, Mega App`,
+    copyright: `All rights reserved ${new Date().getFullYear()}, Revenue Map`,
     feedLinks: {
       rss2: `${SITE_URL}/feed.xml`,
     },
     author: {
-      name: "Mega App Team",
+      name: "Revenue Map Team",
       link: SITE_URL,
     },
   });

@@ -1,6 +1,6 @@
 import type { BlogPost } from "@/types/blog";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://megaapp.io";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export function ArticleJsonLd({ post }: { post: BlogPost }) {
   const jsonLd: Record<string, unknown> = {
@@ -17,7 +17,7 @@ export function ArticleJsonLd({ post }: { post: BlogPost }) {
     },
     publisher: {
       "@type": "Organization",
-      name: "Mega App",
+      name: "Revenue Map",
       logo: {
         "@type": "ImageObject",
         url: `${SITE_URL}/logo.png`,
@@ -122,7 +122,7 @@ export function SoftwareApplicationJsonLd() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Mega App",
+    name: "Revenue Map",
     url: SITE_URL,
     applicationCategory: "FinanceApplication",
     operatingSystem: "Web",
@@ -173,7 +173,7 @@ export function OrganizationJsonLd() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Mega App",
+    name: "Revenue Map",
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
     description:

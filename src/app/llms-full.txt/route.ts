@@ -1,6 +1,6 @@
 import { getAllPosts } from "@/lib/blog";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://megaapp.io";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export async function GET() {
   const posts = getAllPosts();
@@ -36,7 +36,7 @@ export async function GET() {
   });
 
   const output = [
-    "# Mega App — Full Blog Content",
+    "# Revenue Map — Full Blog Content",
     "",
     `> Source: ${SITE_URL}`,
     "",

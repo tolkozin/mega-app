@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { LandingNavbar } from "@/components/layout/LandingNavbar";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://megaapp.io";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/pricing`,
   },
   openGraph: {
-    title: "Pricing — Mega App",
+    title: "Pricing — Revenue Map",
     description:
       "Start free and upgrade when you need more power. Plans for solo founders, growing teams, and enterprises.",
     url: `${SITE_URL}/pricing`,

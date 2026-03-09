@@ -146,7 +146,7 @@ export function MetricCalculator({
         <p className="text-xs text-[#8181A5] mt-3">
           Want to model this over 36 months with scenarios?{" "}
           <a href="/auth/register" className="font-medium hover:underline" style={{ color }}>
-            Try Mega App free →
+            Try Revenue Map free →
           </a>
         </p>
       </div>

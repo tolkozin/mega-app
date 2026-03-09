@@ -5,20 +5,20 @@ import { OrganizationJsonLd } from "@/components/blog/StructuredData";
 
 const lato = Lato({ subsets: ["latin", "latin-ext"], weight: ["400", "700", "900"] });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://megaapp.io";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Mega App — Financial Modeling for SaaS & E-commerce",
-    template: "%s | Mega App",
+    default: "Revenue Map — Financial Modeling for SaaS & E-commerce",
+    template: "%s | Revenue Map",
   },
   description:
     "Build investor-ready financial models for subscription and e-commerce businesses. Monte Carlo simulations, scenario analysis, and more.",
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "Mega App",
+    siteName: "Revenue Map",
     images: [
       {
         url: `${SITE_URL}/og-default.png`,

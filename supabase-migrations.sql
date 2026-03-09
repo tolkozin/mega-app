@@ -1,4 +1,4 @@
--- Mega App — Additional Supabase migrations
+-- Revenue Map — Additional Supabase migrations
 -- Run these in Supabase SQL Editor after the initial schema.sql
 
 -- Public dashboards (Phase 8)
