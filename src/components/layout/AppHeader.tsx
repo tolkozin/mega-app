@@ -3,6 +3,9 @@
 import { useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsMobile } from "@/hooks/useMediaQuery";
+import { useLayoutStore } from "@/stores/layout-store";
+import { useChatStore } from "@/stores/chat-store";
 
 const categories = [
   { key: "subscription", label: "Subscription", href: "/dashboard/subscription" },
@@ -167,6 +170,10 @@ export function AppHeader({ title, monthRange, onMonthRangeChange, totalMonths }
   const { user, signOut } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const isMobile = useIsMobile();
+  const setNavMobileOpen = useLayoutStore((s) => s.setNavSidebarMobileOpen);
+  const setConfigDrawerOpen = useLayoutStore((s) => s.setConfigDrawerOpen);
+  const toggleAI = useChatStore((s) => s.togglePanel);
 
   const handleSignOut = async () => {
     await signOut();
@@ -177,17 +184,43 @@ export function AppHeader({ title, monthRange, onMonthRangeChange, totalMonths }
   const activeCategory = categories.find((c) => pathname?.startsWith(c.href))?.key;
 
   return (
-    <header className="h-14 border-b border-[#ECECF2] bg-white flex items-center justify-between px-6 shrink-0">
-      <div className="flex items-center gap-4">
-        {title && <h1 className="text-lg font-bold text-[#1C1D21]">{title}</h1>}
+    <header className="h-14 border-b border-[#ECECF2] bg-white flex items-center justify-between px-4 md:px-6 shrink-0">
+      <div className="flex items-center gap-3 md:gap-4 min-w-0">
+        {/* Hamburger — mobile only */}
+        {isMobile && (
+          <button
+            onClick={() => setNavMobileOpen(true)}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#8181A5] hover:text-[#1C1D21] hover:bg-[#F0F0F5]"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M2 4h14M2 9h14M2 14h14" />
+            </svg>
+          </button>
+        )}
+
+        {/* Config gear — mobile only, on dashboard pages */}
+        {isMobile && isDashboard && (
+          <button
+            onClick={() => setConfigDrawerOpen(true)}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#8181A5] hover:text-[#1C1D21] hover:bg-[#F0F0F5]"
+            title="Configuration"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6.66 1.85a.8.8 0 011.08 0l.47.43a.8.8 0 00.68.2l.62-.12a.8.8 0 01.93.54l.18.61a.8.8 0 00.47.47l.61.18a.8.8 0 01.54.93l-.12.62a.8.8 0 00.2.68l.43.47a.8.8 0 010 1.08l-.43.47a.8.8 0 00-.2.68l.12.62a.8.8 0 01-.54.93l-.61.18a.8.8 0 00-.47.47l-.18.61a.8.8 0 01-.93.54l-.62-.12a.8.8 0 00-.68.2l-.47.43a.8.8 0 01-1.08 0l-.47-.43a.8.8 0 00-.68-.2l-.62.12a.8.8 0 01-.93-.54l-.18-.61a.8.8 0 00-.47-.47l-.61-.18a.8.8 0 01-.54-.93l.12-.62a.8.8 0 00-.2-.68l-.43-.47a.8.8 0 010-1.08l.43-.47a.8.8 0 00.2-.68l-.12-.62a.8.8 0 01.54-.93l.61-.18a.8.8 0 00.47-.47l.18-.61a.8.8 0 01.93-.54l.62.12a.8.8 0 00.68-.2l.47-.43z" />
+              <circle cx="8" cy="8" r="2" />
+            </svg>
+          </button>
+        )}
+
+        {title && <h1 className="text-base md:text-lg font-bold text-[#1C1D21] truncate">{title}</h1>}
 
         {isDashboard && (
-          <div className="flex items-center bg-[#F4F6FF] rounded-lg p-0.5">
+          <div className="flex items-center bg-[#F4F6FF] rounded-lg p-0.5 overflow-x-auto">
             {categories.map((cat) => (
               <button
                 key={cat.key}
                 onClick={() => router.push(cat.href)}
-                className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors ${
+                className={`px-2.5 md:px-3 py-1.5 text-xs md:text-sm font-bold rounded-md transition-colors whitespace-nowrap ${
                   activeCategory === cat.key
                     ? "bg-[#5E81F4] text-white"
                     : "text-[#8181A5] hover:text-[#1C1D21]"
@@ -199,7 +232,7 @@ export function AppHeader({ title, monthRange, onMonthRangeChange, totalMonths }
           </div>
         )}
 
-        {isDashboard && (
+        {isDashboard && !isMobile && (
           <DateRangeBar
             monthRange={monthRange}
             onMonthRangeChange={onMonthRangeChange}
@@ -208,10 +241,32 @@ export function AppHeader({ title, monthRange, onMonthRangeChange, totalMonths }
         )}
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        {/* Date range on mobile */}
+        {isDashboard && isMobile && (
+          <DateRangeBar
+            monthRange={monthRange}
+            onMonthRangeChange={onMonthRangeChange}
+            totalMonths={totalMonths}
+          />
+        )}
+
+        {/* AI button — mobile only */}
+        {isMobile && (
+          <button
+            onClick={toggleAI}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#8181A5] hover:text-[#5E81F4] hover:bg-[#F0F0F5]"
+            title="AI Assistant"
+          >
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 2L12.09 7.26L18 8.27L14 12.14L14.18 18.02L10 15.77L5.82 18.02L6 12.14L2 8.27L7.91 7.26L10 2Z" />
+            </svg>
+          </button>
+        )}
+
         {user && (
           <>
-            <span className="text-sm text-[#8181A5]">{user.email}</span>
+            <span className="text-sm text-[#8181A5] hidden md:block">{user.email}</span>
             <button
               onClick={handleSignOut}
               className="text-sm text-[#8181A5] hover:text-[#1C1D21] transition-colors"

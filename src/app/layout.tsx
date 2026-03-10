@@ -45,6 +45,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="bg-[#0F172A]">
+      <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       <body className={`${lato.className} bg-[#0F172A]`}>
         <OrganizationJsonLd />
         {children}

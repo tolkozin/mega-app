@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
@@ -13,6 +14,9 @@ interface PlotlyChartProps {
 }
 
 export function PlotlyChart({ data, layout, title, description, className }: PlotlyChartProps) {
+  const isMobile = useIsMobile();
+  const chartHeight = isMobile ? "180px" : "350px";
+
   return (
     <div className={className}>
       {title && <h3 className="text-sm font-semibold mb-1">{title}</h3>}
@@ -21,15 +25,15 @@ export function PlotlyChart({ data, layout, title, description, className }: Plo
         data={data}
         layout={{
           autosize: true,
-          margin: { l: 50, r: 20, t: 30, b: 40 },
-          font: { size: 11 },
+          margin: isMobile ? { l: 35, r: 10, t: 20, b: 30 } : { l: 50, r: 20, t: 30, b: 40 },
+          font: { size: isMobile ? 9 : 11 },
           legend: { orientation: "h", y: -0.15 },
           ...layout,
         }}
         config={{ responsive: true, displayModeBar: false }}
         className="w-full"
         useResizeHandler
-        style={{ width: "100%", height: "350px" }}
+        style={{ width: "100%", height: chartHeight }}
       />
     </div>
   );

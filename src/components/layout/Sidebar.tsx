@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
+import { MobileConfigDrawer } from "./MobileConfigDrawer";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import type { PhaseConfig } from "@/lib/types";
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
@@ -125,9 +127,10 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
 export function Sidebar({ projectId, onProjectCreated }: { projectId: string | null; onProjectCreated?: (id: string) => void }) {
   const config = useConfigStore((s) => s.subscriptionConfig);
   const setConfig = useConfigStore((s) => s.setSubscriptionConfig);
+  const isMobile = useIsMobile();
 
-  return (
-    <aside className="w-80 border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0">
+  const content = (
+    <>
       <div className="p-3 border-b">
         <h2 className="font-semibold text-sm">Subscription Model Config</h2>
       </div>
@@ -188,6 +191,16 @@ export function Sidebar({ projectId, onProjectCreated }: { projectId: string | n
       <PhaseSection phase={config.phase1} phaseNum={1} />
       <PhaseSection phase={config.phase2} phaseNum={2} />
       <PhaseSection phase={config.phase3} phaseNum={3} />
+    </>
+  );
+
+  if (isMobile) {
+    return <MobileConfigDrawer>{content}</MobileConfigDrawer>;
+  }
+
+  return (
+    <aside className="w-80 border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0">
+      {content}
     </aside>
   );
 }

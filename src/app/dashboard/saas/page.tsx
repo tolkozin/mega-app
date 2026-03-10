@@ -76,9 +76,9 @@ export default function SaasDashboardPage() {
 
   return (
     <AppShell title="SaaS Dashboard" monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
-      <div className="flex h-[calc(100vh-3.5rem)]">
+      <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)]">
         <SaasSidebar projectId={project?.id ?? null} onProjectCreated={setProjectId} />
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
           {loading && !results && (
             <div className="flex items-center justify-center py-20">
               <div className="text-[#8181A5]">Running model...</div>

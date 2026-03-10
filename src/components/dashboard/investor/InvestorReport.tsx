@@ -3,6 +3,7 @@
 import React, { useRef, useState } from "react";
 import { formatCurrency, formatPercent, formatNumber } from "@/lib/utils";
 import { exportToPDF } from "@/lib/pdf-export";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import type { RunResult } from "@/lib/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -107,6 +108,40 @@ export function CompactTable({
   headers: string[];
   rows: (string | number)[][];
 }) {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    // Mobile: stacked card layout
+    return (
+      <div className="space-y-2">
+        {rows.map((row, i) => (
+          <div
+            key={i}
+            className="rounded-lg p-3"
+            style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+          >
+            <p className="text-xs font-bold mb-2" style={{ color: "#F8FAFC" }}>
+              {row[0]}
+            </p>
+            <div className="space-y-1">
+              {row.slice(1).map((cell, j) => (
+                <div key={j} className="flex items-center justify-between">
+                  <span className="text-[11px]" style={{ color: "#94A3B8" }}>
+                    {headers[j + 1]}
+                  </span>
+                  <span className="text-xs font-medium" style={{ color: "#F8FAFC" }}>
+                    {cell}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Desktop: standard table
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs border-collapse">

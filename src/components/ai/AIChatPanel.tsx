@@ -5,6 +5,7 @@ import { useChatStore, type ConfigPatch } from "@/stores/chat-store";
 import { useConfigStore } from "@/stores/config-store";
 import { ChatMessage } from "./ChatMessage";
 import { VoiceInput } from "./VoiceInput";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 
 const WELCOME_MESSAGES: Record<string, string> = {
   subscription: `Hi! I'm your AI financial analyst. Here's what I can do:
@@ -63,7 +64,7 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
-export function AIChatPanel() {
+export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
   const {
     isOpen,
     openPanel,
@@ -110,16 +111,18 @@ export function AIChatPanel() {
     if (isOpen) inputRef.current?.focus();
   }, [isOpen]);
 
-  // Auto-open panel with welcome message when dashboard first loads
+  // Auto-open panel with welcome message when dashboard first loads (skip on mobile)
+  const isMobile = useIsMobile();
   const hasShownWelcome = useRef(false);
   useEffect(() => {
+    if (isMobile) return;
     if (hasShownWelcome.current || !modelType || messages.length > 0) return;
     const welcome = WELCOME_MESSAGES[modelType];
     if (!welcome) return;
     hasShownWelcome.current = true;
     openPanel();
     addMessage("assistant", welcome);
-  }, [modelType, messages.length, openPanel, addMessage]);
+  }, [isMobile, modelType, messages.length, openPanel, addMessage]);
 
   // Check for config_patch after streaming completes
   useEffect(() => {
@@ -314,13 +317,25 @@ export function AIChatPanel() {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-[400px] bg-white border-l border-[#E8E8EF] shadow-xl flex flex-col z-50 transition-transform duration-300 ${
-        isOpen ? "translate-x-0" : "translate-x-full"
-      } max-lg:hidden`}
+      className={
+        fullscreen
+          ? "fixed inset-0 z-50 bg-white flex flex-col"
+          : "w-[320px] lg:w-[320px] md:w-[260px] h-full border-l border-[#E8E8EF] bg-white shrink-0 flex flex-col"
+      }
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#E8E8EF]">
         <div className="flex items-center gap-2">
+          {fullscreen && (
+            <button
+              onClick={closePanel}
+              className="text-[#8181A5] hover:text-[#1C1D21] w-7 h-7 flex items-center justify-center rounded hover:bg-[#F0F0F5] mr-1"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 1L2 7l7 6" />
+              </svg>
+            </button>
+          )}
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-[#5E81F4]">
             <path d="M10 2L12.09 7.26L18 8.27L14 12.14L14.18 18.02L10 15.77L5.82 18.02L6 12.14L2 8.27L7.91 7.26L10 2Z" fill="currentColor" />
           </svg>
@@ -334,14 +349,16 @@ export function AIChatPanel() {
           >
             Clear
           </button>
-          <button
-            onClick={closePanel}
-            className="text-[#8181A5] hover:text-[#1C1D21] w-7 h-7 flex items-center justify-center rounded hover:bg-[#F0F0F5]"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
-          </button>
+          {!fullscreen && (
+            <button
+              onClick={closePanel}
+              className="text-[#8181A5] hover:text-[#1C1D21] w-7 h-7 flex items-center justify-center rounded hover:bg-[#F0F0F5]"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M1 1l12 12M13 1L1 13" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 

@@ -5,6 +5,8 @@ import { useConfigStore } from "@/stores/config-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
+import { MobileConfigDrawer } from "./MobileConfigDrawer";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import type { EcomPhaseConfig } from "@/lib/types";
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
@@ -79,9 +81,10 @@ function EcomPhaseSection({ phase, phaseNum }: { phase: EcomPhaseConfig; phaseNu
 export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string | null; onProjectCreated?: (id: string) => void }) {
   const config = useConfigStore((s) => s.ecommerceConfig);
   const setConfig = useConfigStore((s) => s.setEcommerceConfig);
+  const isMobile = useIsMobile();
 
-  return (
-    <aside className="w-80 border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0">
+  const content = (
+    <>
       <div className="p-3 border-b">
         <h2 className="font-semibold text-sm">E-commerce Model Config</h2>
       </div>
@@ -127,6 +130,16 @@ export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string
       <EcomPhaseSection phase={config.phase1} phaseNum={1} />
       <EcomPhaseSection phase={config.phase2} phaseNum={2} />
       <EcomPhaseSection phase={config.phase3} phaseNum={3} />
+    </>
+  );
+
+  if (isMobile) {
+    return <MobileConfigDrawer>{content}</MobileConfigDrawer>;
+  }
+
+  return (
+    <aside className="w-80 border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0">
+      {content}
     </aside>
   );
 }

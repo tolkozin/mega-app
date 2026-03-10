@@ -5,6 +5,8 @@ import { useConfigStore } from "@/stores/config-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
+import { MobileConfigDrawer } from "./MobileConfigDrawer";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import type { SaasPhaseConfig } from "@/lib/types";
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
@@ -83,9 +85,10 @@ function SaasPhaseSection({ phase, phaseNum }: { phase: SaasPhaseConfig; phaseNu
 export function SaasSidebar({ projectId, onProjectCreated }: { projectId: string | null; onProjectCreated?: (id: string) => void }) {
   const config = useConfigStore((s) => s.saasConfig);
   const setConfig = useConfigStore((s) => s.setSaasConfig);
+  const isMobile = useIsMobile();
 
-  return (
-    <aside className="w-80 border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0">
+  const content = (
+    <>
       <div className="p-3 border-b">
         <h2 className="font-semibold text-sm">B2B SaaS Model Config</h2>
       </div>
@@ -134,6 +137,16 @@ export function SaasSidebar({ projectId, onProjectCreated }: { projectId: string
       <SaasPhaseSection phase={config.phase1} phaseNum={1} />
       <SaasPhaseSection phase={config.phase2} phaseNum={2} />
       <SaasPhaseSection phase={config.phase3} phaseNum={3} />
+    </>
+  );
+
+  if (isMobile) {
+    return <MobileConfigDrawer>{content}</MobileConfigDrawer>;
+  }
+
+  return (
+    <aside className="w-80 border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0">
+      {content}
     </aside>
   );
 }
