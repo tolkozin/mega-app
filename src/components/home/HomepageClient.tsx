@@ -5,6 +5,8 @@ import Image from "next/image";
 import { ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { HeroBackground } from "./HeroBackground";
+import { DashboardPreview } from "./DashboardPreview";
+import { AISection } from "./AISection";
 import { RatingWidget } from "./RatingWidget";
 import { SectionDivider } from "./SectionDivider";
 import { AnimatedCounter } from "./AnimatedCounter";
@@ -97,62 +99,71 @@ function MonteCarloVisual() {
 
 function ScenarioVisual() {
   const scenarios = [
-    { label: "Pessimistic", color: "#EF4444", values: [20, 25, 22, 28, 30, 27] },
-    { label: "Base", color: "#3B82F6", values: [20, 30, 40, 48, 58, 65] },
-    { label: "Optimistic", color: "#10B981", values: [20, 35, 55, 72, 90, 110] },
+    { label: "Pessimistic", color: "#EF4444", points: "60,190 150,185 240,182 330,178 420,175 510,170" },
+    { label: "Base", color: "#3B82F6", points: "60,190 150,172 240,155 330,135 420,118 510,100" },
+    { label: "Optimistic", color: "#10B981", points: "60,190 150,165 240,135 330,100 420,72 510,45" },
   ];
-  const barValues = [18, 30, 45, 58, 72, 90];
-  const barMaxH = 80;
-  const barMax = Math.max(...barValues);
+  const bars = [
+    { x: 38, h: 28 },
+    { x: 128, h: 40 },
+    { x: 218, h: 54 },
+    { x: 308, h: 66 },
+    { x: 398, h: 76 },
+    { x: 488, h: 90 },
+  ];
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
   return (
-    <div className="relative rounded-xl overflow-hidden p-6" style={{ background: "rgba(30,41,59,0.6)" }}>
-      <div className="flex gap-4 mb-3">
-        {scenarios.map((s) => (
-          <div key={s.label} className="flex items-center gap-1.5 text-xs">
-            <div className="w-2 h-2 rounded-full" style={{ background: s.color }} />
-            <span className="text-[#94A3B8]">{s.label}</span>
-          </div>
+    <div className="relative rounded-xl overflow-hidden" style={{ background: "rgba(30,41,59,0.6)" }}>
+      <svg viewBox="0 0 540 340" className="w-full h-auto">
+        <rect width="540" height="340" fill="transparent" rx="12" />
+
+        {/* Legend */}
+        {scenarios.map((s, i) => (
+          <g key={s.label}>
+            <circle cx={40 + i * 120} cy="14" r="4" fill={s.color} />
+            <text x={50 + i * 120} y="18" fill="#94A3B8" fontSize="11" fontFamily="inherit">{s.label}</text>
+          </g>
         ))}
-      </div>
-      <svg viewBox="0 0 480 280" className="w-full h-auto">
-        {/* Line chart area (y: 0–150) */}
-        {scenarios.map((s) => (
-          <polyline
-            key={s.label}
-            fill="none"
-            stroke={s.color}
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            points={s.values.map((v, i) => `${40 + i * 80},${150 - v * 1.2}`).join(" ")}
-          />
-        ))}
-        {/* Divider */}
-        <line x1="20" y1="170" x2="460" y2="170" stroke="#334155" strokeWidth="1" />
-        {/* Bar chart area (y: 185–265) */}
-        {barValues.map((v, i) => {
-          const h = (v / barMax) * barMaxH;
-          const x = 40 + i * 80 - 20;
+
+        {/* Grid lines */}
+        <line x1="40" y1="100" x2="520" y2="100" stroke="#1E293B" strokeWidth="1" />
+        <line x1="40" y1="140" x2="520" y2="140" stroke="#1E293B" strokeWidth="1" />
+        <line x1="40" y1="180" x2="520" y2="180" stroke="#1E293B" strokeWidth="1" />
+
+        {/* Lines + dots */}
+        {scenarios.map((s) => {
+          const pts = s.points.split(" ").map((p) => p.split(",").map(Number));
           return (
-            <g key={i}>
-              <defs>
-                <linearGradient id={`bar-g-${i}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#60A5FA" />
-                  <stop offset="100%" stopColor="#3B82F6" />
-                </linearGradient>
-              </defs>
-              <rect
-                x={x}
-                y={265 - h}
-                width="40"
-                height={h}
-                rx="4"
-                fill={`url(#bar-g-${i})`}
-                opacity="0.85"
-              />
+            <g key={s.label}>
+              <polyline points={s.points} fill="none" stroke={s.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              {pts.map(([cx, cy], j) => (
+                <circle key={j} cx={cx} cy={cy} r="3.5" fill={s.color} />
+              ))}
             </g>
           );
         })}
+
+        {/* Divider */}
+        <line x1="40" y1="218" x2="520" y2="218" stroke="#334155" strokeWidth="1" />
+
+        {/* Bars */}
+        <defs>
+          <linearGradient id="scenario-bar-g" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#60A5FA" />
+            <stop offset="100%" stopColor="#3B82F6" />
+          </linearGradient>
+        </defs>
+        {bars.map((b, i) => (
+          <g key={i}>
+            <rect x={b.x} y={318 - b.h} width="44" height={b.h} rx="4" fill="url(#scenario-bar-g)" opacity="0.85" />
+            <rect x={b.x} y={318 - b.h} width="44" height="4" rx="4" fill="#60A5FA" opacity="0.5" />
+          </g>
+        ))}
+
+        {/* Month labels */}
+        {months.map((m, i) => (
+          <text key={m} x={60 + i * 90} y="336" fill="#64748B" fontSize="9" fontFamily="inherit" textAnchor="middle">{m}</text>
+        ))}
       </svg>
     </div>
   );
@@ -261,9 +272,9 @@ export function HomepageClient({
             {...motionProps(0.2)}
             className="text-lg md:text-xl text-[#94A3B8] max-w-2xl mx-auto leading-relaxed"
           >
-            Platform for founders who want real answers — not
-            spreadsheet busywork. Build projections, run simulations,
-            and generate investor-ready reports in minutes.
+            The AI-powered financial modeling platform for founders who want real answers —
+            not spreadsheet busywork. Build projections, run simulations, and generate
+            investor-ready reports in minutes.
           </motion.p>
 
           {/* CTAs */}
@@ -300,10 +311,7 @@ export function HomepageClient({
             className="rounded-2xl border border-[#334155]/60 overflow-hidden shadow-2xl shadow-black/40"
             style={{ background: "rgba(30,41,59,0.5)", backdropFilter: "blur(20px)" }}
           >
-            <div className="w-full rounded-2xl bg-[#1E293B] border border-[#334155] flex items-center justify-center text-[#475569] text-sm" style={{ height: "420px" }}>
-              {/* TODO: Replace with actual dashboard screenshot at /public/dashboard-preview.png */}
-              Dashboard Preview
-            </div>
+            <DashboardPreview />
           </motion.div>
         </motion.div>
 
@@ -418,6 +426,11 @@ export function HomepageClient({
           </div>
         </div>
       </section>
+
+      <SectionDivider />
+
+      {/* ════════════ AI CO-PILOT ════════════ */}
+      <AISection />
 
       <SectionDivider />
 
