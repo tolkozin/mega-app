@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Lato } from "next/font/google";
 import "./globals.css";
 import { OrganizationJsonLd } from "@/components/blog/StructuredData";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const lato = Lato({ subsets: ["latin", "latin-ext"], weight: ["400", "700", "900"] });
 
@@ -45,6 +47,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={lato.className}>
         <OrganizationJsonLd />
         {children}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
