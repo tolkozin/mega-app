@@ -56,12 +56,17 @@ export default function SaasDashboardPage() {
   useEffect(() => {
     if (!results) return;
     const base = results.base;
-    const rows = (base.dataframe || []).slice(0, 5);
+    const keys = ["Month", "ARR", "MRR", "Net Revenue", "Net Profit", "EBITDA", "Total Customers", "Total Seats", "NRR %", "Logo Churn %", "CAC", "LTV", "LTV/CAC", "Gross Margin %", "ROI %", "Cash Balance", "Cumulative Net Profit", "Quick Ratio", "Rule of 40", "Magic Number"];
+    const rows = (base.dataframe || []).map((row: Record<string, unknown>) => {
+      const slim: Record<string, unknown> = {};
+      for (const k of keys) if (k in row) slim[k] = row[k];
+      return slim;
+    });
     const context = JSON.stringify({
       model: "saas",
       milestones: base.milestones,
-      sample_months: rows,
       total_months: config.total_months,
+      monthly_data: rows,
     });
     setDashboardContext("saas", context);
   }, [results, config.total_months, setDashboardContext]);

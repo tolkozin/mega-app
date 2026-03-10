@@ -56,12 +56,17 @@ export default function SubscriptionDashboardPage() {
   useEffect(() => {
     if (!results) return;
     const base = results.base;
-    const rows = (base.dataframe || []).slice(0, 5);
+    const keys = ["Month", "Product Phase", "Total MRR", "Total Gross Revenue", "Net Revenue", "Net Profit", "EBITDA", "Total Active Users", "Blended CAC", "LTV", "LTV/CAC", "ARPU", "Gross Margin %", "ROI %", "Cash Balance", "Cumulative Net Profit", "Burn Rate", "Runway (Months)", "Cumulative ROAS"];
+    const rows = (base.dataframe || []).map((row: Record<string, unknown>) => {
+      const slim: Record<string, unknown> = {};
+      for (const k of keys) if (k in row) slim[k] = row[k];
+      return slim;
+    });
     const context = JSON.stringify({
       model: "subscription",
       milestones: base.milestones,
-      sample_months: rows,
       total_months: config.total_months,
+      monthly_data: rows,
     });
     setDashboardContext("subscription", context);
   }, [results, config.total_months, setDashboardContext]);

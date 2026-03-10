@@ -56,12 +56,17 @@ export default function EcommerceDashboardPage() {
   useEffect(() => {
     if (!results) return;
     const base = results.base;
-    const rows = (base.dataframe || []).slice(0, 5);
+    const keys = ["Month", "Gross Revenue", "Net Revenue", "Net Profit", "EBITDA", "New Customers", "Returning Customers", "Total Orders", "AOV", "CAC", "LTV", "LTV/CAC", "Gross Margin %", "ROI %", "Cash Balance", "Cumulative Net Profit", "Ad Spend", "ROAS"];
+    const rows = (base.dataframe || []).map((row: Record<string, unknown>) => {
+      const slim: Record<string, unknown> = {};
+      for (const k of keys) if (k in row) slim[k] = row[k];
+      return slim;
+    });
     const context = JSON.stringify({
       model: "ecommerce",
       milestones: base.milestones,
-      sample_months: rows,
       total_months: config.total_months,
+      monthly_data: rows,
     });
     setDashboardContext("ecommerce", context);
   }, [results, config.total_months, setDashboardContext]);
