@@ -5,7 +5,6 @@ import Image from "next/image";
 import { ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { HeroBackground } from "./HeroBackground";
-import { MetricTicker } from "./MetricTicker";
 import { RatingWidget } from "./RatingWidget";
 import { SectionDivider } from "./SectionDivider";
 import { AnimatedCounter } from "./AnimatedCounter";
@@ -102,8 +101,11 @@ function ScenarioVisual() {
     { label: "Base", color: "#3B82F6", values: [20, 30, 40, 48, 58, 65] },
     { label: "Optimistic", color: "#10B981", values: [20, 35, 55, 72, 90, 110] },
   ];
+  const barValues = [18, 30, 45, 58, 72, 90];
+  const barMaxH = 80;
+  const barMax = Math.max(...barValues);
   return (
-    <div className="relative h-48 rounded-xl overflow-hidden p-6" style={{ background: "rgba(30,41,59,0.6)" }}>
+    <div className="relative rounded-xl overflow-hidden p-6" style={{ background: "rgba(30,41,59,0.6)" }}>
       <div className="flex gap-4 mb-3">
         {scenarios.map((s) => (
           <div key={s.label} className="flex items-center gap-1.5 text-xs">
@@ -112,17 +114,45 @@ function ScenarioVisual() {
           </div>
         ))}
       </div>
-      <svg viewBox="0 0 200 80" className="w-full h-24">
+      <svg viewBox="0 0 480 280" className="w-full h-auto">
+        {/* Line chart area (y: 0–150) */}
         {scenarios.map((s) => (
           <polyline
             key={s.label}
             fill="none"
             stroke={s.color}
-            strokeWidth="2"
+            strokeWidth="2.5"
             strokeLinecap="round"
-            points={s.values.map((v, i) => `${i * 40},${80 - v * 0.7}`).join(" ")}
+            strokeLinejoin="round"
+            points={s.values.map((v, i) => `${40 + i * 80},${150 - v * 1.2}`).join(" ")}
           />
         ))}
+        {/* Divider */}
+        <line x1="20" y1="170" x2="460" y2="170" stroke="#334155" strokeWidth="1" />
+        {/* Bar chart area (y: 185–265) */}
+        {barValues.map((v, i) => {
+          const h = (v / barMax) * barMaxH;
+          const x = 40 + i * 80 - 20;
+          return (
+            <g key={i}>
+              <defs>
+                <linearGradient id={`bar-g-${i}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#60A5FA" />
+                  <stop offset="100%" stopColor="#3B82F6" />
+                </linearGradient>
+              </defs>
+              <rect
+                x={x}
+                y={265 - h}
+                width="40"
+                height={h}
+                rx="4"
+                fill={`url(#bar-g-${i})`}
+                opacity="0.85"
+              />
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
@@ -231,8 +261,8 @@ export function HomepageClient({
             {...motionProps(0.2)}
             className="text-lg md:text-xl text-[#94A3B8] max-w-2xl mx-auto leading-relaxed"
           >
-            The financial modeling platform for founders who want real answers — not
-            spreadsheet busywork. Build projections, run Monte Carlo simulations,
+            Platform for founders who want real answers — not
+            spreadsheet busywork. Build projections, run simulations,
             and generate investor-ready reports in minutes.
           </motion.p>
 
@@ -255,21 +285,13 @@ export function HomepageClient({
 
           {/* Trust line */}
           <motion.p {...motionProps(0.4)} className="text-xs text-[#64748B]">
-            Free forever plan available &middot; No credit card required &middot; Setup in 2 minutes
+            Free plan available &middot; No credit card required &middot; Setup in 2 minutes
           </motion.p>
         </div>
 
-        {/* Metric Ticker */}
-        <motion.div
-          {...motionProps(0.5)}
-          className="relative z-10 w-full max-w-4xl mx-auto mt-12"
-        >
-          <MetricTicker />
-        </motion.div>
-
         {/* Floating dashboard preview */}
         <motion.div
-          {...motionProps(0.6)}
+          {...motionProps(0.5)}
           className="relative z-10 w-full max-w-5xl mx-auto mt-10"
         >
           <motion.div
@@ -278,17 +300,9 @@ export function HomepageClient({
             className="rounded-2xl border border-[#334155]/60 overflow-hidden shadow-2xl shadow-black/40"
             style={{ background: "rgba(30,41,59,0.5)", backdropFilter: "blur(20px)" }}
           >
-            <div className="aspect-[16/9] relative">
-              <Image
-                src="/dashboard-preview.png"
-                alt="Revenue Map dashboard showing financial projections"
-                fill
-                className="object-cover object-top"
-                sizes="(max-width: 1280px) 100vw, 1280px"
-                priority
-              />
-              {/* Gradient overlay at bottom */}
-              <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0F172A] to-transparent" />
+            <div className="w-full rounded-2xl bg-[#1E293B] border border-[#334155] flex items-center justify-center text-[#475569] text-sm" style={{ height: "420px" }}>
+              {/* TODO: Replace with actual dashboard screenshot at /public/dashboard-preview.png */}
+              Dashboard Preview
             </div>
           </motion.div>
         </motion.div>
@@ -377,10 +391,10 @@ export function HomepageClient({
               Features
             </span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
-              More Than a Spreadsheet. Less Than a CFO.
+              More than a Spreadsheet. Costs less than a CFO.
             </h2>
             <p className="text-[#94A3B8] max-w-2xl mx-auto">
-              Professional-grade financial tools designed for speed, not complexity.
+              Professional-grade financial tools designed for speed and efficiency.
             </p>
           </motion.div>
 
@@ -661,7 +675,7 @@ export function HomepageClient({
             </Link>
           </motion.div>
           <motion.p {...motionProps(0.3)} className="text-xs text-[#64748B] mt-5">
-            No credit card &middot; Free forever plan &middot; 2-minute setup
+            No credit card &middot; Free plan &middot; 2-minute setup
           </motion.p>
         </div>
       </section>

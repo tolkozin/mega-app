@@ -48,6 +48,11 @@ const modelCards = [
 
 const featureShowcase = [
   {
+    title: "AI Financial Assistant",
+    description: "Your numbers + real benchmarks = honest advice. Ask anything about your model. It knows your data AND the industry benchmarks — so it tells you if your churn is high, your CAC is unsustainable, or your runway is shorter than you think.",
+    visual: "ai-assistant",
+  },
+  {
     title: "Monte Carlo Simulation",
     description: "\"What are the odds I hit my revenue target?\" Run 1,000+ simulations to stress-test your assumptions. See confidence intervals and the probability of breakeven.",
     visual: "monte-carlo",
@@ -61,11 +66,6 @@ const featureShowcase = [
     title: "Investor Report — One Button",
     description: "Your unit economics, projections, and scenario analysis — packaged into a professional PDF. Ready to send in 60 seconds. No consultant. No Excel. No formatting.",
     visual: "reports",
-  },
-  {
-    title: "AI Financial Assistant",
-    description: "Your numbers + real benchmarks = honest advice. Ask anything about your model. It knows your data AND the industry benchmarks — so it tells you if your churn is high, your CAC is unsustainable, or your runway is shorter than you think.",
-    visual: "ai-assistant",
   },
 ];
 
