@@ -2,6 +2,7 @@
 
 import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
+import { AIChatPanel } from "@/components/ai/AIChatPanel";
 
 export function AppShell({
   title,
@@ -28,6 +29,7 @@ export function AppShell({
         />
         <div className="flex-1">{children}</div>
       </div>
+      <AIChatPanel />
     </div>
   );
 }

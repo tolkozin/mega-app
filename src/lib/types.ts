@@ -167,6 +167,10 @@ export interface Profile {
   bank_details: string;
   stripe_customer_id?: string;
   plan: "free" | "pro" | "enterprise";
+  ai_chat_count: number;
+  ai_report_count: number;
+  ai_voice_seconds: number;
+  ai_period_start: string;
   created_at: string;
 }
 

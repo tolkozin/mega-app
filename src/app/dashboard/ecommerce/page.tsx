@@ -12,6 +12,7 @@ import { EcommerceReports } from "@/components/dashboard/reports/FinancialReport
 import { EcommerceInvestorReport } from "@/components/dashboard/investor/EcommerceInvestorReport";
 import { exportToPDF } from "@/lib/pdf-export";
 import { exportCSV } from "@/lib/api";
+import { useChatStore } from "@/stores/chat-store";
 
 export default function EcommerceDashboardPage() {
   const config = useConfigStore((s) => s.ecommerceConfig);
@@ -45,10 +46,25 @@ export default function EcommerceDashboardPage() {
     };
   }, [config.sens_conv, config.sens_cpc, config.sens_aov, config.sens_organic, config.scenario_bound]);
 
+  const setDashboardContext = useChatStore((s) => s.setDashboardContext);
+
   useEffect(() => {
     const configDict = JSON.parse(JSON.stringify(config));
     debouncedRun(configDict, buildScenarioParams());
   }, [config, debouncedRun, buildScenarioParams]);
+
+  useEffect(() => {
+    if (!results) return;
+    const base = results.base;
+    const rows = (base.dataframe || []).slice(0, 5);
+    const context = JSON.stringify({
+      model: "ecommerce",
+      milestones: base.milestones,
+      sample_months: rows,
+      total_months: config.total_months,
+    });
+    setDashboardContext("ecommerce", context);
+  }, [results, config.total_months, setDashboardContext]);
 
   const handleExport = async () => {
     try {

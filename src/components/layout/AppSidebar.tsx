@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useChatStore } from "@/stores/chat-store";
 
 const navItems = [
   {
@@ -40,14 +41,14 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const toggleAI = useChatStore((s) => s.togglePanel);
+  const aiOpen = useChatStore((s) => s.isOpen);
 
   return (
     <aside className="w-[64px] min-h-screen bg-[#1C1D21] flex flex-col items-center py-5 shrink-0">
       {/* Logo */}
       <Link href="/dashboard" className="mb-8">
-        <div className="w-9 h-9 rounded-lg bg-[#5E81F4] flex items-center justify-center">
-          <span className="text-white font-bold text-sm">R</span>
-        </div>
+        <img src="/logo.svg" alt="Revenue Map" className="w-9 h-9" />
       </Link>
 
       {/* Nav items */}
@@ -70,6 +71,21 @@ export function AppSidebar() {
           );
         })}
       </nav>
+
+      {/* AI Assistant */}
+      <button
+        onClick={toggleAI}
+        title="AI Assistant"
+        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+          aiOpen
+            ? "bg-[#5E81F4] text-white"
+            : "text-[#8181A5] hover:text-white hover:bg-white/10"
+        }`}
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M10 2L12.09 7.26L18 8.27L14 12.14L14.18 18.02L10 15.77L5.82 18.02L6 12.14L2 8.27L7.91 7.26L10 2Z" />
+        </svg>
+      </button>
 
       {/* Bottom: settings */}
       <Link

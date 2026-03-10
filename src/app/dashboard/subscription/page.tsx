@@ -12,6 +12,7 @@ import { SubscriptionReports } from "@/components/dashboard/reports/FinancialRep
 import { SubscriptionInvestorReport } from "@/components/dashboard/investor/SubscriptionInvestorReport";
 import { exportToPDF } from "@/lib/pdf-export";
 import { exportCSV } from "@/lib/api";
+import { useChatStore } from "@/stores/chat-store";
 
 export default function SubscriptionDashboardPage() {
   const config = useConfigStore((s) => s.subscriptionConfig);
@@ -45,10 +46,25 @@ export default function SubscriptionDashboardPage() {
     };
   }, [config.sens_conv, config.sens_churn, config.sens_cpi, config.sens_organic, config.scenario_bound]);
 
+  const setDashboardContext = useChatStore((s) => s.setDashboardContext);
+
   useEffect(() => {
     const configDict = JSON.parse(JSON.stringify(config));
     debouncedRun(configDict, buildScenarioParams());
   }, [config, debouncedRun, buildScenarioParams]);
+
+  useEffect(() => {
+    if (!results) return;
+    const base = results.base;
+    const rows = (base.dataframe || []).slice(0, 5);
+    const context = JSON.stringify({
+      model: "subscription",
+      milestones: base.milestones,
+      sample_months: rows,
+      total_months: config.total_months,
+    });
+    setDashboardContext("subscription", context);
+  }, [results, config.total_months, setDashboardContext]);
 
   const handleExport = async () => {
     try {
