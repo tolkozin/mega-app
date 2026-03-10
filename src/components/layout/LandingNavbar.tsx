@@ -23,10 +23,10 @@ export function LandingNavbar() {
 
   return (
     <nav
-      className={`sticky top-0 z-50 backdrop-blur-md border-b transition-all duration-200 ${
+      className={`sticky top-0 z-50 backdrop-blur-md border-b transition-all duration-200 bg-[#0F172A] ${
         scrolled
           ? "bg-[#0F172A]/95 border-[#334155]/50 shadow-lg shadow-black/20"
-          : "bg-transparent border-transparent"
+          : "border-[#1E293B]"
       }`}
     >
       <div className="container mx-auto flex h-16 items-center px-4">

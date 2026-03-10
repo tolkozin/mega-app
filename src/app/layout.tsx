@@ -43,8 +43,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={lato.className}>
+    <html lang="en" className="bg-[#0F172A]">
+      <body className={`${lato.className} bg-[#0F172A]`}>
         <OrganizationJsonLd />
         {children}
         <Analytics />

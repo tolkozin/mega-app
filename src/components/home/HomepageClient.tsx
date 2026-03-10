@@ -103,19 +103,10 @@ function ScenarioVisual() {
     { label: "Base", color: "#3B82F6", points: "60,190 150,172 240,155 330,135 420,118 510,100" },
     { label: "Optimistic", color: "#10B981", points: "60,190 150,165 240,135 330,100 420,72 510,45" },
   ];
-  const bars = [
-    { x: 38, h: 28 },
-    { x: 128, h: 40 },
-    { x: 218, h: 54 },
-    { x: 308, h: 66 },
-    { x: 398, h: 76 },
-    { x: 488, h: 90 },
-  ];
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
   return (
     <div className="relative rounded-xl overflow-hidden" style={{ background: "rgba(30,41,59,0.6)" }}>
-      <svg viewBox="0 0 540 340" className="w-full h-auto">
-        <rect width="540" height="340" fill="transparent" rx="12" />
+      <svg viewBox="0 0 540 210" className="w-full h-auto">
+        <rect width="540" height="210" fill="transparent" rx="12" />
 
         {/* Legend */}
         {scenarios.map((s, i) => (
@@ -142,28 +133,6 @@ function ScenarioVisual() {
             </g>
           );
         })}
-
-        {/* Divider */}
-        <line x1="40" y1="218" x2="520" y2="218" stroke="#334155" strokeWidth="1" />
-
-        {/* Bars */}
-        <defs>
-          <linearGradient id="scenario-bar-g" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#60A5FA" />
-            <stop offset="100%" stopColor="#3B82F6" />
-          </linearGradient>
-        </defs>
-        {bars.map((b, i) => (
-          <g key={i}>
-            <rect x={b.x} y={318 - b.h} width="44" height={b.h} rx="4" fill="url(#scenario-bar-g)" opacity="0.85" />
-            <rect x={b.x} y={318 - b.h} width="44" height="4" rx="4" fill="#60A5FA" opacity="0.5" />
-          </g>
-        ))}
-
-        {/* Month labels */}
-        {months.map((m, i) => (
-          <text key={m} x={60 + i * 90} y="336" fill="#64748B" fontSize="9" fontFamily="inherit" textAnchor="middle">{m}</text>
-        ))}
       </svg>
     </div>
   );
