@@ -11,7 +11,7 @@ import { SaasMilestones, SaasKeyMetrics } from "@/components/dashboard/executive
 import { SaasReports } from "@/components/dashboard/reports/SaasReports";
 import { SaasInvestorReport } from "@/components/dashboard/investor/SaasInvestorReport";
 import { exportToPDF } from "@/lib/pdf-export";
-import { exportCSV } from "@/lib/api";
+
 import { useChatStore } from "@/stores/chat-store";
 
 export default function SaasDashboardPage() {
@@ -71,20 +71,6 @@ export default function SaasDashboardPage() {
     setDashboardContext("saas", context);
   }, [results, config.total_months, setDashboardContext]);
 
-  const handleExport = async () => {
-    try {
-      const blob = await exportCSV("saas", JSON.parse(JSON.stringify(config)));
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "saas_model.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Export failed");
-    }
-  };
-
   const p1End = config.phase1_dur;
   const p2End = config.phase1_dur + config.phase2_dur;
 
@@ -134,7 +120,7 @@ export default function SaasDashboardPage() {
               <SaasMilestones milestones={results.base.milestones} />
               <SaasKeyMetrics results={results.base} milestones={results.base.milestones} />
               <SaasCharts results={results} p1End={p1End} p2End={p2End} />
-              <SaasReports results={results.base} onExport={handleExport} />
+              <SaasReports results={results.base} />
             </>
           )}
 

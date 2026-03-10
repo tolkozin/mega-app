@@ -229,7 +229,7 @@ export function HomepageClient({
             {...motionProps(0.1)}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.08] tracking-tight"
           >
-            Know Your Numbers.
+            Skip the Guesswork.
             <br />
             <span className="bg-gradient-to-r from-[#3B82F6] via-[#8B5CF6] to-[#3B82F6] bg-clip-text text-transparent">
               Own Your Growth.
@@ -241,9 +241,9 @@ export function HomepageClient({
             {...motionProps(0.2)}
             className="text-lg md:text-xl text-[#94A3B8] max-w-2xl mx-auto leading-relaxed"
           >
-            The AI-powered financial modeling platform for founders who want real answers —
-            not spreadsheet busywork. Build projections, run simulations, and generate
-            investor-ready reports in minutes.
+            For founders who want real answers — not spreadsheet chaos.
+            Build projections, run simulations, and generate investor-ready
+            reports in minutes — powered by AI.
           </motion.p>
 
           {/* CTAs */}
@@ -368,7 +368,7 @@ export function HomepageClient({
               Features
             </span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
-              More than a Spreadsheet. Costs less than a CFO.
+              Brings more than a Spreadsheet. Costs less than a CFO.
             </h2>
             <p className="text-[#94A3B8] max-w-2xl mx-auto">
               Professional-grade financial tools designed for speed and efficiency.
@@ -703,7 +703,16 @@ export function HomepageClient({
             <p className="text-xs text-[#64748B]">
               &copy; {new Date().getFullYear()} Revenue Map. All rights reserved.
             </p>
-            <div className="flex gap-4">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => {
+                  localStorage.removeItem("cookie-consent");
+                  window.location.reload();
+                }}
+                className="text-xs text-[#64748B] hover:text-[#94A3B8] transition-colors"
+              >
+                Cookie Settings
+              </button>
               <Link href="#" className="text-[#64748B] hover:text-[#F8FAFC] transition-colors">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" /></svg>
               </Link>

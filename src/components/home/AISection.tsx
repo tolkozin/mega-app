@@ -84,7 +84,7 @@ export function AISection() {
                 AI Assistant
               </span>
               <h2 className="text-3xl md:text-4xl font-black text-[#F8FAFC] mb-4">
-                Your numbers, explained in plain English.
+                Your numbers, explained in plain Language.
               </h2>
               <p className="text-[#94A3B8] leading-relaxed mb-10">
                 Stop guessing what your metrics mean. Revenue Map&apos;s AI reads your model,
@@ -118,7 +118,7 @@ export function AISection() {
             </motion.div>
 
             <motion.div {...motionProps(0.4)} className="mt-8">
-              <Link href="/#features" className="text-sm font-bold text-[#3B82F6] hover:underline">
+              <Link href="/auth/register" className="text-sm font-bold text-[#3B82F6] hover:underline">
                 See AI in action &rarr;
               </Link>
             </motion.div>

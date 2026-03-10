@@ -7,6 +7,12 @@ export function DashboardPreview() {
         className="w-full h-auto"
         style={{ background: "#0D1117" }}
       >
+        <defs>
+          <clipPath id="chart-clip">
+            <rect x="24" y="164" width="852" height="196" rx="10" />
+          </clipPath>
+        </defs>
+
         {/* ── Top bar ── */}
         <rect x="0" y="0" width="900" height="44" fill="#0F172A" />
         <text x="24" y="28" fill="#64748B" fontSize="13" fontFamily="inherit" fontWeight="700">
@@ -54,43 +60,45 @@ export function DashboardPreview() {
         <rect x="770" y="174" width="80" height="20" rx="6" fill="#0F172A" stroke="#334155" strokeWidth="1" />
         <text x="786" y="188" fill="#94A3B8" fontSize="9" fontFamily="inherit">12 months</text>
 
-        {/* Grid lines */}
-        <line x1="60" y1="210" x2="850" y2="210" stroke="#0F172A" strokeWidth="1" />
-        <line x1="60" y1="240" x2="850" y2="240" stroke="#0F172A" strokeWidth="1" />
-        <line x1="60" y1="270" x2="850" y2="270" stroke="#0F172A" strokeWidth="1" />
-        <line x1="60" y1="300" x2="850" y2="300" stroke="#0F172A" strokeWidth="1" />
-        <line x1="60" y1="330" x2="850" y2="330" stroke="#0F172A" strokeWidth="1" />
+        <g clipPath="url(#chart-clip)">
+          {/* Grid lines */}
+          <line x1="60" y1="210" x2="850" y2="210" stroke="#0F172A" strokeWidth="1" />
+          <line x1="60" y1="240" x2="850" y2="240" stroke="#0F172A" strokeWidth="1" />
+          <line x1="60" y1="270" x2="850" y2="270" stroke="#0F172A" strokeWidth="1" />
+          <line x1="60" y1="300" x2="850" y2="300" stroke="#0F172A" strokeWidth="1" />
+          <line x1="60" y1="330" x2="850" y2="330" stroke="#0F172A" strokeWidth="1" />
 
-        {/* X-axis labels */}
-        {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => (
-          <text key={m} x={74 + i * 68} y="348" fill="#64748B" fontSize="8" fontFamily="inherit" textAnchor="middle">{m}</text>
-        ))}
+          {/* X-axis labels */}
+          {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => (
+            <text key={m} x={74 + i * 68} y="348" fill="#64748B" fontSize="8" fontFamily="inherit" textAnchor="middle">{m}</text>
+          ))}
 
-        {/* Area fill under main line */}
-        <path
-          d="M74,330 L142,318 L210,302 L278,282 L346,258 L414,240 L482,225 L550,215 L618,205 L686,198 L754,192 L822,185 L822,335 L74,335 Z"
-          fill="#3B82F6"
-          opacity="0.12"
-        />
-        {/* Main revenue line (blue) */}
-        <polyline
-          points="74,330 142,318 210,302 278,282 346,258 414,240 482,225 550,215 618,205 686,198 754,192 822,185"
-          fill="none"
-          stroke="#3B82F6"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        {/* Optimistic scenario line (green, dashed) */}
-        <polyline
-          points="74,330 142,312 210,290 278,264 346,235 414,212 482,192 550,178 618,165 686,155 754,148 822,140"
-          fill="none"
-          stroke="#10B981"
-          strokeWidth="1.5"
-          strokeDasharray="6 4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+          {/* Area fill under main line */}
+          <path
+            d="M74,330 L142,318 L210,302 L278,282 L346,258 L414,240 L482,225 L550,215 L618,205 L686,198 L754,192 L822,185 L822,335 L74,335 Z"
+            fill="#3B82F6"
+            opacity="0.12"
+          />
+          {/* Main revenue line (blue) */}
+          <polyline
+            points="74,330 142,318 210,302 278,282 346,258 414,240 482,225 550,215 618,205 686,198 754,192 822,185"
+            fill="none"
+            stroke="#3B82F6"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Optimistic scenario line (green, dashed) */}
+          <polyline
+            points="74,330 142,312 210,290 278,264 346,235 414,212 482,192 550,178 618,165 686,155 754,148 822,140"
+            fill="none"
+            stroke="#10B981"
+            strokeWidth="1.5"
+            strokeDasharray="6 4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
 
         {/* ── Bottom Row ── */}
         {/* Left panel: Scenario Comparison */}
@@ -115,23 +123,18 @@ export function DashboardPreview() {
         <rect x="130" y="449" width="144" height="14" rx="3" fill="#10B981" opacity="0.8" />
         <text x="282" y="459" fill="#94A3B8" fontSize="9" fontFamily="inherit">$67k</text>
 
-        {/* Right panel: Top Metrics */}
+        {/* Right panel: AI Assistant Chat */}
         <rect x="452" y="376" width="424" height="88" rx="10" fill="#1E293B" stroke="#334155" strokeWidth="1" />
-        <text x="472" y="398" fill="#F8FAFC" fontSize="11" fontFamily="inherit" fontWeight="700">Top Metrics</text>
-
-        {/* CAC */}
-        <text x="472" y="420" fill="#94A3B8" fontSize="10" fontFamily="inherit">CAC</text>
-        <text x="600" y="420" fill="#F8FAFC" fontSize="10" fontFamily="inherit" fontWeight="600">$142</text>
-
-        {/* LTV */}
-        <text x="472" y="440" fill="#94A3B8" fontSize="10" fontFamily="inherit">LTV</text>
-        <text x="600" y="440" fill="#F8FAFC" fontSize="10" fontFamily="inherit" fontWeight="600">$890</text>
-
-        {/* LTV:CAC */}
-        <text x="472" y="458" fill="#94A3B8" fontSize="10" fontFamily="inherit">LTV:CAC</text>
-        <text x="600" y="458" fill="#F8FAFC" fontSize="10" fontFamily="inherit" fontWeight="600">6.3x</text>
-        <rect x="636" y="448" width="56" height="16" rx="4" fill="#064E3B" />
-        <text x="644" y="460" fill="#10B981" fontSize="8" fontFamily="inherit" fontWeight="600">Excellent</text>
+        {/* Header */}
+        <text x="472" y="396" fill="#F8FAFC" fontSize="11" fontFamily="inherit" fontWeight="700">AI Assistant</text>
+        <circle cx="844" cy="390" r="3" fill="#10B981" />
+        <text x="852" y="394" fill="#10B981" fontSize="8" fontFamily="inherit">Live</text>
+        {/* Chat bubbles */}
+        <rect x="530" y="404" width="120" height="18" rx="6" fill="#3B82F6" />
+        <text x="540" y="416" fill="#FFFFFF" fontSize="8" fontFamily="inherit">What&apos;s our biggest risk?</text>
+        <rect x="472" y="428" width="180" height="28" rx="6" fill="#0F172A" />
+        <text x="480" y="440" fill="#CBD5E1" fontSize="7.5" fontFamily="inherit">CAC payback is 8.4mo — above</text>
+        <text x="480" y="450" fill="#CBD5E1" fontSize="7.5" fontFamily="inherit">the 6mo benchmark. Consider...</text>
       </svg>
     </div>
   );

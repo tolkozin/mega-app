@@ -11,7 +11,7 @@ import { Milestones, KeyMetrics } from "@/components/dashboard/executive/KPICard
 import { SubscriptionReports } from "@/components/dashboard/reports/FinancialReports";
 import { SubscriptionInvestorReport } from "@/components/dashboard/investor/SubscriptionInvestorReport";
 import { exportToPDF } from "@/lib/pdf-export";
-import { exportCSV } from "@/lib/api";
+
 import { useChatStore } from "@/stores/chat-store";
 
 export default function SubscriptionDashboardPage() {
@@ -71,20 +71,6 @@ export default function SubscriptionDashboardPage() {
     setDashboardContext("subscription", context);
   }, [results, config.total_months, setDashboardContext]);
 
-  const handleExport = async () => {
-    try {
-      const blob = await exportCSV("subscription", JSON.parse(JSON.stringify(config)));
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "subscription_model.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Export failed");
-    }
-  };
-
   const p1End = config.phase1_dur;
   const p2End = config.phase1_dur + config.phase2_dur;
 
@@ -136,7 +122,7 @@ export default function SubscriptionDashboardPage() {
               <Milestones milestones={results.base.milestones} />
               <KeyMetrics results={results.base} milestones={results.base.milestones} />
               <SubscriptionCharts results={results} p1End={p1End} p2End={p2End} />
-              <SubscriptionReports results={results.base} onExport={handleExport} />
+              <SubscriptionReports results={results.base} />
             </>
           )}
 

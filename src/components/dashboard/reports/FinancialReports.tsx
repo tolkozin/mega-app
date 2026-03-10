@@ -8,7 +8,6 @@ import type { RunResult } from "@/lib/api";
 
 interface ReportsProps {
   results: RunResult;
-  onExport: () => void;
 }
 
 const fmtMoney = (v: unknown) => {
@@ -71,19 +70,13 @@ function BenchmarkLegend({ metrics }: { metrics: string[] }) {
   );
 }
 
-export function SubscriptionReports({ results, onExport }: ReportsProps) {
+export function SubscriptionReports({ results }: ReportsProps) {
   const data = results.dataframe;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Financial Reports</h2>
-        <button
-          onClick={onExport}
-          className="text-sm px-3 py-1.5 border rounded-md hover:bg-muted"
-        >
-          Export CSV
-        </button>
       </div>
 
       <Tabs defaultValue="pnl">
@@ -186,16 +179,13 @@ export function SubscriptionReports({ results, onExport }: ReportsProps) {
   );
 }
 
-export function EcommerceReports({ results, onExport }: ReportsProps) {
+export function EcommerceReports({ results }: ReportsProps) {
   const data = results.dataframe;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Financial Reports</h2>
-        <button onClick={onExport} className="text-sm px-3 py-1.5 border rounded-md hover:bg-muted">
-          Export CSV
-        </button>
       </div>
 
       <Tabs defaultValue="pnl">

@@ -11,7 +11,7 @@ import { Milestones, EcomKeyMetrics } from "@/components/dashboard/executive/KPI
 import { EcommerceReports } from "@/components/dashboard/reports/FinancialReports";
 import { EcommerceInvestorReport } from "@/components/dashboard/investor/EcommerceInvestorReport";
 import { exportToPDF } from "@/lib/pdf-export";
-import { exportCSV } from "@/lib/api";
+
 import { useChatStore } from "@/stores/chat-store";
 
 export default function EcommerceDashboardPage() {
@@ -71,20 +71,6 @@ export default function EcommerceDashboardPage() {
     setDashboardContext("ecommerce", context);
   }, [results, config.total_months, setDashboardContext]);
 
-  const handleExport = async () => {
-    try {
-      const blob = await exportCSV("ecommerce", JSON.parse(JSON.stringify(config)));
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "ecommerce_model.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Export failed");
-    }
-  };
-
   const p1End = config.phase1_dur;
   const p2End = config.phase1_dur + config.phase2_dur;
 
@@ -134,7 +120,7 @@ export default function EcommerceDashboardPage() {
               <Milestones milestones={results.base.milestones} />
               <EcomKeyMetrics results={results.base} milestones={results.base.milestones} />
               <EcommerceCharts results={results} p1End={p1End} p2End={p2End} />
-              <EcommerceReports results={results.base} onExport={handleExport} />
+              <EcommerceReports results={results.base} />
             </>
           )}
 

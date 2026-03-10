@@ -4,6 +4,7 @@ import "./globals.css";
 import { OrganizationJsonLd } from "@/components/blog/StructuredData";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { CookieBanner } from "@/components/CookieBanner";
 
 const lato = Lato({ subsets: ["latin", "latin-ext"], weight: ["400", "700", "900"] });
 
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${lato.className} bg-[#0F172A]`}>
         <OrganizationJsonLd />
         {children}
+        <CookieBanner />
         <Analytics />
         <SpeedInsights />
       </body>

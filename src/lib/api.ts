@@ -56,17 +56,4 @@ export async function runSaasModel(
   });
 }
 
-export async function exportCSV(
-  model_type: "subscription" | "ecommerce" | "saas",
-  config: Record<string, unknown>,
-  sensitivity?: Record<string, number>
-): Promise<Blob> {
-  const res = await fetch(`${API_URL}/api/export/csv`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model_type, config, sensitivity }),
-  });
 
-  if (!res.ok) throw new Error("Export failed");
-  return res.blob();
-}
