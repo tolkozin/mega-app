@@ -13,7 +13,7 @@ tags:
 image: "/blog/churn-rate-calculation/cover.jpg"
 imageAlt: "Dark-mode SaaS dashboard showing monthly churn rate trend line and MRR loss metric tiles"
 featured: false
-draft: true  # Change to false ONLY after final review
+draft: false
 keyword: "churn rate calculation"
 dateModified: "2026-03-10"
 sitemapPriority: 0.8
@@ -115,12 +115,9 @@ The gap between 3.4% and 5.4% tells you something important: the customers leavi
 <MetricCalculator
   title="Monthly Churn Rate Calculator"
   description="Enter your starting customer count and customers lost to calculate your monthly churn rate instantly."
-  fields={[
-    { name: "customersStart", label: "Customers at Start of Month", defaultValue: 320, min: 1, step: 1 },
-    { name: "customersLost", label: "Customers Lost This Month", defaultValue: 11, min: 0, step: 1 },
-  ]}
-  result={{ label: "Monthly Churn Rate", suffix: "%" }}
-  formula={(v) => (v.customersLost / v.customersStart) * 100}
+  fields='[{"name":"customersStart","label":"Customers at Start of Month","defaultValue":320,"min":1,"step":1},{"name":"customersLost","label":"Customers Lost This Month","defaultValue":11,"min":0,"step":1}]'
+  result='{"label":"Monthly Churn Rate","suffix":"%"}'
+  formula="(customersLost / customersStart) * 100"
 />
 
 ## Churn Rate Benchmarks by Segment

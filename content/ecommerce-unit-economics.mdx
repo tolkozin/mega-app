@@ -13,7 +13,7 @@ tags:
 image: "/blog/ecommerce-unit-economics/cover.jpg"
 imageAlt: "Dark-mode e-commerce dashboard showing LTV CAC ratio tile AOV metric and customer acquisition cost cards"
 featured: false
-draft: true  # Change to false ONLY after final review
+draft: false
 keyword: "e-commerce unit economics"
 dateModified: "2026-03-10"
 sitemapPriority: 0.9
@@ -183,15 +183,9 @@ Acme's unit economics are strong — 7.9x LTV:CAC and a 3.8-month payback period
 <MetricCalculator
   title="E-commerce LTV:CAC Ratio Calculator"
   description="Enter your key e-commerce metrics to calculate your margin-adjusted LTV:CAC ratio and see whether your unit economics support aggressive growth."
-  fields={[
-    { name: "aov", label: "Average Order Value (AOV)", defaultValue: 85, min: 0, prefix: "$", step: 1 },
-    { name: "purchaseFrequency", label: "Avg. Purchases Per Year", defaultValue: 3.5, min: 0.1, step: 0.1 },
-    { name: "grossMargin", label: "Gross Margin", defaultValue: 48, min: 0, max: 100, suffix: "%", step: 0.5 },
-    { name: "customerLifespan", label: "Customer Lifespan (Years)", defaultValue: 2.5, min: 0.5, step: 0.5 },
-    { name: "cac", label: "Customer Acquisition Cost (CAC)", defaultValue: 45, min: 0, prefix: "$", step: 1 },
-  ]}
-  result={{ label: "LTV:CAC Ratio", suffix: "x" }}
-  formula={(v) => ((v.aov * v.purchaseFrequency * (v.grossMargin / 100)) * v.customerLifespan) / v.cac}
+  fields='[{"name":"aov","label":"Average Order Value (AOV)","defaultValue":85,"min":0,"prefix":"$","step":1},{"name":"purchaseFrequency","label":"Avg. Purchases Per Year","defaultValue":3.5,"min":0.1,"step":0.1},{"name":"grossMargin","label":"Gross Margin","defaultValue":48,"min":0,"max":100,"suffix":"%","step":0.5},{"name":"customerLifespan","label":"Customer Lifespan (Years)","defaultValue":2.5,"min":0.5,"step":0.5},{"name":"cac","label":"Customer Acquisition Cost (CAC)","defaultValue":45,"min":0,"prefix":"$","step":1}]'
+  result='{"label":"LTV:CAC Ratio","suffix":"x"}'
+  formula="((aov * purchaseFrequency * (grossMargin / 100)) * customerLifespan) / cac"
 />
 
 ## E-commerce Unit Economics Benchmarks

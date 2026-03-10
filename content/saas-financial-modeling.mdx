@@ -13,7 +13,7 @@ tags:
 image: "/blog/saas-financial-modeling/cover.jpg"
 imageAlt: "Dark-mode SaaS financial model dashboard showing MRR forecast chart scenario planning tiles and runway metric"
 featured: false
-draft: true  # Change to false ONLY after final review
+draft: false
 keyword: "SaaS financial modeling"
 dateModified: "2026-03-10"
 sitemapPriority: 0.9
@@ -149,14 +149,9 @@ Projected MRR at month 12 (base case): approximately $51,200 — a 3.4× increas
 <MetricCalculator
   title="SaaS Revenue Forecast Calculator"
   description="Enter your current MRR, growth rate, churn rate, and forecast period to project where your MRR will be at the end of the period."
-  fields={[
-    { name: "currentMrr", label: "Current MRR", defaultValue: 10000, min: 0, prefix: "$", step: 100 },
-    { name: "growthRate", label: "Monthly New MRR Growth Rate", defaultValue: 10, min: 0, suffix: "%", step: 0.5 },
-    { name: "churnRate", label: "Monthly Churn Rate", defaultValue: 2, min: 0, max: 100, suffix: "%", step: 0.5 },
-    { name: "months", label: "Forecast Period (Months)", defaultValue: 12, min: 1, max: 60, step: 1 },
-  ]}
-  result={{ label: "Projected MRR", prefix: "$" }}
-  formula={(v) => v.currentMrr * Math.pow((1 + (v.growthRate - v.churnRate) / 100), v.months)}
+  fields='[{"name":"currentMrr","label":"Current MRR","defaultValue":10000,"min":0,"prefix":"$","step":100},{"name":"growthRate","label":"Monthly New MRR Growth Rate","defaultValue":10,"min":0,"suffix":"%","step":0.5},{"name":"churnRate","label":"Monthly Churn Rate","defaultValue":2,"min":0,"max":100,"suffix":"%","step":0.5},{"name":"months","label":"Forecast Period (Months)","defaultValue":12,"min":1,"max":60,"step":1}]'
+  result='{"label":"Projected MRR","prefix":"$"}'
+  formula="currentMrr * Math.pow((1 + (growthRate - churnRate) / 100), months)"
 />
 
 ## The Key Metrics Your SaaS Model Must Output

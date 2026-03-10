@@ -13,7 +13,7 @@ tags:
 image: "/blog/understanding-mrr-metrics/cover.jpg"
 imageAlt: "Dark-mode SaaS dashboard showing MRR growth curve and active subscriber count metric tiles"
 featured: false
-draft: true  # Change to false ONLY after final review
+draft: false
 keyword: "monthly recurring revenue"
 dateModified: "2026-03-10"
 sitemapPriority: 0.9
@@ -168,12 +168,9 @@ The 8 annual customers contribute $1,992/month to MRR — not $23,904 in month o
 <MetricCalculator
   title="MRR Calculator"
   description="Enter your active subscriber count and average revenue per account to calculate your monthly recurring revenue instantly."
-  fields={[
-    { name: "subscribers", label: "Active Subscribers", defaultValue: 150, min: 1, step: 1 },
-    { name: "arpa", label: "Average Revenue Per Account (ARPA)", defaultValue: 99, min: 0, prefix: "$", step: 1 },
-  ]}
-  result={{ label: "Monthly Recurring Revenue (MRR)", prefix: "$" }}
-  formula={(v) => v.subscribers * v.arpa}
+  fields='[{"name":"subscribers","label":"Active Subscribers","defaultValue":150,"min":1,"step":1},{"name":"arpa","label":"Average Revenue Per Account (ARPA)","defaultValue":99,"min":0,"prefix":"$","step":1}]'
+  result='{"label":"Monthly Recurring Revenue (MRR)","prefix":"$"}'
+  formula="subscribers * arpa"
 />
 
 ## MRR Benchmarks and Growth Rates
