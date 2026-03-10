@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency, formatPercent, formatNumber } from "@/lib/utils";
 import { getBenchmarkColor, getBenchmarkLabel } from "@/lib/benchmarks";
@@ -24,8 +24,26 @@ const borderColorMap = {
 };
 
 function Tooltip({ text }: { text: string }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [pos, setPos] = React.useState<"above" | "below">("above");
+
+  React.useEffect(() => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    if (rect.top < 8) setPos("below");
+  }, []);
+
+  if (pos === "below") {
+    return (
+      <div ref={ref} className="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 bg-[#1C1D21] text-white text-[11px] leading-relaxed rounded-lg shadow-lg w-[240px] whitespace-pre-line pointer-events-none">
+        {text}
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[5px] border-l-transparent border-r-transparent border-b-[#1C1D21]" />
+      </div>
+    );
+  }
+
   return (
-    <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-[#1C1D21] text-white text-[11px] leading-relaxed rounded-lg shadow-lg max-w-[260px] whitespace-pre-line pointer-events-none">
+    <div ref={ref} className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-[#1C1D21] text-white text-[11px] leading-relaxed rounded-lg shadow-lg w-[240px] whitespace-pre-line pointer-events-none">
       {text}
       <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#1C1D21]" />
     </div>

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useChatStore } from "@/stores/chat-store";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useIsMobile, useIsDesktop } from "@/hooks/useMediaQuery";
 import { AnimatePresence, motion } from "framer-motion";
@@ -44,8 +43,6 @@ const navItems = [
 
 function SidebarContent({ expanded, onClose }: { expanded: boolean; onClose?: () => void }) {
   const pathname = usePathname();
-  const toggleAI = useChatStore((s) => s.togglePanel);
-  const aiOpen = useChatStore((s) => s.isOpen);
 
   return (
     <>
@@ -90,26 +87,6 @@ function SidebarContent({ expanded, onClose }: { expanded: boolean; onClose?: ()
         })}
       </nav>
 
-      {/* AI Assistant */}
-      <div className="px-3">
-        <button
-          onClick={() => { toggleAI(); onClose?.(); }}
-          title="AI Assistant"
-          className={`w-full h-[52px] md:h-10 rounded-lg flex items-center gap-3 px-2.5 transition-colors ${
-            aiOpen
-              ? "bg-[#5E81F4] text-white"
-              : "text-[#8181A5] hover:text-white hover:bg-white/10"
-          }`}
-        >
-          <span className="shrink-0 w-5 flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10 2L12.09 7.26L18 8.27L14 12.14L14.18 18.02L10 15.77L5.82 18.02L6 12.14L2 8.27L7.91 7.26L10 2Z" />
-            </svg>
-          </span>
-          {expanded && <span className="text-sm whitespace-nowrap">AI Assistant</span>}
-        </button>
-      </div>
-
       {/* Bottom: settings */}
       <div className="px-3">
         <Link
@@ -136,6 +113,8 @@ export function AppSidebar() {
   const isDesktop = useIsDesktop();
   const expanded = useLayoutStore((s) => s.navSidebarExpanded);
   const toggleExpand = useLayoutStore((s) => s.toggleNavSidebar);
+  const hidden = useLayoutStore((s) => s.navSidebarHidden);
+  const setHidden = useLayoutStore((s) => s.setNavSidebarHidden);
   const mobileOpen = useLayoutStore((s) => s.navSidebarMobileOpen);
   const setMobileOpen = useLayoutStore((s) => s.setNavSidebarMobileOpen);
 
@@ -168,6 +147,21 @@ export function AppSidebar() {
     );
   }
 
+  // Desktop: hidden — show a small toggle tab on left edge
+  if (hidden) {
+    return (
+      <button
+        onClick={() => setHidden(false)}
+        className="fixed top-1/2 -translate-y-1/2 left-0 z-30 w-5 h-12 bg-[#1C1D21] rounded-r-lg flex items-center justify-center text-[#8181A5] hover:text-white hover:w-6 transition-all"
+        title="Show sidebar"
+      >
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 3l5 5-5 5" />
+        </svg>
+      </button>
+    );
+  }
+
   // Desktop: collapsible (64px ↔ 200px)
   const width = isDesktop && expanded ? "w-[200px]" : "w-[64px]";
 
@@ -177,9 +171,22 @@ export function AppSidebar() {
     >
       <SidebarContent expanded={isDesktop && expanded} />
 
+      {/* Hide sidebar button */}
+      <div className="px-3 mt-2">
+        <button
+          onClick={() => setHidden(true)}
+          className="w-full h-8 rounded-lg flex items-center justify-center text-[#8181A5] hover:text-white hover:bg-white/10 transition-colors"
+          title="Hide sidebar"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 3L5 8l5 5" />
+          </svg>
+        </button>
+      </div>
+
       {/* Expand/collapse toggle — desktop only */}
       {isDesktop && (
-        <div className="px-3 mt-2">
+        <div className="px-3 mt-1">
           <button
             onClick={toggleExpand}
             className="w-full h-8 rounded-lg flex items-center justify-center text-[#8181A5] hover:text-white hover:bg-white/10 transition-colors"

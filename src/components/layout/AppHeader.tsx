@@ -59,15 +59,15 @@ function DateRangeBar({ monthRange, onMonthRangeChange, totalMonths }: {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 bg-white border border-[#ECECF2] rounded-lg h-8 px-3 hover:border-[#5E81F4] transition-colors"
+        className="flex items-center gap-1.5 bg-white/10 border border-[#2A2B30] rounded-lg h-8 px-3 hover:border-[#5E81F4] transition-colors"
       >
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-[#8181A5] shrink-0">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-[#94A3B8] shrink-0">
           <rect x="1" y="2" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
           <path d="M1 5.5h12" stroke="currentColor" strokeWidth="1.2" />
           <path d="M4.5 1v2M9.5 1v2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
         </svg>
-        <span className="text-[11px] font-medium text-[#1C1D21] whitespace-nowrap">{currentLabel}</span>
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-[#8181A5]">
+        <span className="text-[11px] font-medium text-[#F8FAFC] whitespace-nowrap">{currentLabel}</span>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-[#94A3B8]">
           <path d="M2.5 4L5 6.5L7.5 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
@@ -528,12 +528,12 @@ function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths }: A
   };
 
   return (
-    <header className="h-14 border-b border-[#ECECF2] bg-white flex items-center justify-between px-6 shrink-0">
+    <header className="h-14 border-b border-[#2A2B30] bg-[#1C1D21] flex items-center justify-between px-6 shrink-0">
       <div className="flex items-center gap-4 min-w-0">
-        {title && <h1 className="text-lg font-bold text-[#1C1D21] truncate">{title}</h1>}
+        {title && <h1 className="text-lg font-bold text-[#F8FAFC] truncate">{title}</h1>}
 
         {isDashboard && (
-          <div className="flex items-center bg-[#F4F6FF] rounded-lg p-0.5">
+          <div className="flex items-center bg-white/10 rounded-lg p-0.5">
             {categories.map((cat) => (
               <button
                 key={cat.key}
@@ -541,7 +541,7 @@ function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths }: A
                 className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors whitespace-nowrap ${
                   activeCategory === cat.key
                     ? "bg-[#5E81F4] text-white"
-                    : "text-[#8181A5] hover:text-[#1C1D21]"
+                    : "text-[#94A3B8] hover:text-white"
                 }`}
               >
                 {cat.label}
@@ -562,10 +562,10 @@ function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths }: A
       <div className="flex items-center gap-3">
         {user && (
           <>
-            <span className="text-sm text-[#8181A5]">{user.email}</span>
+            <span className="text-sm text-[#94A3B8]">{user.email}</span>
             <button
               onClick={handleSignOut}
-              className="text-sm text-[#8181A5] hover:text-[#1C1D21] transition-colors"
+              className="text-sm text-[#94A3B8] hover:text-white transition-colors"
             >
               Sign Out
             </button>

@@ -319,7 +319,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
       className={
         fullscreen
           ? "fixed inset-0 z-50 bg-white flex flex-col"
-          : "w-[320px] lg:w-[320px] md:w-[260px] h-full border-l border-[#E8E8EF] bg-white shrink-0 flex flex-col"
+          : "w-[320px] lg:w-[320px] md:w-[260px] h-full border-l border-[#2A2B30] bg-white shrink-0 flex flex-col"
       }
     >
       {/* Header */}
@@ -520,7 +520,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
             onKeyDown={handleKeyDown}
             placeholder="Ask about your data..."
             rows={1}
-            className="flex-1 resize-none rounded-lg border border-[#E8E8EF] px-3 py-2 text-sm focus:outline-none focus:border-[#5E81F4] placeholder:text-[#C4C4D4]"
+            className="flex-1 resize-none rounded-lg border border-[#E8E8EF] px-3 py-2 text-sm text-[#1C1D21] bg-white focus:outline-none focus:border-[#5E81F4] placeholder:text-[#C4C4D4]"
           />
           <button
             onClick={() => sendMessage()}

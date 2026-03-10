@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,17 +11,29 @@ import type { SaasPhaseConfig } from "@/lib/types";
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
   const [hover, setHover] = useState(false);
+  const ref = React.useRef<HTMLSpanElement>(null);
+  const [above, setAbove] = useState(true);
+
+  const handleEnter = () => {
+    setHover(true);
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      setAbove(rect.top > 120);
+    }
+  };
+
   return (
     <span
+      ref={ref}
       className="relative inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#ECECF2] text-[#8181A5] text-[9px] font-bold cursor-help ml-1"
-      onMouseEnter={() => setHover(true)}
+      onMouseEnter={handleEnter}
       onMouseLeave={() => setHover(false)}
     >
       ?
       {hover && (
-        <span className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-[#1C1D21] text-white text-[10px] leading-relaxed rounded-lg shadow-lg w-[200px] whitespace-normal pointer-events-none">
+        <span className={`absolute z-[100] ${above ? "bottom-full mb-2" : "top-full mt-2"} left-0 px-2.5 py-1.5 bg-[#1C1D21] text-white text-[10px] leading-relaxed rounded-lg shadow-lg w-[200px] whitespace-normal pointer-events-none`}>
           {tooltip}
-          <span className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#1C1D21]" />
+          <span className={`absolute ${above ? "top-full" : "bottom-full"} left-4 w-0 h-0 border-l-4 border-r-4 ${above ? "border-t-4 border-t-[#1C1D21]" : "border-b-4 border-b-[#1C1D21]"} border-l-transparent border-r-transparent`} />
         </span>
       )}
     </span>
@@ -32,15 +44,34 @@ function NumberField({ label, value, onChange, min, max, step, help }: {
   label: string; value: number; onChange: (v: number) => void;
   min?: number; max?: number; step?: number; help?: string;
 }) {
+  const [display, setDisplay] = useState(value === 0 ? "" : String(value));
+  const [focused, setFocused] = useState(false);
+
+  React.useEffect(() => {
+    if (!focused) setDisplay(value === 0 ? "" : String(value));
+  }, [value, focused]);
+
   return (
     <div className="space-y-1">
       <Label className="text-xs">{label}{help && <InfoIcon tooltip={help} />}</Label>
       <Input
         type="number"
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
+        value={display}
+        onChange={(e) => {
+          setDisplay(e.target.value);
+          onChange(e.target.value === "" ? 0 : Number(e.target.value));
+        }}
+        onFocus={() => {
+          setFocused(true);
+          if (value === 0) setDisplay("");
+        }}
+        onBlur={() => {
+          setFocused(false);
+          if (display === "" || display === "0") setDisplay("");
+        }}
+        placeholder="0"
         min={min} max={max} step={step || 1}
-        className="h-8 text-sm"
+        className="h-8 text-sm placeholder:text-[#C4C4D4]"
       />
     </div>
   );

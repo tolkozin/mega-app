@@ -6,6 +6,10 @@ interface LayoutState {
   navSidebarExpanded: boolean;
   toggleNavSidebar: () => void;
 
+  /** Desktop: sidebar hidden completely */
+  navSidebarHidden: boolean;
+  setNavSidebarHidden: (hidden: boolean) => void;
+
   /** Mobile: nav overlay open/close */
   navSidebarMobileOpen: boolean;
   setNavSidebarMobileOpen: (open: boolean) => void;
@@ -21,6 +25,9 @@ export const useLayoutStore = create<LayoutState>()(
       navSidebarExpanded: false,
       toggleNavSidebar: () => set((s) => ({ navSidebarExpanded: !s.navSidebarExpanded })),
 
+      navSidebarHidden: false,
+      setNavSidebarHidden: (hidden) => set({ navSidebarHidden: hidden }),
+
       navSidebarMobileOpen: false,
       setNavSidebarMobileOpen: (open) => set({ navSidebarMobileOpen: open }),
 
@@ -29,7 +36,7 @@ export const useLayoutStore = create<LayoutState>()(
     }),
     {
       name: "layout-store",
-      partialize: (s) => ({ navSidebarExpanded: s.navSidebarExpanded }),
+      partialize: (s) => ({ navSidebarExpanded: s.navSidebarExpanded, navSidebarHidden: s.navSidebarHidden }),
     }
   )
 );
