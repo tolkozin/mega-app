@@ -42,21 +42,33 @@ const navItems = [
   },
 ];
 
-function SidebarContent({ expanded }: { expanded: boolean }) {
+function SidebarContent({ expanded, onClose }: { expanded: boolean; onClose?: () => void }) {
   const pathname = usePathname();
   const toggleAI = useChatStore((s) => s.togglePanel);
   const aiOpen = useChatStore((s) => s.isOpen);
 
   return (
     <>
-      {/* Logo */}
-      <Link href="/dashboard" className="mb-8 flex items-center gap-2 px-3">
-        <img src="/logo.svg" alt="Revenue Map" className="w-9 h-9 shrink-0" />
-        {expanded && <span className="text-white font-bold text-sm whitespace-nowrap">Revenue Map</span>}
-      </Link>
+      {/* Logo + close button */}
+      <div className="mb-6 flex items-center justify-between px-4">
+        <Link href="/dashboard" className="flex items-center gap-2" onClick={onClose}>
+          <img src="/logo.svg" alt="Revenue Map" className="w-9 h-9 shrink-0" />
+          {expanded && <span className="text-white font-bold text-sm whitespace-nowrap">Revenue Map</span>}
+        </Link>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#64748B] active:bg-white/10"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M2 2l12 12M14 2L2 14" />
+            </svg>
+          </button>
+        )}
+      </div>
 
       {/* Nav items */}
-      <nav className="flex flex-col gap-2 flex-1 px-3">
+      <nav className="flex flex-col gap-1 flex-1 px-3">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
@@ -64,7 +76,8 @@ function SidebarContent({ expanded }: { expanded: boolean }) {
               key={item.href}
               href={item.href}
               title={item.label}
-              className={`h-10 rounded-lg flex items-center gap-3 px-2.5 transition-colors ${
+              onClick={onClose}
+              className={`h-[52px] md:h-10 rounded-lg flex items-center gap-3 px-2.5 transition-colors ${
                 isActive
                   ? "bg-[#5E81F4] text-white"
                   : "text-[#8181A5] hover:text-white hover:bg-white/10"
@@ -80,9 +93,9 @@ function SidebarContent({ expanded }: { expanded: boolean }) {
       {/* AI Assistant */}
       <div className="px-3">
         <button
-          onClick={toggleAI}
+          onClick={() => { toggleAI(); onClose?.(); }}
           title="AI Assistant"
-          className={`w-full h-10 rounded-lg flex items-center gap-3 px-2.5 transition-colors ${
+          className={`w-full h-[52px] md:h-10 rounded-lg flex items-center gap-3 px-2.5 transition-colors ${
             aiOpen
               ? "bg-[#5E81F4] text-white"
               : "text-[#8181A5] hover:text-white hover:bg-white/10"
@@ -102,7 +115,8 @@ function SidebarContent({ expanded }: { expanded: boolean }) {
         <Link
           href="/settings"
           title="Settings"
-          className="h-10 rounded-lg flex items-center gap-3 px-2.5 text-[#8181A5] hover:text-white hover:bg-white/10 transition-colors"
+          onClick={onClose}
+          className="h-[52px] md:h-10 rounded-lg flex items-center gap-3 px-2.5 text-[#8181A5] hover:text-white hover:bg-white/10 transition-colors"
         >
           <span className="shrink-0 w-5 flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -132,20 +146,21 @@ export function AppSidebar() {
         {mobileOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-[39] bg-black/40"
+              className="fixed inset-0 z-[39] bg-black/60"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
             />
             <motion.aside
-              className="fixed top-0 left-0 z-40 h-full w-[200px] bg-[#1C1D21] flex flex-col items-stretch py-5"
+              className="fixed top-0 left-0 z-40 h-full w-[280px] bg-[#0F172A] border-r border-[#1E293B] flex flex-col items-stretch py-5"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              style={{ paddingTop: "max(20px, env(safe-area-inset-top))" }}
             >
-              <SidebarContent expanded />
+              <SidebarContent expanded onClose={() => setMobileOpen(false)} />
             </motion.aside>
           </>
         )}

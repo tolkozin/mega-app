@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useChatStore, type ConfigPatch } from "@/stores/chat-store";
 import { useConfigStore } from "@/stores/config-store";
 import { ChatMessage } from "./ChatMessage";
-import { VoiceInput } from "./VoiceInput";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 
 const WELCOME_MESSAGES: Record<string, string> = {
@@ -386,7 +385,6 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
             <p className="mb-2">Ask questions about your financial model</p>
             <p className="text-xs">e.g. &quot;What&apos;s my projected MRR?&quot;</p>
             <p className="text-xs mt-1">or &quot;Set my ad budget to $5000&quot;</p>
-            <p className="text-xs mt-1">Upload a file or use voice input</p>
           </div>
         )}
 
@@ -488,15 +486,8 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
       </div>
 
       {/* Input area */}
-      <div className="px-4 py-3 border-t border-[#E8E8EF]">
+      <div className="px-4 py-3 border-t border-[#E8E8EF]" style={{ paddingBottom: fullscreen ? "max(12px, env(safe-area-inset-bottom))" : undefined }}>
         <div className="flex items-end gap-2">
-          <VoiceInput
-            onTranscript={(text) => {
-              setInput((prev) => (prev ? prev + " " + text : text));
-              inputRef.current?.focus();
-            }}
-            disabled={isStreaming}
-          />
           {/* File upload button */}
           <button
             onClick={() => fileInputRef.current?.click()}
