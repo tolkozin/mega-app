@@ -64,7 +64,7 @@ export async function POST(request: Request) {
       model: "gpt-4.1-nano",
       messages,
       stream: true,
-      max_tokens: 500,
+      max_tokens: 1000,
     });
 
     const encoder = new TextEncoder();
