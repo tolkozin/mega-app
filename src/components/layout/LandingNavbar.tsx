@@ -23,30 +23,32 @@ export function LandingNavbar() {
 
   return (
     <nav
-      className={`sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b transition-shadow duration-200 ${
-        scrolled ? "border-[#ECECF2] shadow-sm" : "border-transparent"
+      className={`sticky top-0 z-50 backdrop-blur-md border-b transition-all duration-200 ${
+        scrolled
+          ? "bg-[#0F172A]/95 border-[#334155]/50 shadow-lg shadow-black/20"
+          : "bg-transparent border-transparent"
       }`}
     >
       <div className="container mx-auto flex h-16 items-center px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 shrink-0">
           <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" />
-          <span className="text-lg font-bold text-[#1C1D21]">Revenue Map</span>
+          <span className="text-lg font-bold text-[#F8FAFC]">Revenue Map</span>
         </Link>
 
         {/* Center nav links */}
         <div className="hidden md:flex flex-1 items-center justify-center space-x-8">
-          <Link href="/#models" className="text-sm font-medium text-[#8181A5] hover:text-[#1C1D21] transition-colors">
+          <Link href="/#models" className="text-sm font-medium text-[#94A3B8] hover:text-[#F8FAFC] transition-colors">
             Product
           </Link>
           {/* TODO: audience landing page */}
-          <Link href="#" className="text-sm font-medium text-[#8181A5] hover:text-[#1C1D21] transition-colors">
+          <Link href="#" className="text-sm font-medium text-[#94A3B8] hover:text-[#F8FAFC] transition-colors">
             For Developers
           </Link>
-          <Link href="/pricing" className="text-sm font-medium text-[#8181A5] hover:text-[#1C1D21] transition-colors">
+          <Link href="/pricing" className="text-sm font-medium text-[#94A3B8] hover:text-[#F8FAFC] transition-colors">
             Pricing
           </Link>
-          <Link href="/blog" className="text-sm font-medium text-[#8181A5] hover:text-[#1C1D21] transition-colors">
+          <Link href="/blog" className="text-sm font-medium text-[#94A3B8] hover:text-[#F8FAFC] transition-colors">
             Blog
           </Link>
         </div>
@@ -55,23 +57,23 @@ export function LandingNavbar() {
         <div className="flex items-center space-x-3 ml-auto md:ml-0 shrink-0">
           {loading ? null : user ? (
             <>
-              <Link href="/dashboard" className="text-sm font-medium text-[#8181A5] hover:text-[#1C1D21] transition-colors">
+              <Link href="/dashboard" className="text-sm font-medium text-[#94A3B8] hover:text-[#F8FAFC] transition-colors">
                 Dashboard
               </Link>
-              <span className="text-sm text-[#8181A5]">{user.email}</span>
-              <button onClick={handleSignOut} className="text-sm text-[#8181A5] hover:text-[#1C1D21] transition-colors">
+              <span className="text-sm text-[#94A3B8]">{user.email}</span>
+              <button onClick={handleSignOut} className="text-sm text-[#94A3B8] hover:text-[#F8FAFC] transition-colors">
                 Sign Out
               </button>
             </>
           ) : (
             <>
               <Link href="/auth/login">
-                <button className="h-9 px-4 text-sm text-[#1C1D21] font-bold hover:bg-[#F8F8FC] rounded-lg transition-colors">
+                <button className="h-9 px-4 text-sm text-[#F8FAFC] font-bold hover:bg-white/10 rounded-lg transition-colors">
                   Sign In
                 </button>
               </Link>
               <Link href="/auth/register">
-                <button className="h-9 px-5 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors">
+                <button className="h-9 px-5 bg-[#3B82F6] text-white text-sm font-bold rounded-lg hover:bg-[#2563EB] transition-colors">
                   Get Started Free
                 </button>
               </Link>
