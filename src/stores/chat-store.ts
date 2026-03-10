@@ -1,5 +1,11 @@
 import { create } from "zustand";
 
+export interface ConfigPatch {
+  type: string;
+  top?: Record<string, unknown>;
+  phases?: Record<string, Record<string, unknown>>;
+}
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
@@ -46,6 +52,11 @@ interface ChatStore {
   setReport: (r: AIReport | null) => void;
   setReportLoading: (v: boolean) => void;
 
+  // Config patch from AI
+  pendingPatch: ConfigPatch | null;
+  setPendingPatch: (patch: ConfigPatch | null) => void;
+  clearPendingPatch: () => void;
+
   // Usage counters (display-only, server is authoritative)
   chatUsage: { current: number; limit: number; remaining: number } | null;
   reportUsage: { current: number; limit: number; remaining: number } | null;
@@ -89,6 +100,10 @@ export const useChatStore = create<ChatStore>((set) => ({
   reportLoading: false,
   setReport: (r) => set({ report: r }),
   setReportLoading: (v) => set({ reportLoading: v }),
+
+  pendingPatch: null,
+  setPendingPatch: (patch) => set({ pendingPatch: patch }),
+  clearPendingPatch: () => set({ pendingPatch: null }),
 
   chatUsage: null,
   reportUsage: null,

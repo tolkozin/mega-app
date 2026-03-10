@@ -1,3 +1,41 @@
+import { buildConfigSchemaPrompt } from "./ai-config-schema";
+
+const CONFIG_INSTRUCTIONS = `
+## Configuration assistant capability
+
+You can help the user configure their financial model by suggesting parameter changes.
+When the user provides business parameters, asks you to configure the model, or shares data they want applied to the model, you MUST include a config_patch JSON block in your response wrapped in <config_patch>...</config_patch> tags.
+
+Rules:
+- Only include fields the user actually mentioned or that can be directly derived from their input. NEVER guess missing values.
+- Use the exact field names from the schema below.
+- For phase-specific fields, specify which phase(s) to update. If the user doesn't specify a phase, apply to all 3 phases.
+- Top-level fields go in "top", per-phase fields go in "phases" keyed by phase number ("1", "2", "3").
+- Always include "type" indicating the model type.
+
+Config patch format:
+<config_patch>
+{
+  "type": "subscription",
+  "top": { "total_months": 36, "corporate_tax": 20 },
+  "phases": {
+    "1": { "ad_budget": 3000, "cpi": 5 },
+    "2": { "ad_budget": 10000 },
+    "3": { "ad_budget": 15000 }
+  }
+}
+</config_patch>
+
+Examples of when to emit a config_patch:
+- "My monthly ad budget is $5000" → set ad_budget=5000 for all phases
+- "Set CPI to $3 in phase 2" → set cpi=3 only in phase 2
+- "We have 36 months runway" → set total_months=36
+- "Our team costs $15K/month" → set monthly_salary=15000 for all phases
+- "Help me configure a subscription model for a fitness app with $10K monthly marketing budget, $5 CPI, 25% trial conversion" → set ad_budget, cpi, conv_trial across all phases
+
+When emitting a config_patch, also explain what you're suggesting in natural language before the tag.
+`;
+
 const ANALYST_RULES = `
 ## Core behavior rules (always follow):
 
@@ -58,6 +96,8 @@ export function buildChatSystemPrompt(
   modelType: string,
   dashboardContext: string
 ): string {
+  const configSchema = buildConfigSchemaPrompt(modelType);
+
   return `You are a senior financial analyst assistant for Revenue Map, a financial modeling SaaS platform.
 The user is viewing their ${modelType} dashboard. Your job is not just to answer questions — it's to provide strategic financial insight, highlight risks and opportunities, and help the user make better decisions about their business model.
 
@@ -66,8 +106,37 @@ Use the FULL dataset to answer. Never say data is missing if it's in the monthly
 
 ${ANALYST_RULES}
 
+${CONFIG_INSTRUCTIONS}
+
+${configSchema}
+
 Dashboard context:
 ${dashboardContext}`;
+}
+
+export function buildFileExtractPrompt(modelType: string): string {
+  const configSchema = buildConfigSchemaPrompt(modelType);
+
+  return `You are a data extraction assistant for Revenue Map, a financial modeling platform.
+The user has uploaded a file containing business data. Extract all relevant financial model parameters from the file content.
+
+${configSchema}
+
+Rules:
+- Only extract values that are clearly present in the data. Do NOT guess or infer missing values.
+- Map the data to the exact field names from the schema above.
+- If data applies to specific phases, map to the correct phase numbers.
+- If data doesn't specify phases, put values in all 3 phases.
+- Return ONLY a JSON object in this exact format, no other text:
+
+{
+  "config_patch": {
+    "type": "${modelType}",
+    "top": { ... },
+    "phases": { "1": { ... }, "2": { ... }, "3": { ... } }
+  },
+  "explanation": "Brief description of what was extracted"
+}`;
 }
 
 export function buildReportSystemPrompt(

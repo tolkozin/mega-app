@@ -39,6 +39,10 @@ export function LandingNavbar() {
           <Link href="/#models" className="text-sm font-medium text-[#8181A5] hover:text-[#1C1D21] transition-colors">
             Product
           </Link>
+          {/* TODO: audience landing page */}
+          <Link href="#" className="text-sm font-medium text-[#8181A5] hover:text-[#1C1D21] transition-colors">
+            For Developers
+          </Link>
           <Link href="/pricing" className="text-sm font-medium text-[#8181A5] hover:text-[#1C1D21] transition-colors">
             Pricing
           </Link>

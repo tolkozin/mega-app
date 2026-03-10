@@ -33,7 +33,10 @@ function LoginForm() {
   return (
     <>
       <div className="mb-8">
-        <Link href="/" className="text-2xl font-bold text-[#1C1D21]">Revenue Map</Link>
+        <Link href="/" className="inline-flex items-center gap-2">
+          <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" />
+          <span className="text-2xl font-bold text-[#1C1D21]">Revenue Map</span>
+        </Link>
       </div>
 
       <h1 className="text-[28px] font-bold text-[#1C1D21] mb-2">Sign In</h1>
