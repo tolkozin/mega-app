@@ -64,8 +64,9 @@ export async function POST(request: Request) {
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("AI report error:", error);
-    return new Response(JSON.stringify({ error: "Report generation failed" }), {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error("AI report error:", errMsg, error);
+    return new Response(JSON.stringify({ error: "Report generation failed", detail: errMsg }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

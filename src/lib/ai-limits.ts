@@ -22,14 +22,17 @@ export async function checkAndIncrement(
 ): Promise<UsageResult> {
   const supabase = await createClient();
 
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from("profiles")
     .select("ai_chat_count, ai_report_count, ai_voice_seconds, ai_period_start")
     .eq("id", userId)
     .single();
 
-  if (!profile) {
-    return { allowed: false, current: 0, limit: 0, remaining: 0 };
+  if (error || !profile) {
+    // If columns don't exist yet, skip rate limiting and allow the request
+    console.warn("ai-limits: could not read profile AI columns, skipping rate limit", error?.message);
+    const limitMap = { chat: AI_LIMITS.CHAT_PER_MONTH, report: AI_LIMITS.REPORTS_PER_MONTH, voice: AI_LIMITS.VOICE_SECONDS_PER_MONTH };
+    return { allowed: true, current: 0, limit: limitMap[type], remaining: limitMap[type] };
   }
 
   // Auto-reset if period is from a previous month

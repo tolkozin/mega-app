@@ -82,8 +82,9 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("AI chat error:", error);
-    return new Response(JSON.stringify({ error: "AI chat failed" }), {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error("AI chat error:", errMsg, error);
+    return new Response(JSON.stringify({ error: "AI chat failed", detail: errMsg }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

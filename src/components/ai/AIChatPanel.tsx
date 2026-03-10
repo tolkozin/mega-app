@@ -62,7 +62,7 @@ export function AIChatPanel() {
 
       if (!res.ok) {
         const err = await res.json();
-        appendToLastAssistant(err.error || "Something went wrong.");
+        appendToLastAssistant(err.detail ? `${err.error}: ${err.detail}` : (err.error || "Something went wrong."));
         if (err.usage) setChatUsage(err.usage);
         setStreaming(false);
         return;

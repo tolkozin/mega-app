@@ -154,9 +154,7 @@ function DashboardPreview() {
       <div className="flex">
         {/* Mini sidebar */}
         <div className="hidden md:flex flex-col w-14 bg-[#1C1D21] py-4 items-center gap-4">
-          <div className="w-7 h-7 rounded-lg bg-[#5E81F4] flex items-center justify-center">
-            <span className="text-white text-[10px] font-bold">R</span>
-          </div>
+          <img src="/logo.svg" alt="Revenue Map" className="w-7 h-7" />
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="w-6 h-6 rounded bg-white/10" />
           ))}
@@ -305,15 +303,10 @@ export default function LandingPage() {
             Build investor-ready models for subscription, e-commerce, and SaaS. Monte Carlo simulations,
             scenario analysis, and real-time dashboards — no spreadsheets needed.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex justify-center">
             <Link href="/auth/register">
               <button className="h-12 px-8 bg-[#5E81F4] text-white font-bold text-sm rounded-lg hover:bg-[#4B6FE0] transition-colors shadow-lg shadow-[#5E81F4]/25">
                 Get Started Free
-              </button>
-            </Link>
-            <Link href="/#features">
-              <button className="h-12 px-8 border border-[#ECECF2] text-[#1C1D21] font-bold text-sm rounded-lg hover:bg-[#F8F8FC] transition-colors">
-                See Live Demo
               </button>
             </Link>
           </div>
@@ -559,9 +552,7 @@ export default function LandingPage() {
             {/* Brand column */}
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-[#5E81F4] flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">R</span>
-                </div>
+                <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" />
                 <span className="text-lg font-bold text-white">Revenue Map</span>
               </div>
               <p className="text-sm text-[#8181A5]">
