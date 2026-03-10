@@ -53,11 +53,13 @@ export function AIChatPanel() {
     setStreaming(true);
 
     try {
-      const history = messages.map((m) => ({ role: m.role, content: m.content }));
+      const history = messages
+        .filter((m) => m.content.length > 0)
+        .map((m) => ({ role: m.role, content: m.content }));
       const res = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg, modelType, dashboardContext, history }),
+        body: JSON.stringify({ message: msg, modelType: modelType || "general", dashboardContext, history }),
       });
 
       if (!res.ok) {

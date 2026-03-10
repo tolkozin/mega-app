@@ -15,7 +15,8 @@ export async function POST(request: Request) {
       });
     }
 
-    const { message, modelType, dashboardContext, history } = await request.json();
+    const body = await request.json();
+    const { message, modelType, dashboardContext, history } = body;
 
     if (!message || !modelType) {
       return new Response(JSON.stringify({ error: "Missing message or modelType" }), {
@@ -35,15 +36,27 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!process.env.OPENAI_API_KEY) {
+      return new Response(JSON.stringify({ error: "OpenAI API key not configured" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const systemPrompt = buildChatSystemPrompt(modelType, dashboardContext || "No data loaded yet.");
 
-    const messages: OpenAI.ChatCompletionMessageParam[] = [
-      { role: "system", content: systemPrompt },
-      ...(history || []).slice(-10).map((m: { role: string; content: string }) => ({
+    const chatHistory = (history || [])
+      .filter((m: { content: string }) => m.content && m.content.length > 0)
+      .slice(-10)
+      .map((m: { role: string; content: string }) => ({
         role: m.role as "user" | "assistant",
         content: m.content,
-      })),
+      }));
+
+    const messages: OpenAI.ChatCompletionMessageParam[] = [
+      { role: "system", content: systemPrompt },
+      ...chatHistory,
       { role: "user", content: message },
     ];
 
@@ -57,20 +70,28 @@ export async function POST(request: Request) {
     const encoder = new TextEncoder();
     const readable = new ReadableStream({
       async start(controller) {
-        for await (const chunk of stream) {
-          const content = chunk.choices[0]?.delta?.content;
-          if (content) {
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({ content })}\n\n`)
-            );
+        try {
+          for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content;
+            if (content) {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ content })}\n\n`)
+              );
+            }
           }
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({ done: true, usage: { current: usage.current, limit: usage.limit, remaining: usage.remaining } })}\n\n`
+            )
+          );
+        } catch (streamErr) {
+          const msg = streamErr instanceof Error ? streamErr.message : String(streamErr);
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ error: msg })}\n\n`)
+          );
+        } finally {
+          controller.close();
         }
-        controller.enqueue(
-          encoder.encode(
-            `data: ${JSON.stringify({ done: true, usage: { current: usage.current, limit: usage.limit, remaining: usage.remaining } })}\n\n`
-          )
-        );
-        controller.close();
       },
     });
 
