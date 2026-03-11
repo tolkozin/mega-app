@@ -19,6 +19,7 @@ export default function SubscriptionDashboardPage() {
   const { results, loading, error, debouncedRun, monthRange, setMonthRange, totalMonths } = useDashboard("subscription");
   const reportRef = useRef<HTMLDivElement>(null);
   const [showInvestorReport, setShowInvestorReport] = useState(false);
+  const [configHidden, setConfigHidden] = useState(false);
   const { project, setProjectId } = useCurrentProject("subscription");
 
   const buildScenarioParams = useCallback(() => {
@@ -77,8 +78,18 @@ export default function SubscriptionDashboardPage() {
   return (
     <AppShell title="Subscription Dashboard" monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
       <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)]">
-        <Sidebar projectId={project?.id ?? null} onProjectCreated={setProjectId} />
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+        {!configHidden && <Sidebar projectId={project?.id ?? null} onProjectCreated={setProjectId} />}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 relative">
+          {/* Config sidebar toggle */}
+          <button
+            onClick={() => setConfigHidden(!configHidden)}
+            className="hidden md:flex absolute top-3 left-0 z-10 w-6 h-10 bg-[#ECECF2] hover:bg-[#DDE0E9] rounded-r-lg items-center justify-center text-[#8181A5] hover:text-[#1C1D21] transition-colors"
+            title={configHidden ? "Show config panel" : "Hide config panel"}
+          >
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d={configHidden ? "M6 3l5 5-5 5" : "M10 3L5 8l5 5"} />
+            </svg>
+          </button>
           {loading && !results && (
             <div className="flex items-center justify-center py-20">
               <div className="text-[#8181A5]">Running model...</div>

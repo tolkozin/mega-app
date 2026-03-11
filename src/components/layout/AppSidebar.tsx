@@ -112,7 +112,6 @@ export function AppSidebar() {
   const isMobile = useIsMobile();
   const isDesktop = useIsDesktop();
   const expanded = useLayoutStore((s) => s.navSidebarExpanded);
-  const toggleExpand = useLayoutStore((s) => s.toggleNavSidebar);
   const hidden = useLayoutStore((s) => s.navSidebarHidden);
   const setHidden = useLayoutStore((s) => s.setNavSidebarHidden);
   const mobileOpen = useLayoutStore((s) => s.navSidebarMobileOpen);
@@ -183,31 +182,6 @@ export function AppSidebar() {
           </svg>
         </button>
       </div>
-
-      {/* Expand/collapse toggle — desktop only */}
-      {isDesktop && (
-        <div className="px-3 mt-1">
-          <button
-            onClick={toggleExpand}
-            className="w-full h-8 rounded-lg flex items-center justify-center text-[#8181A5] hover:text-white hover:bg-white/10 transition-colors"
-            title={expanded ? "Collapse sidebar" : "Expand sidebar"}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={`transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
-            >
-              <path d="M6 3l5 5-5 5" />
-            </svg>
-          </button>
-        </div>
-      )}
     </aside>
   );
 }

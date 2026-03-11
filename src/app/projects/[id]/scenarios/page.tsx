@@ -22,6 +22,7 @@ export default function ScenariosPage() {
   const loadSaas = useConfigStore((s) => s.loadSaasConfig);
 
   const [project, setProject] = useState<Project | null>(null);
+  const [userRole, setUserRole] = useState<"owner" | "editor" | "viewer">("owner");
   const [showSave, setShowSave] = useState(false);
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
@@ -31,14 +32,30 @@ export default function ScenariosPage() {
   useEffect(() => {
     const fetchProject = async () => {
       const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
       const { data } = await supabase.from("projects").select("*").eq("id", projectId).single();
       if (data) {
         setProject(data as Project);
         setConfigType(data.product_type);
+
+        // Determine role: owner or shared
+        if (user && data.user_id === user.id) {
+          setUserRole("owner");
+        } else if (user) {
+          const { data: share } = await supabase
+            .from("project_shares")
+            .select("role")
+            .eq("project_id", projectId)
+            .eq("shared_with_id", user.id)
+            .single();
+          setUserRole((share?.role as "viewer" | "editor") ?? "viewer");
+        }
       }
     };
     fetchProject();
   }, [projectId]);
+
+  const canEdit = userRole === "owner" || userRole === "editor";
 
   const handleSave = async () => {
     if (!name.trim()) return;
@@ -99,16 +116,29 @@ export default function ScenariosPage() {
         </Link>
 
         <div className="flex items-center justify-between mt-4 mb-6">
-          <h2 className="text-xl font-bold text-[#1C1D21]">{project?.name ?? "Scenarios"}</h2>
-          <button
-            onClick={() => setShowSave(!showSave)}
-            className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
-          >
-            {showSave ? "Cancel" : "Save Current Config"}
-          </button>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold text-[#1C1D21]">{project?.name ?? "Scenarios"}</h2>
+            {userRole !== "owner" && (
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${userRole === "editor" ? "bg-[#F4BE5E]/10 text-[#F4BE5E]" : "bg-[#ECECF2] text-[#8181A5]"}`}>
+                {userRole}
+              </span>
+            )}
+          </div>
+          {canEdit ? (
+            <button
+              onClick={() => setShowSave(!showSave)}
+              className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
+            >
+              {showSave ? "Cancel" : "Save Current Config"}
+            </button>
+          ) : (
+            <span className="text-xs text-[#8181A5] bg-[#F8F8FC] border border-[#ECECF2] px-3 py-2 rounded-lg">
+              View only — you cannot create or modify scenarios
+            </span>
+          )}
         </div>
 
-        {showSave && (
+        {showSave && canEdit && (
           <div className="bg-white rounded-xl border border-[#ECECF2] p-5 mb-6">
             <h3 className="text-[15px] font-bold text-[#1C1D21] mb-4">Save Scenario</h3>
             <div className="space-y-4">
@@ -179,12 +209,14 @@ export default function ScenariosPage() {
                   >
                     Load
                   </button>
-                  <button
-                    onClick={() => handleDelete(scenario.id, scenario.name)}
-                    className="h-8 px-3 bg-red-50 text-red-600 text-xs font-bold rounded-lg hover:bg-red-100 transition-colors"
-                  >
-                    Delete
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={() => handleDelete(scenario.id, scenario.name)}
+                      className="h-8 px-3 bg-red-50 text-red-600 text-xs font-bold rounded-lg hover:bg-red-100 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

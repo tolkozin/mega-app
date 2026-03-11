@@ -142,6 +142,9 @@ export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string
       </Accordion>
 
       <Accordion title="Monte Carlo">
+        <p className="text-[10px] text-[#8181A5] leading-relaxed mb-2">
+          Monte Carlo simulation runs hundreds of randomized iterations of your model, varying key inputs within a defined range, to produce a probability distribution of outcomes instead of a single forecast.
+        </p>
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"
