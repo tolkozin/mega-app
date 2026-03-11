@@ -58,7 +58,7 @@ export default function PricingPage() {
     <>
       <LandingNavbar />
       <div className="container mx-auto px-4 py-20">
-        <h1 className="text-4xl font-bold text-[#1C1D21] text-center mb-4">Pricing</h1>
+        <h1 className="text-4xl font-bold text-[#F8FAFC] text-center mb-4">Pricing</h1>
         <p className="text-center text-[#8181A5] mb-12 max-w-lg mx-auto">
           Start free and upgrade when you need more power. All plans include core financial modeling features.
         </p>

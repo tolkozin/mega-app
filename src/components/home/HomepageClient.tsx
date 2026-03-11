@@ -242,8 +242,8 @@ export function HomepageClient({
             className="text-lg md:text-xl text-[#94A3B8] max-w-2xl mx-auto leading-relaxed"
           >
             For founders who want real answers — not spreadsheet chaos.
-            Build projections, run simulations, and generate investor-ready
-            reports in minutes — powered by AI.
+            Build projections, run simulations, and get investor-ready
+            reports in minutes.
           </motion.p>
 
           {/* CTAs */}
