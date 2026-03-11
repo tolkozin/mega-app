@@ -216,7 +216,7 @@ export default function ProjectsPage() {
         )}
 
         {/* Shared with me */}
-        <h2 className="text-xl font-bold text-[#1C1D21] mb-3">Shared with me</h2>
+        <h2 className="text-xl font-bold text-[#1C1D21] mb-3">Shared with Me</h2>
         {sharedProjects.length === 0 ? (
           <p className="text-[#8181A5]">No projects shared with you yet.</p>
         ) : (

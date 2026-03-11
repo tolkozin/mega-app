@@ -90,8 +90,13 @@ export function MetricCalculator({
             ? computed.toLocaleString("en-US")
             : computed.toFixed(2);
 
+  const calcId = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
   return (
-    <div className="not-prose my-8 rounded-xl border border-[#334155] bg-[#1E293B] overflow-hidden shadow-sm">
+    <div id={calcId} className="not-prose my-8 rounded-xl border border-[#334155] bg-[#1E293B] overflow-hidden shadow-sm">
       {/* Header */}
       <div className="px-5 py-4 border-b border-[#334155]" style={{ borderTopWidth: 3, borderTopColor: color }}>
         <div className="flex items-center gap-2">

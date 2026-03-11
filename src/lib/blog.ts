@@ -136,10 +136,10 @@ export function getPostsByTag(tag: string): BlogPost[] {
 }
 
 export function generateTOC(content: string): TOCItem[] {
-  const headingRegex = /^(#{2,3})\s+(.+)$/gm;
-  const items: TOCItem[] = [];
-  let match;
+  const entries: { index: number; item: TOCItem }[] = [];
 
+  const headingRegex = /^(#{2,3})\s+(.+)$/gm;
+  let match;
   while ((match = headingRegex.exec(content)) !== null) {
     const level = match[1].length;
     const text = match[2].trim();
@@ -147,8 +147,19 @@ export function generateTOC(content: string): TOCItem[] {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
-    items.push({ id, text, level });
+    entries.push({ index: match.index, item: { id, text, level } });
   }
 
-  return items;
+  const calcRegex = /<MetricCalculator[^>]*title=['"]([^'"]+)['"]/g;
+  while ((match = calcRegex.exec(content)) !== null) {
+    const title = match[1].trim();
+    const id = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    entries.push({ index: match.index, item: { id, text: title, level: 3 } });
+  }
+
+  entries.sort((a, b) => a.index - b.index);
+  return entries.map((e) => e.item);
 }

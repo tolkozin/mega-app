@@ -32,7 +32,7 @@ export function TableOfContents({ items }: { items: TOCItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <nav className="sticky top-20">
+    <nav className="sticky top-6">
       <h4 className="mb-3 text-sm font-semibold">On this page</h4>
       <ul className="space-y-1 text-sm">
         {items.map((item) => (

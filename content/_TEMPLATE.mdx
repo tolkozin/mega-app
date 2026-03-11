@@ -161,20 +161,20 @@ Wrap up the process.
 
 {/* ── CALCULATOR — REQUIRED IN EVERY ARTICLE ──
     Replace the example below with the metric relevant to your article.
-    Props:
+    Props (all strings — parsed at runtime):
       title       — calculator heading
-      description — one-line explanation
-      fields      — array of inputs: { name, label, defaultValue, prefix, suffix, min, max, step }
-      result      — { label, prefix, suffix }
-      formula     — JS function: (values) => number
-      color       — optional accent (default: #5E81F4)
+      description — one-line explanation (optional)
+      fields      — JSON string of Field[]: [{ name, label, defaultValue, prefix, suffix, min, max, step }]
+      result      — JSON string of Result: { label, prefix, suffix }
+      formula     — JS math expression string using field names as variables
+      color       — optional accent hex (default: #5E81F4)
 
     EXAMPLES FOR COMMON METRICS:
-    - MRR:    fields=[subscribers, arpa] → formula: v => v.subscribers * v.arpa
-    - Churn:  fields=[lost, start] → formula: v => (v.lost / v.start) * 100
-    - LTV:    fields=[arpa, churnRate] → formula: v => v.arpa / (v.churnRate / 100)
-    - CAC:    fields=[marketingSpend, newCustomers] → formula: v => v.marketingSpend / v.newCustomers
-    - AOV:    fields=[revenue, orders] → formula: v => v.revenue / v.orders
+    - MRR:    formula="subscribers * arpa"
+    - Churn:  formula="(customersLost / customersStart) * 100"
+    - LTV:    formula="arpa / (churnRate / 100)"
+    - CAC:    formula="marketingSpend / newCustomers"
+    - AOV:    formula="revenue / orders"
 */}
 
 <MetricCalculator
