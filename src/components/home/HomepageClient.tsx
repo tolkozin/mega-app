@@ -44,7 +44,7 @@ interface Plan {
   features: string[];
   cta: string;
   highlighted?: boolean;
-  whyUpgrade?: string;
+  href: string;
 }
 
 interface FooterLinks {
@@ -489,10 +489,10 @@ export function HomepageClient({
               Pricing
             </span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
-              Simple, Transparent Pricing
+              Pricing That Grows With You
             </h2>
             <p className="text-[#94A3B8] max-w-xl mx-auto">
-              Start free. Upgrade when you need more power.
+              From solo founders to enterprise teams.
             </p>
           </motion.div>
 
@@ -510,17 +510,17 @@ export function HomepageClient({
                 transition={{ duration: 0.5 }}
                 className={`relative rounded-2xl border p-8 transition-all ${
                   plan.highlighted
-                    ? "border-[#3B82F6]/60 shadow-lg shadow-[#3B82F6]/10"
+                    ? "border-[#3B82F6] shadow-[0_0_30px_rgba(59,130,246,0.15)]"
                     : "border-[#334155]/60"
                 }`}
                 style={{
                   background: plan.highlighted
-                    ? "linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.05))"
+                    ? "rgba(30,41,59,0.6)"
                     : "rgba(30,41,59,0.4)",
                 }}
               >
                 {plan.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#3B82F6] px-4 py-1 text-xs font-bold text-white">
+                  <div className="absolute -top-3 right-4 rounded-full bg-[#3B82F6] px-3 py-1 text-xs font-bold text-white">
                     Most Popular
                   </div>
                 )}
@@ -540,7 +540,7 @@ export function HomepageClient({
                     </li>
                   ))}
                 </ul>
-                <Link href={plan.name === "Enterprise" ? "#" : "/auth/register"}>
+                <Link href={plan.href}>
                   <button
                     className={`w-full h-11 rounded-xl text-sm font-bold transition-all ${
                       plan.highlighted
@@ -551,11 +551,21 @@ export function HomepageClient({
                     {plan.cta}
                   </button>
                 </Link>
-                {plan.whyUpgrade && (
-                  <p className="text-xs text-[#64748B] mt-4 text-center italic">{plan.whyUpgrade}</p>
-                )}
               </motion.div>
             ))}
+          </motion.div>
+
+          {/* Link to full pricing page */}
+          <motion.div {...motionProps(0.3)} className="text-center mt-10">
+            <Link
+              href="/pricing"
+              className="inline-flex items-center gap-1 text-sm font-bold text-[#3B82F6] hover:text-[#2563EB] transition-colors"
+            >
+              See full pricing and feature comparison
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
           </motion.div>
         </div>
       </section>
