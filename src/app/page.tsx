@@ -128,7 +128,7 @@ const plans = [
     tagline: "For serious founders who need no limits.",
     price: "$29",
     period: "/mo",
-    features: ["Unlimited projects & scenarios", "Unlimited AI messages", "Share with up to 10 people", "Private Telegram community"],
+    features: ["Unlimited projects & scenarios", "Unlimited AI messages", "Share with up to 10 people", "Scenario comparison"],
     cta: "Start with Pro",
     href: "/auth?plan=pro",
   },

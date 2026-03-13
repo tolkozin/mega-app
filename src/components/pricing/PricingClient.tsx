@@ -58,7 +58,6 @@ const plans = [
       "Unlimited AI messages",
       "Unlimited AI reports",
       "Scenario comparison",
-      "Access to private Telegram community",
       "Everything in Plus",
     ],
   },
@@ -133,7 +132,6 @@ const comparisonData: ComparisonSection[] = [
   {
     title: "Extras",
     rows: [
-      { feature: "Private Telegram community", free: false, plus: false, pro: true, enterprise: true },
       { feature: "Priority support", free: false, plus: false, pro: false, enterprise: true },
       { feature: "Custom onboarding", free: false, plus: false, pro: false, enterprise: true },
       { feature: "SLA", free: false, plus: false, pro: false, enterprise: true },
@@ -155,10 +153,6 @@ const faqs = [
   {
     q: "Is the annual plan billed all at once?",
     a: "Yes. Annual plans are billed as a single payment at the start of the billing cycle. You save approximately 20% compared to monthly billing.",
-  },
-  {
-    q: "What is the private Telegram community?",
-    a: "Pro subscribers get access to a private group of founders using Revenue Map. It's a space to share learnings, ask questions, and connect with other entrepreneurs building real businesses.",
   },
   {
     q: "Do you offer refunds?",
