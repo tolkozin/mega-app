@@ -92,7 +92,7 @@ export default function CookiesPage() {
               Some cookies on our Site are set by third-party services we use. We do not control these third parties&apos; cookie policies. The relevant third parties are:
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1 text-[#94A3B8]">
-              <li><strong className="text-[#CBD5E1]">Stripe</strong> &mdash; payment processing. Sets cookies to prevent fraud and remember payment state.</li>
+              <li><strong className="text-[#CBD5E1]">Lemon Squeezy</strong> &mdash; payment processing. Sets cookies to prevent fraud and remember payment state.</li>
               <li><strong className="text-[#CBD5E1]">PostHog</strong> &mdash; analytics.</li>
               <li><strong className="text-[#CBD5E1]">Vercel</strong> &mdash; hosting and performance.</li>
             </ul>

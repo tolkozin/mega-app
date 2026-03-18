@@ -165,8 +165,10 @@ export interface Profile {
   company_address: string;
   tax_id: string;
   bank_details: string;
-  stripe_customer_id?: string;
-  plan: "free" | "pro" | "enterprise";
+  lemon_squeezy_customer_id?: string;
+  lemon_squeezy_subscription_id?: string;
+  subscription_status?: string;
+  plan: "free" | "plus" | "pro" | "enterprise";
   ai_chat_count: number;
   ai_report_count: number;
   ai_voice_seconds: number;

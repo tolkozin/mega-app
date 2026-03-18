@@ -1,10 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-
-export const AI_LIMITS = {
-  CHAT_PER_MONTH: 30,
-  REPORTS_PER_MONTH: 5,
-  VOICE_SECONDS_PER_MONTH: 120,
-} as const;
+import { getPlanLimits } from "@/lib/plan-limits";
 
 type LimitType = "chat" | "report" | "voice";
 
@@ -24,16 +19,18 @@ export async function checkAndIncrement(
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("ai_chat_count, ai_report_count, ai_voice_seconds, ai_period_start")
+    .select("plan, ai_chat_count, ai_report_count, ai_voice_seconds, ai_period_start")
     .eq("id", userId)
     .single();
 
   if (error || !profile) {
-    // If columns don't exist yet, skip rate limiting and allow the request
     console.warn("ai-limits: could not read profile AI columns, skipping rate limit", error?.message);
-    const limitMap = { chat: AI_LIMITS.CHAT_PER_MONTH, report: AI_LIMITS.REPORTS_PER_MONTH, voice: AI_LIMITS.VOICE_SECONDS_PER_MONTH };
-    return { allowed: true, current: 0, limit: limitMap[type], remaining: limitMap[type] };
+    const limits = getPlanLimits("free");
+    const fallbackLimit = type === "chat" ? limits.aiMessagesPerMonth : limits.aiReportsPerMonth;
+    return { allowed: true, current: 0, limit: fallbackLimit, remaining: fallbackLimit };
   }
+
+  const limits = getPlanLimits(profile.plan ?? "free");
 
   // Auto-reset if period is from a previous month
   const periodStart = new Date(profile.ai_period_start);
@@ -61,12 +58,23 @@ export async function checkAndIncrement(
   }
 
   const limitMap = {
-    chat: { current: chatCount, limit: AI_LIMITS.CHAT_PER_MONTH, field: "ai_chat_count" },
-    report: { current: reportCount, limit: AI_LIMITS.REPORTS_PER_MONTH, field: "ai_report_count" },
-    voice: { current: voiceSecs, limit: AI_LIMITS.VOICE_SECONDS_PER_MONTH, field: "ai_voice_seconds" },
+    chat: { current: chatCount, limit: limits.aiMessagesPerMonth, field: "ai_chat_count" },
+    report: { current: reportCount, limit: limits.aiReportsPerMonth, field: "ai_report_count" },
+    voice: { current: voiceSecs, limit: 120, field: "ai_voice_seconds" },
   } as const;
 
   const info = limitMap[type];
+
+  // Unlimited plan — always allow
+  if (info.limit === Infinity) {
+    const increment = type === "voice" ? (voiceSeconds ?? 0) : 1;
+    await supabase
+      .from("profiles")
+      .update({ [info.field]: info.current + increment })
+      .eq("id", userId);
+    return { allowed: true, current: info.current + increment, limit: info.limit, remaining: Infinity };
+  }
+
   const increment = type === "voice" ? (voiceSeconds ?? 0) : 1;
   const newValue = info.current + increment;
 

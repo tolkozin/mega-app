@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { getPlanLimits } from "@/lib/plan-limits";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -18,8 +19,14 @@ interface Profile {
   company_address: string;
   tax_id: string;
   bank_details: string;
-  stripe_customer_id?: string;
-  plan: "free" | "pro" | "enterprise";
+  lemon_squeezy_customer_id?: string;
+  lemon_squeezy_subscription_id?: string;
+  subscription_status?: string;
+  plan: "free" | "plus" | "pro" | "enterprise";
+  ai_chat_count: number;
+  ai_report_count: number;
+  ai_voice_seconds: number;
+  ai_period_start: string;
   created_at: string;
 }
 
@@ -102,12 +109,13 @@ function Banner({ type, message }: { type: "error" | "success"; message: string 
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 
-type Tab = "profile" | "contacts" | "team" | "invoice" | "delete";
+type Tab = "profile" | "contacts" | "team" | "billing" | "invoice" | "delete";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "profile", label: "Profile" },
   { key: "contacts", label: "Contacts" },
   { key: "team", label: "Team" },
+  { key: "billing", label: "Billing" },
   { key: "invoice", label: "Invoice Data" },
   { key: "delete", label: "Delete Account" },
 ];
@@ -395,6 +403,13 @@ function TeamTab({ profile }: { profile: Profile }) {
     if (!email) { setError("Enter an email address"); return; }
     if (!addProjectId) { setError("Select a project"); return; }
 
+    // Check plan limit for shares
+    const limits = getPlanLimits(profile.plan);
+    if (limits.maxShares !== Infinity && members.length >= limits.maxShares) {
+      setError(`Your ${profile.plan} plan allows sharing with up to ${limits.maxShares} people. Upgrade to share more.`);
+      return;
+    }
+
     setAdding(true);
     try {
       // Look up profile by email
@@ -634,6 +649,124 @@ function InvoiceDataTab({ profile, onSaved }: { profile: Profile; onSaved: (p: P
   );
 }
 
+// ─── Tab: Billing ────────────────────────────────────────────────────────
+
+function BillingTab({ profile }: { profile: Profile }) {
+  const [portalLoading, setPortalLoading] = useState(false);
+  const limits = getPlanLimits(profile.plan);
+  const isPaid = profile.plan !== "free";
+
+  const planLabel = profile.plan.charAt(0).toUpperCase() + profile.plan.slice(1);
+
+  const statusColor: Record<string, string> = {
+    active: "bg-[#14A660]/10 text-[#14A660] border-[#14A660]/20",
+    cancelled: "bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20",
+    past_due: "bg-[#E54545]/10 text-[#E54545] border-[#E54545]/20",
+  };
+  const statusLabel: Record<string, string> = {
+    active: "Active",
+    cancelled: "Cancelled (active until end of period)",
+    past_due: "Past Due",
+  };
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const res = await fetch("/api/lemonsqueezy/portal", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      window.location.href = data.url;
+    } catch {
+      alert("Failed to open subscription portal. Please try again.");
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
+  function UsageBar({ label, current, max }: { label: string; current: number; max: number }) {
+    const isUnlimited = max === Infinity;
+    const pct = isUnlimited ? 0 : Math.min((current / max) * 100, 100);
+    const isOver = !isUnlimited && current >= max;
+
+    return (
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-[#1C1D21] font-medium">{label}</span>
+          <span className="text-[#8181A5]">
+            {current} / {isUnlimited ? "\u221e" : max}
+          </span>
+        </div>
+        <div className="h-2 rounded-full bg-[#ECECF2] overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${isOver ? "bg-[#E54545]" : "bg-[#5E81F4]"}`}
+            style={{ width: isUnlimited ? "0%" : `${pct}%` }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-lg">
+      <h2 className="text-base font-bold text-[#1C1D21]">Billing & Plan</h2>
+
+      {/* Current plan */}
+      <div className="bg-white border border-[#ECECF2] rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-3">
+          <span className="text-lg font-bold text-[#1C1D21]">{planLabel}</span>
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+            isPaid ? "bg-[#5E81F4]/10 text-[#5E81F4] border-[#5E81F4]/20" : "bg-[#8181A5]/10 text-[#8181A5] border-[#8181A5]/20"
+          }`}>
+            {planLabel} Plan
+          </span>
+        </div>
+
+        {isPaid && profile.subscription_status && (
+          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${
+            statusColor[profile.subscription_status] ?? "bg-[#8181A5]/10 text-[#8181A5] border-[#8181A5]/20"
+          }`}>
+            {statusLabel[profile.subscription_status] ?? profile.subscription_status}
+          </div>
+        )}
+
+        {isPaid ? (
+          <button
+            onClick={handleManageSubscription}
+            disabled={portalLoading}
+            className="h-9 px-5 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
+          >
+            {portalLoading ? "Loading..." : "Manage Subscription"}
+          </button>
+        ) : (
+          <a href="/pricing">
+            <button className="h-9 px-5 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors">
+              Upgrade Plan
+            </button>
+          </a>
+        )}
+      </div>
+
+      {/* Usage */}
+      <div className="bg-white border border-[#ECECF2] rounded-xl p-5 space-y-4">
+        <p className="text-sm font-bold text-[#1C1D21]">Usage this month</p>
+        <UsageBar label="AI Messages" current={profile.ai_chat_count ?? 0} max={limits.aiMessagesPerMonth} />
+        <UsageBar label="AI Reports" current={profile.ai_report_count ?? 0} max={limits.aiReportsPerMonth} />
+      </div>
+
+      {/* Plan limits summary */}
+      <div className="bg-white border border-[#ECECF2] rounded-xl p-5">
+        <p className="text-sm font-bold text-[#1C1D21] mb-3">Plan Limits</p>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div><span className="text-[#8181A5]">Projects:</span> <span className="font-bold text-[#1C1D21]">{limits.maxProjects === Infinity ? "Unlimited" : limits.maxProjects}</span></div>
+          <div><span className="text-[#8181A5]">Scenarios/project:</span> <span className="font-bold text-[#1C1D21]">{limits.maxScenariosPerProject === Infinity ? "Unlimited" : limits.maxScenariosPerProject}</span></div>
+          <div><span className="text-[#8181A5]">Shares:</span> <span className="font-bold text-[#1C1D21]">{limits.maxShares === Infinity ? "Unlimited" : limits.maxShares}</span></div>
+          <div><span className="text-[#8181A5]">AI msgs/month:</span> <span className="font-bold text-[#1C1D21]">{limits.aiMessagesPerMonth === Infinity ? "Unlimited" : limits.aiMessagesPerMonth}</span></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Tab: Delete Account ──────────────────────────────────────────────────────
 
 function DeleteAccountTab({ profile }: { profile: Profile }) {
@@ -727,7 +860,12 @@ export default function SettingsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<Tab>("profile");
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    if (typeof window === "undefined") return "profile";
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab") as Tab;
+    return TABS.some(t => t.key === tab) ? tab : "profile";
+  });
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
 
@@ -804,6 +942,9 @@ export default function SettingsPage() {
         )}
         {activeTab === "team" && (
           <TeamTab profile={profile} />
+        )}
+        {activeTab === "billing" && (
+          <BillingTab profile={profile} />
         )}
         {activeTab === "invoice" && (
           <InvoiceDataTab profile={profile} onSaved={setProfile} />

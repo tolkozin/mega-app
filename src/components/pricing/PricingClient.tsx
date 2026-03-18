@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { createClient } from "@/lib/supabase/client";
 
 /* ─── Data ─── */
 
@@ -32,7 +34,7 @@ const plans = [
     badge: "Most Popular",
     highlighted: true,
     cta: "Start with Plus",
-    href: "/auth?plan=plus",
+    plan: "plus",
     features: [
       "3 projects",
       "3 scenarios per project (9 total)",
@@ -50,7 +52,7 @@ const plans = [
     annualPrice: 23.2,
     annualTotal: 278.4,
     cta: "Start with Pro",
-    href: "/auth?plan=pro",
+    plan: "pro",
     features: [
       "Unlimited projects",
       "Unlimited scenarios",
@@ -67,7 +69,7 @@ const plans = [
     monthlyPrice: -1,
     annualPrice: -1,
     cta: "Contact us",
-    href: "mailto:hello@revenuemap.app", // TODO: replace with contact form or Lemon Squeezy link
+    href: "mailto:hello@revenuemap.app",
     features: [
       "Everything in Pro",
       "Custom number of projects & scenarios",
@@ -79,6 +81,22 @@ const plans = [
     ],
   },
 ];
+
+/* ─── Variant ID helpers ─── */
+
+function getVariantId(plan: string, annual: boolean): string {
+  if (plan === "plus") {
+    return annual
+      ? process.env.NEXT_PUBLIC_LEMONSQUEEZY_PLUS_ANNUAL_VARIANT_ID ?? ""
+      : process.env.NEXT_PUBLIC_LEMONSQUEEZY_PLUS_MONTHLY_VARIANT_ID ?? "";
+  }
+  if (plan === "pro") {
+    return annual
+      ? process.env.NEXT_PUBLIC_LEMONSQUEEZY_PRO_ANNUAL_VARIANT_ID ?? ""
+      : process.env.NEXT_PUBLIC_LEMONSQUEEZY_PRO_MONTHLY_VARIANT_ID ?? "";
+  }
+  return "";
+}
 
 /* ─── Comparison table data ─── */
 
@@ -158,6 +176,10 @@ const faqs = [
     q: "Do you offer refunds?",
     a: "We offer a 7-day refund policy for new paid subscriptions. If you're not satisfied, contact us within 7 days of your first payment.",
   },
+  {
+    q: "Can I use a promo code?",
+    a: "Yes! You can enter a promo code during checkout. Discounts are applied automatically at the payment step.",
+  },
 ];
 
 /* ─── Animation helpers ─── */
@@ -235,14 +257,109 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export function PricingClient() {
   const [annual, setAnnual] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      if (u) setUser({ id: u.id, email: u.email ?? "" });
+    });
+  }, []);
+
+  // Load Lemon Squeezy JS for overlay checkout
+  useEffect(() => {
+    if (document.getElementById("lemonsqueezy-js")) return;
+    const script = document.createElement("script");
+    script.id = "lemonsqueezy-js";
+    script.src = "https://app.lemonsqueezy.com/js/lemon.js";
+    script.defer = true;
+    document.head.appendChild(script);
+  }, []);
+
+  async function handleCheckout(plan: string) {
+    if (!user) {
+      router.push(`/auth?plan=${plan}`);
+      return;
+    }
+
+    setCheckoutLoading(plan);
+    try {
+      const variantId = getVariantId(plan, annual);
+      if (!variantId) {
+        alert("Payment is not yet configured. Please try again later.");
+        return;
+      }
+
+      const res = await fetch("/api/lemonsqueezy/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ variantId, plan }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      // Try overlay checkout, fallback to redirect
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const win = window as any;
+      if (win.LemonSqueezy) {
+        win.LemonSqueezy.Url.Open(data.url);
+      } else {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("Failed to start checkout. Please try again.");
+    } finally {
+      setCheckoutLoading(null);
+    }
+  }
 
   function formatPrice(plan: (typeof plans)[number]) {
     if (plan.monthlyPrice === -1) return "Custom";
     if (plan.monthlyPrice === 0) return "$0";
     const price = annual ? plan.annualPrice : plan.monthlyPrice;
-    // Show clean number — drop .00 but keep .40 etc
     const formatted = price % 1 === 0 ? price.toString() : price.toFixed(2).replace(/0$/, "");
     return `$${formatted}`;
+  }
+
+  function renderCTA(plan: (typeof plans)[number]) {
+    // Free and Enterprise use plain links
+    if (plan.href) {
+      return (
+        <Link href={plan.href}>
+          <button
+            className={`w-full h-11 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+              plan.highlighted
+                ? "bg-[#3B82F6] text-white hover:bg-[#2563EB] hover:shadow-lg hover:shadow-[#3B82F6]/25"
+                : plan.name === "Enterprise"
+                  ? "bg-[#1E293B] border border-[#334155] text-[#94A3B8] hover:border-[#3B82F6]/50 hover:text-[#F8FAFC]"
+                  : "border border-[#334155] text-[#F8FAFC] hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5"
+            }`}
+          >
+            {plan.cta}
+          </button>
+        </Link>
+      );
+    }
+
+    // Plus / Pro → checkout
+    const isLoading = checkoutLoading === plan.plan;
+    return (
+      <button
+        onClick={() => handleCheckout(plan.plan!)}
+        disabled={isLoading}
+        className={`w-full h-11 rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-60 ${
+          plan.highlighted
+            ? "bg-[#3B82F6] text-white hover:bg-[#2563EB] hover:shadow-lg hover:shadow-[#3B82F6]/25"
+            : "border border-[#334155] text-[#F8FAFC] hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5"
+        }`}
+      >
+        {isLoading ? "Loading..." : plan.cta}
+      </button>
+    );
   }
 
   return (
@@ -374,20 +491,7 @@ export function PricingClient() {
                 ))}
               </ul>
 
-              {/* TODO: Replace href with Lemon Squeezy payment links when ready */}
-              <Link href={plan.href}>
-                <button
-                  className={`w-full h-11 rounded-xl text-sm font-bold transition-all cursor-pointer ${
-                    plan.highlighted
-                      ? "bg-[#3B82F6] text-white hover:bg-[#2563EB] hover:shadow-lg hover:shadow-[#3B82F6]/25"
-                      : plan.name === "Enterprise"
-                        ? "bg-[#1E293B] border border-[#334155] text-[#94A3B8] hover:border-[#3B82F6]/50 hover:text-[#F8FAFC]"
-                        : "border border-[#334155] text-[#F8FAFC] hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5"
-                  }`}
-                >
-                  {plan.cta}
-                </button>
-              </Link>
+              {renderCTA(plan)}
             </motion.div>
           ))}
         </motion.div>

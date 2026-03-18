@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useChatStore } from "@/stores/chat-store";
@@ -13,6 +14,23 @@ const categories = [
   { key: "ecommerce", label: "E-commerce", href: "/dashboard/ecommerce" },
   { key: "saas", label: "SaaS", href: "/dashboard/saas" },
 ] as const;
+
+const planBadgeColors: Record<string, string> = {
+  free: "bg-[#64748B]/20 text-[#94A3B8]",
+  plus: "bg-[#3B82F6]/20 text-[#60A5FA]",
+  pro: "bg-[#8B5CF6]/20 text-[#A78BFA]",
+  enterprise: "bg-[#F59E0B]/20 text-[#FBBF24]",
+};
+
+function PlanBadge({ plan }: { plan?: string }) {
+  if (!plan || plan === "free") return null;
+  const label = plan.charAt(0).toUpperCase() + plan.slice(1);
+  return (
+    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${planBadgeColors[plan] ?? planBadgeColors.free}`}>
+      {label}
+    </span>
+  );
+}
 
 interface AppHeaderProps {
   title?: string;
@@ -516,6 +534,7 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: Ap
 
 function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths }: AppHeaderProps) {
   const { user, signOut } = useAuth();
+  const { profile } = useProfile();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -562,6 +581,7 @@ function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths }: A
       <div className="flex items-center gap-3">
         {user && (
           <>
+            <PlanBadge plan={profile?.plan} />
             <span className="text-sm text-[#94A3B8]">{user.email}</span>
             <button
               onClick={handleSignOut}

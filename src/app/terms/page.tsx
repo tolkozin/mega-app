@@ -75,8 +75,9 @@ export default function TermsOfServicePage() {
               <h4 className="text-[#F8FAFC] font-bold mt-4 mb-2">3.1 Plans</h4>
               <p>We offer the following subscription tiers:</p>
               <BulletList items={[
-                "Free Plan: limited to 1 project and 3 scenarios per project; no payment required",
-                "Pro Plan: $29 per month (or as currently displayed on our pricing page); unlimited projects and scenarios, Monte Carlo simulation, public dashboards, and priority support",
+                "Free Plan: limited to 1 project and 1 scenario; no payment required",
+                "Plus Plan: $18 per month (or as currently displayed on our pricing page); 3 projects, 3 scenarios per project, sharing, expanded AI limits",
+                "Pro Plan: $29 per month (or as currently displayed on our pricing page); unlimited projects and scenarios, expanded sharing, unlimited AI",
                 "Enterprise Plan: custom pricing; contact us for details",
               ]} />
 
@@ -158,7 +159,7 @@ export default function TermsOfServicePage() {
             </Section>
 
             <Section title="9. Third-Party Services and Links">
-              <p>The Service integrates with or links to third-party services (including Stripe for payments, and AI providers for analysis). These third parties have their own terms of service and privacy policies. We are not responsible for the practices or content of third-party services. Your use of third-party services is at your own risk.</p>
+              <p>The Service integrates with or links to third-party services (including Lemon Squeezy for payments, and AI providers for analysis). These third parties have their own terms of service and privacy policies. We are not responsible for the practices or content of third-party services. Your use of third-party services is at your own risk.</p>
             </Section>
 
             <Section title="10. Disclaimers and Limitation of Liability">

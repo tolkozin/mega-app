@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Project, Scenario, ProjectShare } from "@/lib/types";
+import { getPlanLimits } from "@/lib/plan-limits";
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -32,6 +33,23 @@ export function useProjects() {
     async (name: string, description: string, productType: "subscription" | "ecommerce" | "saas") => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
+
+      // Check plan limit
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .single();
+      const limits = getPlanLimits(profile?.plan ?? "free");
+      if (limits.maxProjects !== Infinity) {
+        const { count } = await supabase
+          .from("projects")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id);
+        if ((count ?? 0) >= limits.maxProjects) {
+          throw new Error(`Your ${profile?.plan ?? "free"} plan allows up to ${limits.maxProjects} project(s). Upgrade to create more.`);
+        }
+      }
 
       const { data, error } = await supabase
         .from("projects")
@@ -90,6 +108,23 @@ export function useScenarios(projectId: string | null) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Check plan limit
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .single();
+      const limits = getPlanLimits(profile?.plan ?? "free");
+      if (limits.maxScenariosPerProject !== Infinity) {
+        const { count } = await supabase
+          .from("scenarios")
+          .select("id", { count: "exact", head: true })
+          .eq("project_id", projectId);
+        if ((count ?? 0) >= limits.maxScenariosPerProject) {
+          throw new Error(`Your ${profile?.plan ?? "free"} plan allows up to ${limits.maxScenariosPerProject} scenario(s) per project. Upgrade to create more.`);
+        }
+      }
+
       const { error } = await supabase.from("scenarios").insert({
         project_id: projectId,
         user_id: user.id,
@@ -146,6 +181,23 @@ export function useProjectShares(projectId: string | null) {
       if (!projectId) return;
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      // Check plan limit
+      const { data: ownerProfile } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .single();
+      const limits = getPlanLimits(ownerProfile?.plan ?? "free");
+      if (limits.maxShares !== Infinity) {
+        const { count } = await supabase
+          .from("project_shares")
+          .select("id", { count: "exact", head: true })
+          .eq("owner_id", user.id);
+        if ((count ?? 0) >= limits.maxShares) {
+          throw new Error(`Your ${ownerProfile?.plan ?? "free"} plan allows sharing with up to ${limits.maxShares} people. Upgrade to share more.`);
+        }
+      }
 
       // Find user by email
       const { data: profile } = await supabase

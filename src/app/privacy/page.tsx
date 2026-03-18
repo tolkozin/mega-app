@@ -45,7 +45,7 @@ export default function PrivacyPolicyPage() {
               <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">1.1 Information You Provide Directly</h4>
               <BulletList items={[
                 "Account registration data: name, email address, password",
-                "Billing information: processed securely via Stripe; we do not store full credit card numbers",
+                "Billing information: processed securely via Lemon Squeezy; we do not store full credit card numbers",
                 "Business data you enter into the platform: financial projections, revenue figures, cost assumptions, and other modeling inputs",
                 "Files you upload for AI analysis (CSV, spreadsheet data)",
                 "Communications with our support team",
@@ -62,7 +62,7 @@ export default function PrivacyPolicyPage() {
               <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">1.3 Information from Third Parties</h4>
               <BulletList items={[
                 "Authentication providers (if you sign in via Google or another OAuth provider)",
-                "Payment processors (Stripe) — transaction confirmations and billing status only",
+                "Payment processors (Lemon Squeezy) — transaction confirmations and billing status only",
               ]} />
             </Section>
 
@@ -100,7 +100,7 @@ export default function PrivacyPolicyPage() {
               <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">4.1 Service Providers</h4>
               <p>We share data with trusted third-party vendors who assist in operating the Service, subject to confidentiality agreements:</p>
               <BulletList items={[
-                "Stripe — payment processing",
+                "Lemon Squeezy — payment processing",
                 "Vercel — hosting and infrastructure",
                 "Anthropic / OpenAI / Google — AI features (data is processed per their enterprise privacy policies; we do not permit training on your data)",
                 "PostHog or equivalent — analytics",
@@ -170,7 +170,7 @@ export default function PrivacyPolicyPage() {
                 "Encryption in transit (TLS/HTTPS) and at rest",
                 "Access controls limiting who can access your data",
                 "Regular security reviews and vulnerability assessments",
-                "Secure payment processing via Stripe (PCI DSS compliant)",
+                "Secure payment processing via Lemon Squeezy (PCI DSS compliant)",
               ]} />
               <p>No method of transmission over the Internet or electronic storage is 100% secure. While we strive to protect your information, we cannot guarantee absolute security. In the event of a data breach affecting your rights, we will notify you as required by applicable law.</p>
             </Section>

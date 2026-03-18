@@ -18,8 +18,14 @@ CREATE TABLE public.profiles (
     company_address TEXT DEFAULT '',
     tax_id TEXT DEFAULT '',
     bank_details TEXT DEFAULT '',
-    stripe_customer_id TEXT DEFAULT NULL,
-    plan TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'pro', 'enterprise')),
+    lemon_squeezy_customer_id TEXT DEFAULT NULL,
+    lemon_squeezy_subscription_id TEXT DEFAULT NULL,
+    subscription_status TEXT DEFAULT NULL,
+    plan TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'plus', 'pro', 'enterprise')),
+    ai_chat_count INTEGER NOT NULL DEFAULT 0,
+    ai_report_count INTEGER NOT NULL DEFAULT 0,
+    ai_voice_seconds INTEGER NOT NULL DEFAULT 0,
+    ai_period_start TIMESTAMPTZ NOT NULL DEFAULT now(),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -80,6 +86,10 @@ CREATE TABLE public.invoices (
 -- STEP 2: INDEXES
 -- ========================
 
+CREATE INDEX idx_profiles_ls_customer_id ON public.profiles(lemon_squeezy_customer_id)
+  WHERE lemon_squeezy_customer_id IS NOT NULL;
+CREATE INDEX idx_profiles_ls_subscription_id ON public.profiles(lemon_squeezy_subscription_id)
+  WHERE lemon_squeezy_subscription_id IS NOT NULL;
 CREATE INDEX idx_projects_user_id ON public.projects(user_id);
 CREATE INDEX idx_projects_public_token ON public.projects(public_token) WHERE public_token IS NOT NULL;
 CREATE INDEX idx_scenarios_project_id ON public.scenarios(project_id);
@@ -108,9 +118,7 @@ BEGIN
     VALUES (NEW.id, NEW.email, COALESCE(NEW.raw_user_meta_data->>'display_name', ''));
 
     INSERT INTO public.projects (user_id, name, description, product_type) VALUES
-      (NEW.id, 'My Subscription App', 'Subscription model project', 'subscription'),
-      (NEW.id, 'My E-commerce Store', 'E-commerce model project', 'ecommerce'),
-      (NEW.id, 'My SaaS Platform', 'SaaS model project', 'saas');
+      (NEW.id, 'My First Project', 'Get started with your first financial model', 'subscription');
 
     RETURN NEW;
 END;
