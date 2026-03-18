@@ -1,156 +1,266 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import { AppShell } from "@/components/layout/AppShell";
-import { useInvoices } from "@/hooks/useInvoices";
-import type { InvoiceStatus } from "@/lib/types";
 
-// Invoices are read-only — creation will be auto-generated in the future
+interface Payment {
+  id: string;
+  date: string;
+  description: string;
+  amount_formatted: string;
+  amount_cents: number;
+  currency: string;
+  status: "pending" | "paid" | "void" | "refunded";
+  status_formatted: string;
+  invoice_url: string | null;
+  card_brand: string | null;
+  card_last_four: string | null;
+  billing_reason: string;
+  refunded: boolean;
+  subscription_id: number;
+}
 
-const statusColors: Record<InvoiceStatus, { bg: string; text: string; label: string }> = {
-  paid: { bg: "bg-[#E6F9F1]", text: "text-[#14A660]", label: "Paid" },
-  scheduled: { bg: "bg-[#E8EEFF]", text: "text-[#5E81F4]", label: "Scheduled" },
-  unpaid: { bg: "bg-[#FFEDED]", text: "text-[#E54545]", label: "Unpaid" },
+const statusColors: Record<
+  string,
+  { bg: string; text: string }
+> = {
+  paid: { bg: "bg-[#E6F9F1]", text: "text-[#14A660]" },
+  pending: { bg: "bg-[#FFF8E6]", text: "text-[#F59E0B]" },
+  void: { bg: "bg-[#F3F4F6]", text: "text-[#8181A5]" },
+  refunded: { bg: "bg-[#FFEDED]", text: "text-[#E54545]" },
 };
 
-function StatusBadge({ status }: { status: InvoiceStatus }) {
-  const s = statusColors[status];
+function StatusBadge({ status, label }: { status: string; label: string }) {
+  const s = statusColors[status] ?? statusColors.void;
   return (
-    <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${s.bg} ${s.text}`}>
-      {s.label}
+    <span
+      className={`text-xs font-bold px-2.5 py-1 rounded-md ${s.bg} ${s.text}`}
+    >
+      {label}
+    </span>
+  );
+}
+
+function CardIcon({ brand }: { brand: string | null }) {
+  if (!brand) return null;
+  const labels: Record<string, string> = {
+    visa: "Visa",
+    mastercard: "MC",
+    amex: "Amex",
+    discover: "Disc",
+  };
+  return (
+    <span className="text-xs text-[#8181A5] font-medium">
+      {labels[brand] ?? brand}
     </span>
   );
 }
 
 export default function InvoicesPage() {
-  const { invoices, loading } = useInvoices();
-  const [filter, setFilter] = useState<InvoiceStatus | "all">("all");
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const filtered = filter === "all" ? invoices : invoices.filter((inv) => inv.status === filter);
+  useEffect(() => {
+    async function fetchPayments() {
+      try {
+        const res = await fetch("/api/lemonsqueezy/payments");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "Failed to load");
+        setPayments(data.payments);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to load payments");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPayments();
+  }, []);
 
-  const totalAll = invoices.reduce((s, i) => s + Number(i.total), 0);
-  const totalPaid = invoices.filter((i) => i.status === "paid").reduce((s, i) => s + Number(i.total), 0);
-  const totalScheduled = invoices.filter((i) => i.status === "scheduled").reduce((s, i) => s + Number(i.total), 0);
-  const totalUnpaid = invoices.filter((i) => i.status === "unpaid").reduce((s, i) => s + Number(i.total), 0);
-
-  const paidPct = totalAll > 0 ? (totalPaid / totalAll) * 100 : 0;
-  const scheduledPct = totalAll > 0 ? (totalScheduled / totalAll) * 100 : 0;
-  const unpaidPct = totalAll > 0 ? (totalUnpaid / totalAll) * 100 : 0;
-
-  const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
 
   return (
-    <AppShell title="Invoices">
-      <div className="flex h-[calc(100vh-3.5rem)]">
-        {/* Left sidebar with stats */}
-        <div className="w-[280px] border-r border-[#ECECF2] bg-white p-5 shrink-0 overflow-y-auto">
-          <div className="space-y-4">
-            <button
-              onClick={() => setFilter("all")}
-              className={`w-full text-left p-3 rounded-lg transition-colors ${filter === "all" ? "bg-[#F4F6FF]" : "hover:bg-[#F8F8FC]"}`}
-            >
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-sm font-bold text-[#1C1D21]">All Invoices</span>
-                <span className="text-sm font-bold text-[#1C1D21]">{fmt(totalAll)}</span>
-              </div>
-              <span className="text-xs text-[#8181A5]">{invoices.length} invoices</span>
-            </button>
-
-            <button
-              onClick={() => setFilter("paid")}
-              className={`w-full text-left p-3 rounded-lg transition-colors ${filter === "paid" ? "bg-[#F4F6FF]" : "hover:bg-[#F8F8FC]"}`}
-            >
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-sm font-bold text-[#14A660]">Paid</span>
-                <span className="text-sm font-bold text-[#1C1D21]">{fmt(totalPaid)}</span>
-              </div>
-              <div className="w-full h-1.5 bg-[#ECECF2] rounded-full">
-                <div className="h-full bg-[#14A660] rounded-full" style={{ width: `${paidPct}%` }} />
-              </div>
-            </button>
-
-            <button
-              onClick={() => setFilter("scheduled")}
-              className={`w-full text-left p-3 rounded-lg transition-colors ${filter === "scheduled" ? "bg-[#F4F6FF]" : "hover:bg-[#F8F8FC]"}`}
-            >
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-sm font-bold text-[#5E81F4]">Scheduled</span>
-                <span className="text-sm font-bold text-[#1C1D21]">{fmt(totalScheduled)}</span>
-              </div>
-              <div className="w-full h-1.5 bg-[#ECECF2] rounded-full">
-                <div className="h-full bg-[#5E81F4] rounded-full" style={{ width: `${scheduledPct}%` }} />
-              </div>
-            </button>
-
-            <button
-              onClick={() => setFilter("unpaid")}
-              className={`w-full text-left p-3 rounded-lg transition-colors ${filter === "unpaid" ? "bg-[#F4F6FF]" : "hover:bg-[#F8F8FC]"}`}
-            >
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-sm font-bold text-[#E54545]">Unpaid</span>
-                <span className="text-sm font-bold text-[#1C1D21]">{fmt(totalUnpaid)}</span>
-              </div>
-              <div className="w-full h-1.5 bg-[#ECECF2] rounded-full">
-                <div className="h-full bg-[#E54545] rounded-full" style={{ width: `${unpaidPct}%` }} />
-              </div>
-            </button>
-          </div>
+    <AppShell title="Payment History">
+      <div className="p-6 max-w-4xl">
+        <div className="mb-6">
+          <h1 className="text-xl font-bold text-[#1C1D21]">Payment History</h1>
+          <p className="text-sm text-[#8181A5] mt-1">
+            View your subscription payments and download invoices.
+          </p>
         </div>
 
-        {/* Main content: invoices table */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="bg-white rounded-xl border border-[#ECECF2]">
-            <div className="px-5 py-4 border-b border-[#ECECF2]">
-              <h2 className="text-[15px] font-bold text-[#1C1D21]">
-                {filter === "all" ? "All Invoices" : statusColors[filter].label} ({filtered.length})
-              </h2>
+        <div className="bg-white rounded-xl border border-[#ECECF2]">
+          {loading ? (
+            <div className="p-12 text-center">
+              <div className="inline-block w-6 h-6 border-2 border-[#ECECF2] border-t-[#5E81F4] rounded-full animate-spin" />
+              <p className="text-sm text-[#8181A5] mt-3">
+                Loading payment history...
+              </p>
             </div>
-
-            {loading ? (
-              <div className="p-5 text-[#8181A5] text-sm">Loading invoices...</div>
-            ) : filtered.length === 0 ? (
-              <div className="p-5 text-[#8181A5] text-sm">
-                No invoices yet.
-              </div>
-            ) : (
-              <table className="w-full">
-                <thead>
-                  <tr className="text-xs text-[#8181A5] font-bold uppercase tracking-wider">
-                    <th className="text-left px-5 py-3">Number</th>
-                    <th className="text-left px-5 py-3">Date</th>
-                    <th className="text-left px-5 py-3">Customer</th>
-                    <th className="text-left px-5 py-3">Status</th>
-                    <th className="text-right px-5 py-3">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((inv) => (
-                    <tr key={inv.id} className="border-t border-[#ECECF2] hover:bg-[#F8F8FC] transition-colors">
-                      <td className="px-5 py-3">
-                        <Link href={`/invoices/${inv.id}`} className="text-sm font-bold text-[#5E81F4] hover:underline">
-                          {inv.invoice_number}
-                        </Link>
-                      </td>
-                      <td className="px-5 py-3 text-sm text-[#1C1D21]">
-                        {new Date(inv.issue_date).toLocaleDateString()}
-                      </td>
-                      <td className="px-5 py-3">
-                        <div className="text-sm text-[#1C1D21]">{inv.customer_name}</div>
-                        <div className="text-xs text-[#8181A5]">{inv.customer_email}</div>
-                      </td>
-                      <td className="px-5 py-3">
-                        <StatusBadge status={inv.status} />
-                      </td>
-                      <td className="px-5 py-3 text-sm font-bold text-[#1C1D21] text-right">
-                        {fmt(Number(inv.total))}
-                      </td>
+          ) : error ? (
+            <div className="p-12 text-center">
+              <p className="text-sm text-[#E54545]">{error}</p>
+            </div>
+          ) : payments.length === 0 ? (
+            <div className="p-12 text-center">
+              <svg
+                className="mx-auto mb-3 text-[#ECECF2]"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+              <p className="text-sm font-bold text-[#1C1D21]">
+                No payments yet
+              </p>
+              <p className="text-sm text-[#8181A5] mt-1">
+                Your subscription payment history will appear here.
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Desktop table */}
+              <div className="hidden sm:block">
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-xs text-[#8181A5] font-bold uppercase tracking-wider border-b border-[#ECECF2]">
+                      <th className="text-left px-5 py-3">Date</th>
+                      <th className="text-left px-5 py-3">Description</th>
+                      <th className="text-left px-5 py-3">Payment</th>
+                      <th className="text-left px-5 py-3">Status</th>
+                      <th className="text-right px-5 py-3">Amount</th>
+                      <th className="text-right px-5 py-3">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+                  </thead>
+                  <tbody>
+                    {payments.map((p) => (
+                      <tr
+                        key={p.id}
+                        className="border-t border-[#ECECF2] hover:bg-[#F8F8FC] transition-colors"
+                      >
+                        <td className="px-5 py-3 text-sm text-[#1C1D21] whitespace-nowrap">
+                          {formatDate(p.date)}
+                        </td>
+                        <td className="px-5 py-3 text-sm text-[#1C1D21]">
+                          {p.description}
+                        </td>
+                        <td className="px-5 py-3">
+                          {p.card_brand && p.card_last_four ? (
+                            <div className="flex items-center gap-1.5">
+                              <CardIcon brand={p.card_brand} />
+                              <span className="text-sm text-[#8181A5]">
+                                ****{p.card_last_four}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-[#8181A5]">--</span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3">
+                          <StatusBadge
+                            status={p.status}
+                            label={p.status_formatted}
+                          />
+                        </td>
+                        <td className="px-5 py-3 text-sm font-bold text-[#1C1D21] text-right whitespace-nowrap">
+                          {p.amount_formatted}
+                        </td>
+                        <td className="px-5 py-3 text-right">
+                          <div className="flex items-center justify-end gap-3">
+                            <a
+                              href={`/invoices/view?id=${p.id}`}
+                              className="text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
+                            >
+                              View
+                            </a>
+                            {p.invoice_url && (
+                              <a
+                                href={p.invoice_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
+                              >
+                                <svg
+                                  width="14"
+                                  height="14"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                  <polyline points="7 10 12 15 17 10" />
+                                  <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                PDF
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="sm:hidden divide-y divide-[#ECECF2]">
+                {payments.map((p) => (
+                  <div key={p.id} className="p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-[#1C1D21]">
+                        {p.amount_formatted}
+                      </span>
+                      <StatusBadge
+                        status={p.status}
+                        label={p.status_formatted}
+                      />
+                    </div>
+                    <p className="text-sm text-[#8181A5]">
+                      {formatDate(p.date)} &middot; {p.description}
+                    </p>
+                    {p.card_brand && p.card_last_four && (
+                      <p className="text-xs text-[#8181A5]">
+                        {p.card_brand} ****{p.card_last_four}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-3 mt-1">
+                      <a
+                        href={`/invoices/view?id=${p.id}`}
+                        className="text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
+                      >
+                        View Invoice
+                      </a>
+                      {p.invoice_url && (
+                        <a
+                          href={p.invoice_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
+                        >
+                          Download PDF
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </AppShell>

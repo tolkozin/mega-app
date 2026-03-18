@@ -32,12 +32,11 @@ interface Profile {
 }
 
 interface TeamMember {
-  share_id: string;
-  project_id: string;
-  project_name: string;
   shared_with_id: string;
   email: string;
   role: "viewer" | "editor";
+  share_ids: string[];
+  status: "Active";
 }
 
 // ─── Input component ──────────────────────────────────────────────────────────
@@ -319,11 +318,11 @@ function TeamTab({ profile }: { profile: Profile }) {
   const [loading, setLoading] = useState(true);
   const [addEmail, setAddEmail] = useState("");
   const [addRole, setAddRole] = useState<"viewer" | "editor">("viewer");
-  const [addProjectId, setAddProjectId] = useState("");
   const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [notFoundHint, setNotFoundHint] = useState("");
 
   const loadData = async () => {
     setLoading(true);
@@ -337,9 +336,6 @@ function TeamTab({ profile }: { profile: Profile }) {
 
       const ownedProjects = projectData ?? [];
       setProjects(ownedProjects);
-      if (ownedProjects.length > 0 && !addProjectId) {
-        setAddProjectId(ownedProjects[0].id);
-      }
 
       if (ownedProjects.length === 0) {
         setMembers([]);
@@ -372,19 +368,23 @@ function TeamTab({ profile }: { profile: Profile }) {
       const profileMap: Record<string, string> = {};
       (profilesData ?? []).forEach((p) => { profileMap[p.id] = p.email; });
 
-      const projectMap: Record<string, string> = {};
-      ownedProjects.forEach((p) => { projectMap[p.id] = p.name; });
+      // Group shares by user (shared_with_id) — show each email once
+      const grouped: Record<string, TeamMember> = {};
+      for (const s of sharesData) {
+        if (!grouped[s.shared_with_id]) {
+          grouped[s.shared_with_id] = {
+            shared_with_id: s.shared_with_id,
+            email: profileMap[s.shared_with_id] ?? "Unknown",
+            role: s.role,
+            share_ids: [s.id],
+            status: "Active",
+          };
+        } else {
+          grouped[s.shared_with_id].share_ids.push(s.id);
+        }
+      }
 
-      setMembers(
-        sharesData.map((s) => ({
-          share_id: s.id,
-          project_id: s.project_id,
-          project_name: projectMap[s.project_id] ?? s.project_id,
-          shared_with_id: s.shared_with_id,
-          email: profileMap[s.shared_with_id] ?? "Unknown",
-          role: s.role,
-        }))
-      );
+      setMembers(Object.values(grouped));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load team");
     } finally {
@@ -400,11 +400,16 @@ function TeamTab({ profile }: { profile: Profile }) {
   const handleAdd = async () => {
     setError("");
     setSuccess("");
+    setNotFoundHint("");
     const email = addEmail.trim().toLowerCase();
     if (!email) { setError("Enter an email address"); return; }
-    if (!addProjectId) { setError("Select a project"); return; }
 
-    // Check plan limit for shares
+    if (projects.length === 0) {
+      setError("You have no projects to share. Create a project first.");
+      return;
+    }
+
+    // Check plan limit for shares (count unique members)
     const limits = getPlanLimits(profile.plan);
     if (limits.maxShares !== Infinity && members.length >= limits.maxShares) {
       useUpgradeStore.getState().showUpgradeModal({
@@ -424,41 +429,72 @@ function TeamTab({ profile }: { profile: Profile }) {
         .eq("email", email)
         .single();
 
-      if (lookupErr || !targetProfile) throw new Error("No account found for that email address");
+      if (lookupErr || !targetProfile) {
+        setError("No account found for that email address.");
+        setNotFoundHint("This user will get access once they create an account with this email. Share the signup link with them.");
+        return;
+      }
       if (targetProfile.id === profile.id) throw new Error("You cannot add yourself");
 
-      const { error: insertErr } = await supabase.from("project_shares").insert({
-        project_id: addProjectId,
-        owner_id: profile.id,
-        shared_with_id: targetProfile.id,
-        role: addRole,
-      });
-      if (insertErr) {
-        if (insertErr.code === "23505") throw new Error("This user already has access to that project");
-        throw insertErr;
+      // Check if this user already has shares for all projects
+      const existingMember = members.find((m) => m.shared_with_id === targetProfile.id);
+      if (existingMember && existingMember.share_ids.length >= projects.length) {
+        throw new Error("This user already has access to all your projects");
       }
 
+      // Create shares for ALL owned projects at once
+      // First, get existing shares for this user to avoid duplicates
+      const { data: existingShares } = await supabase
+        .from("project_shares")
+        .select("project_id")
+        .eq("owner_id", profile.id)
+        .eq("shared_with_id", targetProfile.id);
+
+      const alreadySharedProjectIds = new Set((existingShares ?? []).map((s) => s.project_id));
+      const newShares = projects
+        .filter((p) => !alreadySharedProjectIds.has(p.id))
+        .map((p) => ({
+          project_id: p.id,
+          owner_id: profile.id,
+          shared_with_id: targetProfile.id,
+          role: addRole,
+        }));
+
+      if (newShares.length === 0) {
+        throw new Error("This user already has access to all your projects");
+      }
+
+      const { error: insertErr } = await supabase
+        .from("project_shares")
+        .insert(newShares);
+
+      if (insertErr) throw insertErr;
+
       setAddEmail("");
-      setSuccess(`${email} added successfully`);
+      const projectCount = newShares.length;
+      setSuccess(`${email} added to ${projectCount} project${projectCount !== 1 ? "s" : ""} successfully`);
       setTimeout(() => setSuccess(""), 3000);
       await loadData();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to add user");
+      if (!error) setError(e instanceof Error ? e.message : "Failed to add user");
     } finally {
       setAdding(false);
     }
   };
 
-  const handleRemove = async (shareId: string) => {
+  const handleRemove = async (member: TeamMember) => {
     setError("");
     try {
-      const { error: err } = await supabase
-        .from("project_shares")
-        .delete()
-        .eq("id", shareId)
-        .eq("owner_id", profile.id);
-      if (err) throw err;
-      setMembers((prev) => prev.filter((m) => m.share_id !== shareId));
+      // Remove all shares for this user across all projects
+      for (const shareId of member.share_ids) {
+        const { error: err } = await supabase
+          .from("project_shares")
+          .delete()
+          .eq("id", shareId)
+          .eq("owner_id", profile.id);
+        if (err) throw err;
+      }
+      setMembers((prev) => prev.filter((m) => m.shared_with_id !== member.shared_with_id));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to remove user");
     }
@@ -471,27 +507,19 @@ function TeamTab({ profile }: { profile: Profile }) {
       {/* Add user form */}
       <div className="bg-white border border-[#ECECF2] rounded-xl p-4 space-y-3">
         <p className="text-sm font-bold text-[#1C1D21]">Add a team member</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="sm:col-span-1">
+        <p className="text-xs text-[#8181A5]">
+          Adding a member shares all your projects with them at once.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
             <input
               className={inputClass}
               value={addEmail}
-              onChange={(e) => setAddEmail(e.target.value)}
+              onChange={(e) => { setAddEmail(e.target.value); setNotFoundHint(""); }}
               placeholder="user@example.com"
               type="email"
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
             />
-          </div>
-          <div>
-            <select
-              className={inputClass}
-              value={addProjectId}
-              onChange={(e) => setAddProjectId(e.target.value)}
-            >
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
           </div>
           <div>
             <select
@@ -505,6 +533,11 @@ function TeamTab({ profile }: { profile: Profile }) {
           </div>
         </div>
         {error && <Banner type="error" message={error} />}
+        {notFoundHint && (
+          <div className="text-xs text-[#8181A5] bg-[#F8F8FC] border border-[#ECECF2] rounded-lg px-3 py-2">
+            {notFoundHint}
+          </div>
+        )}
         {success && <Banner type="success" message={success} />}
         <button
           onClick={handleAdd}
@@ -528,19 +561,18 @@ function TeamTab({ profile }: { profile: Profile }) {
             <thead>
               <tr className="border-b border-[#ECECF2] bg-[#F8F8FC]">
                 <th className="text-left px-4 py-3 font-bold text-[#1C1D21] text-xs uppercase tracking-wide">Email</th>
-                <th className="text-left px-4 py-3 font-bold text-[#1C1D21] text-xs uppercase tracking-wide">Project</th>
                 <th className="text-left px-4 py-3 font-bold text-[#1C1D21] text-xs uppercase tracking-wide">Role</th>
+                <th className="text-left px-4 py-3 font-bold text-[#1C1D21] text-xs uppercase tracking-wide">Status</th>
                 <th className="w-16" />
               </tr>
             </thead>
             <tbody>
               {members.map((m, i) => (
                 <tr
-                  key={m.share_id}
+                  key={m.shared_with_id}
                   className={`${i !== members.length - 1 ? "border-b border-[#ECECF2]" : ""} hover:bg-[#F8F8FC] transition-colors`}
                 >
                   <td className="px-4 py-3 text-[#1C1D21]">{m.email}</td>
-                  <td className="px-4 py-3 text-[#8181A5]">{m.project_name}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
@@ -552,9 +584,14 @@ function TeamTab({ profile }: { profile: Profile }) {
                       {m.role.charAt(0).toUpperCase() + m.role.slice(1)}
                     </span>
                   </td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#14A660]/10 text-[#14A660]">
+                      {m.status}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <button
-                      onClick={() => handleRemove(m.share_id)}
+                      onClick={() => handleRemove(m)}
                       className="text-xs font-bold text-[#E54545] hover:text-[#c53030] transition-colors"
                     >
                       Remove
