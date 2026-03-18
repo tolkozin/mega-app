@@ -133,6 +133,31 @@ export default function PlansPage() {
     }
   }
 
+  const hasSubscription = !!profile?.lemon_squeezy_subscription_id;
+
+  async function handleUpgrade(plan: string) {
+    setCheckoutLoading(plan);
+    try {
+      const res = await fetch("/api/lemonsqueezy/upgrade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, annual }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upgrade failed");
+
+      // Refresh profile to pick up new plan
+      await refetch();
+      alert(`Successfully switched to ${plan.charAt(0).toUpperCase() + plan.slice(1)}!`);
+    } catch (error) {
+      console.error("[Upgrade] error:", error);
+      alert(error instanceof Error ? error.message : "Failed to upgrade. Please try again.");
+    } finally {
+      setCheckoutLoading(null);
+    }
+  }
+
   async function handleManageSubscription() {
     try {
       const res = await fetch("/api/lemonsqueezy/portal", { method: "POST" });
@@ -276,7 +301,7 @@ export default function PlansPage() {
 
                 {/* CTA */}
                 {isCurrent ? (
-                  profile?.lemon_squeezy_subscription_id ? (
+                  hasSubscription ? (
                     <button
                       onClick={handleManageSubscription}
                       className="w-full h-9 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] hover:border-[#5E81F4] transition-colors"
@@ -294,20 +319,25 @@ export default function PlansPage() {
                       Contact Us
                     </button>
                   </a>
-                ) : isUpgrade || isExpiredOrFree ? (
+                ) : hasSubscription && isActivePlan(profile!.plan) ? (
+                  <button
+                    onClick={() => isUpgrade ? handleUpgrade(plan.key) : handleManageSubscription()}
+                    disabled={checkoutLoading === plan.key}
+                    className={`w-full h-9 text-sm font-bold rounded-lg transition-colors disabled:opacity-50 ${
+                      isUpgrade
+                        ? "bg-[#5E81F4] hover:bg-[#4B6FE0] text-white"
+                        : "border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21]"
+                    }`}
+                  >
+                    {checkoutLoading === plan.key ? "Switching..." : isUpgrade ? `Upgrade to ${plan.name}` : "Downgrade"}
+                  </button>
+                ) : (
                   <button
                     onClick={() => handleCheckout(plan.key)}
                     disabled={checkoutLoading === plan.key}
                     className="w-full h-9 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
                   >
-                    {checkoutLoading === plan.key ? "Loading..." : `Start free trial`}
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleManageSubscription}
-                    className="w-full h-9 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] transition-colors"
-                  >
-                    Downgrade
+                    {checkoutLoading === plan.key ? "Loading..." : "Start free trial"}
                   </button>
                 )}
               </div>
