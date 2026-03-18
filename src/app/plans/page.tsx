@@ -32,7 +32,6 @@ const plans = [
     monthlyPrice: 18,
     annualPrice: 14.4,
     annualTotal: 172.8,
-    badge: "Most Popular",
     features: [
       { label: "Projects", value: "3" },
       { label: "Scenarios / project", value: "3" },
@@ -47,6 +46,7 @@ const plans = [
     monthlyPrice: 29,
     annualPrice: 23.2,
     annualTotal: 278.4,
+    badge: "Most Popular",
     features: [
       { label: "Projects", value: "Unlimited" },
       { label: "Scenarios / project", value: "Unlimited" },

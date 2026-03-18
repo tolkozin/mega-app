@@ -57,7 +57,7 @@ export async function getCheckoutUrl({
       },
     },
     productOptions: {
-      redirectUrl: `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app"}/settings?tab=billing&checkout=success`,
+      redirectUrl: `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app"}/dashboard?checkout=success`,
     },
   });
 

@@ -371,7 +371,7 @@ export function HomepageClient({
           >
             <Link href="/auth/register">
               <button className="h-12 px-8 bg-[#3B82F6] text-white text-sm font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-lg hover:shadow-[#3B82F6]/25 hover:-translate-y-0.5">
-                Start Free — No Card Needed
+                Start Free Trial
               </button>
             </Link>
             <Link href="/#features">
@@ -383,7 +383,7 @@ export function HomepageClient({
 
           {/* Trust line */}
           <motion.p {...motionProps(0.4)} className="text-xs text-[#64748B]">
-            Free plan available &middot; No credit card required &middot; Setup in 2 minutes
+            3-day free trial &middot; No credit card to sign up &middot; Setup in 2 minutes
           </motion.p>
         </div>
 
@@ -724,12 +724,12 @@ export function HomepageClient({
           <motion.div {...motionProps(0.2)}>
             <Link href="/auth/register">
               <button className="h-14 px-10 bg-[#3B82F6] text-white text-base font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-xl hover:shadow-[#3B82F6]/30 hover:-translate-y-0.5 animate-pulse-shadow">
-                Start Free — Build Your First Model
+                Start Free Trial
               </button>
             </Link>
           </motion.div>
           <motion.p {...motionProps(0.3)} className="text-xs text-[#64748B] mt-5">
-            No credit card &middot; Free plan &middot; 2-minute setup
+            3-day free trial &middot; No credit card to sign up &middot; 2-minute setup
           </motion.p>
         </div>
       </section>

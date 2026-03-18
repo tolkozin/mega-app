@@ -15,8 +15,6 @@ const plans = [
     monthlyPrice: 18,
     annualPrice: 14.4,
     annualTotal: 172.8,
-    badge: "Most Popular",
-    highlighted: true,
     cta: "Start free trial",
     plan: "plus",
     features: [
@@ -35,6 +33,8 @@ const plans = [
     monthlyPrice: 29,
     annualPrice: 23.2,
     annualTotal: 278.4,
+    badge: "Most Popular",
+    highlighted: true,
     cta: "Start free trial",
     plan: "pro",
     features: [
@@ -497,10 +497,10 @@ export function PricingClient() {
                   <th className="text-left text-sm font-bold text-[#94A3B8] p-4 w-[220px] sticky left-0 bg-[#0F172A]">
                     Feature
                   </th>
-                  <th className="text-center text-sm font-bold text-[#F8FAFC] p-4 border-t-[3px] border-t-[#3B82F6]">
+                  <th className="text-center text-sm font-bold text-[#F8FAFC] p-4">
                     Plus
                   </th>
-                  <th className="text-center text-sm font-bold text-[#F8FAFC] p-4">Pro</th>
+                  <th className="text-center text-sm font-bold text-[#F8FAFC] p-4 border-t-[3px] border-t-[#3B82F6]">Pro</th>
                   <th className="text-center text-sm font-bold text-[#F8FAFC] p-4">Enterprise</th>
                 </tr>
               </thead>
