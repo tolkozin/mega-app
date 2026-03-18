@@ -102,8 +102,13 @@ export default function PlansPage() {
     setCheckoutLoading(plan);
     try {
       const variantId = getVariantId(plan, annual);
+      console.log("[Checkout] plan:", plan, "annual:", annual, "variantId:", variantId);
+
       if (!variantId) {
-        alert("Payment is not yet configured. Please try again later.");
+        // Fallback: variant IDs not available (env vars not set in deployment)
+        // Redirect to pricing page
+        console.warn("[Checkout] No variant ID found — env vars may not be set");
+        window.location.href = "/pricing";
         return;
       }
 
@@ -114,16 +119,14 @@ export default function PlansPage() {
       });
 
       const data = await res.json();
+      console.log("[Checkout] response:", res.status, data);
+
       if (!res.ok) throw new Error(data.error || "Checkout failed");
+      if (!data.url) throw new Error("No checkout URL returned");
 
-      if (!data.url) {
-        throw new Error("No checkout URL returned");
-      }
-
-      // Always redirect — overlay is unreliable
       window.location.href = data.url;
     } catch (error) {
-      console.error("Checkout error:", error);
+      console.error("[Checkout] error:", error);
       alert(error instanceof Error ? error.message : "Failed to start checkout. Please try again.");
     } finally {
       setCheckoutLoading(null);

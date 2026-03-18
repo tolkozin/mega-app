@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { HeroBackground } from "./HeroBackground";
 import { DashboardPreview } from "./DashboardPreview";
@@ -39,8 +39,9 @@ interface Step {
 interface Plan {
   name: string;
   tagline: string;
-  price: string;
-  period: string;
+  monthlyPrice: number;
+  annualPrice: number;
+  annualTotal?: number;
   features: string[];
   cta: string;
   highlighted?: boolean;
@@ -184,6 +185,123 @@ const featureVisuals: Record<string, () => ReactNode> = {
   reports: () => <ReportVisual />,
   "ai-assistant": () => <AIAssistantVisual />,
 };
+
+/* ─── Pricing Toggle with Cards ─── */
+
+function PricingToggle({ plans }: { plans: Plan[] }) {
+  const [annual, setAnnual] = useState(true);
+
+  function formatPrice(plan: Plan) {
+    if (plan.monthlyPrice === -1) return "Custom";
+    const price = annual ? plan.annualPrice : plan.monthlyPrice;
+    const formatted = price % 1 === 0 ? price.toString() : price.toFixed(2).replace(/0$/, "");
+    return `$${formatted}`;
+  }
+
+  return (
+    <>
+      {/* Toggle */}
+      <div className="inline-flex items-center gap-3 mb-12">
+        <div className="relative flex items-center rounded-full border border-[#334155] p-1" style={{ background: "rgba(30,41,59,0.6)" }}>
+          <button
+            onClick={() => setAnnual(false)}
+            className="relative z-10 px-5 py-2 text-sm font-bold rounded-full transition-colors"
+            style={{ color: !annual ? "#F8FAFC" : "#94A3B8" }}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setAnnual(true)}
+            className="relative z-10 px-5 py-2 text-sm font-bold rounded-full transition-colors"
+            style={{ color: annual ? "#F8FAFC" : "#94A3B8" }}
+          >
+            Annually
+          </button>
+          <motion.div
+            layout
+            className="absolute top-1 bottom-1 rounded-full bg-[#3B82F6]"
+            style={{
+              width: "calc(50% - 4px)",
+              left: annual ? "calc(50% + 2px)" : "4px",
+            }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          />
+        </div>
+        {annual && (
+          <motion.span
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-xs font-bold text-[#14A660] bg-[#14A660]/10 px-2.5 py-1 rounded-full"
+          >
+            Save 20%
+          </motion.span>
+        )}
+      </div>
+
+      {/* Cards */}
+      <div className="grid md:grid-cols-3 gap-6 items-start">
+        {plans.map((plan) => (
+          <div
+            key={plan.name}
+            className={`relative rounded-2xl border p-8 transition-all text-left ${
+              plan.highlighted
+                ? "border-[#3B82F6] shadow-[0_0_30px_rgba(59,130,246,0.15)]"
+                : "border-[#334155]/60"
+            }`}
+            style={{
+              background: plan.highlighted
+                ? "rgba(30,41,59,0.6)"
+                : "rgba(30,41,59,0.4)",
+            }}
+          >
+            {plan.highlighted && (
+              <div className="absolute -top-3 right-4 rounded-full bg-[#3B82F6] px-3 py-1 text-xs font-bold text-white">
+                Most Popular
+              </div>
+            )}
+            <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
+            <p className="text-sm text-[#94A3B8] mb-5">{plan.tagline}</p>
+            <div className="flex items-baseline gap-1 mb-1">
+              <span className="text-4xl font-black">{formatPrice(plan)}</span>
+              {plan.monthlyPrice > 0 && <span className="text-[#94A3B8] text-sm">/mo</span>}
+            </div>
+            {annual && plan.annualTotal && (
+              <p className="text-xs text-[#64748B] mb-1">
+                Billed ${plan.annualTotal.toFixed(2).replace(/\.00$/, "")}/yr
+              </p>
+            )}
+            {plan.monthlyPrice > 0 && (
+              <p className="text-xs text-[#F59E0B] font-bold mb-5">3-day free trial</p>
+            )}
+            {plan.monthlyPrice === -1 && <div className="mb-5" />}
+
+            <ul className="space-y-3 mb-8">
+              {plan.features.map((f) => (
+                <li key={f} className="flex items-start gap-2 text-sm text-[#CBD5E1]">
+                  <svg className="w-4 h-4 mt-0.5 shrink-0 text-[#10B981]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <Link href={plan.href}>
+              <button
+                className={`w-full h-11 rounded-xl text-sm font-bold transition-all ${
+                  plan.highlighted
+                    ? "bg-[#3B82F6] text-white hover:bg-[#2563EB] hover:shadow-lg hover:shadow-[#3B82F6]/25"
+                    : "border border-[#334155] text-[#F8FAFC] hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5"
+                }`}
+              >
+                {plan.cta}
+              </button>
+            </Link>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
 
 /* ─── Main Component ─── */
 
@@ -484,75 +602,19 @@ export function HomepageClient({
       {/* ════════════ PRICING ════════════ */}
       <section id="pricing" className="py-24 px-4">
         <div className="max-w-5xl mx-auto">
-          <motion.div {...motionProps()} className="text-center mb-16">
+          <motion.div {...motionProps()} className="text-center mb-12">
             <span className="text-xs font-bold uppercase tracking-widest text-[#3B82F6] mb-3 block">
               Pricing
             </span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
               Pricing That Grows With You
             </h2>
-            <p className="text-[#94A3B8] max-w-xl mx-auto">
-              From solo founders to enterprise teams.
+            <p className="text-[#94A3B8] max-w-xl mx-auto mb-8">
+              Start with a 3-day free trial. No credit card required to sign up.
             </p>
-          </motion.div>
 
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-            className="grid md:grid-cols-3 gap-6 items-start"
-          >
-            {plans.map((plan) => (
-              <motion.div
-                key={plan.name}
-                variants={fadeUp}
-                transition={{ duration: 0.5 }}
-                className={`relative rounded-2xl border p-8 transition-all ${
-                  plan.highlighted
-                    ? "border-[#3B82F6] shadow-[0_0_30px_rgba(59,130,246,0.15)]"
-                    : "border-[#334155]/60"
-                }`}
-                style={{
-                  background: plan.highlighted
-                    ? "rgba(30,41,59,0.6)"
-                    : "rgba(30,41,59,0.4)",
-                }}
-              >
-                {plan.highlighted && (
-                  <div className="absolute -top-3 right-4 rounded-full bg-[#3B82F6] px-3 py-1 text-xs font-bold text-white">
-                    Most Popular
-                  </div>
-                )}
-                <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
-                <p className="text-sm text-[#94A3B8] mb-5">{plan.tagline}</p>
-                <div className="flex items-baseline gap-1 mb-6">
-                  <span className="text-4xl font-black">{plan.price}</span>
-                  {plan.period && <span className="text-[#94A3B8] text-sm">{plan.period}</span>}
-                </div>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-[#CBD5E1]">
-                      <svg className="w-4 h-4 mt-0.5 shrink-0 text-[#10B981]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link href={plan.href}>
-                  <button
-                    className={`w-full h-11 rounded-xl text-sm font-bold transition-all ${
-                      plan.highlighted
-                        ? "bg-[#3B82F6] text-white hover:bg-[#2563EB] hover:shadow-lg hover:shadow-[#3B82F6]/25"
-                        : "border border-[#334155] text-[#F8FAFC] hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5"
-                    }`}
-                  >
-                    {plan.cta}
-                  </button>
-                </Link>
-              </motion.div>
-            ))}
+            {/* Billing toggle */}
+            <PricingToggle plans={plans} />
           </motion.div>
 
           {/* Link to full pricing page */}
