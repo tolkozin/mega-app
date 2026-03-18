@@ -29,6 +29,8 @@ export async function POST(request: Request) {
       return new Response(
         JSON.stringify({
           error: "Monthly report limit reached",
+          detail: `${usage.limit} AI reports per month`,
+          plan: usage.plan,
           usage: { current: usage.current, limit: usage.limit, remaining: 0 },
         }),
         { status: 429, headers: { "Content-Type": "application/json" } }

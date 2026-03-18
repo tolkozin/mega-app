@@ -3,7 +3,21 @@
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Project, Scenario, ProjectShare } from "@/lib/types";
-import { getPlanLimits } from "@/lib/plan-limits";
+import { getPlanLimits, formatLimit } from "@/lib/plan-limits";
+
+export class UpgradeRequiredError extends Error {
+  feature: string;
+  currentPlan: string;
+  limitValue: string;
+
+  constructor(feature: string, currentPlan: string, limitValue: string) {
+    super(`Upgrade required: ${feature}`);
+    this.name = "UpgradeRequiredError";
+    this.feature = feature;
+    this.currentPlan = currentPlan;
+    this.limitValue = limitValue;
+  }
+}
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -47,7 +61,7 @@ export function useProjects() {
           .select("id", { count: "exact", head: true })
           .eq("user_id", user.id);
         if ((count ?? 0) >= limits.maxProjects) {
-          throw new Error(`Your ${profile?.plan ?? "free"} plan allows up to ${limits.maxProjects} project(s). Upgrade to create more.`);
+          throw new UpgradeRequiredError("projects", profile?.plan ?? "free", `${limits.maxProjects} project(s)`);
         }
       }
 
@@ -121,7 +135,7 @@ export function useScenarios(projectId: string | null) {
           .select("id", { count: "exact", head: true })
           .eq("project_id", projectId);
         if ((count ?? 0) >= limits.maxScenariosPerProject) {
-          throw new Error(`Your ${profile?.plan ?? "free"} plan allows up to ${limits.maxScenariosPerProject} scenario(s) per project. Upgrade to create more.`);
+          throw new UpgradeRequiredError("scenarios per project", profile?.plan ?? "free", `${limits.maxScenariosPerProject} scenario(s)`);
         }
       }
 
@@ -195,7 +209,7 @@ export function useProjectShares(projectId: string | null) {
           .select("id", { count: "exact", head: true })
           .eq("owner_id", user.id);
         if ((count ?? 0) >= limits.maxShares) {
-          throw new Error(`Your ${ownerProfile?.plan ?? "free"} plan allows sharing with up to ${limits.maxShares} people. Upgrade to share more.`);
+          throw new UpgradeRequiredError("sharing", ownerProfile?.plan ?? "free", `${limits.maxShares} people`);
         }
       }
 

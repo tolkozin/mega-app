@@ -3,9 +3,11 @@
 import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import { UpgradeModal } from "@/components/billing/UpgradeModal";
 import { LandscapeLock } from "./LandscapeLock";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useChatStore } from "@/stores/chat-store";
+import { useUpgradeStore } from "@/stores/upgrade-store";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function AppShell({
@@ -24,6 +26,8 @@ export function AppShell({
   const isMobile = useIsMobile();
   const aiOpen = useChatStore((s) => s.isOpen);
   const toggleAI = useChatStore((s) => s.togglePanel);
+  const upgradeModal = useUpgradeStore();
+
 
   return (
     <div className="flex min-h-screen bg-[#F8F8FC]" style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}>
@@ -73,6 +77,15 @@ export function AppShell({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Upgrade modal — triggered from anywhere via useUpgradeStore */}
+      <UpgradeModal
+        open={upgradeModal.open}
+        onClose={upgradeModal.closeUpgradeModal}
+        feature={upgradeModal.feature}
+        currentPlan={upgradeModal.currentPlan}
+        limitValue={upgradeModal.limitValue}
+      />
     </div>
   );
 }

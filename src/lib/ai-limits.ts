@@ -8,6 +8,7 @@ interface UsageResult {
   current: number;
   limit: number;
   remaining: number;
+  plan: string;
 }
 
 export async function checkAndIncrement(
@@ -27,7 +28,7 @@ export async function checkAndIncrement(
     console.warn("ai-limits: could not read profile AI columns, skipping rate limit", error?.message);
     const limits = getPlanLimits("free");
     const fallbackLimit = type === "chat" ? limits.aiMessagesPerMonth : limits.aiReportsPerMonth;
-    return { allowed: true, current: 0, limit: fallbackLimit, remaining: fallbackLimit };
+    return { allowed: true, current: 0, limit: fallbackLimit, remaining: fallbackLimit, plan: "free" };
   }
 
   const limits = getPlanLimits(profile.plan ?? "free");
@@ -72,7 +73,7 @@ export async function checkAndIncrement(
       .from("profiles")
       .update({ [info.field]: info.current + increment })
       .eq("id", userId);
-    return { allowed: true, current: info.current + increment, limit: info.limit, remaining: Infinity };
+    return { allowed: true, current: info.current + increment, limit: info.limit, remaining: Infinity, plan: profile.plan ?? "free" };
   }
 
   const increment = type === "voice" ? (voiceSeconds ?? 0) : 1;
@@ -84,6 +85,7 @@ export async function checkAndIncrement(
       current: info.current,
       limit: info.limit,
       remaining: Math.max(0, info.limit - info.current),
+      plan: profile.plan ?? "free",
     };
   }
 
@@ -97,5 +99,6 @@ export async function checkAndIncrement(
     current: newValue,
     limit: info.limit,
     remaining: info.limit - newValue,
+    plan: profile.plan ?? "free",
   };
 }

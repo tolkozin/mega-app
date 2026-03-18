@@ -29,6 +29,15 @@ const navItems = [
     ),
   },
   {
+    href: "/plans",
+    label: "Plans",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2l2.5 5 5.5.8-4 3.9.9 5.3L12 14.5 7.1 17l.9-5.3-4-3.9 5.5-.8z" transform="translate(-2,-1)" />
+      </svg>
+    ),
+  },
+  {
     href: "/invoices",
     label: "Invoices",
     icon: (

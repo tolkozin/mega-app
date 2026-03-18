@@ -14,6 +14,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/dashboard";
+  const plan = searchParams.get("plan");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +23,12 @@ function LoginForm() {
 
     try {
       await signIn(email, password);
-      router.push(redirect);
+      if (plan) {
+        localStorage.setItem("pending_plan", plan);
+        router.push("/plans");
+      } else {
+        router.push(redirect);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed");
     } finally {

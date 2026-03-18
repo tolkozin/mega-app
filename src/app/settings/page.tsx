@@ -6,6 +6,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { getPlanLimits } from "@/lib/plan-limits";
+import { useUpgradeStore } from "@/stores/upgrade-store";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -406,7 +407,11 @@ function TeamTab({ profile }: { profile: Profile }) {
     // Check plan limit for shares
     const limits = getPlanLimits(profile.plan);
     if (limits.maxShares !== Infinity && members.length >= limits.maxShares) {
-      setError(`Your ${profile.plan} plan allows sharing with up to ${limits.maxShares} people. Upgrade to share more.`);
+      useUpgradeStore.getState().showUpgradeModal({
+        feature: "sharing",
+        currentPlan: profile.plan,
+        limitValue: `${limits.maxShares} people`,
+      });
       return;
     }
 

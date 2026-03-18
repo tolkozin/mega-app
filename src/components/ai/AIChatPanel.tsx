@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useChatStore, type ConfigPatch } from "@/stores/chat-store";
 import { useConfigStore } from "@/stores/config-store";
+import { useUpgradeStore } from "@/stores/upgrade-store";
 import { ChatMessage } from "./ChatMessage";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 
@@ -183,6 +184,13 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
 
       if (!res.ok) {
         const err = await res.json();
+        if (res.status === 429) {
+          useUpgradeStore.getState().showUpgradeModal({
+            feature: "AI messages",
+            currentPlan: err.plan || "free",
+            limitValue: err.detail || "monthly AI message limit",
+          });
+        }
         appendToLastAssistant(err.detail ? `${err.error}: ${err.detail}` : (err.error || "Something went wrong."));
         if (err.usage) setChatUsage(err.usage);
         setStreaming(false);
@@ -254,6 +262,13 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
       const data = await res.json();
 
       if (!res.ok) {
+        if (res.status === 429) {
+          useUpgradeStore.getState().showUpgradeModal({
+            feature: "AI messages",
+            currentPlan: data.plan || "free",
+            limitValue: data.detail || "monthly AI message limit",
+          });
+        }
         addMessage("assistant", data.error || "File analysis failed.");
         if (data.usage) setReportUsage(data.usage);
         return;
@@ -286,6 +301,13 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
 
       const data = await res.json();
       if (!res.ok) {
+        if (res.status === 429) {
+          useUpgradeStore.getState().showUpgradeModal({
+            feature: "AI reports",
+            currentPlan: data.plan || "free",
+            limitValue: data.detail || "monthly AI report limit",
+          });
+        }
         if (data.usage) setReportUsage(data.usage);
         addMessage("assistant", data.error || "Report generation failed.");
         return;

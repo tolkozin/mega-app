@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useProjects, useSharedProjects } from "@/hooks/useProject";
+import { useProjects, useSharedProjects, UpgradeRequiredError } from "@/hooks/useProject";
 import { useAuth } from "@/hooks/useAuth";
+import { useUpgradeStore } from "@/stores/upgrade-store";
 import { AppShell } from "@/components/layout/AppShell";
 import type { Project } from "@/lib/types";
 import type { SharedProject } from "@/hooks/useProject";
@@ -116,7 +117,15 @@ export default function ProjectsPage() {
       setDescription("");
       setShowCreate(false);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to create project");
+      if (err instanceof UpgradeRequiredError) {
+        useUpgradeStore.getState().showUpgradeModal({
+          feature: err.feature,
+          currentPlan: err.currentPlan,
+          limitValue: err.limitValue,
+        });
+      } else {
+        alert(err instanceof Error ? err.message : "Failed to create project");
+      }
     } finally {
       setCreating(false);
     }

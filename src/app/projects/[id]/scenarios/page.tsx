@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { useScenarios } from "@/hooks/useProject";
+import { useScenarios, UpgradeRequiredError } from "@/hooks/useProject";
+import { useUpgradeStore } from "@/stores/upgrade-store";
 import type { Project } from "@/lib/types";
 import { useConfigStore } from "@/stores/config-store";
 import { AppShell } from "@/components/layout/AppShell";
@@ -71,7 +72,15 @@ export default function ScenariosPage() {
       setNotes("");
       setShowSave(false);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to save");
+      if (err instanceof UpgradeRequiredError) {
+        useUpgradeStore.getState().showUpgradeModal({
+          feature: err.feature,
+          currentPlan: err.currentPlan,
+          limitValue: err.limitValue,
+        });
+      } else {
+        alert(err instanceof Error ? err.message : "Failed to save");
+      }
     } finally {
       setSaving(false);
     }
