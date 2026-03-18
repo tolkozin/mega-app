@@ -257,15 +257,6 @@ export function PricingClient() {
     });
   }, []);
 
-  // Load Lemon Squeezy JS for overlay checkout
-  useEffect(() => {
-    if (document.getElementById("lemonsqueezy-js")) return;
-    const script = document.createElement("script");
-    script.id = "lemonsqueezy-js";
-    script.src = "https://app.lemonsqueezy.com/js/lemon.js";
-    script.defer = true;
-    document.head.appendChild(script);
-  }, []);
 
   async function handleCheckout(plan: string) {
     if (!user) {
@@ -288,16 +279,14 @@ export function PricingClient() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Checkout failed");
 
-      // Try overlay checkout, fallback to redirect
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const win = window as any;
-      if (win.LemonSqueezy) {
-        win.LemonSqueezy.Url.Open(data.url);
-      } else {
-        window.location.href = data.url;
+      if (!data.url) {
+        throw new Error("No checkout URL returned");
       }
+
+      // Direct redirect — most reliable
+      window.location.href = data.url;
     } catch (error) {
       console.error("Checkout error:", error);
       alert("Failed to start checkout. Please try again.");

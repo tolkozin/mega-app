@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { useAuth } from "@/hooks/useAuth";
@@ -93,47 +93,10 @@ export default function PlansPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, profileLoading]);
 
-  // Load Lemon Squeezy JS
-  useEffect(() => {
-    if (document.getElementById("lemonsqueezy-js")) return;
-    const script = document.createElement("script");
-    script.id = "lemonsqueezy-js";
-    script.src = "https://app.lemonsqueezy.com/js/lemon.js";
-    script.defer = true;
-    document.head.appendChild(script);
-  }, []);
-
-  // Listen for Lemon Squeezy checkout close event → refresh plan
-  useEffect(() => {
-    function handleLSEvent(event: MessageEvent) {
-      if (event.data?.event === "Checkout.Success" || event.data?.event === "PaymentMethodUpdate.Updated") {
-        pollForPlanUpdate();
-      }
-    }
-    window.addEventListener("message", handleLSEvent);
-    return () => window.removeEventListener("message", handleLSEvent);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/auth/login");
   }, [authLoading, user, router]);
-
-  const pollForPlanUpdate = useCallback(async () => {
-    setRefreshing(true);
-    const currentPlan = profile?.plan;
-    for (let i = 0; i < 10; i++) {
-      await new Promise((r) => setTimeout(r, 2000));
-      await refetch();
-      // Re-check after refetch by reading store
-      const res = await fetch("/api/lemonsqueezy/portal", { method: "POST" }).catch(() => null);
-      if (res) {
-        await refetch();
-      }
-      break;
-    }
-    setRefreshing(false);
-  }, [profile?.plan, refetch]);
 
   async function handleCheckout(plan: string) {
     setCheckoutLoading(plan);
@@ -151,18 +114,17 @@ export default function PlansPage() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Checkout failed");
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const win = window as any;
-      if (win.LemonSqueezy) {
-        win.LemonSqueezy.Url.Open(data.url);
-      } else {
-        window.location.href = data.url;
+      if (!data.url) {
+        throw new Error("No checkout URL returned");
       }
+
+      // Always redirect — overlay is unreliable
+      window.location.href = data.url;
     } catch (error) {
       console.error("Checkout error:", error);
-      alert("Failed to start checkout. Please try again.");
+      alert(error instanceof Error ? error.message : "Failed to start checkout. Please try again.");
     } finally {
       setCheckoutLoading(null);
     }
