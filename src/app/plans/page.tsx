@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
-import { formatLimit, isActivePlan } from "@/lib/plan-limits";
+import { formatLimit, isActivePlan, PLAN_LIMITS } from "@/lib/plan-limits";
 
 /* ─── Variant IDs ─── */
 
@@ -79,6 +79,11 @@ export default function PlansPage() {
   const [annual, setAnnual] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    targetPlan: string;
+    targetName: string;
+    isUpgrade: boolean;
+  } | null>(null);
 
   // Auto-trigger checkout if pending_plan from auth flow
   useEffect(() => {
@@ -135,21 +140,26 @@ export default function PlansPage() {
 
   const hasSubscription = !!profile?.lemon_squeezy_subscription_id;
 
-  async function handleUpgrade(plan: string) {
-    setCheckoutLoading(plan);
+  function openConfirmModal(targetPlanKey: string, targetPlanName: string, isUpgrade: boolean) {
+    setConfirmModal({ targetPlan: targetPlanKey, targetName: targetPlanName, isUpgrade });
+  }
+
+  async function handleConfirmChange() {
+    if (!confirmModal) return;
+    const { targetPlan } = confirmModal;
+    setConfirmModal(null);
+    setCheckoutLoading(targetPlan);
     try {
       const res = await fetch("/api/lemonsqueezy/upgrade", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, annual }),
+        body: JSON.stringify({ plan: targetPlan, annual }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Upgrade failed");
-      // Refresh profile to reflect the new plan
+      if (!res.ok) throw new Error(data.error || "Plan change failed");
       await refetch();
-      alert(`Successfully upgraded to ${plan.charAt(0).toUpperCase() + plan.slice(1)}!`);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to upgrade. Please try again.");
+      alert(error instanceof Error ? error.message : "Failed to change plan. Please try again.");
     } finally {
       setCheckoutLoading(null);
     }
@@ -319,7 +329,7 @@ export default function PlansPage() {
                 ) : hasSubscription && isActivePlan(profile!.plan) ? (
                   isUpgrade ? (
                     <button
-                      onClick={() => handleUpgrade(plan.key)}
+                      onClick={() => openConfirmModal(plan.key, plan.name, true)}
                       disabled={checkoutLoading === plan.key}
                       className="w-full h-9 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
                     >
@@ -327,10 +337,11 @@ export default function PlansPage() {
                     </button>
                   ) : (
                     <button
-                      onClick={() => handleManageSubscription()}
-                      className="w-full h-9 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] transition-colors"
+                      onClick={() => openConfirmModal(plan.key, plan.name, false)}
+                      disabled={checkoutLoading === plan.key}
+                      className="w-full h-9 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] transition-colors disabled:opacity-50"
                     >
-                      Downgrade
+                      {checkoutLoading === plan.key ? "Downgrading..." : "Downgrade"}
                     </button>
                   )
                 ) : (
@@ -374,8 +385,156 @@ export default function PlansPage() {
             </div>
           </div>
         )}
+        {/* Confirmation modal */}
+        {confirmModal && (
+          <PlanChangeModal
+            currentPlan={profile?.plan ?? "free"}
+            targetPlan={confirmModal.targetPlan}
+            targetName={confirmModal.targetName}
+            isUpgrade={confirmModal.isUpgrade}
+            onConfirm={handleConfirmChange}
+            onCancel={() => setConfirmModal(null)}
+          />
+        )}
       </div>
     </AppShell>
+  );
+}
+
+/* ─── Confirmation Modal ─── */
+
+const featureLabels: Record<string, string> = {
+  maxProjects: "Projects",
+  maxScenariosPerProject: "Scenarios per project",
+  maxShares: "Team sharing",
+  aiMessagesPerMonth: "AI messages / month",
+  aiReportsPerMonth: "AI reports / month",
+};
+
+function fmtValue(v: number): string {
+  return v === Infinity ? "Unlimited" : String(v);
+}
+
+function PlanChangeModal({
+  currentPlan,
+  targetPlan,
+  targetName,
+  isUpgrade,
+  onConfirm,
+  onCancel,
+}: {
+  currentPlan: string;
+  targetPlan: string;
+  targetName: string;
+  isUpgrade: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const current = PLAN_LIMITS[currentPlan as keyof typeof PLAN_LIMITS] ?? PLAN_LIMITS.free;
+  const target = PLAN_LIMITS[targetPlan as keyof typeof PLAN_LIMITS] ?? PLAN_LIMITS.free;
+
+  const keys = ["maxProjects", "maxScenariosPerProject", "maxShares", "aiMessagesPerMonth", "aiReportsPerMonth"] as const;
+
+  // For upgrade: show what you gain (target > current)
+  // For downgrade: show what you lose (current > target)
+  const changes = keys
+    .filter((k) => current[k] !== target[k])
+    .map((k) => ({
+      label: featureLabels[k],
+      from: fmtValue(current[k]),
+      to: fmtValue(target[k]),
+    }));
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
+      <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-5">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              isUpgrade ? "bg-[#5E81F4]/10" : "bg-[#F59E0B]/10"
+            }`}
+          >
+            {isUpgrade ? (
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#5E81F4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 16V4M10 4l5 5M10 4L5 9" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 4v12M10 16l5-5M10 16l-5-5" />
+              </svg>
+            )}
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-[#1C1D21]">
+              {isUpgrade ? `Upgrade to ${targetName}` : `Downgrade to ${targetName}`}
+            </h3>
+            <p className="text-sm text-[#8181A5]">
+              {isUpgrade
+                ? "Your plan will be upgraded immediately with prorated billing."
+                : "Changes take effect at the end of your current billing period."}
+            </p>
+          </div>
+        </div>
+
+        {/* Changes list */}
+        <div className="rounded-xl border border-[#ECECF2] overflow-hidden">
+          <div
+            className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wide ${
+              isUpgrade
+                ? "bg-[#5E81F4]/5 text-[#5E81F4]"
+                : "bg-[#F59E0B]/5 text-[#F59E0B]"
+            }`}
+          >
+            {isUpgrade ? "What you get" : "What you lose"}
+          </div>
+          <div className="divide-y divide-[#ECECF2]">
+            {changes.map((c) => (
+              <div key={c.label} className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm text-[#1C1D21]">{c.label}</span>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-[#8181A5]">{c.from}</span>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#8181A5" strokeWidth="1.5" strokeLinecap="round">
+                    <path d="M2 6h8M7 3l3 3-3 3" />
+                  </svg>
+                  <span className={`font-bold ${isUpgrade ? "text-[#14A660]" : "text-[#E54545]"}`}>
+                    {c.to}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Proration note */}
+        <p className="text-xs text-[#8181A5]">
+          {isUpgrade
+            ? "You will be charged a prorated amount for the remainder of this billing cycle. The full new price applies at next renewal."
+            : "A credit for unused time on your current plan will be applied to your next invoice."}
+        </p>
+
+        {/* Actions */}
+        <div className="flex items-center gap-3 pt-1">
+          <button
+            onClick={onCancel}
+            className="flex-1 h-10 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className={`flex-1 h-10 text-sm font-bold rounded-lg text-white transition-colors ${
+              isUpgrade
+                ? "bg-[#5E81F4] hover:bg-[#4B6FE0]"
+                : "bg-[#F59E0B] hover:bg-[#D97706]"
+            }`}
+          >
+            {isUpgrade ? `Upgrade to ${targetName}` : `Downgrade to ${targetName}`}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
