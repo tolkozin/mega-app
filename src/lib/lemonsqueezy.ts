@@ -2,6 +2,7 @@ import {
   lemonSqueezySetup,
   createCheckout,
   getSubscription,
+  updateSubscription,
 } from "@lemonsqueezy/lemonsqueezy.js";
 
 export function configureLemonSqueezy() {
@@ -76,6 +77,17 @@ export function getVariantIdForPlan(plan: string, annual: boolean): string | nul
   const envVar = envMap[key];
   if (!envVar) return null;
   return process.env[envVar] ?? null;
+}
+
+export async function changeSubscriptionPlan(subscriptionId: string, newVariantId: string) {
+  configureLemonSqueezy();
+
+  const { data, error } = await updateSubscription(subscriptionId, {
+    variantId: Number(newVariantId),
+  });
+
+  if (error) throw new Error(error.message);
+  return data;
 }
 
 export async function getCustomerPortalUrl(subscriptionId: string) {

@@ -41,22 +41,7 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
   );
 }
 
-function CardIcon({ brand }: { brand: string | null }) {
-  if (!brand) return null;
-  const labels: Record<string, string> = {
-    visa: "Visa",
-    mastercard: "MC",
-    amex: "Amex",
-    discover: "Disc",
-  };
-  return (
-    <span className="text-xs text-[#8181A5] font-medium">
-      {labels[brand] ?? brand}
-    </span>
-  );
-}
-
-export default function InvoicesPage() {
+export default function BillingPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -85,12 +70,12 @@ export default function InvoicesPage() {
     });
 
   return (
-    <AppShell title="Payment History">
+    <AppShell title="Billing">
       <div className="p-6 max-w-4xl">
         <div className="mb-6">
-          <h1 className="text-xl font-bold text-[#1C1D21]">Payment History</h1>
+          <h1 className="text-xl font-bold text-[#1C1D21]">Billing</h1>
           <p className="text-sm text-[#8181A5] mt-1">
-            View your subscription payments and download invoices.
+            View your subscription payments and invoices.
           </p>
         </div>
 
@@ -138,7 +123,6 @@ export default function InvoicesPage() {
                     <tr className="text-xs text-[#8181A5] font-bold uppercase tracking-wider border-b border-[#ECECF2]">
                       <th className="text-left px-5 py-3">Date</th>
                       <th className="text-left px-5 py-3">Description</th>
-                      <th className="text-left px-5 py-3">Payment</th>
                       <th className="text-left px-5 py-3">Status</th>
                       <th className="text-right px-5 py-3">Amount</th>
                       <th className="text-right px-5 py-3">Actions</th>
@@ -157,18 +141,6 @@ export default function InvoicesPage() {
                           {p.description}
                         </td>
                         <td className="px-5 py-3">
-                          {p.card_brand && p.card_last_four ? (
-                            <div className="flex items-center gap-1.5">
-                              <CardIcon brand={p.card_brand} />
-                              <span className="text-sm text-[#8181A5]">
-                                ****{p.card_last_four}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-sm text-[#8181A5]">--</span>
-                          )}
-                        </td>
-                        <td className="px-5 py-3">
                           <StatusBadge
                             status={p.status}
                             label={p.status_formatted}
@@ -178,38 +150,14 @@ export default function InvoicesPage() {
                           {p.amount_formatted}
                         </td>
                         <td className="px-5 py-3 text-right">
-                          <div className="flex items-center justify-end gap-3">
-                            <a
-                              href={`/invoices/view?id=${p.id}`}
-                              className="text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
-                            >
-                              View
-                            </a>
-                            {p.invoice_url && (
-                              <a
-                                href={p.invoice_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
-                              >
-                                <svg
-                                  width="14"
-                                  height="14"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                >
-                                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                                  <polyline points="7 10 12 15 17 10" />
-                                  <line x1="12" y1="15" x2="12" y2="3" />
-                                </svg>
-                                PDF
-                              </a>
-                            )}
-                          </div>
+                          <a
+                            href="https://revenuemap.lemonsqueezy.com/billing"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
+                          >
+                            View
+                          </a>
                         </td>
                       </tr>
                     ))}
@@ -233,29 +181,14 @@ export default function InvoicesPage() {
                     <p className="text-sm text-[#8181A5]">
                       {formatDate(p.date)} &middot; {p.description}
                     </p>
-                    {p.card_brand && p.card_last_four && (
-                      <p className="text-xs text-[#8181A5]">
-                        {p.card_brand} ****{p.card_last_four}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-3 mt-1">
-                      <a
-                        href={`/invoices/view?id=${p.id}`}
-                        className="text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
-                      >
-                        View Invoice
-                      </a>
-                      {p.invoice_url && (
-                        <a
-                          href={p.invoice_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
-                        >
-                          Download PDF
-                        </a>
-                      )}
-                    </div>
+                    <a
+                      href="https://revenuemap.lemonsqueezy.com/billing"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
+                    >
+                      View
+                    </a>
                   </div>
                 ))}
               </div>

@@ -38,8 +38,8 @@ const navItems = [
     ),
   },
   {
-    href: "/invoices",
-    label: "Invoices",
+    href: "/billing",
+    label: "Billing",
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 2h8l4 4v12a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" />

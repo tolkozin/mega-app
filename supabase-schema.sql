@@ -14,6 +14,8 @@ CREATE TABLE public.profiles (
     display_name TEXT DEFAULT '',
     username TEXT DEFAULT '',
     telegram TEXT DEFAULT '',
+    phone TEXT DEFAULT '',
+    whatsapp TEXT DEFAULT '',
     company_name TEXT DEFAULT '',
     company_address TEXT DEFAULT '',
     tax_id TEXT DEFAULT '',

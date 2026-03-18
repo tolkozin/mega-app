@@ -16,6 +16,8 @@ interface Profile {
   display_name: string;
   username: string;
   telegram: string;
+  phone: string;
+  whatsapp: string;
   company_name: string;
   company_address: string;
   tax_id: string;
@@ -109,13 +111,12 @@ function Banner({ type, message }: { type: "error" | "success"; message: string 
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 
-type Tab = "profile" | "contacts" | "team" | "billing" | "invoice" | "delete";
+type Tab = "profile" | "contacts" | "team" | "invoice" | "delete";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "profile", label: "Profile" },
   { key: "contacts", label: "Contacts" },
   { key: "team", label: "Team" },
-  { key: "billing", label: "Billing" },
   { key: "invoice", label: "Invoice Data" },
   { key: "delete", label: "Delete Account" },
 ];
@@ -260,6 +261,8 @@ function ProfileTab({ profile, onSaved }: { profile: Profile; onSaved: (p: Profi
 function ContactsTab({ profile, onSaved }: { profile: Profile; onSaved: (p: Profile) => void }) {
   const supabase = createClient();
   const [telegram, setTelegram] = useState(profile.telegram ?? "");
+  const [phone, setPhone] = useState(profile.phone ?? "");
+  const [whatsapp, setWhatsapp] = useState(profile.whatsapp ?? "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -270,10 +273,10 @@ function ContactsTab({ profile, onSaved }: { profile: Profile; onSaved: (p: Prof
     try {
       const { error: err } = await supabase
         .from("profiles")
-        .update({ telegram })
+        .update({ telegram, phone, whatsapp })
         .eq("id", profile.id);
       if (err) throw err;
-      onSaved({ ...profile, telegram });
+      onSaved({ ...profile, telegram, phone, whatsapp });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (e) {
@@ -288,6 +291,24 @@ function ContactsTab({ profile, onSaved }: { profile: Profile; onSaved: (p: Prof
       <h2 className="text-base font-bold text-[#1C1D21]">Contact Info</h2>
       <Field label="Email">
         <input className={inputReadonlyClass} value={profile.email} readOnly tabIndex={-1} />
+      </Field>
+      <Field label="Phone">
+        <input
+          className={inputClass}
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="+1 (555) 000-0000"
+          type="tel"
+        />
+      </Field>
+      <Field label="WhatsApp">
+        <input
+          className={inputClass}
+          value={whatsapp}
+          onChange={(e) => setWhatsapp(e.target.value)}
+          placeholder="+1 (555) 000-0000"
+          type="tel"
+        />
       </Field>
       <Field label="Telegram Handle">
         <div className="relative">
@@ -322,7 +343,6 @@ function TeamTab({ profile }: { profile: Profile }) {
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [notFoundHint, setNotFoundHint] = useState("");
 
   const loadData = async () => {
     setLoading(true);
@@ -400,7 +420,6 @@ function TeamTab({ profile }: { profile: Profile }) {
   const handleAdd = async () => {
     setError("");
     setSuccess("");
-    setNotFoundHint("");
     const email = addEmail.trim().toLowerCase();
     if (!email) { setError("Enter an email address"); return; }
 
@@ -431,7 +450,6 @@ function TeamTab({ profile }: { profile: Profile }) {
 
       if (lookupErr || !targetProfile) {
         setError("No account found for that email address.");
-        setNotFoundHint("This user will get access once they create an account with this email. Share the signup link with them.");
         return;
       }
       if (targetProfile.id === profile.id) throw new Error("You cannot add yourself");
@@ -515,7 +533,7 @@ function TeamTab({ profile }: { profile: Profile }) {
             <input
               className={inputClass}
               value={addEmail}
-              onChange={(e) => { setAddEmail(e.target.value); setNotFoundHint(""); }}
+              onChange={(e) => setAddEmail(e.target.value)}
               placeholder="user@example.com"
               type="email"
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
@@ -533,11 +551,6 @@ function TeamTab({ profile }: { profile: Profile }) {
           </div>
         </div>
         {error && <Banner type="error" message={error} />}
-        {notFoundHint && (
-          <div className="text-xs text-[#8181A5] bg-[#F8F8FC] border border-[#ECECF2] rounded-lg px-3 py-2">
-            {notFoundHint}
-          </div>
-        )}
         {success && <Banner type="success" message={success} />}
         <button
           onClick={handleAdd}
@@ -686,125 +699,6 @@ function InvoiceDataTab({ profile, onSaved }: { profile: Profile; onSaved: (p: P
       {error && <Banner type="error" message={error} />}
       <div className="pt-1">
         <SaveButton saving={saving} saved={saved} onClick={handleSave} />
-      </div>
-    </div>
-  );
-}
-
-// ─── Tab: Billing ────────────────────────────────────────────────────────
-
-function BillingTab({ profile }: { profile: Profile }) {
-  const [portalLoading, setPortalLoading] = useState(false);
-  const limits = getPlanLimits(profile.plan);
-  const isPaid = profile.plan !== "free" && profile.plan !== "expired";
-
-  const planLabel = profile.plan.charAt(0).toUpperCase() + profile.plan.slice(1);
-
-  const statusColor: Record<string, string> = {
-    active: "bg-[#14A660]/10 text-[#14A660] border-[#14A660]/20",
-    cancelled: "bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20",
-    past_due: "bg-[#E54545]/10 text-[#E54545] border-[#E54545]/20",
-  };
-  const statusLabel: Record<string, string> = {
-    active: "Active",
-    cancelled: "Cancelled (active until end of period)",
-    past_due: "Past Due",
-    expired: "Expired",
-  };
-
-  const handleManageSubscription = async () => {
-    setPortalLoading(true);
-    try {
-      const res = await fetch("/api/lemonsqueezy/portal", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      window.location.href = data.url;
-    } catch {
-      alert("Failed to open subscription portal. Please try again.");
-    } finally {
-      setPortalLoading(false);
-    }
-  };
-
-  function UsageBar({ label, current, max }: { label: string; current: number; max: number }) {
-    const isUnlimited = max === Infinity;
-    const pct = isUnlimited ? 0 : Math.min((current / max) * 100, 100);
-    const isOver = !isUnlimited && current >= max;
-
-    return (
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-[#1C1D21] font-medium">{label}</span>
-          <span className="text-[#8181A5]">
-            {current} / {isUnlimited ? "\u221e" : max}
-          </span>
-        </div>
-        <div className="h-2 rounded-full bg-[#ECECF2] overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all ${isOver ? "bg-[#E54545]" : "bg-[#5E81F4]"}`}
-            style={{ width: isUnlimited ? "0%" : `${pct}%` }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6 max-w-lg">
-      <h2 className="text-base font-bold text-[#1C1D21]">Billing & Plan</h2>
-
-      {/* Current plan */}
-      <div className="bg-white border border-[#ECECF2] rounded-xl p-5 space-y-4">
-        <div className="flex items-center gap-3">
-          <span className="text-lg font-bold text-[#1C1D21]">{planLabel}</span>
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-            isPaid ? "bg-[#5E81F4]/10 text-[#5E81F4] border-[#5E81F4]/20" : "bg-[#8181A5]/10 text-[#8181A5] border-[#8181A5]/20"
-          }`}>
-            {planLabel} Plan
-          </span>
-        </div>
-
-        {isPaid && profile.subscription_status && (
-          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${
-            statusColor[profile.subscription_status] ?? "bg-[#8181A5]/10 text-[#8181A5] border-[#8181A5]/20"
-          }`}>
-            {statusLabel[profile.subscription_status] ?? profile.subscription_status}
-          </div>
-        )}
-
-        {isPaid ? (
-          <button
-            onClick={handleManageSubscription}
-            disabled={portalLoading}
-            className="h-9 px-5 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
-          >
-            {portalLoading ? "Loading..." : "Manage Subscription"}
-          </button>
-        ) : (
-          <a href="/plans">
-            <button className="h-9 px-5 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors">
-              Subscribe Now
-            </button>
-          </a>
-        )}
-      </div>
-
-      {/* Usage */}
-      <div className="bg-white border border-[#ECECF2] rounded-xl p-5 space-y-4">
-        <p className="text-sm font-bold text-[#1C1D21]">Usage this month</p>
-        <UsageBar label="AI Messages" current={profile.ai_chat_count ?? 0} max={limits.aiMessagesPerMonth} />
-        <UsageBar label="AI Reports" current={profile.ai_report_count ?? 0} max={limits.aiReportsPerMonth} />
-      </div>
-
-      {/* Plan limits summary */}
-      <div className="bg-white border border-[#ECECF2] rounded-xl p-5">
-        <p className="text-sm font-bold text-[#1C1D21] mb-3">Plan Limits</p>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div><span className="text-[#8181A5]">Projects:</span> <span className="font-bold text-[#1C1D21]">{limits.maxProjects === Infinity ? "Unlimited" : limits.maxProjects}</span></div>
-          <div><span className="text-[#8181A5]">Scenarios/project:</span> <span className="font-bold text-[#1C1D21]">{limits.maxScenariosPerProject === Infinity ? "Unlimited" : limits.maxScenariosPerProject}</span></div>
-          <div><span className="text-[#8181A5]">Shares:</span> <span className="font-bold text-[#1C1D21]">{limits.maxShares === Infinity ? "Unlimited" : limits.maxShares}</span></div>
-          <div><span className="text-[#8181A5]">AI msgs/month:</span> <span className="font-bold text-[#1C1D21]">{limits.aiMessagesPerMonth === Infinity ? "Unlimited" : limits.aiMessagesPerMonth}</span></div>
-        </div>
       </div>
     </div>
   );
@@ -986,10 +880,7 @@ export default function SettingsPage() {
         {activeTab === "team" && (
           <TeamTab profile={profile} />
         )}
-        {activeTab === "billing" && (
-          <BillingTab profile={profile} />
-        )}
-        {activeTab === "invoice" && (
+{activeTab === "invoice" && (
           <InvoiceDataTab profile={profile} onSaved={setProfile} />
         )}
         {activeTab === "delete" && (
