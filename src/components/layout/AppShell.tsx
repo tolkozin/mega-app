@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
@@ -8,6 +9,8 @@ import { LandscapeLock } from "./LandscapeLock";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useChatStore } from "@/stores/chat-store";
 import { useUpgradeStore } from "@/stores/upgrade-store";
+import { useProfile } from "@/hooks/useProfile";
+import { isActivePlan } from "@/lib/plan-limits";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function AppShell({
@@ -27,7 +30,17 @@ export function AppShell({
   const aiOpen = useChatStore((s) => s.isOpen);
   const toggleAI = useChatStore((s) => s.togglePanel);
   const upgradeModal = useUpgradeStore();
+  const { profile, loading: profileLoading } = useProfile();
+  const shownExpiredRef = useRef(false);
 
+  // Auto-show expired modal once when user has expired/free plan
+  useEffect(() => {
+    if (profileLoading || !profile || shownExpiredRef.current) return;
+    if (!isActivePlan(profile.plan)) {
+      shownExpiredRef.current = true;
+      useUpgradeStore.getState().showExpiredModal();
+    }
+  }, [profile, profileLoading]);
 
   return (
     <div className="flex min-h-screen bg-[#F8F8FC]" style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}>
@@ -82,10 +95,26 @@ export function AppShell({
       <UpgradeModal
         open={upgradeModal.open}
         onClose={upgradeModal.closeUpgradeModal}
+        mode={upgradeModal.mode}
         feature={upgradeModal.feature}
         currentPlan={upgradeModal.currentPlan}
         limitValue={upgradeModal.limitValue}
       />
+
+      {/* Expired/free plan read-only banner */}
+      {!profileLoading && profile && !isActivePlan(profile.plan) && (
+        <div className="fixed bottom-0 left-0 right-0 z-[60] bg-[#F59E0B] text-white text-center py-2 px-4">
+          <p className="text-sm font-bold">
+            Your plan has expired — your data is safe but editing is disabled.{" "}
+            <button
+              onClick={() => useUpgradeStore.getState().showExpiredModal()}
+              className="underline hover:no-underline"
+            >
+              Resubscribe
+            </button>
+          </p>
+        </div>
+      )}
     </div>
   );
 }

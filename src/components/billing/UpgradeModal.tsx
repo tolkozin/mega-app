@@ -3,9 +3,12 @@
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 
+type ModalMode = "upgrade" | "expired" | "readonly";
+
 interface UpgradeModalProps {
   open: boolean;
   onClose: () => void;
+  mode?: ModalMode;
   feature: string;
   currentPlan?: string;
   limitValue?: string;
@@ -13,14 +16,16 @@ interface UpgradeModalProps {
 
 const planSuggestion: Record<string, { name: string; color: string }> = {
   free: { name: "Plus", color: "#5E81F4" },
+  expired: { name: "Plus", color: "#5E81F4" },
   plus: { name: "Pro", color: "#8B5CF6" },
   pro: { name: "Enterprise", color: "#F59E0B" },
 };
 
-export function UpgradeModal({ open, onClose, feature, currentPlan = "free", limitValue }: UpgradeModalProps) {
+export function UpgradeModal({ open, onClose, mode = "upgrade", feature, currentPlan = "free", limitValue }: UpgradeModalProps) {
   const router = useRouter();
   const suggestion = planSuggestion[currentPlan] ?? planSuggestion.free;
-  const planLabel = currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1);
+
+  const isExpired = mode === "expired" || mode === "readonly";
 
   return (
     <AnimatePresence>
@@ -54,14 +59,26 @@ export function UpgradeModal({ open, onClose, feature, currentPlan = "free", lim
               <div
                 className="px-6 pt-6 pb-5"
                 style={{
-                  background: `linear-gradient(135deg, ${suggestion.color}15, ${suggestion.color}05)`,
+                  background: isExpired
+                    ? "linear-gradient(135deg, #F5920015, #F5920005)"
+                    : `linear-gradient(135deg, ${suggestion.color}15, ${suggestion.color}05)`,
                 }}
               >
                 <div className="flex items-start justify-between">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `${suggestion.color}15` }}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={suggestion.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" />
-                    </svg>
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{ background: isExpired ? "#F5920015" : `${suggestion.color}15` }}
+                  >
+                    {isExpired ? (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v4M12 16h.01" />
+                      </svg>
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={suggestion.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" />
+                      </svg>
+                    )}
                   </div>
                   <button
                     onClick={onClose}
@@ -73,43 +90,77 @@ export function UpgradeModal({ open, onClose, feature, currentPlan = "free", lim
                   </button>
                 </div>
 
-                <h2 className="text-xl font-bold text-[#1C1D21] mt-4">
-                  Upgrade to {suggestion.name}
-                </h2>
-                <p className="text-sm text-[#8181A5] mt-1.5 leading-relaxed">
-                  You&apos;ve reached the {feature} limit on your {planLabel} plan
-                  {limitValue && <> ({limitValue})</>}.
-                  Upgrade to {suggestion.name} to unlock more.
-                </p>
+                {isExpired ? (
+                  <>
+                    <h2 className="text-xl font-bold text-[#1C1D21] mt-4">
+                      {mode === "readonly" ? "Read-Only Mode" : "Your Subscription Has Expired"}
+                    </h2>
+                    <p className="text-sm text-[#8181A5] mt-1.5 leading-relaxed">
+                      {mode === "readonly"
+                        ? "Your subscription is no longer active. All your data is safe, but you can\u2019t edit or create anything until you resubscribe."
+                        : "Your plan has expired. All your projects, scenarios, and data are preserved — but editing and creating are disabled until you subscribe again."
+                      }
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-xl font-bold text-[#1C1D21] mt-4">
+                      Upgrade to {suggestion.name}
+                    </h2>
+                    <p className="text-sm text-[#8181A5] mt-1.5 leading-relaxed">
+                      You&apos;ve reached the {feature} limit on your current plan
+                      {limitValue && <> ({limitValue})</>}.
+                      Upgrade to {suggestion.name} to unlock more.
+                    </p>
+                  </>
+                )}
               </div>
 
-              {/* Quick comparison */}
+              {/* Content */}
               <div className="px-6 py-4 border-t border-[#ECECF2]">
-                <p className="text-xs font-bold text-[#8181A5] uppercase tracking-wide mb-3">
-                  What you get with {suggestion.name}
-                </p>
-                {currentPlan === "free" && (
-                  <ul className="space-y-2">
-                    <CompareRow label="Projects" current="1" next="3" />
-                    <CompareRow label="Scenarios / project" current="1" next="3" />
-                    <CompareRow label="Sharing" current="None" next="3 people" />
-                    <CompareRow label="AI messages / month" current="10" next="30" />
-                    <CompareRow label="AI reports / month" current="1" next="3" />
-                  </ul>
-                )}
-                {currentPlan === "plus" && (
-                  <ul className="space-y-2">
-                    <CompareRow label="Projects" current="3" next="Unlimited" />
-                    <CompareRow label="Scenarios / project" current="3" next="Unlimited" />
-                    <CompareRow label="Sharing" current="3 people" next="10 people" />
-                    <CompareRow label="AI messages / month" current="30" next="Unlimited" />
-                    <CompareRow label="AI reports / month" current="3" next="Unlimited" />
-                  </ul>
-                )}
-                {currentPlan === "pro" && (
-                  <p className="text-sm text-[#8181A5]">
-                    Contact us for custom Enterprise limits tailored to your team.
-                  </p>
+                {isExpired ? (
+                  <>
+                    <p className="text-xs font-bold text-[#8181A5] uppercase tracking-wide mb-3">
+                      What&apos;s happening
+                    </p>
+                    <ul className="space-y-2.5">
+                      <StatusRow icon="check" text="All your data is safely preserved" />
+                      <StatusRow icon="check" text="You can view your dashboards and reports" />
+                      <StatusRow icon="lock" text="Editing configurations is disabled" />
+                      <StatusRow icon="lock" text="Creating projects or scenarios is disabled" />
+                      <StatusRow icon="lock" text="AI assistant is disabled" />
+                    </ul>
+                    <p className="text-xs text-[#8181A5] mt-3">
+                      Resubscribe to Plus or Pro to instantly restore full access. All plans include a 3-day free trial.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs font-bold text-[#8181A5] uppercase tracking-wide mb-3">
+                      What you get with {suggestion.name}
+                    </p>
+                    {currentPlan === "plus" ? (
+                      <ul className="space-y-2">
+                        <CompareRow label="Projects" current="3" next="Unlimited" />
+                        <CompareRow label="Scenarios / project" current="3" next="Unlimited" />
+                        <CompareRow label="Sharing" current="3 people" next="10 people" />
+                        <CompareRow label="AI messages / month" current="30" next="Unlimited" />
+                        <CompareRow label="AI reports / month" current="3" next="Unlimited" />
+                      </ul>
+                    ) : currentPlan === "pro" ? (
+                      <p className="text-sm text-[#8181A5]">
+                        Contact us for custom Enterprise limits tailored to your team.
+                      </p>
+                    ) : (
+                      <ul className="space-y-2">
+                        <CompareRow label="Projects" current="0" next="3" />
+                        <CompareRow label="Scenarios / project" current="0" next="3" />
+                        <CompareRow label="Sharing" current="None" next="3 people" />
+                        <CompareRow label="AI messages / month" current="0" next="30" />
+                        <CompareRow label="AI reports / month" current="0" next="3" />
+                      </ul>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -121,15 +172,15 @@ export function UpgradeModal({ open, onClose, feature, currentPlan = "free", lim
                     router.push("/plans");
                   }}
                   className="flex-1 h-10 text-sm font-bold rounded-lg text-white transition-colors"
-                  style={{ background: suggestion.color }}
+                  style={{ background: isExpired ? "#F59E0B" : suggestion.color }}
                 >
-                  View Plans
+                  {isExpired ? "Resubscribe Now" : "View Plans"}
                 </button>
                 <button
                   onClick={onClose}
                   className="h-10 px-5 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] transition-colors"
                 >
-                  Maybe Later
+                  {isExpired ? "Continue Viewing" : "Maybe Later"}
                 </button>
               </div>
             </motion.div>
@@ -151,6 +202,24 @@ function CompareRow({ label, current, next }: { label: string; current: string; 
         </svg>
         <span className="font-bold text-[#14A660]">{next}</span>
       </div>
+    </li>
+  );
+}
+
+function StatusRow({ icon, text }: { icon: "check" | "lock"; text: string }) {
+  return (
+    <li className="flex items-center gap-2.5 text-sm">
+      {icon === "check" ? (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 text-[#14A660]">
+          <path d="M4 8.5L6.5 11L12 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 text-[#F59E0B]">
+          <rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
+      )}
+      <span className="text-[#1C1D21]">{text}</span>
     </li>
   );
 }

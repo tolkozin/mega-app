@@ -31,7 +31,7 @@ export function useProfile() {
     fetchProfile();
   }, [fetchProfile]);
 
-  const limits: PlanLimits = getPlanLimits(profile?.plan ?? "free");
+  const limits: PlanLimits = getPlanLimits(profile?.plan ?? "expired");
 
   return { profile, loading, limits, refetch: fetchProfile };
 }

@@ -29,7 +29,18 @@ export default function DashboardPage() {
         const project = projects[0] as Project;
         router.push(`/dashboard/${project.product_type}`);
       } else {
-        router.push("/onboarding");
+        // No projects — check if user has an active plan
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("plan")
+          .eq("id", user.id)
+          .single();
+        const plan = profile?.plan ?? "free";
+        if (plan === "free" || plan === "expired") {
+          router.push("/plans");
+        } else {
+          router.push("/onboarding");
+        }
       }
       setLoading(false);
     };

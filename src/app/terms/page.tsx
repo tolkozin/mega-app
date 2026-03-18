@@ -75,17 +75,17 @@ export default function TermsOfServicePage() {
               <h4 className="text-[#F8FAFC] font-bold mt-4 mb-2">3.1 Plans</h4>
               <p>We offer the following subscription tiers:</p>
               <BulletList items={[
-                "Free Plan: limited to 1 project and 1 scenario; no payment required",
-                "Plus Plan: $18 per month (or as currently displayed on our pricing page); 3 projects, 3 scenarios per project, sharing, expanded AI limits",
-                "Pro Plan: $29 per month (or as currently displayed on our pricing page); unlimited projects and scenarios, expanded sharing, unlimited AI",
+                "Plus Plan: $18 per month (or as currently displayed on our pricing page); 3 projects, 3 scenarios per project, sharing, expanded AI limits; includes 3-day free trial",
+                "Pro Plan: $29 per month (or as currently displayed on our pricing page); unlimited projects and scenarios, expanded sharing, unlimited AI; includes 3-day free trial",
                 "Enterprise Plan: custom pricing; contact us for details",
               ]} />
+              <p className="mt-2">A subscription is required to create and edit projects. Without an active subscription, existing data is preserved but editing and creation are disabled.</p>
 
               <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">3.2 Billing</h4>
-              <p>Pro and Enterprise subscriptions are billed on a recurring basis (monthly or annually as selected). By subscribing, you authorize us to charge your payment method on a recurring basis. All fees are in USD unless otherwise stated.</p>
+              <p>Plus, Pro, and Enterprise subscriptions are billed on a recurring basis (monthly or annually as selected). By subscribing, you authorize us to charge your payment method on a recurring basis. All fees are in USD unless otherwise stated.</p>
 
               <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">3.3 Free Trial</h4>
-              <p>We may offer free trials of paid features. At the end of a trial period, your subscription will automatically convert to a paid plan unless you cancel before the trial ends.</p>
+              <p>Both Plus and Pro plans include a 3-day free trial. At the end of the trial period, your subscription will automatically convert to a paid plan unless you cancel before the trial ends. You will not be charged during the trial period.</p>
 
               <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">3.4 Cancellation</h4>
               <p>You may cancel your subscription at any time from your account settings. Cancellation takes effect at the end of the current billing period. You will retain access to paid features until the end of the period for which you have already paid.</p>

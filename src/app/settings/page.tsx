@@ -23,7 +23,7 @@ interface Profile {
   lemon_squeezy_customer_id?: string;
   lemon_squeezy_subscription_id?: string;
   subscription_status?: string;
-  plan: "free" | "plus" | "pro" | "enterprise";
+  plan: "free" | "expired" | "plus" | "pro" | "enterprise";
   ai_chat_count: number;
   ai_report_count: number;
   ai_voice_seconds: number;
@@ -659,7 +659,7 @@ function InvoiceDataTab({ profile, onSaved }: { profile: Profile; onSaved: (p: P
 function BillingTab({ profile }: { profile: Profile }) {
   const [portalLoading, setPortalLoading] = useState(false);
   const limits = getPlanLimits(profile.plan);
-  const isPaid = profile.plan !== "free";
+  const isPaid = profile.plan !== "free" && profile.plan !== "expired";
 
   const planLabel = profile.plan.charAt(0).toUpperCase() + profile.plan.slice(1);
 
@@ -672,6 +672,7 @@ function BillingTab({ profile }: { profile: Profile }) {
     active: "Active",
     cancelled: "Cancelled (active until end of period)",
     past_due: "Past Due",
+    expired: "Expired",
   };
 
   const handleManageSubscription = async () => {
@@ -743,9 +744,9 @@ function BillingTab({ profile }: { profile: Profile }) {
             {portalLoading ? "Loading..." : "Manage Subscription"}
           </button>
         ) : (
-          <a href="/pricing">
+          <a href="/plans">
             <button className="h-9 px-5 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors">
-              Upgrade Plan
+              Subscribe Now
             </button>
           </a>
         )}

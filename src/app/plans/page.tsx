@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
-import { formatLimit } from "@/lib/plan-limits";
+import { formatLimit, isActivePlan } from "@/lib/plan-limits";
 
 /* ─── Variant IDs ─── */
 
@@ -26,19 +26,6 @@ function getVariantId(plan: string, annual: boolean): string {
 /* ─── Plan data ─── */
 
 const plans = [
-  {
-    key: "free",
-    name: "Free",
-    monthlyPrice: 0,
-    annualPrice: 0,
-    features: [
-      { label: "Projects", value: "1" },
-      { label: "Scenarios / project", value: "1" },
-      { label: "Sharing", value: "None" },
-      { label: "AI messages / month", value: "10" },
-      { label: "AI reports / month", value: "1" },
-    ],
-  },
   {
     key: "plus",
     name: "Plus",
@@ -83,14 +70,15 @@ const plans = [
   },
 ];
 
-const planOrder = ["free", "plus", "pro", "enterprise"];
+const planOrder = ["free", "expired", "plus", "pro", "enterprise"];
 
 export default function PlansPage() {
   const { user, loading: authLoading } = useAuth();
-  const { profile, limits, loading: profileLoading } = useProfile();
+  const { profile, limits, loading: profileLoading, refetch } = useProfile();
   const router = useRouter();
-  const [annual, setAnnual] = useState(false);
+  const [annual, setAnnual] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Auto-trigger checkout if pending_plan from auth flow
   useEffect(() => {
@@ -115,9 +103,37 @@ export default function PlansPage() {
     document.head.appendChild(script);
   }, []);
 
+  // Listen for Lemon Squeezy checkout close event → refresh plan
+  useEffect(() => {
+    function handleLSEvent(event: MessageEvent) {
+      if (event.data?.event === "Checkout.Success" || event.data?.event === "PaymentMethodUpdate.Updated") {
+        pollForPlanUpdate();
+      }
+    }
+    window.addEventListener("message", handleLSEvent);
+    return () => window.removeEventListener("message", handleLSEvent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!authLoading && !user) router.push("/auth/login");
   }, [authLoading, user, router]);
+
+  const pollForPlanUpdate = useCallback(async () => {
+    setRefreshing(true);
+    const currentPlan = profile?.plan;
+    for (let i = 0; i < 10; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      await refetch();
+      // Re-check after refetch by reading store
+      const res = await fetch("/api/lemonsqueezy/portal", { method: "POST" }).catch(() => null);
+      if (res) {
+        await refetch();
+      }
+      break;
+    }
+    setRefreshing(false);
+  }, [profile?.plan, refetch]);
 
   async function handleCheckout(plan: string) {
     setCheckoutLoading(plan);
@@ -163,6 +179,12 @@ export default function PlansPage() {
     }
   }
 
+  async function handleRefreshPlan() {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }
+
   const currentPlanIndex = planOrder.indexOf(profile?.plan ?? "free");
 
   if (authLoading || profileLoading) {
@@ -175,14 +197,20 @@ export default function PlansPage() {
     );
   }
 
+  const isExpiredOrFree = !isActivePlan(profile?.plan ?? "free");
+
   return (
     <AppShell title="Plans">
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-6 max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-[#1C1D21] mb-2">Choose Your Plan</h1>
           <p className="text-sm text-[#8181A5]">
-            You&apos;re currently on the <span className="font-bold text-[#1C1D21]">{(profile?.plan ?? "free").charAt(0).toUpperCase() + (profile?.plan ?? "free").slice(1)}</span> plan.
+            {isExpiredOrFree ? (
+              <>Subscribe to start using Revenue Map. All plans include a <span className="font-bold text-[#F59E0B]">3-day free trial</span>.</>
+            ) : (
+              <>You&apos;re on the <span className="font-bold text-[#1C1D21]">{(profile?.plan ?? "free").charAt(0).toUpperCase() + (profile?.plan ?? "free").slice(1)}</span> plan.</>
+            )}
           </p>
         </div>
 
@@ -213,24 +241,21 @@ export default function PlansPage() {
               }}
             />
           </div>
-          {!annual && (
-            <span className="text-xs font-bold text-[#F59E0B] bg-[#F59E0B]/10 px-2.5 py-1 rounded-full">
+          {annual && (
+            <span className="text-xs font-bold text-[#14A660] bg-[#14A660]/10 px-2.5 py-1 rounded-full">
               Save 20%
             </span>
           )}
         </div>
 
         {/* Plan cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
           {plans.map((plan) => {
             const planIndex = planOrder.indexOf(plan.key);
             const isCurrent = plan.key === (profile?.plan ?? "free");
-            const isDowngrade = planIndex < currentPlanIndex;
             const isUpgrade = planIndex > currentPlanIndex;
             const price = plan.monthlyPrice === -1
               ? "Custom"
-              : plan.monthlyPrice === 0
-              ? "$0"
               : annual
               ? `$${plan.annualPrice! % 1 === 0 ? plan.annualPrice : plan.annualPrice!.toFixed(2).replace(/0$/, "")}`
               : `$${plan.monthlyPrice}`;
@@ -259,17 +284,21 @@ export default function PlansPage() {
 
                 <h3 className="text-lg font-bold text-[#1C1D21] mb-1">{plan.name}</h3>
 
-                <div className="flex items-baseline gap-1 mb-4">
+                <div className="flex items-baseline gap-1 mb-1">
                   <span className="text-3xl font-black text-[#1C1D21]">{price}</span>
                   {plan.monthlyPrice > 0 && <span className="text-sm text-[#8181A5]">/mo</span>}
-                  {plan.monthlyPrice === 0 && <span className="text-sm text-[#8181A5]">/forever</span>}
                 </div>
 
                 {annual && plan.annualTotal && (
-                  <p className="text-xs text-[#8181A5] -mt-3 mb-4">
+                  <p className="text-xs text-[#8181A5] mb-1">
                     Billed ${plan.annualTotal.toFixed(2).replace(/\.00$/, "")}/yr
                   </p>
                 )}
+
+                {plan.monthlyPrice > 0 && (
+                  <p className="text-xs text-[#F59E0B] font-bold mb-4">3-day free trial</p>
+                )}
+                {plan.monthlyPrice === -1 && <div className="mb-4" />}
 
                 <div className="space-y-2.5 mb-5">
                   {plan.features.map((f) => (
@@ -300,29 +329,44 @@ export default function PlansPage() {
                       Contact Us
                     </button>
                   </a>
-                ) : isUpgrade ? (
+                ) : isUpgrade || isExpiredOrFree ? (
                   <button
                     onClick={() => handleCheckout(plan.key)}
                     disabled={checkoutLoading === plan.key}
                     className="w-full h-9 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
                   >
-                    {checkoutLoading === plan.key ? "Loading..." : `Upgrade to ${plan.name}`}
+                    {checkoutLoading === plan.key ? "Loading..." : `Start free trial`}
                   </button>
-                ) : isDowngrade ? (
+                ) : (
                   <button
                     onClick={handleManageSubscription}
                     className="w-full h-9 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] transition-colors"
                   >
                     Downgrade
                   </button>
-                ) : null}
+                )}
               </div>
             );
           })}
         </div>
 
+        {/* Refresh plan button */}
+        <div className="flex items-center justify-center mb-8">
+          <button
+            onClick={handleRefreshPlan}
+            disabled={refreshing}
+            className="text-sm text-[#8181A5] hover:text-[#5E81F4] transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={refreshing ? "animate-spin" : ""}>
+              <path d="M14 8A6 6 0 112.34 5.67" />
+              <path d="M2 2v4h4" />
+            </svg>
+            {refreshing ? "Refreshing..." : "Just paid? Refresh plan status"}
+          </button>
+        </div>
+
         {/* Current usage */}
-        {profile && (
+        {profile && isActivePlan(profile.plan) && (
           <div className="rounded-xl border border-[#ECECF2] bg-white p-5">
             <h3 className="text-sm font-bold text-[#1C1D21] mb-4">Current Usage</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

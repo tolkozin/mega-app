@@ -105,32 +105,32 @@ const steps = [
 
 const plans = [
   {
-    name: "Free",
-    tagline: "Explore Revenue Map at your own pace.",
-    price: "$0",
-    period: "/forever",
-    features: ["1 project, 1 scenario", "10 AI messages per month", "View Investor Report"],
-    cta: "Get started free",
-    href: "/auth",
-  },
-  {
     name: "Plus",
     tagline: "For founders actively building their model.",
-    price: "$18",
+    price: "$14.40",
     period: "/mo",
-    features: ["3 projects, 9 scenarios", "Share with up to 3 people", "30 AI messages per project", "Scenario comparison"],
+    features: ["3 projects, 9 scenarios", "Share with up to 3 people", "30 AI messages per project", "3-day free trial"],
     highlighted: true,
-    cta: "Start with Plus",
+    cta: "Start free trial",
     href: "/auth?plan=plus",
   },
   {
     name: "Pro",
     tagline: "For serious founders who need no limits.",
-    price: "$29",
+    price: "$23.20",
     period: "/mo",
-    features: ["Unlimited projects & scenarios", "Unlimited AI messages", "Share with up to 10 people", "Scenario comparison"],
-    cta: "Start with Pro",
+    features: ["Unlimited projects & scenarios", "Unlimited AI messages", "Share with up to 10 people", "3-day free trial"],
+    cta: "Start free trial",
     href: "/auth?plan=pro",
+  },
+  {
+    name: "Enterprise",
+    tagline: "For teams with custom needs.",
+    price: "Custom",
+    period: "",
+    features: ["Everything in Pro", "Unlimited sharing", "Priority support", "Custom onboarding"],
+    cta: "Contact us",
+    href: "mailto:hello@revenuemap.app",
   },
 ];
 

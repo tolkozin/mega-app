@@ -23,7 +23,14 @@ const planBadgeColors: Record<string, string> = {
 };
 
 function PlanBadge({ plan }: { plan?: string }) {
-  if (!plan || plan === "free") return null;
+  if (!plan) return null;
+  if (plan === "free" || plan === "expired") {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F59E0B]/20 text-[#FBBF24]">
+        No Plan
+      </span>
+    );
+  }
   const label = plan.charAt(0).toUpperCase() + plan.slice(1);
   return (
     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${planBadgeColors[plan] ?? planBadgeColors.free}`}>
@@ -195,12 +202,14 @@ function OverflowSheet({
   activeCategory,
   onSignOut,
   email,
+  plan,
 }: {
   open: boolean;
   onClose: () => void;
   activeCategory?: string;
   onSignOut: () => void;
   email?: string;
+  plan?: string;
 }) {
   const modelLabel = categories.find((c) => c.key === activeCategory)?.label ?? "Dashboard";
 
@@ -236,8 +245,11 @@ function OverflowSheet({
                 <rect x="2" y="12" width="7" height="6" rx="1.5" />
                 <rect x="11" y="9" width="7" height="9" rx="1.5" />
               </svg>
-              <div>
-                <p className="text-[15px] text-[#F8FAFC]">{modelLabel} Model</p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-[15px] text-[#F8FAFC]">{modelLabel} Model</p>
+                  <PlanBadge plan={plan} />
+                </div>
                 {email && <p className="text-xs text-[#64748B]">{email}</p>}
               </div>
             </div>
@@ -390,6 +402,7 @@ function DateRangeSheet({
 
 function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: AppHeaderProps) {
   const { user, signOut } = useAuth();
+  const { profile } = useProfile();
   const router = useRouter();
   const pathname = usePathname();
   const setNavMobileOpen = useLayoutStore((s) => s.setNavSidebarMobileOpen);
@@ -518,6 +531,7 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: Ap
         activeCategory={activeCategory}
         onSignOut={handleSignOut}
         email={user?.email ?? undefined}
+        plan={profile?.plan}
       />
       <DateRangeSheet
         open={dateSheetOpen}

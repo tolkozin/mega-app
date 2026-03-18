@@ -10,22 +10,6 @@ import { createClient } from "@/lib/supabase/client";
 
 const plans = [
   {
-    name: "Free",
-    subtitle: "Explore Revenue Map at your own pace",
-    monthlyPrice: 0,
-    annualPrice: 0,
-    cta: "Get started free",
-    href: "/auth",
-    features: [
-      "1 project",
-      "1 scenario per project",
-      "View Investor Report (no download)",
-      "1 AI report per month",
-      "10 AI assistant messages per month",
-      "No sharing",
-    ],
-  },
-  {
     name: "Plus",
     subtitle: "For founders actively building their model",
     monthlyPrice: 18,
@@ -33,7 +17,7 @@ const plans = [
     annualTotal: 172.8,
     badge: "Most Popular",
     highlighted: true,
-    cta: "Start with Plus",
+    cta: "Start free trial",
     plan: "plus",
     features: [
       "3 projects",
@@ -42,7 +26,7 @@ const plans = [
       "30 AI messages per month per project",
       "3 AI reports per month per project",
       "Scenario comparison",
-      "Everything in Free",
+      "3-day free trial",
     ],
   },
   {
@@ -51,7 +35,7 @@ const plans = [
     monthlyPrice: 29,
     annualPrice: 23.2,
     annualTotal: 278.4,
-    cta: "Start with Pro",
+    cta: "Start free trial",
     plan: "pro",
     features: [
       "Unlimited projects",
@@ -60,6 +44,7 @@ const plans = [
       "Unlimited AI messages",
       "Unlimited AI reports",
       "Scenario comparison",
+      "3-day free trial",
       "Everything in Plus",
     ],
   },
@@ -104,7 +89,6 @@ type CellValue = string | boolean;
 
 interface ComparisonRow {
   feature: string;
-  free: CellValue;
   plus: CellValue;
   pro: CellValue;
   enterprise: CellValue;
@@ -119,40 +103,41 @@ const comparisonData: ComparisonSection[] = [
   {
     title: "Projects & Scenarios",
     rows: [
-      { feature: "Projects", free: "1", plus: "3", pro: "Unlimited", enterprise: "Custom" },
-      { feature: "Scenarios per project", free: "1", plus: "3", pro: "Unlimited", enterprise: "Custom" },
-      { feature: "Total scenarios", free: "1", plus: "9", pro: "Unlimited", enterprise: "Custom" },
+      { feature: "Projects", plus: "3", pro: "Unlimited", enterprise: "Custom" },
+      { feature: "Scenarios per project", plus: "3", pro: "Unlimited", enterprise: "Custom" },
+      { feature: "Total scenarios", plus: "9", pro: "Unlimited", enterprise: "Custom" },
     ],
   },
   {
     title: "Collaboration",
     rows: [
-      { feature: "Share with others", free: false, plus: "Up to 3 people", pro: "Up to 10 people", enterprise: "Custom" },
-      { feature: "View shared projects", free: true, plus: true, pro: true, enterprise: true },
+      { feature: "Share with others", plus: "Up to 3 people", pro: "Up to 10 people", enterprise: "Custom" },
+      { feature: "View shared projects", plus: true, pro: true, enterprise: true },
     ],
   },
   {
     title: "AI Assistant",
     rows: [
-      { feature: "AI messages per month", free: "10 total", plus: "30 per project", pro: "Unlimited", enterprise: "Unlimited" },
-      { feature: "AI reports per month", free: "1 total", plus: "3 per project", pro: "Unlimited", enterprise: "Unlimited" },
-      { feature: "Investor Report (view)", free: true, plus: true, pro: true, enterprise: true },
-      { feature: "Investor Report (download)", free: false, plus: true, pro: true, enterprise: true },
+      { feature: "AI messages per month", plus: "30 per project", pro: "Unlimited", enterprise: "Unlimited" },
+      { feature: "AI reports per month", plus: "3 per project", pro: "Unlimited", enterprise: "Unlimited" },
+      { feature: "Investor Report (view)", plus: true, pro: true, enterprise: true },
+      { feature: "Investor Report (download)", plus: true, pro: true, enterprise: true },
     ],
   },
   {
     title: "Analysis",
     rows: [
-      { feature: "Scenario comparison", free: false, plus: true, pro: true, enterprise: true },
-      { feature: "Monte Carlo simulation", free: true, plus: true, pro: true, enterprise: true },
+      { feature: "Scenario comparison", plus: true, pro: true, enterprise: true },
+      { feature: "Monte Carlo simulation", plus: true, pro: true, enterprise: true },
     ],
   },
   {
     title: "Extras",
     rows: [
-      { feature: "Priority support", free: false, plus: false, pro: false, enterprise: true },
-      { feature: "Custom onboarding", free: false, plus: false, pro: false, enterprise: true },
-      { feature: "SLA", free: false, plus: false, pro: false, enterprise: true },
+      { feature: "Free trial", plus: "3 days", pro: "3 days", enterprise: false },
+      { feature: "Priority support", plus: false, pro: false, enterprise: true },
+      { feature: "Custom onboarding", plus: false, pro: false, enterprise: true },
+      { feature: "SLA", plus: false, pro: false, enterprise: true },
     ],
   },
 ];
@@ -161,12 +146,16 @@ const comparisonData: ComparisonSection[] = [
 
 const faqs = [
   {
+    q: "Is there a free trial?",
+    a: "Yes! Both Plus and Pro plans include a 3-day free trial. You won't be charged until the trial ends. Cancel anytime during the trial at no cost.",
+  },
+  {
     q: "Can I switch plans anytime?",
     a: "Yes. You can upgrade or downgrade at any time. When you upgrade, changes take effect immediately. When you downgrade, you keep your current plan until the end of the billing cycle.",
   },
   {
-    q: "What happens to my data if I downgrade?",
-    a: "Your data is safe. If you have more projects or scenarios than your new plan allows, existing data stays intact — you just won't be able to create new ones until you're within the plan limits.",
+    q: "What happens if my subscription expires?",
+    a: "Your data is safe and preserved. You can still view your dashboards and reports, but editing, creating projects, and AI features are disabled until you resubscribe.",
   },
   {
     q: "Is the annual plan billed all at once?",
@@ -256,7 +245,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 /* ─── Main Component ─── */
 
 export function PricingClient() {
-  const [annual, setAnnual] = useState(false);
+  const [annual, setAnnual] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
   const router = useRouter();
@@ -319,25 +308,18 @@ export function PricingClient() {
 
   function formatPrice(plan: (typeof plans)[number]) {
     if (plan.monthlyPrice === -1) return "Custom";
-    if (plan.monthlyPrice === 0) return "$0";
     const price = annual ? plan.annualPrice : plan.monthlyPrice;
     const formatted = price % 1 === 0 ? price.toString() : price.toFixed(2).replace(/0$/, "");
     return `$${formatted}`;
   }
 
   function renderCTA(plan: (typeof plans)[number]) {
-    // Free and Enterprise use plain links
+    // Enterprise uses plain link
     if (plan.href) {
       return (
         <Link href={plan.href}>
           <button
-            className={`w-full h-11 rounded-xl text-sm font-bold transition-all cursor-pointer ${
-              plan.highlighted
-                ? "bg-[#3B82F6] text-white hover:bg-[#2563EB] hover:shadow-lg hover:shadow-[#3B82F6]/25"
-                : plan.name === "Enterprise"
-                  ? "bg-[#1E293B] border border-[#334155] text-[#94A3B8] hover:border-[#3B82F6]/50 hover:text-[#F8FAFC]"
-                  : "border border-[#334155] text-[#F8FAFC] hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5"
-            }`}
+            className="w-full h-11 rounded-xl text-sm font-bold transition-all cursor-pointer bg-[#1E293B] border border-[#334155] text-[#94A3B8] hover:border-[#3B82F6]/50 hover:text-[#F8FAFC]"
           >
             {plan.cta}
           </button>
@@ -380,7 +362,7 @@ export function PricingClient() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-lg text-[#94A3B8] mb-10"
         >
-          Start free. Upgrade when you&apos;re ready to grow.
+          Start with a 3-day free trial. No credit card required to sign up.
         </motion.p>
 
         {/* Toggle */}
@@ -416,11 +398,11 @@ export function PricingClient() {
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
             />
           </div>
-          {!annual && (
+          {annual && (
             <motion.span
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-xs font-bold text-[#F59E0B] bg-[#F59E0B]/10 px-2.5 py-1 rounded-full"
+              className="text-xs font-bold text-[#14A660] bg-[#14A660]/10 px-2.5 py-1 rounded-full"
             >
               Save 20%
             </motion.span>
@@ -434,7 +416,7 @@ export function PricingClient() {
           initial="hidden"
           animate="visible"
           variants={stagger}
-          className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-start"
+          className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 items-start"
         >
           {plans.map((plan) => (
             <motion.div
@@ -468,15 +450,14 @@ export function PricingClient() {
               <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-4xl font-black">{formatPrice(plan)}</span>
                 {plan.monthlyPrice > 0 && <span className="text-[#94A3B8] text-sm">/mo</span>}
-                {plan.monthlyPrice === 0 && <span className="text-[#94A3B8] text-sm">/forever</span>}
               </div>
               {annual && plan.annualTotal && (
-                <p className="text-xs text-[#64748B] mb-5">
+                <p className="text-xs text-[#64748B] mb-1">
                   Billed ${plan.annualTotal.toFixed(2).replace(/\.00$/, "")}/yr
                 </p>
               )}
-              {(!annual || !plan.annualTotal) && plan.monthlyPrice >= 0 && (
-                <div className="mb-5" />
+              {plan.monthlyPrice > 0 && (
+                <p className="text-xs text-[#F59E0B] font-bold mb-5">3-day free trial</p>
               )}
               {plan.monthlyPrice === -1 && <div className="mb-5" />}
 
@@ -499,7 +480,7 @@ export function PricingClient() {
 
       {/* ════════════ COMPARISON TABLE ════════════ */}
       <section className="py-24 px-4" style={{ background: "rgba(30,41,59,0.2)" }}>
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -521,13 +502,12 @@ export function PricingClient() {
             className="overflow-x-auto rounded-2xl border border-[#334155]/60"
             style={{ background: "rgba(15,23,42,0.5)" }}
           >
-            <table className="w-full min-w-[640px]">
+            <table className="w-full min-w-[540px]">
               <thead>
                 <tr className="sticky top-0 z-10" style={{ background: "rgba(15,23,42,0.95)", backdropFilter: "blur(8px)" }}>
                   <th className="text-left text-sm font-bold text-[#94A3B8] p-4 w-[220px] sticky left-0 bg-[#0F172A]">
                     Feature
                   </th>
-                  <th className="text-center text-sm font-bold text-[#F8FAFC] p-4">Free</th>
                   <th className="text-center text-sm font-bold text-[#F8FAFC] p-4 border-t-[3px] border-t-[#3B82F6]">
                     Plus
                   </th>
@@ -540,7 +520,7 @@ export function PricingClient() {
                   <>
                     <tr key={`section-${section.title}`}>
                       <td
-                        colSpan={5}
+                        colSpan={4}
                         className="text-xs font-bold uppercase tracking-widest text-[#3B82F6] px-4 pt-6 pb-2"
                       >
                         {section.title}
@@ -554,7 +534,6 @@ export function PricingClient() {
                         <td className="text-sm text-[#CBD5E1] p-4 sticky left-0 bg-inherit font-medium">
                           {row.feature}
                         </td>
-                        <td className="text-center p-4"><CellContent value={row.free} /></td>
                         <td className="text-center p-4"><CellContent value={row.plus} /></td>
                         <td className="text-center p-4"><CellContent value={row.pro} /></td>
                         <td className="text-center p-4"><CellContent value={row.enterprise} /></td>
@@ -615,7 +594,7 @@ export function PricingClient() {
             transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-black mb-4"
           >
-            Still not sure?
+            Ready to build your model?
           </motion.h2>
           <motion.p
             initial="hidden"
@@ -625,7 +604,7 @@ export function PricingClient() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-lg text-[#94A3B8] mb-8"
           >
-            Start for free — no credit card required.
+            Start your 3-day free trial today — no credit card required to sign up.
           </motion.p>
           <motion.div
             initial="hidden"
@@ -634,9 +613,9 @@ export function PricingClient() {
             variants={fadeUp}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <Link href="/auth">
+            <Link href="/auth?plan=plus">
               <button className="h-14 px-10 bg-[#3B82F6] text-white text-base font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-xl hover:shadow-[#3B82F6]/30 hover:-translate-y-0.5 cursor-pointer">
-                Get Started Free
+                Start Free Trial
               </button>
             </Link>
           </motion.div>

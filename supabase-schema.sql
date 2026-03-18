@@ -21,7 +21,7 @@ CREATE TABLE public.profiles (
     lemon_squeezy_customer_id TEXT DEFAULT NULL,
     lemon_squeezy_subscription_id TEXT DEFAULT NULL,
     subscription_status TEXT DEFAULT NULL,
-    plan TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'plus', 'pro', 'enterprise')),
+    plan TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'expired', 'plus', 'pro', 'enterprise')),
     ai_chat_count INTEGER NOT NULL DEFAULT 0,
     ai_report_count INTEGER NOT NULL DEFAULT 0,
     ai_voice_seconds INTEGER NOT NULL DEFAULT 0,
@@ -116,10 +116,7 @@ RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO public.profiles (id, email, display_name)
     VALUES (NEW.id, NEW.email, COALESCE(NEW.raw_user_meta_data->>'display_name', ''));
-
-    INSERT INTO public.projects (user_id, name, description, product_type) VALUES
-      (NEW.id, 'My First Project', 'Get started with your first financial model', 'subscription');
-
+    -- No default project — user must subscribe first (free plan = read-only)
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

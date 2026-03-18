@@ -113,9 +113,8 @@ export async function POST(request: Request) {
         await supabase
           .from("profiles")
           .update({
-            plan: "free",
-            subscription_status: null,
-            lemon_squeezy_subscription_id: null,
+            plan: "expired",
+            subscription_status: "expired",
           })
           .eq("lemon_squeezy_subscription_id", subscriptionId);
 
