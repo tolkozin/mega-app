@@ -8,10 +8,24 @@ export async function GET(request: NextRequest) {
   if (code) {
     const supabase = await createClient();
     await supabase.auth.exchangeCodeForSession(code);
+
+    // Check if user already has projects (existing user)
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { count } = await supabase
+        .from("projects")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id);
+
+      // Existing user with projects → dashboard
+      if (count && count > 0) {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+    }
+
+    // New user → survey (plan comes from localStorage client-side)
+    return NextResponse.redirect(new URL("/onboarding/survey", request.url));
   }
 
-  // Redirect to /plans if there was a pending plan selection,
-  // otherwise go to dashboard. The pending_plan check happens client-side
-  // via the PendingPlanRedirect component in the dashboard layout.
   return NextResponse.redirect(new URL("/dashboard", request.url));
 }

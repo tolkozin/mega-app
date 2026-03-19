@@ -12,7 +12,6 @@ import { useUpgradeStore } from "@/stores/upgrade-store";
 import { useProfile } from "@/hooks/useProfile";
 import { isActivePlan } from "@/lib/plan-limits";
 import { AnimatePresence, motion } from "framer-motion";
-import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 
 export function AppShell({
   title,
@@ -91,9 +90,6 @@ export function AppShell({
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Onboarding tour — shows once for new users */}
-      <OnboardingTour />
 
       {/* Upgrade modal — triggered from anywhere via useUpgradeStore */}
       <UpgradeModal

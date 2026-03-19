@@ -84,6 +84,18 @@ CREATE TABLE public.invoices (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- 6. SURVEY RESPONSES
+CREATE TABLE public.survey_responses (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    plan TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'completed')),
+    answers JSONB NOT NULL DEFAULT '{}',
+    project_id UUID DEFAULT NULL REFERENCES public.projects(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ========================
 -- STEP 2: INDEXES
 -- ========================
@@ -96,6 +108,8 @@ CREATE INDEX idx_projects_user_id ON public.projects(user_id);
 CREATE INDEX idx_projects_public_token ON public.projects(public_token) WHERE public_token IS NOT NULL;
 CREATE INDEX idx_scenarios_project_id ON public.scenarios(project_id);
 CREATE INDEX idx_project_shares_project_id ON public.project_shares(project_id);
+CREATE INDEX idx_survey_responses_user_id ON public.survey_responses(user_id);
+CREATE INDEX idx_survey_responses_status ON public.survey_responses(status) WHERE status = 'pending';
 CREATE INDEX idx_project_shares_shared_with_id ON public.project_shares(shared_with_id);
 CREATE INDEX idx_invoices_user_id ON public.invoices(user_id);
 
@@ -108,6 +122,7 @@ ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.scenarios ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_shares ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.survey_responses ENABLE ROW LEVEL SECURITY;
 
 -- ========================
 -- STEP 4: TRIGGER — auto-create profile on signup
@@ -287,4 +302,17 @@ CREATE POLICY "Users can update own invoices"
 
 CREATE POLICY "Users can delete own invoices"
     ON public.invoices FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- SURVEY RESPONSES
+CREATE POLICY "Users can view own surveys"
+    ON public.survey_responses FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own surveys"
+    ON public.survey_responses FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own surveys"
+    ON public.survey_responses FOR UPDATE
     USING (auth.uid() = user_id);

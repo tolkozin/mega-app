@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { variantId, plan } = await request.json();
+    const { variantId, plan, surveyId } = await request.json();
 
     if (!variantId || !plan) {
       return Response.json({ error: "Missing variantId or plan" }, { status: 400 });
@@ -21,6 +21,7 @@ export async function POST(request: Request) {
       userId: user.id,
       userEmail: user.email ?? "",
       plan,
+      surveyId: surveyId || undefined,
     });
 
     if (!url) {

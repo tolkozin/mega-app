@@ -23,6 +23,7 @@ interface WebhookEvent {
     custom_data?: {
       user_id?: string;
       plan?: string;
+      survey_id?: string;
     };
   };
   data: {
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
     switch (eventName) {
       case "subscription_created": {
         const userId = event.meta.custom_data?.user_id;
+        const surveyId = event.meta.custom_data?.survey_id;
         const plan = variantIdToPlan(variantId) ?? event.meta.custom_data?.plan ?? "plus";
 
         if (!userId) {
@@ -78,6 +80,53 @@ export async function POST(request: Request) {
             plan,
           })
           .eq("id", userId);
+
+        // Create project from survey if survey_id is present
+        if (surveyId) {
+          try {
+            const { data: survey } = await supabase
+              .from("survey_responses")
+              .select("answers")
+              .eq("id", surveyId)
+              .eq("user_id", userId)
+              .single();
+
+            if (survey?.answers) {
+              const answers = survey.answers as Record<string, unknown>;
+              const productType = (answers.projectType as string) ?? "subscription";
+              const validTypes = ["subscription", "ecommerce", "saas"];
+              const type = validTypes.includes(productType) ? productType : "subscription";
+
+              const industry = answers.industry as string ?? "";
+              const now = new Date();
+              const monthName = now.toLocaleString("en-US", { month: "long", year: "numeric" });
+              const name = industry && industry !== "Other"
+                ? `${industry} — ${monthName}`
+                : `My Project — ${monthName}`;
+
+              const { data: project } = await supabase
+                .from("projects")
+                .insert({
+                  user_id: userId,
+                  name,
+                  description: "Created from your survey answers",
+                  product_type: type,
+                })
+                .select("id")
+                .single();
+
+              if (project) {
+                await supabase
+                  .from("survey_responses")
+                  .update({ status: "completed", project_id: project.id })
+                  .eq("id", surveyId);
+              }
+            }
+          } catch (e) {
+            console.error("Failed to create project from survey:", e);
+            // Don't fail the webhook — profile is already updated
+          }
+        }
 
         break;
       }

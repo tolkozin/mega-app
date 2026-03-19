@@ -38,27 +38,34 @@ export async function getCheckoutUrl({
   userId,
   userEmail,
   plan,
+  surveyId,
 }: {
   variantId: string;
   userId: string;
   userEmail: string;
   plan: string;
+  surveyId?: string;
 }) {
   configureLemonSqueezy();
 
   const storeId = process.env.LEMONSQUEEZY_STORE_ID;
   if (!storeId) throw new Error("LEMONSQUEEZY_STORE_ID is not set");
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
+  const redirectUrl = surveyId
+    ? `${siteUrl}/onboarding/processing?survey_id=${surveyId}`
+    : `${siteUrl}/dashboard?checkout=success`;
+
+  const custom: Record<string, string> = { user_id: userId, plan };
+  if (surveyId) custom.survey_id = surveyId;
+
   const { data, error } = await createCheckout(storeId, variantId, {
     checkoutData: {
       email: userEmail,
-      custom: {
-        user_id: userId,
-        plan,
-      },
+      custom,
     },
     productOptions: {
-      redirectUrl: `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app"}/dashboard?checkout=success`,
+      redirectUrl,
     },
   });
 
