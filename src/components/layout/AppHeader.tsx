@@ -489,22 +489,7 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: Ap
               </svg>
             </button>
 
-            {/* Category tabs (compact) */}
-            <div className="flex items-center gap-1 overflow-x-auto">
-              {categories.map((cat) => (
-                <button
-                  key={cat.key}
-                  onClick={() => router.push(cat.href)}
-                  className={`px-2.5 py-1 text-[11px] font-bold rounded-md whitespace-nowrap transition-colors ${
-                    activeCategory === cat.key
-                      ? "bg-[#1E293B] text-white"
-                      : "text-[#64748B] active:text-white"
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
+            {/* Category tabs removed — model selector is in dashboard content */}
           </div>
 
           {/* Date range pill */}
@@ -553,7 +538,6 @@ function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths }: A
   const pathname = usePathname();
 
   const isDashboard = pathname?.startsWith("/dashboard");
-  const activeCategory = categories.find((c) => pathname?.startsWith(c.href))?.key;
 
   const handleSignOut = async () => {
     await signOut();
@@ -564,24 +548,6 @@ function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths }: A
     <header className="h-14 border-b border-[#2A2B30] bg-[#1C1D21] flex items-center justify-between px-6 shrink-0">
       <div className="flex items-center gap-4 min-w-0">
         {title && <h1 className="text-lg font-bold text-[#F8FAFC] truncate">{title}</h1>}
-
-        {isDashboard && (
-          <div className="flex items-center bg-white/10 rounded-lg p-0.5">
-            {categories.map((cat) => (
-              <button
-                key={cat.key}
-                onClick={() => router.push(cat.href)}
-                className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors whitespace-nowrap ${
-                  activeCategory === cat.key
-                    ? "bg-[#5E81F4] text-white"
-                    : "text-[#94A3B8] hover:text-white"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-        )}
 
         {isDashboard && (
           <DateRangeBar
