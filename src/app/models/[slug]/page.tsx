@@ -49,34 +49,34 @@ const ICON_MAP: Record<ProductType, typeof Smartphone> = {
 
 const ENGINE_FEATURES: Record<BaseEngine, string[]> = {
   subscription: [
-    "MRR/ARR tracking",
-    "Trial conversion modeling",
-    "Churn & retention analysis",
-    "Cohort behavior",
-    "Ad spend & CPI optimization",
+    "Built on real industry benchmarks",
+    "Full model in under 5 minutes",
+    "MRR, ARR & cohort analysis",
+    "Churn & retention curves",
     "Break-even timeline",
-    "Monte Carlo simulation",
-    "Investor-ready report",
+    "1,000+ Monte Carlo simulations",
+    "AI assistant trained on your data",
+    "Investor-ready PDF report",
   ],
   ecommerce: [
-    "Revenue & AOV tracking",
-    "CAC & ROAS analysis",
+    "Built on real industry benchmarks",
+    "Full model in under 5 minutes",
+    "True per-order profitability",
+    "CAC, ROAS & LTV analysis",
     "Repeat purchase modeling",
-    "COGS & margin calculation",
-    "Ad spend optimization",
-    "Inventory cost modeling",
-    "Monte Carlo simulation",
-    "Investor-ready report",
+    "1,000+ Monte Carlo simulations",
+    "AI assistant trained on your data",
+    "Investor-ready PDF report",
   ],
   saas: [
-    "ARR/MRR tracking",
-    "NRR & churn modeling",
+    "Built on real industry benchmarks",
+    "Full model in under 5 minutes",
+    "ARR, NRR & Quick Ratio",
+    "LTV/CAC & Rule of 40",
     "Seat-based pricing analysis",
-    "LTV/CAC optimization",
-    "Sales cycle modeling",
-    "Rule of 40 & Quick Ratio",
-    "Monte Carlo simulation",
-    "Investor-ready report",
+    "1,000+ Monte Carlo simulations",
+    "AI assistant trained on your data",
+    "Investor-ready PDF report",
   ],
 };
 
@@ -455,21 +455,21 @@ const MODEL_FAQS: Record<ProductType, FaqItem[]> = {
 const HOW_IT_WORKS = [
   {
     step: 1,
-    title: "Describe your idea",
+    title: "Answer a few questions",
     description:
-      "Tell us about your business model, pricing, and target market. Our AI assistant helps fill in the details.",
+      "Tell us your business type, market, and pricing. AI pre-fills realistic numbers based on real industry data.",
   },
   {
     step: 2,
-    title: "Get instant projections",
+    title: "Get your model instantly",
     description:
-      "Revenue Map generates a 36-month financial model with Monte Carlo simulation, sensitivity analysis, and key metrics.",
+      "A full financial projection appears in seconds — revenue, costs, profitability, and 1,000+ risk simulations.",
   },
   {
     step: 3,
-    title: "Validate & share",
+    title: "Test, adjust, export",
     description:
-      "Explore scenarios, adjust assumptions in real-time, and export investor-ready reports.",
+      "Change any assumption and see results update live. Download an investor-ready report when you're ready.",
   },
 ];
 
@@ -575,13 +575,28 @@ export default async function ModelPage({
               {model.label} Financial Model
             </h1>
 
-            <p className="mt-4 text-lg text-[#94A3B8] sm:text-xl max-w-2xl mx-auto">
+            <p className="mt-4 text-xl font-bold text-[#F8FAFC] sm:text-2xl max-w-2xl mx-auto">
+              {model.headline}
+            </p>
+
+            <p className="mt-3 text-lg text-[#94A3B8] max-w-2xl mx-auto">
               {model.description}
             </p>
 
-            <p className="mt-3 text-xl font-bold text-[#F8FAFC] sm:text-2xl">
-              {model.headline}
-            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-[#94A3B8]">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                Ready in under 5 min
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]" />
+                Trained on real market data
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
+                1,000+ risk simulations
+              </span>
+            </div>
 
             <Link
               href="/onboarding/survey"
@@ -589,7 +604,7 @@ export default async function ModelPage({
               style={{ backgroundColor: model.color }}
             >
               <Sparkles className="h-5 w-5" />
-              Try {model.label} Model — Free
+              Build My Model — Free
             </Link>
           </div>
         </section>
@@ -598,11 +613,10 @@ export default async function ModelPage({
         <section className="py-20">
           <div className="mx-auto max-w-5xl px-4">
             <h2 className="text-center text-3xl font-black text-[#F8FAFC] sm:text-4xl">
-              What&apos;s Included
+              What You Get
             </h2>
             <p className="mt-3 text-center text-[#94A3B8] text-lg max-w-2xl mx-auto">
-              Everything you need to model {model.label.toLowerCase()}{" "}
-              unit economics and growth.
+              Every number is grounded in real benchmarks — not guesswork.
             </p>
 
             <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -633,7 +647,7 @@ export default async function ModelPage({
               How It Works
             </h2>
             <p className="mt-3 text-center text-[#94A3B8] text-lg">
-              From idea to investor-ready projections in minutes.
+              From idea to investor-ready projections — in minutes, not weeks.
             </p>
 
             <div className="mt-12 grid gap-8 sm:grid-cols-3">
@@ -661,11 +675,10 @@ export default async function ModelPage({
         <section className="py-20 border-t border-[#1E293B]">
           <div className="mx-auto max-w-3xl px-4">
             <h2 className="text-center text-3xl font-black text-[#F8FAFC] sm:text-4xl">
-              Frequently Asked Questions
+              FAQ
             </h2>
             <p className="mt-3 text-center text-[#94A3B8] text-lg">
-              Common questions about {model.label.toLowerCase()}{" "}
-              financial modeling.
+              Everything you need to know about {model.label.toLowerCase()} financial modeling.
             </p>
 
             <div className="mt-12 space-y-4">
@@ -695,11 +708,10 @@ export default async function ModelPage({
               style={{ color: model.color }}
             />
             <h2 className="text-3xl font-black text-[#F8FAFC] sm:text-4xl">
-              Ready to model your {model.label.toLowerCase()} business?
+              Build your {model.label.toLowerCase()} model now
             </h2>
             <p className="mt-4 text-lg text-[#94A3B8] max-w-xl mx-auto">
-              Stop guessing. Get a data-driven financial model in
-              minutes — not weeks.
+              Real data. Real benchmarks. Your financial model — ready in minutes.
             </p>
             <Link
               href="/onboarding/survey"
@@ -707,7 +719,7 @@ export default async function ModelPage({
               style={{ backgroundColor: model.color }}
             >
               <Sparkles className="h-5 w-5" />
-              Get Started — Free
+              Start Free Trial
             </Link>
           </div>
         </section>
