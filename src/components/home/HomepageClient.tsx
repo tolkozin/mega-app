@@ -638,7 +638,7 @@ export function HomepageClient({
 
           {/* Trust line */}
           <motion.p {...motionProps(0.4)} className="text-xs text-[#64748B]">
-            No credit card to start &middot; Setup in 2 minutes
+            Start free &middot; Setup in 2 minutes
           </motion.p>
         </div>
 
@@ -831,7 +831,7 @@ export function HomepageClient({
               Predictable pricing, designed to scale
             </h2>
             <p className="text-[#94A3B8] max-w-xl mx-auto mb-8">
-              No credit card to start. Cancel anytime.
+              3-day free trial. Cancel anytime.
             </p>
 
             <PricingToggle plans={plans} />
@@ -938,7 +938,7 @@ export function HomepageClient({
             </Link>
           </motion.div>
           <motion.p {...motionProps(0.3)} className="text-xs text-[#64748B] mt-5">
-            No credit card to start &middot; Setup in 2 minutes
+            Start free &middot; Setup in 2 minutes
           </motion.p>
         </div>
       </section>

@@ -350,7 +350,7 @@ export function PricingClient() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-lg text-[#94A3B8] mb-10"
         >
-          Start with a 3-day free trial. No credit card required to sign up.
+          Start with a 3-day free trial. Cancel anytime.
         </motion.p>
 
         {/* Toggle */}
@@ -595,7 +595,7 @@ export function PricingClient() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-lg text-[#94A3B8] mb-8"
           >
-            Start your 3-day free trial today — no credit card required to sign up.
+            Start your 3-day free trial today — cancel anytime, no questions asked.
           </motion.p>
           <motion.div
             initial="hidden"

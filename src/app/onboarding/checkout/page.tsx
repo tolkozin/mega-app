@@ -145,7 +145,7 @@ function CheckoutPage() {
         </button>
 
         <p className="text-xs text-[#8181A5] text-center mt-3">
-          No charge today. Cancel anytime.
+          3 days free, then auto-renews. Cancel anytime.
         </p>
       </div>
     </div>
