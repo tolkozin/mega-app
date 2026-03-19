@@ -23,6 +23,12 @@ const borderColorMap = {
   red: "border-l-4 border-l-[#E54545]",
 };
 
+const valueColorMap = {
+  green: "text-[#14A660]",
+  yellow: "text-[#F4A93E]",
+  red: "text-[#E54545]",
+};
+
 function Tooltip({ text }: { text: string }) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [pos, setPos] = React.useState<"above" | "below">("above");
@@ -50,8 +56,8 @@ function Tooltip({ text }: { text: string }) {
   );
 }
 
-function MetricCard({ label, value, help, metricKey, metricValue }: {
-  label: string; value: string; help?: string; metricKey?: string; metricValue?: number;
+function MetricCard({ label, value, help, metricKey, metricValue, large }: {
+  label: string; value: string; help?: string; metricKey?: string; metricValue?: number; large?: boolean;
 }) {
   const [hover, setHover] = useState(false);
   const color = metricKey && metricValue !== undefined ? getBenchmarkColor(metricKey, metricValue) : null;
@@ -75,7 +81,7 @@ function MetricCard({ label, value, help, metricKey, metricValue }: {
               <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#ECECF2] text-[#8181A5] text-[8px] font-bold shrink-0">?</span>
             )}
           </div>
-          <p className="text-lg font-bold">{value}</p>
+          <p className={`${large ? "text-xl font-black" : "text-lg font-bold"} ${color ? valueColorMap[color] : "text-[#1C1D21]"}`}>{value}</p>
         </CardContent>
       </Card>
     </div>
@@ -122,10 +128,10 @@ export function KeyMetrics({ results }: KPICardsProps) {
     <div>
       <h2 className="text-lg font-semibold mb-3">Key Metrics</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MetricCard label="Total Revenue" value={formatCurrency(totalRevenue)} help="Sum of all gross revenue across the entire forecast period." metricKey="Total Gross Revenue" />
-        <MetricCard label="Net Profit" value={formatCurrency(totalProfit)} help="Sum of all monthly net profits (revenue minus all costs and taxes)." metricKey="Net Profit" />
-        <MetricCard label="End MRR" value={formatCurrency(endMRR)} help="Monthly Recurring Revenue at the last month of the forecast." metricKey="Total MRR" />
-        <MetricCard label="Avg LTV/CAC" value={`${avgLtvCac.toFixed(2)}x`} help="Average Lifetime Value to Customer Acquisition Cost ratio across all months." metricKey="LTV/CAC" metricValue={avgLtvCac} />
+        <MetricCard label="Total Revenue" value={formatCurrency(totalRevenue)} help="Sum of all gross revenue across the entire forecast period." metricKey="Total Gross Revenue" large />
+        <MetricCard label="Net Profit" value={formatCurrency(totalProfit)} help="Sum of all monthly net profits (revenue minus all costs and taxes)." metricKey="Net Profit" large />
+        <MetricCard label="End MRR" value={formatCurrency(endMRR)} help="Monthly Recurring Revenue at the last month of the forecast." metricKey="Total MRR" large />
+        <MetricCard label="Avg LTV/CAC" value={`${avgLtvCac.toFixed(2)}x`} help="Average Lifetime Value to Customer Acquisition Cost ratio across all months." metricKey="LTV/CAC" metricValue={avgLtvCac} large />
       </div>
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mt-3">
         <MetricCard label="ROI" value={`${formatNumber(roi)}%`} help="Return on Investment at the end of the forecast period." metricKey="ROI %" />
@@ -151,10 +157,10 @@ export function EcomKeyMetrics({ results }: KPICardsProps) {
     <div>
       <h2 className="text-lg font-semibold mb-3">Key Metrics</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MetricCard label="Total Revenue" value={formatCurrency(totalRevenue)} help="Sum of all gross revenue across the entire forecast." metricKey="Gross Revenue" />
-        <MetricCard label="Net Profit" value={formatCurrency(totalProfit)} help="Sum of all monthly net profits." metricKey="Net Profit" />
-        <MetricCard label="CAC" value={`$${(last["CAC"] ?? 0).toFixed(2)}`} help="Customer Acquisition Cost — total ad spend divided by new customers acquired." metricKey="CAC" />
-        <MetricCard label="LTV/CAC" value={`${(last["LTV/CAC"] ?? 0).toFixed(2)}x`} help="Customer Lifetime Value divided by Acquisition Cost. Should be >3x for healthy unit economics." metricKey="LTV/CAC" metricValue={last["LTV/CAC"]} />
+        <MetricCard label="Total Revenue" value={formatCurrency(totalRevenue)} help="Sum of all gross revenue across the entire forecast." metricKey="Gross Revenue" large />
+        <MetricCard label="Net Profit" value={formatCurrency(totalProfit)} help="Sum of all monthly net profits." metricKey="Net Profit" large />
+        <MetricCard label="CAC" value={`$${(last["CAC"] ?? 0).toFixed(2)}`} help="Customer Acquisition Cost — total ad spend divided by new customers acquired." metricKey="CAC" large />
+        <MetricCard label="LTV/CAC" value={`${(last["LTV/CAC"] ?? 0).toFixed(2)}x`} help="Customer Lifetime Value divided by Acquisition Cost. Should be >3x for healthy unit economics." metricKey="LTV/CAC" metricValue={last["LTV/CAC"]} large />
       </div>
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mt-3">
         <MetricCard label="ROAS" value={`${(last["ROAS"] ?? 0).toFixed(1)}x`} help="Return on Ad Spend — revenue per $1 of advertising." metricKey="ROAS" metricValue={last["ROAS"]} />
