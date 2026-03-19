@@ -77,6 +77,21 @@ export const benchmarks: Record<string, Benchmark> = {
     warning: 80,
     direction: "higher_better",
   },
+  "ROI %": {
+    good: 100,
+    warning: 0,
+    direction: "higher_better",
+  },
+  "Net Profit": {
+    good: 0,
+    warning: -1000,
+    direction: "higher_better",
+  },
+  "Burn Rate": {
+    good: 0,
+    warning: 5000,
+    direction: "lower_better",
+  },
 };
 
 /**

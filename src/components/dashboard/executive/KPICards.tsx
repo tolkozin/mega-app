@@ -128,18 +128,18 @@ export function KeyMetrics({ results }: KPICardsProps) {
     <div>
       <h2 className="text-lg font-semibold mb-3">Key Metrics</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MetricCard label="Total Revenue" value={formatCurrency(totalRevenue)} help="Sum of all gross revenue across the entire forecast period." metricKey="Total Gross Revenue" large />
-        <MetricCard label="Net Profit" value={formatCurrency(totalProfit)} help="Sum of all monthly net profits (revenue minus all costs and taxes)." metricKey="Net Profit" large />
-        <MetricCard label="End MRR" value={formatCurrency(endMRR)} help="Monthly Recurring Revenue at the last month of the forecast." metricKey="Total MRR" large />
+        <MetricCard label="Total Revenue" value={formatCurrency(totalRevenue)} help="Sum of all gross revenue across the entire forecast period." metricKey="Total Gross Revenue" metricValue={totalRevenue} large />
+        <MetricCard label="Net Profit" value={formatCurrency(totalProfit)} help="Sum of all monthly net profits (revenue minus all costs and taxes)." metricKey="Net Profit" metricValue={totalProfit} large />
+        <MetricCard label="End MRR" value={formatCurrency(endMRR)} help="Monthly Recurring Revenue at the last month of the forecast." metricKey="Total MRR" metricValue={endMRR} large />
         <MetricCard label="Avg LTV/CAC" value={`${avgLtvCac.toFixed(2)}x`} help="Average Lifetime Value to Customer Acquisition Cost ratio across all months." metricKey="LTV/CAC" metricValue={avgLtvCac} large />
       </div>
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mt-3">
-        <MetricCard label="ROI" value={`${formatNumber(roi)}%`} help="Return on Investment at the end of the forecast period." metricKey="ROI %" />
+        <MetricCard label="ROI" value={`${formatNumber(roi)}%`} help="Return on Investment at the end of the forecast period." metricKey="ROI %" metricValue={roi} />
         <MetricCard label="ROAS" value={`${roas.toFixed(1)}x`} help="Cumulative Return on Ad Spend. Revenue generated per $1 of ad spend." metricKey="Cumulative ROAS" metricValue={roas} />
-        <MetricCard label="ARPU" value={`$${arpu.toFixed(2)}`} help="Average Revenue Per User per month at forecast end." metricKey="ARPU" />
+        <MetricCard label="ARPU" value={`$${arpu.toFixed(2)}`} help="Average Revenue Per User per month at forecast end." metricKey="ARPU" metricValue={arpu} />
         <MetricCard label="Gross Margin" value={gm ? formatPercent(gm * 100) : "\u2014"} help="Revenue minus COGS as % of revenue. Shows production efficiency." metricKey="Gross Margin %" metricValue={gm * 100} />
-        <MetricCard label="Burn Rate" value={formatCurrency(last["Burn Rate"] ?? 0)} help="Monthly cash burn (expenses minus revenue when negative). Lower is better." metricKey="Burn Rate" />
-        <MetricCard label="Runway" value={last["Runway (Months)"] ? `${formatNumber(last["Runway (Months)"])} mo` : "\u221e"} help="Months of cash remaining at current burn rate. Infinite if profitable." metricKey="Runway (Months)" />
+        <MetricCard label="Burn Rate" value={formatCurrency(last["Burn Rate"] ?? 0)} help="Monthly cash burn (expenses minus revenue when negative). Lower is better." metricKey="Burn Rate" metricValue={last["Burn Rate"] ?? 0} />
+        <MetricCard label="Runway" value={last["Runway (Months)"] ? `${formatNumber(last["Runway (Months)"])} mo` : "\u221e"} help="Months of cash remaining at current burn rate. Infinite if profitable." metricKey="Runway (Months)" metricValue={last["Runway (Months)"] ?? 0} />
       </div>
     </div>
   );
@@ -158,17 +158,17 @@ export function EcomKeyMetrics({ results }: KPICardsProps) {
       <h2 className="text-lg font-semibold mb-3">Key Metrics</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <MetricCard label="Total Revenue" value={formatCurrency(totalRevenue)} help="Sum of all gross revenue across the entire forecast." metricKey="Gross Revenue" large />
-        <MetricCard label="Net Profit" value={formatCurrency(totalProfit)} help="Sum of all monthly net profits." metricKey="Net Profit" large />
-        <MetricCard label="CAC" value={`$${(last["CAC"] ?? 0).toFixed(2)}`} help="Customer Acquisition Cost — total ad spend divided by new customers acquired." metricKey="CAC" large />
+        <MetricCard label="Net Profit" value={formatCurrency(totalProfit)} help="Sum of all monthly net profits." metricKey="Net Profit" metricValue={totalProfit} large />
+        <MetricCard label="CAC" value={`$${(last["CAC"] ?? 0).toFixed(2)}`} help="Customer Acquisition Cost — total ad spend divided by new customers acquired." metricKey="CAC" metricValue={last["CAC"] ?? 0} large />
         <MetricCard label="LTV/CAC" value={`${(last["LTV/CAC"] ?? 0).toFixed(2)}x`} help="Customer Lifetime Value divided by Acquisition Cost. Should be >3x for healthy unit economics." metricKey="LTV/CAC" metricValue={last["LTV/CAC"]} large />
       </div>
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mt-3">
         <MetricCard label="ROAS" value={`${(last["ROAS"] ?? 0).toFixed(1)}x`} help="Return on Ad Spend — revenue per $1 of advertising." metricKey="ROAS" metricValue={last["ROAS"]} />
-        <MetricCard label="AOV" value={`$${(last["AOV"] ?? 0).toFixed(2)}`} help="Average Order Value at the end of the forecast." metricKey="AOV" />
+        <MetricCard label="AOV" value={`$${(last["AOV"] ?? 0).toFixed(2)}`} help="Average Order Value at the end of the forecast." metricKey="AOV" metricValue={last["AOV"] ?? 0} />
         <MetricCard label="Gross Margin" value={last["Gross Margin %"] ? formatPercent(last["Gross Margin %"]) : "\u2014"} help="Revenue minus COGS as % of revenue." metricKey="Gross Margin %" metricValue={last["Gross Margin %"]} />
-        <MetricCard label="ROI" value={`${formatNumber(last["ROI %"] ?? 0)}%`} help="Return on Investment at forecast end." metricKey="ROI %" />
-        <MetricCard label="Burn Rate" value={formatCurrency(last["Burn Rate"] ?? 0)} help="Monthly cash burn at forecast end." metricKey="Burn Rate" />
-        <MetricCard label="Runway" value={last["Runway (Months)"] ? `${formatNumber(last["Runway (Months)"])} mo` : "\u221e"} help="Months of cash remaining at current burn rate." metricKey="Runway (Months)" />
+        <MetricCard label="ROI" value={`${formatNumber(last["ROI %"] ?? 0)}%`} help="Return on Investment at forecast end." metricKey="ROI %" metricValue={last["ROI %"] ?? 0} />
+        <MetricCard label="Burn Rate" value={formatCurrency(last["Burn Rate"] ?? 0)} help="Monthly cash burn at forecast end." metricKey="Burn Rate" metricValue={last["Burn Rate"] ?? 0} />
+        <MetricCard label="Runway" value={last["Runway (Months)"] ? `${formatNumber(last["Runway (Months)"])} mo` : "\u221e"} help="Months of cash remaining at current burn rate." metricKey="Runway (Months)" metricValue={last["Runway (Months)"] ?? 0} />
       </div>
     </div>
   );

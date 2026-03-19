@@ -10,6 +10,7 @@ import {
   KPICard,
   CompactTable,
 } from "./InvestorReport";
+import { ReportChart, gradientArea, CHART_COLORS, DONUT_COLORS } from "./InvestorReport";
 
 interface EcommerceInvestorReportProps {
   projectName: string;
@@ -67,6 +68,21 @@ function GmvSummary({ data }: { data: RunResult }) {
           sub={endGM ? `${formatPercent(endGM * 100)} gross margin` : undefined}
         />
       </KPIGrid>
+      <div className="mt-4">
+        <ReportChart
+          size="small"
+          data={[
+            gradientArea(
+              df.map((_, i) => i + 1),
+              df.map(r => num(r["Gross Revenue"])),
+              "Revenue",
+              CHART_COLORS.primary,
+              CHART_COLORS.primaryLight,
+            ) as Plotly.Data,
+          ]}
+          layout={{}}
+        />
+      </div>
     </div>
   );
 }
@@ -243,9 +259,9 @@ export function EcommerceInvestorReport({
     >
       <GmvSummary data={data} />
       <Divider />
-      <AovConversionTable data={data} />
-      <Divider />
       <CustomerAcquisitionSummary data={data} />
+      <Divider />
+      <AovConversionTable data={data} />
       <Divider />
       <GrossMarginTable data={data} />
     </InvestorReport>

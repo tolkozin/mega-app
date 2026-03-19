@@ -10,6 +10,7 @@ import {
   KPICard,
   CompactTable,
 } from "./InvestorReport";
+import { ReportChart, gradientArea, CHART_COLORS, DONUT_COLORS } from "./InvestorReport";
 
 interface SubscriptionInvestorReportProps {
   projectName: string;
@@ -108,6 +109,19 @@ function UnitEconomics({ data }: { data: RunResult }) {
           sub="months to recover CAC"
         />
       </KPIGrid>
+      <div className="mt-4">
+        <ReportChart
+          size="small"
+          data={[{
+            x: df.map((_, i) => i + 1),
+            y: df.map(r => num(r["LTV/CAC"])),
+            mode: "lines",
+            name: "LTV/CAC",
+            line: { color: CHART_COLORS.primary, width: 2.5, shape: "spline" },
+          } as Plotly.Data]}
+          layout={{ yaxis: { title: "Ratio" } }}
+        />
+      </div>
     </div>
   );
 }

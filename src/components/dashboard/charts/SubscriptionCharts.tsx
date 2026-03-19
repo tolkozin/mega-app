@@ -1,6 +1,7 @@
 "use client";
 
 import { PlotlyChart, phaseLines, gradientArea, scenarioLines, CHART_COLORS, DONUT_COLORS } from "./PlotlyChart";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { RunResult } from "@/lib/api";
 
 interface ChartsProps {
@@ -30,290 +31,293 @@ export function SubscriptionCharts({ results, p1End, p2End }: ChartsProps) {
   const lastMrrAnnual = (base[lastIdx]?.["MRR Annual"] as number) ?? 0;
 
   return (
-    <div>
+    <Tabs defaultValue="revenue">
+      <TabsList>
+        <TabsTrigger value="revenue">Revenue Overview</TabsTrigger>
+        <TabsTrigger value="unit">Unit Economics</TabsTrigger>
+        <TabsTrigger value="pnl">Profit &amp; Loss</TabsTrigger>
+      </TabsList>
+
       {/* ── Revenue Overview ─────────────────────────────────── */}
-      <h3 className="text-base font-bold text-[#1C1D21] mt-8 mb-3">Revenue Overview</h3>
-
-      {/* Hero MRR chart — full width */}
-      <PlotlyChart
-        title="MRR by Subscription Plan"
-        description="Monthly Recurring Revenue with scenario comparison"
-        size="hero"
-        data={[
-          gradientArea(months, getCol(base, "MRR Weekly"), "Weekly", CHART_COLORS.primary, CHART_COLORS.primaryLight) as Plotly.Data,
-          gradientArea(months, getCol(base, "MRR Monthly"), "Monthly", CHART_COLORS.green, CHART_COLORS.greenLight) as Plotly.Data,
-          gradientArea(months, getCol(base, "MRR Annual"), "Annual", CHART_COLORS.amber, CHART_COLORS.amberLight) as Plotly.Data,
-          ...scenarioLines(months, getCol(base, "MRR Weekly").map((v, i) => v + getCol(base, "MRR Monthly")[i] + getCol(base, "MRR Annual")[i]), getCol(pess, "MRR Weekly").map((v, i) => v + getCol(pess, "MRR Monthly")[i] + getCol(pess, "MRR Annual")[i]), getCol(opt, "MRR Weekly").map((v, i) => v + getCol(opt, "MRR Monthly")[i] + getCol(opt, "MRR Annual")[i]), "Total MRR (Base)") as Plotly.Data[],
-        ]}
-        layout={{ shapes }}
-      />
-
-      {/* 3-col row: Donut, Cash Balance, Active Users */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+      <TabsContent value="revenue">
+        {/* Hero MRR chart — full width */}
         <PlotlyChart
-          title="Revenue Breakdown"
-          description="Last month MRR split by plan"
-          size="medium"
+          title="MRR by Subscription Plan"
+          description="Monthly Recurring Revenue with scenario comparison"
+          size="hero"
           data={[
-            {
-              values: [lastMrrWeekly, lastMrrMonthly, lastMrrAnnual],
-              labels: ["Weekly", "Monthly", "Annual"],
-              type: "pie",
-              hole: 0.65,
-              marker: { colors: DONUT_COLORS },
-              textinfo: "percent",
-              textfont: { size: 11, color: "#1C1D21" },
-              hoverinfo: "label+value+percent",
-            } as Plotly.Data,
-          ]}
-          layout={{ showlegend: true }}
-        />
-
-        <PlotlyChart
-          title="Cash Balance"
-          description="Cash on hand across 3 scenarios"
-          size="medium"
-          data={[
-            {
-              x: months,
-              y: getCol(base, "Cash Balance"),
-              type: "bar",
-              name: "Base",
-              marker: { color: CHART_COLORS.primaryLight },
-            } as Plotly.Data,
-            ...scenarioLines(months, getCol(base, "Cash Balance"), getCol(pess, "Cash Balance"), getCol(opt, "Cash Balance"), "Base (line)") as Plotly.Data[],
+            gradientArea(months, getCol(base, "MRR Weekly"), "Weekly", CHART_COLORS.primary, CHART_COLORS.primaryLight) as Plotly.Data,
+            gradientArea(months, getCol(base, "MRR Monthly"), "Monthly", CHART_COLORS.green, CHART_COLORS.greenLight) as Plotly.Data,
+            gradientArea(months, getCol(base, "MRR Annual"), "Annual", CHART_COLORS.amber, CHART_COLORS.amberLight) as Plotly.Data,
+            ...scenarioLines(months, getCol(base, "MRR Weekly").map((v, i) => v + getCol(base, "MRR Monthly")[i] + getCol(base, "MRR Annual")[i]), getCol(pess, "MRR Weekly").map((v, i) => v + getCol(pess, "MRR Monthly")[i] + getCol(pess, "MRR Annual")[i]), getCol(opt, "MRR Weekly").map((v, i) => v + getCol(opt, "MRR Monthly")[i] + getCol(opt, "MRR Annual")[i]), "Total MRR (Base)") as Plotly.Data[],
           ]}
           layout={{ shapes }}
         />
 
-        <PlotlyChart
-          title="Active Users"
-          description="Total active subscribers"
-          size="medium"
-          data={[
-            gradientArea(months, getCol(base, "Active Users"), "Base", CHART_COLORS.teal, CHART_COLORS.tealLight) as Plotly.Data,
-            {
-              x: months,
-              y: getCol(pess, "Active Users"),
-              mode: "lines",
-              name: "Pessimistic",
-              line: { dash: "dot", color: CHART_COLORS.red, width: 1.5 },
-            } as Plotly.Data,
-            {
-              x: months,
-              y: getCol(opt, "Active Users"),
-              mode: "lines",
-              name: "Optimistic",
-              line: { dash: "dash", color: CHART_COLORS.green, width: 1.5 },
-            } as Plotly.Data,
-          ]}
-          layout={{ shapes }}
-        />
-      </div>
+        {/* 3-col row: Donut, Cash Balance, Active Users */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <PlotlyChart
+            title="Revenue Breakdown"
+            description="Last month MRR split by plan"
+            size="medium"
+            data={[
+              {
+                values: [lastMrrWeekly, lastMrrMonthly, lastMrrAnnual],
+                labels: ["Weekly", "Monthly", "Annual"],
+                type: "pie",
+                hole: 0.65,
+                marker: { colors: DONUT_COLORS },
+                textinfo: "percent",
+                textfont: { size: 11, color: "#1C1D21" },
+                hoverinfo: "label+value+percent",
+              } as Plotly.Data,
+            ]}
+            layout={{ showlegend: true }}
+          />
+
+          <PlotlyChart
+            title="Cash Balance"
+            description="Cash on hand across 3 scenarios"
+            size="medium"
+            data={[
+              {
+                x: months,
+                y: getCol(base, "Cash Balance"),
+                type: "bar",
+                name: "Base",
+                marker: { color: CHART_COLORS.primaryLight },
+              } as Plotly.Data,
+              ...scenarioLines(months, getCol(base, "Cash Balance"), getCol(pess, "Cash Balance"), getCol(opt, "Cash Balance"), "Base (line)") as Plotly.Data[],
+            ]}
+            layout={{ shapes }}
+          />
+
+          <PlotlyChart
+            title="Active Users"
+            description="Total active subscribers"
+            size="medium"
+            data={[
+              gradientArea(months, getCol(base, "Active Users"), "Base", CHART_COLORS.teal, CHART_COLORS.tealLight) as Plotly.Data,
+              {
+                x: months,
+                y: getCol(pess, "Active Users"),
+                mode: "lines",
+                name: "Pessimistic",
+                line: { dash: "dot", color: CHART_COLORS.red, width: 1.5 },
+              } as Plotly.Data,
+              {
+                x: months,
+                y: getCol(opt, "Active Users"),
+                mode: "lines",
+                name: "Optimistic",
+                line: { dash: "dash", color: CHART_COLORS.green, width: 1.5 },
+              } as Plotly.Data,
+            ]}
+            layout={{ shapes }}
+          />
+        </div>
+      </TabsContent>
 
       {/* ── Unit Economics ────────────────────────────────────── */}
-      <h3 className="text-base font-bold text-[#1C1D21] mt-8 mb-3">Unit Economics</h3>
+      <TabsContent value="unit">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <PlotlyChart
+            title="LTV / CAC Ratio"
+            description="Lifetime Value to Customer Acquisition Cost ratio"
+            size="medium"
+            data={scenarioLines(months, getCol(base, "LTV/CAC"), getCol(pess, "LTV/CAC"), getCol(opt, "LTV/CAC")) as Plotly.Data[]}
+            layout={{ shapes }}
+          />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <PlotlyChart
-          title="LTV / CAC Ratio"
-          description="Lifetime Value to Customer Acquisition Cost ratio"
-          size="medium"
-          data={scenarioLines(months, getCol(base, "LTV/CAC"), getCol(pess, "LTV/CAC"), getCol(opt, "LTV/CAC")) as Plotly.Data[]}
-          layout={{ shapes }}
-        />
+          <PlotlyChart
+            title="ARPU"
+            description="Average Revenue Per User"
+            size="medium"
+            data={scenarioLines(months, getCol(base, "ARPU"), getCol(pess, "ARPU"), getCol(opt, "ARPU")) as Plotly.Data[]}
+            layout={{ shapes }}
+          />
 
-        <PlotlyChart
-          title="ARPU"
-          description="Average Revenue Per User"
-          size="medium"
-          data={scenarioLines(months, getCol(base, "ARPU"), getCol(pess, "ARPU"), getCol(opt, "ARPU")) as Plotly.Data[]}
-          layout={{ shapes }}
-        />
+          <PlotlyChart
+            title="CAC"
+            description="Customer Acquisition Cost"
+            size="medium"
+            data={scenarioLines(months, getCol(base, "CAC"), getCol(pess, "CAC"), getCol(opt, "CAC")) as Plotly.Data[]}
+            layout={{ shapes }}
+          />
 
-        <PlotlyChart
-          title="CAC"
-          description="Customer Acquisition Cost"
-          size="medium"
-          data={scenarioLines(months, getCol(base, "CAC"), getCol(pess, "CAC"), getCol(opt, "CAC")) as Plotly.Data[]}
-          layout={{ shapes }}
-        />
+          <PlotlyChart
+            title="Gross Margin %"
+            description="Gross Margin percentage over time"
+            size="medium"
+            data={scenarioLines(
+              months,
+              getCol(base, "Gross Margin %").map((v) => v * 100),
+              getCol(pess, "Gross Margin %").map((v) => v * 100),
+              getCol(opt, "Gross Margin %").map((v) => v * 100),
+            ) as Plotly.Data[]}
+            layout={{ shapes, yaxis: { title: "%" } }}
+          />
+        </div>
 
-        <PlotlyChart
-          title="Gross Margin %"
-          description="Gross Margin percentage over time"
-          size="medium"
-          data={scenarioLines(
-            months,
-            getCol(base, "Gross Margin %").map((v) => v * 100),
-            getCol(pess, "Gross Margin %").map((v) => v * 100),
-            getCol(opt, "Gross Margin %").map((v) => v * 100),
-          ) as Plotly.Data[]}
-          layout={{ shapes, yaxis: { title: "%" } }}
-        />
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          <PlotlyChart
+            title="New vs Churned Users"
+            description="Monthly new acquisitions vs churned users"
+            size="medium"
+            data={[
+              {
+                x: months,
+                y: getCol(base, "New Paid"),
+                type: "bar",
+                name: "New Paid",
+                marker: { color: CHART_COLORS.green },
+              } as Plotly.Data,
+              {
+                x: months,
+                y: getCol(base, "Total Churned").map((v) => -v),
+                type: "bar",
+                name: "Churned",
+                marker: { color: CHART_COLORS.red },
+              } as Plotly.Data,
+            ]}
+            layout={{ barmode: "relative", shapes }}
+          />
+
+          <PlotlyChart
+            title="Cumulative ROAS"
+            description="Return on Ad Spend over time"
+            size="medium"
+            data={[
+              gradientArea(months, getCol(base, "Cumulative ROAS"), "ROAS", CHART_COLORS.amber, CHART_COLORS.amberLight) as Plotly.Data,
+            ]}
+            layout={{ shapes }}
+          />
+        </div>
+      </TabsContent>
 
       {/* ── Profit & Loss ────────────────────────────────────── */}
-      <h3 className="text-base font-bold text-[#1C1D21] mt-8 mb-3">Profit &amp; Loss</h3>
-
-      {/* Full-width Net Profit */}
-      <PlotlyChart
-        title="Net Profit"
-        description="Monthly net profit across scenarios"
-        size="medium"
-        data={scenarioLines(months, getCol(base, "Net Profit"), getCol(pess, "Net Profit"), getCol(opt, "Net Profit")) as Plotly.Data[]}
-        layout={{ shapes }}
-      />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+      <TabsContent value="pnl">
+        {/* Full-width Net Profit */}
         <PlotlyChart
-          title="Cumulative Profit"
-          description="Running total profit/loss"
+          title="Net Profit"
+          description="Monthly net profit across scenarios"
           size="medium"
-          data={[
-            gradientArea(months, getCol(base, "Cumulative Profit"), "Base", CHART_COLORS.primary, CHART_COLORS.primaryLight) as Plotly.Data,
-            {
-              x: months,
-              y: getCol(pess, "Cumulative Profit"),
-              mode: "lines",
-              name: "Pessimistic",
-              line: { dash: "dot", color: CHART_COLORS.red, width: 1.5 },
-            } as Plotly.Data,
-            {
-              x: months,
-              y: getCol(opt, "Cumulative Profit"),
-              mode: "lines",
-              name: "Optimistic",
-              line: { dash: "dash", color: CHART_COLORS.green, width: 1.5 },
-            } as Plotly.Data,
-          ]}
+          data={scenarioLines(months, getCol(base, "Net Profit"), getCol(pess, "Net Profit"), getCol(opt, "Net Profit")) as Plotly.Data[]}
           layout={{ shapes }}
         />
 
-        <PlotlyChart
-          title="Revenue vs Costs"
-          description="Total revenue vs total costs breakdown"
-          size="medium"
-          data={[
-            {
-              x: months,
-              y: getCol(base, "Total Gross Revenue"),
-              type: "bar",
-              name: "Revenue",
-              marker: { color: CHART_COLORS.green },
-            } as Plotly.Data,
-            {
-              x: months,
-              y: getCol(base, "Total OpEx"),
-              type: "bar",
-              name: "OpEx",
-              marker: { color: CHART_COLORS.red },
-            } as Plotly.Data,
-            {
-              x: months,
-              y: getCol(base, "Ad Spend"),
-              type: "bar",
-              name: "Ad Spend",
-              marker: { color: CHART_COLORS.amber },
-            } as Plotly.Data,
-          ]}
-          layout={{ barmode: "stack", shapes }}
-        />
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          <PlotlyChart
+            title="Cumulative Profit"
+            description="Running total profit/loss"
+            size="medium"
+            data={[
+              gradientArea(months, getCol(base, "Cumulative Profit"), "Base", CHART_COLORS.primary, CHART_COLORS.primaryLight) as Plotly.Data,
+              {
+                x: months,
+                y: getCol(pess, "Cumulative Profit"),
+                mode: "lines",
+                name: "Pessimistic",
+                line: { dash: "dot", color: CHART_COLORS.red, width: 1.5 },
+              } as Plotly.Data,
+              {
+                x: months,
+                y: getCol(opt, "Cumulative Profit"),
+                mode: "lines",
+                name: "Optimistic",
+                line: { dash: "dash", color: CHART_COLORS.green, width: 1.5 },
+              } as Plotly.Data,
+            ]}
+            layout={{ shapes }}
+          />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-        <PlotlyChart
-          title="ROI %"
-          description="Cumulative Return on Investment"
-          size="small"
-          data={[
-            {
-              x: months,
-              y: getCol(base, "ROI %"),
-              mode: "lines",
-              name: "ROI %",
-              line: { color: CHART_COLORS.purple, width: 2.5, shape: "spline" as const },
-            } as Plotly.Data,
-          ]}
-          layout={{ shapes, yaxis: { title: "%" } }}
-        />
+          <PlotlyChart
+            title="Revenue vs Costs"
+            description="Total revenue vs total costs breakdown"
+            size="medium"
+            data={[
+              {
+                x: months,
+                y: getCol(base, "Total Gross Revenue"),
+                type: "bar",
+                name: "Revenue",
+                marker: { color: CHART_COLORS.green },
+              } as Plotly.Data,
+              {
+                x: months,
+                y: getCol(base, "Total OpEx"),
+                type: "bar",
+                name: "OpEx",
+                marker: { color: CHART_COLORS.red },
+              } as Plotly.Data,
+              {
+                x: months,
+                y: getCol(base, "Ad Spend"),
+                type: "bar",
+                name: "Ad Spend",
+                marker: { color: CHART_COLORS.amber },
+              } as Plotly.Data,
+            ]}
+            layout={{ barmode: "stack", shapes }}
+          />
+        </div>
 
-        <PlotlyChart
-          title="Burn Rate & Runway"
-          description="Monthly burn rate and remaining runway in months"
-          size="small"
-          data={[
-            {
-              x: months,
-              y: getCol(base, "Burn Rate"),
-              mode: "lines",
-              name: "Burn Rate ($)",
-              line: { color: CHART_COLORS.red, width: 2 },
-            } as Plotly.Data,
-            {
-              x: months,
-              y: getCol(base, "Runway (Months)"),
-              mode: "lines",
-              name: "Runway (months)",
-              yaxis: "y2",
-              line: { color: CHART_COLORS.teal, width: 2, dash: "dash" },
-            } as Plotly.Data,
-          ]}
-          layout={{
-            shapes,
-            yaxis: { title: "Burn Rate ($)" },
-            yaxis2: { title: "Months", overlaying: "y", side: "right" },
-          }}
-        />
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          <PlotlyChart
+            title="ROI %"
+            description="Cumulative Return on Investment"
+            size="small"
+            data={[
+              {
+                x: months,
+                y: getCol(base, "ROI %"),
+                mode: "lines",
+                name: "ROI %",
+                line: { color: CHART_COLORS.purple, width: 2.5, shape: "spline" as const },
+              } as Plotly.Data,
+            ]}
+            layout={{ shapes, yaxis: { title: "%" } }}
+          />
 
-      {/* ── Cohorts & Retention ───────────────────────────────── */}
-      <h3 className="text-base font-bold text-[#1C1D21] mt-8 mb-3">Cohorts &amp; Retention</h3>
+          <PlotlyChart
+            title="Burn Rate & Runway"
+            description="Monthly burn rate and remaining runway in months"
+            size="small"
+            data={[
+              {
+                x: months,
+                y: getCol(base, "Burn Rate"),
+                mode: "lines",
+                name: "Burn Rate ($)",
+                line: { color: CHART_COLORS.red, width: 2 },
+              } as Plotly.Data,
+              {
+                x: months,
+                y: getCol(base, "Runway (Months)"),
+                mode: "lines",
+                name: "Runway (months)",
+                yaxis: "y2",
+                line: { color: CHART_COLORS.teal, width: 2, dash: "dash" },
+              } as Plotly.Data,
+            ]}
+            layout={{
+              shapes,
+              yaxis: { title: "Burn Rate ($)" },
+              yaxis2: { title: "Months", overlaying: "y", side: "right" },
+            }}
+          />
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <PlotlyChart
-          title="New vs Churned Users"
-          description="Monthly new acquisitions vs churned users"
-          size="medium"
-          data={[
-            {
-              x: months,
-              y: getCol(base, "New Paid"),
-              type: "bar",
-              name: "New Paid",
-              marker: { color: CHART_COLORS.green },
-            } as Plotly.Data,
-            {
-              x: months,
-              y: getCol(base, "Total Churned").map((v) => -v),
-              type: "bar",
-              name: "Churned",
-              marker: { color: CHART_COLORS.red },
-            } as Plotly.Data,
-          ]}
-          layout={{ barmode: "relative", shapes }}
-        />
-
-        <PlotlyChart
-          title="Cumulative ROAS"
-          description="Return on Ad Spend over time"
-          size="medium"
-          data={[
-            gradientArea(months, getCol(base, "Cumulative ROAS"), "ROAS", CHART_COLORS.amber, CHART_COLORS.amberLight) as Plotly.Data,
-          ]}
-          layout={{ shapes }}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 mt-4 max-w-lg">
-        <PlotlyChart
-          title="LTV"
-          description="Customer Lifetime Value"
-          size="small"
-          data={scenarioLines(months, getCol(base, "LTV"), getCol(pess, "LTV"), getCol(opt, "LTV")) as Plotly.Data[]}
-          layout={{ shapes }}
-        />
-      </div>
-    </div>
+        <div className="grid grid-cols-1 gap-4 mt-4 max-w-lg">
+          <PlotlyChart
+            title="LTV"
+            description="Customer Lifetime Value"
+            size="small"
+            data={scenarioLines(months, getCol(base, "LTV"), getCol(pess, "LTV"), getCol(opt, "LTV")) as Plotly.Data[]}
+            layout={{ shapes }}
+          />
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 }

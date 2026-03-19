@@ -5,6 +5,14 @@ import { formatCurrency, formatPercent, formatNumber } from "@/lib/utils";
 import { exportToPDF } from "@/lib/pdf-export";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import type { RunResult } from "@/lib/api";
+import {
+  PlotlyChart as ReportChart,
+  gradientArea,
+  CHART_COLORS,
+  DONUT_COLORS,
+} from "@/components/dashboard/charts/PlotlyChart";
+
+export { ReportChart, gradientArea, CHART_COLORS, DONUT_COLORS };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -209,6 +217,9 @@ function ExecutiveSummary({ data, modelType }: { data: RunResult; modelType: Mod
         100
       : null;
 
+  const monthsArr = df.map((_, i) => i + 1);
+  const revByMonth = df.map((r) => num(r[totalRevKey]));
+
   return (
     <div>
       <SectionHeader>Executive Summary</SectionHeader>
@@ -238,6 +249,21 @@ function ExecutiveSummary({ data, modelType }: { data: RunResult; modelType: Mod
           }
         />
       </KPIGrid>
+      <div className="mt-4">
+        <ReportChart
+          size="small"
+          data={[
+            gradientArea(
+              monthsArr,
+              revByMonth,
+              "Revenue",
+              CHART_COLORS.primary,
+              CHART_COLORS.primaryLight,
+            ) as Plotly.Data,
+          ]}
+          layout={{}}
+        />
+      </div>
     </div>
   );
 }
@@ -501,14 +527,14 @@ export function InvestorReport({
           </span>
         </div>
 
-        {/* Shared sections */}
+        {/* Shared sections — ordered by importance */}
         <ExecutiveSummary data={data} modelType={modelType} />
+        <Divider />
+        <KeyAssumptions data={data} modelType={modelType} />
         <Divider />
         <PnLOverview data={data} />
         <Divider />
         <CashFlowSummary data={data} />
-        <Divider />
-        <KeyAssumptions data={data} modelType={modelType} />
 
         {/* Model-specific content */}
         {children && (
