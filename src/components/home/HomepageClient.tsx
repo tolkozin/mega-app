@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ComponentType, ReactNode, useEffect, useState } from "react";
+import { ComponentType, ReactNode, useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   Search,
+  ArrowRight,
   Smartphone,
   ShoppingCart,
   Cloud,
@@ -21,15 +22,20 @@ import {
   RefreshCw,
   AlertTriangle,
   FileText,
+  ChevronLeft,
+  ChevronRight,
+  Send,
+  Sparkles,
+  BarChart3,
+  Target,
 } from "lucide-react";
 import { HeroBackground } from "./HeroBackground";
 import { AISection } from "./AISection";
-import { RatingWidget } from "./RatingWidget";
 import { SectionDivider } from "./SectionDivider";
 import { AnimatedCounter } from "./AnimatedCounter";
 import type { BlogPost } from "@/types/blog";
 
-/* ─── Icon map (server can't pass React components, so we map keys → icons here) ─── */
+/* ─── Icon map ─── */
 
 const MODEL_ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
   subscription: Smartphone,
@@ -57,19 +63,6 @@ interface ModelCard {
   question: string;
 }
 
-interface FeatureItem {
-  title: string;
-  description: string;
-  visual: string;
-}
-
-interface Step {
-  num: string;
-  title: string;
-  description: string;
-  icon: ReactNode;
-}
-
 interface Plan {
   name: string;
   tagline: string;
@@ -88,8 +81,6 @@ interface FooterLinks {
 
 interface HomepageClientProps {
   modelCards: ModelCard[];
-  featureShowcase: FeatureItem[];
-  steps: Step[];
   plans: Plan[];
   footerLinks: FooterLinks;
   featuredPosts: BlogPost[];
@@ -106,15 +97,17 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.12 } },
 };
 
-/* ─── Animated Search Bar ─── */
+/* ─── Animated Search Bar with send button ─── */
 
 const SEARCH_QUESTIONS = [
-  "Will my food delivery app be profitable in 12 months?",
-  "How many users do I need to break even?",
-  "Is my SaaS pricing sustainable at $49/seat?",
-  "Can my marketplace reach $1M GMV in year one?",
-  "What's my burn rate if I hire 3 developers?",
-  "Should I go freemium or paid from day one?",
+  "Can my startup idea actually work?",
+  "How much money do I need to launch?",
+  "When will my business become profitable?",
+  "Is my pricing strategy right?",
+  "What if I grow slower than expected?",
+  "Am I spending too much on marketing?",
+  "Should I raise funding or bootstrap?",
+  "Will my idea survive the first year?",
 ];
 
 function AnimatedSearchBar() {
@@ -127,19 +120,15 @@ function AnimatedSearchBar() {
     let timeout: NodeJS.Timeout;
 
     if (!isDeleting && displayed.length < question.length) {
-      // Typing — variable speed for realism
       timeout = setTimeout(
         () => setDisplayed(question.slice(0, displayed.length + 1)),
         40 + Math.random() * 60
       );
     } else if (!isDeleting && displayed.length === question.length) {
-      // Pause before deleting
       timeout = setTimeout(() => setIsDeleting(true), 2000);
     } else if (isDeleting && displayed.length > 0) {
-      // Deleting — faster
       timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 20);
     } else {
-      // Move to next question
       setIsDeleting(false);
       setCurrentIndex((i) => (i + 1) % SEARCH_QUESTIONS.length);
     }
@@ -149,39 +138,54 @@ function AnimatedSearchBar() {
 
   return (
     <div className="relative max-w-2xl mx-auto mt-10">
-      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 flex items-center gap-3 shadow-[0_0_40px_rgba(59,130,246,0.08)]">
-        <Search className="w-5 h-5 text-white/40 shrink-0" />
-        <span className="text-white/80 text-lg font-light">
-          {displayed}
-          <span className="animate-pulse">|</span>
-        </span>
-      </div>
+      <Link href="/auth/register" className="block">
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl pl-6 pr-3 py-3 flex items-center gap-3 shadow-[0_0_40px_rgba(59,130,246,0.08)] hover:border-white/20 transition-colors group">
+          <Search className="w-5 h-5 text-white/40 shrink-0" />
+          <span className="text-white/70 text-lg font-light flex-1 truncate">
+            {displayed}
+            <span className="animate-pulse">|</span>
+          </span>
+          <button className="shrink-0 w-10 h-10 rounded-xl bg-[#3B82F6] flex items-center justify-center text-white group-hover:bg-[#2563EB] transition-colors">
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
+      </Link>
     </div>
   );
 }
 
-/* ─── Why Subscribe cards data ─── */
+/* ─── Client Marquee ─── */
 
-const WHY_SUBSCRIBE_CARDS = [
-  {
-    icon: RefreshCw,
-    title: "Track Reality vs. Plan",
-    description:
-      "Come back monthly to update actuals. See how your real numbers compare to projections.",
-  },
-  {
-    icon: AlertTriangle,
-    title: "Catch Problems Early",
-    description:
-      "AI alerts you when metrics drift from benchmarks. Fix issues before they become expensive.",
-  },
-  {
-    icon: FileText,
-    title: "Stay Investor-Ready",
-    description:
-      "Your financial model is always current. Generate an updated investor report anytime.",
-  },
+const CLIENTS = [
+  "TechCrunch Featured",
+  "Y Combinator Founders",
+  "500 Startups Alumni",
+  "Indie Hackers Community",
+  "Product Hunt #1",
+  "Startup School Grads",
+  "AngelList Partners",
+  "Seedcamp Portfolio",
+  "Launch House Members",
+  "Founder Café Network",
 ];
+
+function ClientMarquee() {
+  return (
+    <div className="relative overflow-hidden py-4">
+      <div className="flex gap-12 animate-marquee">
+        {[...CLIENTS, ...CLIENTS].map((name, i) => (
+          <span
+            key={`${name}-${i}`}
+            className="text-sm font-medium text-[#64748B] whitespace-nowrap flex items-center gap-2"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]/40" />
+            {name}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /* ─── Visual widgets for feature showcase ─── */
 
@@ -219,21 +223,15 @@ function ScenarioVisual() {
     <div className="relative rounded-xl overflow-hidden" style={{ background: "rgba(30,41,59,0.6)" }}>
       <svg viewBox="0 0 540 210" className="w-full h-auto">
         <rect width="540" height="210" fill="transparent" rx="12" />
-
-        {/* Legend */}
         {scenarios.map((s, i) => (
           <g key={s.label}>
             <circle cx={40 + i * 120} cy="14" r="4" fill={s.color} />
             <text x={50 + i * 120} y="18" fill="#94A3B8" fontSize="11" fontFamily="inherit">{s.label}</text>
           </g>
         ))}
-
-        {/* Grid lines */}
         <line x1="40" y1="100" x2="520" y2="100" stroke="#1E293B" strokeWidth="1" />
         <line x1="40" y1="140" x2="520" y2="140" stroke="#1E293B" strokeWidth="1" />
         <line x1="40" y1="180" x2="520" y2="180" stroke="#1E293B" strokeWidth="1" />
-
-        {/* Lines + dots */}
         {scenarios.map((s) => {
           const pts = s.points.split(" ").map((p) => p.split(",").map(Number));
           return (
@@ -277,7 +275,7 @@ function AIAssistantVisual() {
         </div>
         <div className="flex">
           <div className="rounded-xl rounded-bl-sm px-3 py-2 text-xs text-[#CBD5E1] max-w-[80%]" style={{ background: "rgba(30,41,59,0.9)", border: "1px solid rgba(51,65,85,0.5)" }}>
-            Your 3.2% monthly churn is below the SaaS median of 5.4%. At this rate, your LTV:CAC of 4.2x is sustainable.
+            Your monthly churn is below the industry median. At this rate, your unit economics are sustainable.
           </div>
         </div>
         <div className="flex justify-end">
@@ -297,6 +295,167 @@ const featureVisuals: Record<string, () => ReactNode> = {
   "ai-assistant": () => <AIAssistantVisual />,
 };
 
+/* ─── Why Subscribe cards ─── */
+
+const WHY_SUBSCRIBE_CARDS = [
+  {
+    icon: RefreshCw,
+    title: "Track Reality vs. Plan",
+    description: "Come back monthly to update actuals. See how your real numbers compare to projections.",
+  },
+  {
+    icon: AlertTriangle,
+    title: "Catch Problems Early",
+    description: "AI alerts you when metrics drift from benchmarks. Fix issues before they become expensive.",
+  },
+  {
+    icon: FileText,
+    title: "Stay Investor-Ready",
+    description: "Your financial model is always current. Generate an updated investor report anytime.",
+  },
+];
+
+/* ─── How It Works + Features combined data ─── */
+
+const HOW_IT_WORKS_FEATURES = [
+  {
+    step: "01",
+    title: "Describe your idea",
+    description: "Pick your business type, answer a few questions about your market, pricing, and goals. Our AI pre-fills realistic benchmarks for your industry.",
+    visual: "ai-assistant",
+    icon: Sparkles,
+  },
+  {
+    step: "02",
+    title: "Get instant financial projections",
+    description: "See revenue, costs, and profitability across 3 growth phases. Run Monte Carlo simulations to stress-test your assumptions with 1,000+ scenarios.",
+    visual: "monte-carlo",
+    icon: BarChart3,
+  },
+  {
+    step: "03",
+    title: "Compare scenarios, find your path",
+    description: "What if growth is slower? What if costs are higher? Compare pessimistic, base, and optimistic outcomes side by side.",
+    visual: "scenarios",
+    icon: Target,
+  },
+  {
+    step: "04",
+    title: "Generate investor-ready reports",
+    description: "Professional financial projections, unit economics, and scenario analysis packaged into a PDF. Ready in 60 seconds. Your go-to document for tracking business health as you grow.",
+    visual: "reports",
+    icon: FileText,
+  },
+];
+
+/* ─── Horizontal scroll models ─── */
+
+function ModelsCarousel({ cards, prefersReduced }: { cards: ModelCard[]; prefersReduced: boolean | null }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 10);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    checkScroll();
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    return () => el.removeEventListener("scroll", checkScroll);
+  }, []);
+
+  const scroll = (dir: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir === "left" ? -320 : 320, behavior: "smooth" });
+  };
+
+  return (
+    <div className="relative">
+      {/* Scroll buttons */}
+      {canScrollLeft && (
+        <button
+          onClick={() => scroll("left")}
+          className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#1E293B]/90 border border-[#334155] flex items-center justify-center text-[#94A3B8] hover:text-white hover:border-[#3B82F6]/50 transition-all shadow-lg"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+      )}
+      {canScrollRight && (
+        <button
+          onClick={() => scroll("right")}
+          className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#1E293B]/90 border border-[#334155] flex items-center justify-center text-[#94A3B8] hover:text-white hover:border-[#3B82F6]/50 transition-all shadow-lg"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      )}
+
+      {/* Gradient fades */}
+      {canScrollLeft && (
+        <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#0F172A] to-transparent z-[5] pointer-events-none" />
+      )}
+      {canScrollRight && (
+        <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0F172A] to-transparent z-[5] pointer-events-none" />
+      )}
+
+      <div
+        ref={scrollRef}
+        className="flex gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 snap-x snap-mandatory"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {cards.map((card) => {
+          const IconComponent = MODEL_ICON_MAP[card.iconKey];
+          return (
+            <Link
+              key={card.title}
+              href={`/models/${card.iconKey}`}
+              className="snap-start shrink-0 w-[280px] group"
+            >
+              <motion.div
+                whileHover={prefersReduced ? {} : { y: -4 }}
+                className="rounded-2xl border border-[#334155]/60 p-6 transition-all hover:border-opacity-100 h-full"
+                style={{
+                  background: "rgba(30,41,59,0.4)",
+                  borderColor: `${card.color}30`,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = `${card.color}60`;
+                  (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 40px ${card.color}15`;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = `${card.color}30`;
+                  (e.currentTarget as HTMLElement).style.boxShadow = "none";
+                }}
+              >
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
+                  style={{ background: `${card.color}15`, color: card.color }}
+                >
+                  {IconComponent && <IconComponent className="w-5 h-5" />}
+                </div>
+                <h3 className="text-base font-bold mb-1">{card.title}</h3>
+                <p className="text-sm text-[#94A3B8] mb-4 leading-relaxed line-clamp-2">{card.headline}</p>
+                <p className="text-xs italic text-[#CBD5E1]/70">
+                  &ldquo;{card.question}&rdquo;
+                </p>
+                <div className="mt-4 flex items-center gap-1 text-xs font-bold text-[#3B82F6] group-hover:gap-2 transition-all">
+                  Learn more <ArrowRight className="w-3 h-3" />
+                </div>
+              </motion.div>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Pricing Toggle with Cards ─── */
 
 function PricingToggle({ plans }: { plans: Plan[] }) {
@@ -311,7 +470,6 @@ function PricingToggle({ plans }: { plans: Plan[] }) {
 
   return (
     <>
-      {/* Toggle */}
       <div className="inline-flex items-center gap-3 mb-12">
         <div className="relative flex items-center rounded-full border border-[#334155] p-1" style={{ background: "rgba(30,41,59,0.6)" }}>
           <button
@@ -349,7 +507,6 @@ function PricingToggle({ plans }: { plans: Plan[] }) {
         )}
       </div>
 
-      {/* Cards */}
       <div className="grid md:grid-cols-3 gap-6 items-start">
         {plans.map((plan) => (
           <div
@@ -360,9 +517,7 @@ function PricingToggle({ plans }: { plans: Plan[] }) {
                 : "border-[#334155]/60"
             }`}
             style={{
-              background: plan.highlighted
-                ? "rgba(30,41,59,0.6)"
-                : "rgba(30,41,59,0.4)",
+              background: plan.highlighted ? "rgba(30,41,59,0.6)" : "rgba(30,41,59,0.4)",
             }}
           >
             {plan.highlighted && (
@@ -378,7 +533,7 @@ function PricingToggle({ plans }: { plans: Plan[] }) {
             </div>
             {annual && plan.annualTotal && (
               <p className="text-xs text-[#64748B] mb-1">
-                Billed ${plan.annualTotal.toFixed(2).replace(/\.00$/, "")}/yr
+                Billed ${plan.annualTotal}/yr
               </p>
             )}
             {plan.monthlyPrice > 0 && (
@@ -418,8 +573,6 @@ function PricingToggle({ plans }: { plans: Plan[] }) {
 
 export function HomepageClient({
   modelCards,
-  featureShowcase,
-  steps,
   plans,
   footerLinks,
   featuredPosts,
@@ -458,10 +611,10 @@ export function HomepageClient({
             {...motionProps(0.1)}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.08] tracking-tight"
           >
-            Validate Your Startup
+            Have a great startup idea?
             <br />
             <span className="bg-gradient-to-r from-[#3B82F6] via-[#8B5CF6] to-[#3B82F6] bg-clip-text text-transparent">
-              Idea in Minutes
+              Let&apos;s prove it.
             </span>
           </motion.h1>
 
@@ -470,30 +623,24 @@ export function HomepageClient({
             {...motionProps(0.2)}
             className="text-lg md:text-xl text-[#94A3B8] max-w-2xl mx-auto leading-relaxed"
           >
-            AI-powered financial modeling that tells you if your business idea
-            works — before you spend months building it.
+            Replace months of guesswork with an instant financial model built on real market data.
           </motion.p>
 
-          {/* CTAs */}
+          {/* CTA — single button */}
           <motion.div
             {...motionProps(0.3)}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3"
+            className="flex items-center justify-center"
           >
             <Link href="/auth/register">
               <button className="h-12 px-8 bg-[#3B82F6] text-white text-sm font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-lg hover:shadow-[#3B82F6]/25 hover:-translate-y-0.5">
                 Validate My Idea — Free
               </button>
             </Link>
-            <Link href="/#features">
-              <button className="h-12 px-8 text-sm font-bold text-[#94A3B8] hover:text-[#F8FAFC] border border-[#334155] rounded-xl hover:border-[#3B82F6]/50 transition-all">
-                See How It Works
-              </button>
-            </Link>
           </motion.div>
 
           {/* Trust line */}
           <motion.p {...motionProps(0.4)} className="text-xs text-[#64748B]">
-            3-day free trial &middot; No credit card to sign up &middot; Setup in 2 minutes
+            No credit card to start &middot; Setup in 2 minutes
           </motion.p>
         </div>
 
@@ -505,21 +652,21 @@ export function HomepageClient({
           <AnimatedSearchBar />
         </motion.div>
 
-        {/* Rating widget */}
+        {/* Client marquee */}
         <motion.div
           {...motionProps(0.7)}
-          className="relative z-10 mt-8"
+          className="relative z-10 w-full max-w-4xl mx-auto mt-8"
         >
-          <RatingWidget />
+          <ClientMarquee />
         </motion.div>
       </section>
 
       <SectionDivider />
 
-      {/* ════════════ BUSINESS MODELS ════════════ */}
+      {/* ════════════ BUSINESS MODELS (horizontal scroll) ════════════ */}
       <section id="models" className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
-          <motion.div {...motionProps()} className="text-center mb-16">
+          <motion.div {...motionProps()} className="text-center mb-12">
             <span className="text-xs font-bold uppercase tracking-widest text-[#3B82F6] mb-3 block">
               Business Models
             </span>
@@ -527,91 +674,68 @@ export function HomepageClient({
               Choose Your Model. Get Real Answers.
             </h2>
             <p className="text-[#94A3B8] max-w-2xl mx-auto">
-              Each model is purpose-built with the metrics that matter for your business type.
+              12 purpose-built models. Pick yours and get a financial projection in minutes.
             </p>
           </motion.div>
 
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
-          >
-            {modelCards.map((card) => {
-              const IconComponent = MODEL_ICON_MAP[card.iconKey];
-              return (
-                <motion.div
-                  key={card.title}
-                  variants={fadeUp}
-                  transition={{ duration: 0.5 }}
-                  whileHover={prefersReduced ? {} : { y: -4 }}
-                  className="group rounded-2xl border border-[#334155]/60 p-6 transition-all hover:border-opacity-100 cursor-pointer"
-                  style={{
-                    background: "rgba(30,41,59,0.4)",
-                    borderColor: `${card.color}30`,
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.borderColor = `${card.color}60`;
-                    (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 40px ${card.color}15`;
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.borderColor = `${card.color}30`;
-                    (e.currentTarget as HTMLElement).style.boxShadow = "none";
-                  }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
-                    style={{ background: `${card.color}15`, color: card.color }}
-                  >
-                    {IconComponent && <IconComponent className="w-5 h-5" />}
-                  </div>
-                  <h3 className="text-base font-bold mb-1">{card.title}</h3>
-                  <p className="text-sm text-[#94A3B8] mb-4 leading-relaxed line-clamp-2">{card.description}</p>
-                  <p className="text-xs italic text-[#CBD5E1]/70">
-                    &ldquo;{card.question}&rdquo;
-                  </p>
-                </motion.div>
-              );
-            })}
+          <motion.div {...motionProps(0.1)}>
+            <ModelsCarousel cards={modelCards} prefersReduced={prefersReduced} />
+          </motion.div>
+
+          {/* CTA after models */}
+          <motion.div {...motionProps(0.2)} className="text-center mt-10">
+            <Link href="/auth/register">
+              <button className="h-12 px-8 bg-[#3B82F6] text-white text-sm font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-lg hover:shadow-[#3B82F6]/25 hover:-translate-y-0.5">
+                Start Building Your Model — Free
+              </button>
+            </Link>
           </motion.div>
         </div>
       </section>
 
       <SectionDivider />
 
-      {/* ════════════ FEATURES ════════════ */}
+      {/* ════════════ HOW IT WORKS + FEATURES (merged) ════════════ */}
       <section id="features" className="py-24 px-4" style={{ background: "rgba(30,41,59,0.2)" }}>
         <div className="max-w-6xl mx-auto">
           <motion.div {...motionProps()} className="text-center mb-16">
             <span className="text-xs font-bold uppercase tracking-widest text-[#3B82F6] mb-3 block">
-              Features
+              How It Works
             </span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
-              Brings more than a Spreadsheet. Costs less than a CFO.
+              From Idea to Investor-Ready in 4 Steps
             </h2>
             <p className="text-[#94A3B8] max-w-2xl mx-auto">
-              Professional-grade financial tools designed for speed and efficiency.
+              More than a spreadsheet. Less than hiring a CFO. Your financial model becomes your go-to document for tracking business health as you grow.
             </p>
           </motion.div>
 
           <div className="space-y-8">
-            {featureShowcase.map((feature, i) => (
-              <motion.div
-                key={feature.title}
-                {...motionProps(i * 0.05)}
-                className="grid md:grid-cols-2 gap-8 items-center rounded-2xl border border-[#334155]/40 p-8 md:p-10 hover:border-[#3B82F6]/30 transition-colors"
-                style={{ background: "rgba(15,23,42,0.5)" }}
-              >
-                <div className={i % 2 === 1 ? "md:order-2" : ""}>
-                  <h3 className="text-xl md:text-2xl font-bold mb-3">{feature.title}</h3>
-                  <p className="text-[#94A3B8] leading-relaxed">{feature.description}</p>
-                </div>
-                <div className={i % 2 === 1 ? "md:order-1" : ""}>
-                  {featureVisuals[feature.visual]?.()}
-                </div>
-              </motion.div>
-            ))}
+            {HOW_IT_WORKS_FEATURES.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={item.step}
+                  {...motionProps(i * 0.05)}
+                  className="grid md:grid-cols-2 gap-8 items-center rounded-2xl border border-[#334155]/40 p-8 md:p-10 hover:border-[#3B82F6]/30 transition-colors"
+                  style={{ background: "rgba(15,23,42,0.5)" }}
+                >
+                  <div className={i % 2 === 1 ? "md:order-2" : ""}>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#3B82F6]/10 text-[#3B82F6]">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className="text-xs font-bold text-[#3B82F6] uppercase tracking-widest">Step {item.step}</span>
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-bold mb-3">{item.title}</h3>
+                    <p className="text-[#94A3B8] leading-relaxed">{item.description}</p>
+                  </div>
+                  <div className={i % 2 === 1 ? "md:order-1" : ""}>
+                    {featureVisuals[item.visual]?.()}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -620,51 +744,6 @@ export function HomepageClient({
 
       {/* ════════════ AI CO-PILOT ════════════ */}
       <AISection />
-
-      <SectionDivider />
-
-      {/* ════════════ HOW IT WORKS ════════════ */}
-      <section className="py-24 px-4">
-        <div className="max-w-4xl mx-auto">
-          <motion.div {...motionProps()} className="text-center mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#3B82F6] mb-3 block">
-              How It Works
-            </span>
-            <h2 className="text-3xl md:text-4xl font-black mb-4">
-              From Zero to Investor-Ready in 3 Steps
-            </h2>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-            className="space-y-6"
-          >
-            {steps.map((step) => (
-              <motion.div
-                key={step.num}
-                variants={fadeUp}
-                transition={{ duration: 0.5 }}
-                className="flex gap-6 items-start rounded-2xl border border-[#334155]/40 p-6 md:p-8 hover:border-[#3B82F6]/30 transition-colors"
-                style={{ background: "rgba(30,41,59,0.3)" }}
-              >
-                <div className="shrink-0 w-14 h-14 rounded-xl flex items-center justify-center bg-[#3B82F6]/10 text-[#3B82F6]">
-                  {step.icon}
-                </div>
-                <div>
-                  <div className="flex items-baseline gap-3 mb-1">
-                    <span className="text-xs font-bold text-[#3B82F6]">{step.num}</span>
-                    <h3 className="text-lg font-bold">{step.title}</h3>
-                  </div>
-                  <p className="text-sm text-[#94A3B8] leading-relaxed">{step.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
 
       <SectionDivider />
 
@@ -686,11 +765,7 @@ export function HomepageClient({
             ].map((stat) => (
               <motion.div key={stat.label} variants={fadeUp} transition={{ duration: 0.5 }}>
                 <div className="text-3xl md:text-4xl font-black text-[#F8FAFC]">
-                  <AnimatedCounter
-                    end={stat.end}
-                    suffix={stat.suffix}
-                    prefix={stat.prefix}
-                  />
+                  <AnimatedCounter end={stat.end} suffix={stat.suffix} prefix={stat.prefix} />
                 </div>
                 <div className="text-sm text-[#94A3B8] mt-1">{stat.label}</div>
               </motion.div>
@@ -712,7 +787,7 @@ export function HomepageClient({
               Your idea evolves. So should your model.
             </h2>
             <p className="text-[#94A3B8] max-w-2xl mx-auto">
-              Revenue Map isn&apos;t a one-time report. It&apos;s a living financial model that grows with your startup.
+              Revenue Map isn&apos;t a one-time report. It&apos;s a living financial model that becomes your core document for tracking business health as your startup grows.
             </p>
           </motion.div>
 
@@ -758,14 +833,12 @@ export function HomepageClient({
               Pricing That Grows With You
             </h2>
             <p className="text-[#94A3B8] max-w-xl mx-auto mb-8">
-              Start with a 3-day free trial. No credit card required to sign up.
+              No credit card to start. Cancel anytime.
             </p>
 
-            {/* Billing toggle */}
             <PricingToggle plans={plans} />
           </motion.div>
 
-          {/* Link to full pricing page */}
           <motion.div {...motionProps(0.3)} className="text-center mt-10">
             <Link
               href="/pricing"
@@ -817,10 +890,7 @@ export function HomepageClient({
                       </div>
                       <div className="p-5" style={{ background: "rgba(30,41,59,0.6)" }}>
                         <span className="text-xs font-medium text-[#3B82F6] mb-2 block">
-                          {post.category
-                            .split("-")
-                            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                            .join(" ")}
+                          {post.category.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
                         </span>
                         <h3 className="font-bold text-[#F8FAFC] mb-2 line-clamp-2 group-hover:text-[#3B82F6] transition-colors">
                           {post.title}
@@ -848,7 +918,6 @@ export function HomepageClient({
 
       {/* ════════════ FINAL CTA ════════════ */}
       <section className="relative py-32 px-4 text-center overflow-hidden">
-        {/* Radial glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -857,16 +926,10 @@ export function HomepageClient({
         />
 
         <div className="relative z-10 max-w-3xl mx-auto">
-          <motion.h2
-            {...motionProps()}
-            className="text-3xl md:text-5xl font-black mb-5"
-          >
+          <motion.h2 {...motionProps()} className="text-3xl md:text-5xl font-black mb-5">
             Ready to Know Your Numbers?
           </motion.h2>
-          <motion.p
-            {...motionProps(0.1)}
-            className="text-lg text-[#94A3B8] mb-8 max-w-xl mx-auto"
-          >
+          <motion.p {...motionProps(0.1)} className="text-lg text-[#94A3B8] mb-8 max-w-xl mx-auto">
             Join 500+ founders who replaced gut feeling with real financial clarity.
           </motion.p>
           <motion.div {...motionProps(0.2)}>
@@ -877,7 +940,7 @@ export function HomepageClient({
             </Link>
           </motion.div>
           <motion.p {...motionProps(0.3)} className="text-xs text-[#64748B] mt-5">
-            3-day free trial &middot; No credit card to sign up &middot; 2-minute setup
+            No credit card to start &middot; Setup in 2 minutes
           </motion.p>
         </div>
       </section>
@@ -885,15 +948,15 @@ export function HomepageClient({
       {/* ════════════ FOOTER ════════════ */}
       <footer className="border-t border-[#334155]/40 py-16 px-4" style={{ background: "rgba(15,23,42,0.8)" }}>
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
             {/* Brand column */}
-            <div className="col-span-2 md:col-span-1">
+            <div className="col-span-2">
               <Link href="/" className="flex items-center space-x-2 mb-4">
                 <img src="/logo.svg" alt="Revenue Map" className="w-7 h-7" />
                 <span className="text-sm font-bold text-[#F8FAFC]">Revenue Map</span>
               </Link>
               <p className="text-xs text-[#64748B] leading-relaxed">
-                Financial modeling for founders who need real answers, not spreadsheet busywork.
+                Validate your startup idea with real financial projections. Not spreadsheet busywork.
               </p>
             </div>
 
@@ -937,6 +1000,7 @@ export function HomepageClient({
           </div>
         </div>
       </footer>
+
     </div>
   );
 }

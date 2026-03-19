@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useCallback, useRef, useState } from "react";
-import { useParams, notFound } from "next/navigation";
+import { Suspense, useEffect, useCallback, useRef, useState } from "react";
+import { useParams, useSearchParams, useRouter, notFound } from "next/navigation";
 import { useConfigStore } from "@/stores/config-store";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useCurrentProject } from "@/hooks/useCurrentProject";
 import { AppShell } from "@/components/layout/AppShell";
 import { exportToPDF } from "@/lib/pdf-export";
 import { useChatStore } from "@/stores/chat-store";
-import { getModelDef, getBaseEngine, isValidProductType } from "@/lib/model-registry";
+import { useSurveyStore } from "@/stores/survey-store";
+import { getPresetConfig } from "@/lib/industry-presets";
+import { getModelDef, getBaseEngine, isValidProductType, getAllModels } from "@/lib/model-registry";
 import type { BaseEngine } from "@/lib/model-registry";
+import type { ModelConfig, EcomConfig, SaasConfig } from "@/lib/types";
 
 // ─── Engine-specific component imports ───
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -158,8 +161,17 @@ const ENGINE_INVESTOR: Record<BaseEngine, React.ComponentType<{ projectName: str
 
 // ─── Main dashboard page ───
 
-export default function DashboardPage() {
+export default function DashboardPageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardPage />
+    </Suspense>
+  );
+}
+
+function DashboardPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const modelType = params.modelType as string;
 
   if (!isValidProductType(modelType)) {
@@ -169,12 +181,45 @@ export default function DashboardPage() {
   const modelDef = getModelDef(modelType);
   const engine = modelDef.baseEngine;
   const config = useConfigStore(getConfigSelector(engine));
+  const loadSub = useConfigStore((s) => s.loadSubscriptionConfig);
+  const loadEcom = useConfigStore((s) => s.loadEcommerceConfig);
+  const loadSaas = useConfigStore((s) => s.loadSaasConfig);
   const { results, loading, error, debouncedRun, monthRange, setMonthRange, totalMonths } = useDashboard(modelType);
   const reportRef = useRef<HTMLDivElement>(null);
   const [showInvestorReport, setShowInvestorReport] = useState(false);
   const [configHidden, setConfigHidden] = useState(false);
   const { project, setProjectId } = useCurrentProject(modelType);
   const setDashboardContext = useChatStore((s) => s.setDashboardContext);
+  const presetsApplied = useRef(false);
+
+  // Apply industry presets from survey on first visit from onboarding
+  useEffect(() => {
+    if (presetsApplied.current) return;
+    const fromOnboarding = searchParams.get("from") === "onboarding";
+    if (!fromOnboarding) return;
+
+    const surveyData = useSurveyStore.getState().data;
+    if (!surveyData.projectType || !surveyData.industry) return;
+
+    presetsApplied.current = true;
+    const preset = getPresetConfig({
+      productType: surveyData.projectType,
+      industry: surveyData.industry === "Other" ? "" : surveyData.industry,
+      stage: surveyData.stage,
+      budget: surveyData.budget === "Other" ? surveyData.budgetCustom : surveyData.budget,
+    });
+
+    if (engine === "subscription") {
+      loadSub(preset as ModelConfig);
+    } else if (engine === "ecommerce") {
+      loadEcom(preset as EcomConfig);
+    } else {
+      loadSaas(preset as SaasConfig);
+    }
+
+    // Reset survey store now that presets are applied
+    useSurveyStore.getState().reset();
+  }, [searchParams, engine, loadSub, loadEcom, loadSaas]);
 
   const buildScenarioParams = useCallback(() => {
     return SCENARIO_BUILDERS[engine](JSON.parse(JSON.stringify(config)));
@@ -210,6 +255,9 @@ export default function DashboardPage() {
   const SidebarComponent = ENGINE_SIDEBAR[engine];
   const ContentComponent = ENGINE_CONTENT[engine];
   const InvestorReportComponent = ENGINE_INVESTOR[engine];
+  const dashboardRouter = useRouter();
+  const allModels = getAllModels();
+  const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
 
   return (
     <AppShell title={`${modelDef.label} Dashboard`} monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
@@ -225,6 +273,37 @@ export default function DashboardPage() {
               <path d={configHidden ? "M6 3l5 5-5 5" : "M10 3L5 8l5 5"} />
             </svg>
           </button>
+
+          {/* Model type selector */}
+          <div className="relative inline-block">
+            <button
+              onClick={() => setModelSelectorOpen((v) => !v)}
+              className="flex items-center gap-2 text-sm font-bold text-[#1C1D21] bg-white border border-[#ECECF2] rounded-lg px-3 py-1.5 hover:border-[#5E81F4] transition-colors"
+            >
+              <span className="w-2 h-2 rounded-full" style={{ background: modelDef.color }} />
+              {modelDef.label}
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className={`transition-transform ${modelSelectorOpen ? "rotate-180" : ""}`}>
+                <path d="M4 6l4 4 4-4" />
+              </svg>
+            </button>
+            {modelSelectorOpen && (
+              <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-[#ECECF2] rounded-xl shadow-lg z-20 py-2 max-h-80 overflow-y-auto">
+                {allModels.map((m) => (
+                  <button
+                    key={m.key}
+                    onClick={() => {
+                      setModelSelectorOpen(false);
+                      if (m.key !== modelType) dashboardRouter.push(`/dashboard/${m.key}`);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2 text-left text-sm hover:bg-[#F8F8FC] transition-colors ${m.key === modelType ? "bg-[#F8F8FC] font-bold" : ""}`}
+                  >
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />
+                    <span className="text-[#1C1D21]">{m.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {loading && !results && (
             <div className="flex items-center justify-center py-20">

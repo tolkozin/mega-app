@@ -12,9 +12,9 @@ const plans = [
   {
     name: "Plus",
     subtitle: "For founders actively building their model",
-    monthlyPrice: 18,
-    annualPrice: 14.4,
-    annualTotal: 172.8,
+    monthlyPrice: 29,
+    annualPrice: 23,
+    annualTotal: 276,
     cta: "Start free trial",
     plan: "plus",
     features: [
@@ -30,9 +30,9 @@ const plans = [
   {
     name: "Pro",
     subtitle: "For serious founders who need no limits",
-    monthlyPrice: 29,
-    annualPrice: 23.2,
-    annualTotal: 278.4,
+    monthlyPrice: 49,
+    annualPrice: 39,
+    annualTotal: 468,
     badge: "Most Popular",
     highlighted: true,
     cta: "Start free trial",

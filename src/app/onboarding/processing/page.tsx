@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { useSurveyStore } from "@/stores/survey-store";
+// Survey store is read by the dashboard page to apply presets
 
 const PROGRESS_STEPS = [
   "Analyzing your business type",
@@ -24,7 +24,7 @@ function ProcessingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
-  const resetSurvey = useSurveyStore((s) => s.reset);
+  // Survey store is NOT reset here — the dashboard reads it to apply industry presets
   const [activeStep, setActiveStep] = useState(0);
   const [timedOut, setTimedOut] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval>>(undefined);
@@ -51,9 +51,9 @@ function ProcessingPage() {
         if (data.status === "completed" && data.projectId) {
           clearInterval(pollRef.current);
           clearTimeout(timeoutRef.current);
-          resetSurvey();
+          // Don't reset survey here — dashboard reads it to apply industry presets
           const productType = data.productType ?? "subscription";
-          router.push(`/dashboard/${productType}`);
+          router.push(`/dashboard/${productType}?from=onboarding`);
         }
       } catch {
         // Silently retry
@@ -73,7 +73,7 @@ function ProcessingPage() {
       clearInterval(pollRef.current);
       clearTimeout(timeoutRef.current);
     };
-  }, [user, surveyId, router, resetSurvey]);
+  }, [user, surveyId, router]);
 
   if (authLoading) {
     return (
