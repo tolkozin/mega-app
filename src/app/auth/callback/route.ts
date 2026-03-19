@@ -9,21 +9,22 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     await supabase.auth.exchangeCodeForSession(code);
 
-    // Check if user already has projects (existing user)
+    // Check if user has an active subscription (existing paying user)
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const { count } = await supabase
-        .from("projects")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id);
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("lemon_squeezy_subscription_id, plan")
+        .eq("id", user.id)
+        .single();
 
-      // Existing user with projects → dashboard
-      if (count && count > 0) {
+      // Existing user with subscription → dashboard
+      if (profile?.lemon_squeezy_subscription_id) {
         return NextResponse.redirect(new URL("/dashboard", request.url));
       }
     }
 
-    // New user → survey (plan comes from localStorage client-side)
+    // New user or no subscription → survey
     return NextResponse.redirect(new URL("/onboarding/survey", request.url));
   }
 
