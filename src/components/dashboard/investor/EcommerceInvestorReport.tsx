@@ -9,8 +9,11 @@ import {
   KPIGrid,
   KPICard,
   CompactTable,
+  ReportChart,
+  gradientArea,
+  CHART_COLORS,
+  DONUT_COLORS,
 } from "./InvestorReport";
-import { ReportChart, gradientArea, CHART_COLORS, DONUT_COLORS } from "./InvestorReport";
 
 interface EcommerceInvestorReportProps {
   projectName: string;
@@ -257,13 +260,21 @@ export function EcommerceInvestorReport({
       modelType="ecommerce"
       data={data}
     >
-      <GmvSummary data={data} />
+      <div data-pdf-page>
+        <GmvSummary data={data} />
+      </div>
       <Divider />
-      <CustomerAcquisitionSummary data={data} />
+      <div data-pdf-page>
+        <CustomerAcquisitionSummary data={data} />
+      </div>
       <Divider />
-      <AovConversionTable data={data} />
+      <div data-pdf-page>
+        <AovConversionTable data={data} />
+      </div>
       <Divider />
-      <GrossMarginTable data={data} />
+      <div data-pdf-page>
+        <GrossMarginTable data={data} />
+      </div>
     </InvestorReport>
   );
 }

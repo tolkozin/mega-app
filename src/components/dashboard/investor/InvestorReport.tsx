@@ -527,14 +527,22 @@ export function InvestorReport({
           </span>
         </div>
 
-        {/* Shared sections — ordered by importance */}
-        <ExecutiveSummary data={data} modelType={modelType} />
+        {/* Shared sections — each data-pdf-page gets its own PDF page */}
+        <div data-pdf-page>
+          <ExecutiveSummary data={data} modelType={modelType} />
+        </div>
         <Divider />
-        <KeyAssumptions data={data} modelType={modelType} />
+        <div data-pdf-page>
+          <KeyAssumptions data={data} modelType={modelType} />
+        </div>
         <Divider />
-        <PnLOverview data={data} />
+        <div data-pdf-page>
+          <PnLOverview data={data} />
+        </div>
         <Divider />
-        <CashFlowSummary data={data} />
+        <div data-pdf-page>
+          <CashFlowSummary data={data} />
+        </div>
 
         {/* Model-specific content */}
         {children && (

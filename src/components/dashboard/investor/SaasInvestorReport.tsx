@@ -9,6 +9,10 @@ import {
   KPIGrid,
   KPICard,
   CompactTable,
+  ReportChart,
+  gradientArea,
+  CHART_COLORS,
+  DONUT_COLORS,
 } from "./InvestorReport";
 
 interface SaasInvestorReportProps {
@@ -73,6 +77,21 @@ function ArrGrowthSummary({ data }: { data: RunResult }) {
           sub="avg revenue per account"
         />
       </KPIGrid>
+      <div className="mt-4">
+        <ReportChart
+          size="small"
+          data={[
+            gradientArea(
+              df.map((_, i) => i + 1),
+              df.map(r => num(r["ARR"])),
+              "ARR",
+              CHART_COLORS.primary,
+              CHART_COLORS.primaryLight,
+            ) as Plotly.Data,
+          ]}
+          layout={{}}
+        />
+      </div>
 
       {/* ARR progression table */}
       {(() => {
@@ -333,13 +352,21 @@ export function SaasInvestorReport({
       modelType="saas"
       data={data}
     >
-      <ArrGrowthSummary data={data} />
+      <div data-pdf-page>
+        <ArrGrowthSummary data={data} />
+      </div>
       <Divider />
-      <RetentionTable data={data} />
+      <div data-pdf-page>
+        <SaasEfficiencyMetrics data={data} />
+      </div>
       <Divider />
-      <PipelineSummary data={data} />
+      <div data-pdf-page>
+        <RetentionTable data={data} />
+      </div>
       <Divider />
-      <SaasEfficiencyMetrics data={data} />
+      <div data-pdf-page>
+        <PipelineSummary data={data} />
+      </div>
     </InvestorReport>
   );
 }

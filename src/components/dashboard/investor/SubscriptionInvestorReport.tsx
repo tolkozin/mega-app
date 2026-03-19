@@ -9,8 +9,11 @@ import {
   KPIGrid,
   KPICard,
   CompactTable,
+  ReportChart,
+  gradientArea,
+  CHART_COLORS,
+  DONUT_COLORS,
 } from "./InvestorReport";
-import { ReportChart, gradientArea, CHART_COLORS, DONUT_COLORS } from "./InvestorReport";
 
 interface SubscriptionInvestorReportProps {
   projectName: string;
@@ -176,11 +179,17 @@ export function SubscriptionInvestorReport({
       modelType="subscription"
       data={data}
     >
-      <MrrArrTable data={data} />
+      <div data-pdf-page>
+        <MrrArrTable data={data} />
+      </div>
       <Divider />
-      <UnitEconomics data={data} />
+      <div data-pdf-page>
+        <UnitEconomics data={data} />
+      </div>
       <Divider />
-      <ChurnSummary data={data} />
+      <div data-pdf-page>
+        <ChurnSummary data={data} />
+      </div>
     </InvestorReport>
   );
 }
