@@ -29,11 +29,19 @@ function fmtMoney(v: unknown) {
   return formatCurrency(num(v));
 }
 
-// ─── MRR / ARR Table ─────────────────────────────────────────────────────────
+// ─── Revenue Breakdown (was MrrArrTable) ─────────────────────────────────────
 
-function MrrArrTable({ data }: { data: RunResult }) {
+function RevenueBreakdown({ data }: { data: RunResult }) {
   const df = data.dataframe as Record<string, number>[];
   if (!df.length) return null;
+
+  const first = df[0];
+  const last = df[df.length - 1];
+  const totalMrr = num(last["Total MRR"]);
+  const arrRunRate = totalMrr * 12;
+  const firstMrr = num(first["Total MRR"]);
+  const mrrGrowth = firstMrr > 0 ? ((totalMrr - firstMrr) / firstMrr) * 100 : 0;
+  const activeUsers = num(last["Active Users"]);
 
   const step = Math.max(1, Math.floor(df.length / 12));
   const rows = df
@@ -51,11 +59,50 @@ function MrrArrTable({ data }: { data: RunResult }) {
 
   return (
     <div>
-      <SectionHeader>MRR / ARR Breakdown</SectionHeader>
-      <CompactTable
-        headers={["Month", "Total MRR", "ARR Run-Rate", "Weekly MRR", "Monthly MRR", "Annual MRR", "Active Users"]}
-        rows={rows}
-      />
+      <SectionHeader>Revenue Breakdown</SectionHeader>
+      <KPIGrid>
+        <KPICard
+          label="Total MRR"
+          value={formatCurrency(totalMrr)}
+          sub="last month"
+        />
+        <KPICard
+          label="ARR Run-Rate"
+          value={formatCurrency(arrRunRate)}
+          sub="MRR × 12"
+        />
+        <KPICard
+          label="MRR Growth"
+          value={formatPercent(mrrGrowth)}
+          sub="first → last month"
+        />
+        <KPICard
+          label="Active Users"
+          value={formatNumber(activeUsers)}
+          sub="last month"
+        />
+      </KPIGrid>
+      <div className="mt-4">
+        <ReportChart
+          size="small"
+          data={[{
+            x: df.map((_, i) => i + 1),
+            y: df.map(r => num(r["Total MRR"])),
+            mode: "lines",
+            name: "MRR",
+            line: { color: CHART_COLORS.primary, width: 2.5, shape: "spline" },
+            fill: "tozeroy",
+            fillcolor: CHART_COLORS.primaryLight,
+          } as Plotly.Data]}
+          layout={{ yaxis: { title: "MRR ($)" } }}
+        />
+      </div>
+      <div className="mt-4">
+        <CompactTable
+          headers={["Month", "Total MRR", "ARR Run-Rate", "Weekly MRR", "Monthly MRR", "Annual MRR", "Active Users"]}
+          rows={rows}
+        />
+      </div>
     </div>
   );
 }
@@ -125,6 +172,25 @@ function UnitEconomics({ data }: { data: RunResult }) {
           layout={{ yaxis: { title: "Ratio" } }}
         />
       </div>
+      <div className="mt-4">
+        <CompactTable
+          headers={["Month", "LTV", "CAC", "LTV/CAC", "ARPU", "Gross Margin"]}
+          rows={(() => {
+            const step = Math.max(1, Math.floor(df.length / 10));
+            return df
+              .filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1)
+              .slice(0, 10)
+              .map((r) => [
+                `Mo ${num(r["Month"]).toFixed(0)}`,
+                fmtMoney(r["LTV"]),
+                fmtMoney(r["CAC"]),
+                `${num(r["LTV/CAC"]).toFixed(2)}x`,
+                fmtMoney(r["ARPU"]),
+                formatPercent(num(r["Gross Margin %"] ?? r["Gross Margin"]) * 100),
+              ]);
+          })()}
+        />
+      </div>
     </div>
   );
 }
@@ -134,6 +200,19 @@ function UnitEconomics({ data }: { data: RunResult }) {
 function ChurnSummary({ data }: { data: RunResult }) {
   const df = data.dataframe as Record<string, number>[];
   if (!df.length) return null;
+
+  const churnRates = df
+    .filter((r) => num(r["Month"]) > 1)
+    .map((r) => num(r["Churn Rate"] ?? r["Churn Rate %"] ?? 0));
+  const avgChurnRate =
+    churnRates.length > 0
+      ? (churnRates.reduce((s, v) => s + v, 0) / churnRates.length) * 100
+      : 0;
+  const totalChurned = df.reduce((s, r) => s + num(r["Churned Users"] ?? 0), 0);
+  const last = df[df.length - 1];
+  const first = df[0];
+  const endRoas = num(last["Cumulative ROAS"] ?? last["ROAS"] ?? 0);
+  const netUserGrowth = num(last["Active Users"]) - num(first["Active Users"]);
 
   const step = Math.max(1, Math.floor(df.length / 10));
   const rows = df
@@ -159,10 +238,47 @@ function ChurnSummary({ data }: { data: RunResult }) {
   return (
     <div>
       <SectionHeader>Churn Rate Summary</SectionHeader>
-      <CompactTable
-        headers={["Month", "Churn Rate", "Churned Users", "New Users", "Active Users", "ROAS"]}
-        rows={rows}
-      />
+      <KPIGrid>
+        <KPICard
+          label="Avg Monthly Churn"
+          value={formatPercent(avgChurnRate)}
+          sub="average across all months"
+        />
+        <KPICard
+          label="Total Churned Users"
+          value={formatNumber(totalChurned)}
+          sub="cumulative"
+        />
+        <KPICard
+          label="End-Period ROAS"
+          value={`${endRoas.toFixed(1)}x`}
+          sub="cumulative return on ad spend"
+        />
+        <KPICard
+          label="Net User Growth"
+          value={formatNumber(netUserGrowth)}
+          sub="last − first month"
+        />
+      </KPIGrid>
+      <div className="mt-4">
+        <ReportChart
+          size="small"
+          data={[{
+            x: df.map((_, i) => i + 1),
+            y: df.map(r => num(r["Churn Rate"] ?? r["Churn Rate %"] ?? 0) * 100),
+            mode: "lines",
+            name: "Churn Rate",
+            line: { color: CHART_COLORS.red, width: 2.5, shape: "spline" },
+          } as Plotly.Data]}
+          layout={{ yaxis: { title: "Churn Rate (%)" } }}
+        />
+      </div>
+      <div className="mt-4">
+        <CompactTable
+          headers={["Month", "Churn Rate", "Churned Users", "New Users", "Active Users", "ROAS"]}
+          rows={rows}
+        />
+      </div>
     </div>
   );
 }
@@ -180,7 +296,7 @@ export function SubscriptionInvestorReport({
       data={data}
     >
       <div data-pdf-page>
-        <MrrArrTable data={data} />
+        <RevenueBreakdown data={data} />
       </div>
       <Divider />
       <div data-pdf-page>

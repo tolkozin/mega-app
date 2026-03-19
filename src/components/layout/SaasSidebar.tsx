@@ -94,6 +94,7 @@ function SaasPhaseSection({ phase, phaseNum }: { phase: SaasPhaseConfig; phaseNu
 
   return (
     <Accordion title={`Phase ${phaseNum}`}>
+      <NumberField label="Investment ($)" value={phase.investment} onChange={(v) => update({ investment: v })} min={0} step={10000} help="Capital invested during this phase" />
       <NumberField label="Seats per Account" value={phase.seats_per_account} onChange={(v) => update({ seats_per_account: v })} min={1} step={1} help="Average number of seats (users) per customer account" />
       <NumberField label="Price per Seat ($/mo)" value={phase.price_per_seat} onChange={(v) => update({ price_per_seat: v })} min={0} step={1} help="Monthly price charged per seat/user" />
       <NumberField label="Annual Contract (%)" value={phase.annual_contract_pct} onChange={(v) => update({ annual_contract_pct: v })} min={0} max={100} step={5} help="% of new deals signed as annual contracts (vs monthly)" />
@@ -130,7 +131,6 @@ export function SaasSidebar({ projectId, onProjectCreated }: { projectId: string
         <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} help="Total forecast horizon in months" />
         <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (MVP / first customers). Phase 3 = total - P1 - P2" />
         <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (scaling). Phase 3 = total - P1 - P2" />
-        <NumberField label="Investment ($)" value={config.investment} onChange={(v) => setConfig({ investment: v })} min={0} step={10000} help="Initial capital / seed funding. Sets starting cash balance" />
         <NumberField label="Initial Customers" value={config.initial_customers} onChange={(v) => setConfig({ initial_customers: v })} min={0} step={1} help="Number of paying customers at model start (month 0)" />
         <NumberField label="Initial Seats" value={config.initial_seats} onChange={(v) => setConfig({ initial_seats: v })} min={0} step={1} help="Total active seats at model start (across all initial customers)" />
       </Accordion>

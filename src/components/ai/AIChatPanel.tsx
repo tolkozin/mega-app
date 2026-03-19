@@ -8,30 +8,36 @@ import { ChatMessage } from "./ChatMessage";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 
 const WELCOME_MESSAGES: Record<string, string> = {
-  subscription: `Hi! I'm your AI financial analyst. Here's what I can do:
+  subscription: `Your financial model has been generated based on your survey answers and industry market benchmarks.
 
-• Answer questions about your subscription metrics (MRR, churn, LTV/CAC, etc.)
-• Configure your model — just say "set my ad budget to $5000" or "configure phase 2 CPI to $3"
-• Upload a CSV/text file with your business data and I'll extract parameters automatically
-• Generate a full financial report with benchmarks and recommendations
+All projections use real-world data points for your business type and market segment. Here's what I can help with:
 
-Try asking: "Help me configure my subscription model" or "What's my projected breakeven?"`,
-  ecommerce: `Hi! I'm your AI financial analyst. Here's what I can do:
+• Answer questions about your metrics (MRR, churn, LTV/CAC, etc.)
+• Adjust your model — say "set my ad budget to $5000" or "configure phase 2 CPI to $3"
+• Upload a CSV/text file with your data and I'll extract parameters automatically
+• Generate an investor report with benchmarks and recommendations
 
-• Answer questions about your e-commerce metrics (AOV, ROAS, margins, etc.)
-• Configure your model — just say "set my ad budget to $5000" or "set CPC to $1.50"
-• Upload a CSV/text file with your business data and I'll extract parameters automatically
-• Generate a full financial report with benchmarks and recommendations
+Try: "What are the key assumptions?" or "What's my projected breakeven?"`,
+  ecommerce: `Your financial model has been generated based on your survey answers and industry market benchmarks.
 
-Try asking: "Help me configure my e-commerce model" or "How's my unit economics?"`,
-  saas: `Hi! I'm your AI financial analyst. Here's what I can do:
+All projections use real-world data points for your business type and market segment. Here's what I can help with:
 
-• Answer questions about your SaaS metrics (ARR, NDR, CAC payback, etc.)
-• Configure your model — just say "set price per seat to $49" or "set logo churn to 2%"
-• Upload a CSV/text file with your business data and I'll extract parameters automatically
-• Generate a full financial report with benchmarks and recommendations
+• Answer questions about your metrics (AOV, ROAS, margins, etc.)
+• Adjust your model — say "set my ad budget to $5000" or "set CPC to $1.50"
+• Upload a CSV/text file with your data and I'll extract parameters automatically
+• Generate an investor report with benchmarks and recommendations
 
-Try asking: "Help me configure my SaaS model" or "What's my projected ARR?"`,
+Try: "How can I improve my unit economics?" or "What's my CAC payback period?"`,
+  saas: `Your financial model has been generated based on your survey answers and industry market benchmarks.
+
+All projections use real-world data points for your business type and market segment. Here's what I can help with:
+
+• Answer questions about your metrics (ARR, NDR, CAC payback, etc.)
+• Adjust your model — say "set price per seat to $49" or "set logo churn to 2%"
+• Upload a CSV/text file with your data and I'll extract parameters automatically
+• Generate an investor report with benchmarks and recommendations
+
+Try: "What's my Rule of 40?" or "What's my projected ARR?"`,
 };
 
 /** Extract config_patch JSON from <config_patch>...</config_patch> tags */

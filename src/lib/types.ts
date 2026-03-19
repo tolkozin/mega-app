@@ -60,6 +60,7 @@ export interface ModelConfig {
 }
 
 export interface EcomPhaseConfig {
+  investment: number;
   avg_order_value: number;
   repeat_purchase_rate: number;
   orders_per_returning: number;
@@ -94,6 +95,7 @@ export interface EcomConfig {
 }
 
 export interface SaasPhaseConfig {
+  investment: number;
   seats_per_account: number;
   price_per_seat: number;
   annual_contract_pct: number;

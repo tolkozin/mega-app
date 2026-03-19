@@ -190,6 +190,21 @@ function RetentionTable({ data }: { data: RunResult }) {
           sub="latest month"
         />
       </div>
+      <div className="mt-4 mb-4">
+        <ReportChart
+          size="small"
+          data={[
+            gradientArea(
+              df.map((_, i) => i + 1),
+              df.map((r) => num(r["NRR %"])),
+              "NRR %",
+              CHART_COLORS.primary,
+              CHART_COLORS.primaryLight,
+            ) as Plotly.Data,
+          ]}
+          layout={{}}
+        />
+      </div>
       <CompactTable
         headers={["Month", "NRR", "GRR", "Quick Ratio", "Expansion MRR", "Contraction MRR", "Churned MRR"]}
         rows={rows}
@@ -261,6 +276,30 @@ function PipelineSummary({ data }: { data: RunResult }) {
           sub="leads to closed deals"
         />
       </div>
+      <div className="mt-4 mb-4">
+        <ReportChart
+          size="small"
+          data={[
+            {
+              x: df.map((_, i) => i + 1),
+              y: df.map((r) => num(r["Total Leads"])),
+              type: "scatter",
+              mode: "lines",
+              name: "Leads",
+              line: { color: CHART_COLORS.primary, width: 2 },
+            } as Plotly.Data,
+            {
+              x: df.map((_, i) => i + 1),
+              y: df.map((r) => num(r["New Deals"])),
+              type: "scatter",
+              mode: "lines",
+              name: "Deals",
+              line: { color: CHART_COLORS.green, width: 2 },
+            } as Plotly.Data,
+          ]}
+          layout={{}}
+        />
+      </div>
       <CompactTable
         headers={["Month", "Leads", "Demos", "Deals", "CAC", "Organic %"]}
         rows={rows}
@@ -330,6 +369,31 @@ function SaasEfficiencyMetrics({ data }: { data: RunResult }) {
           label="End CAC"
           value={`$${cac.toFixed(2)}`}
           sub="latest month"
+        />
+      </div>
+      <div className="mt-4 mb-4">
+        <ReportChart
+          size="small"
+          data={[
+            {
+              x: df.map((_, i) => i + 1),
+              y: df.map((r) => num(r["Rule of 40"])),
+              type: "scatter",
+              mode: "lines",
+              name: "Rule of 40",
+              line: { color: CHART_COLORS.primary, width: 2 },
+            } as Plotly.Data,
+            {
+              x: [1, df.length],
+              y: [40, 40],
+              type: "scatter",
+              mode: "lines",
+              name: "40% threshold",
+              line: { color: CHART_COLORS.primary, width: 1, dash: "dash" },
+              showlegend: false,
+            } as Plotly.Data,
+          ]}
+          layout={{}}
         />
       </div>
       <CompactTable

@@ -72,6 +72,7 @@ const ecommerceTop: ModelSchemaSection = {
 };
 
 const ecommercePhase: ModelSchemaSection = {
+  investment: { type: "number", min: 0, max: 10_000_000, default: 50000, desc: "Investment / funding for this phase", unit: "$" },
   avg_order_value: { type: "number", min: 1, max: 100000, default: 50, desc: "Average order value ($)", unit: "$" },
   repeat_purchase_rate: { type: "number", min: 0, max: 100, default: 20, desc: "Repeat purchase rate (%)", unit: "%" },
   orders_per_returning: { type: "number", min: 1, max: 20, default: 1.5, desc: "Orders per returning customer" },
@@ -98,6 +99,7 @@ const saasTop: ModelSchemaSection = {
 };
 
 const saasPhase: ModelSchemaSection = {
+  investment: { type: "number", min: 0, max: 10_000_000, default: 100000, desc: "Investment / funding for this phase", unit: "$" },
   seats_per_account: { type: "number", min: 1, max: 1000, default: 5, desc: "Average seats per account" },
   price_per_seat: { type: "number", min: 1, max: 10000, default: 49, desc: "Price per seat per month ($)", unit: "$" },
   annual_contract_pct: { type: "number", min: 0, max: 100, default: 70, desc: "Annual contract share (%)", unit: "%" },

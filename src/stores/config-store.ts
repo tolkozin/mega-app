@@ -45,19 +45,19 @@ export const defaultModelConfig: ModelConfig = {
 };
 
 const defaultEcomPhase1: EcomPhaseConfig = {
-  avg_order_value: 45, repeat_purchase_rate: 10, orders_per_returning: 1.2,
+  investment: 50000, avg_order_value: 45, repeat_purchase_rate: 10, orders_per_returning: 1.2,
   cogs_pct: 45, return_rate: 5, ad_budget: 3000, cpc: 2,
   click_to_purchase: 2, organic_pct: 10, discount_rate: 10, monthly_salary: 5000,
 };
 
 const defaultEcomPhase2: EcomPhaseConfig = {
-  avg_order_value: 50, repeat_purchase_rate: 20, orders_per_returning: 1.5,
+  investment: 0, avg_order_value: 50, repeat_purchase_rate: 20, orders_per_returning: 1.5,
   cogs_pct: 40, return_rate: 5, ad_budget: 8000, cpc: 1.5,
   click_to_purchase: 3, organic_pct: 20, discount_rate: 5, monthly_salary: 8000,
 };
 
 const defaultEcomPhase3: EcomPhaseConfig = {
-  avg_order_value: 55, repeat_purchase_rate: 30, orders_per_returning: 2,
+  investment: 0, avg_order_value: 55, repeat_purchase_rate: 30, orders_per_returning: 2,
   cogs_pct: 35, return_rate: 4, ad_budget: 20000, cpc: 1.2,
   click_to_purchase: 4, organic_pct: 30, discount_rate: 3, monthly_salary: 12000,
 };
@@ -73,21 +73,21 @@ export const defaultEcomConfig: EcomConfig = {
 };
 
 const defaultSaasPhase1: SaasPhaseConfig = {
-  seats_per_account: 3, price_per_seat: 39, annual_contract_pct: 50, annual_discount: 15,
+  investment: 100000, seats_per_account: 3, price_per_seat: 39, annual_contract_pct: 50, annual_discount: 15,
   ad_budget: 3000, cpl: 200, lead_to_demo: 20, demo_to_close: 15,
   sales_cycle_months: 2, expansion_rate: 1, contraction_rate: 0.5, logo_churn_rate: 3,
   cogs_per_seat: 6, organic_leads_pct: 10, monthly_salary: 10000,
 };
 
 const defaultSaasPhase2: SaasPhaseConfig = {
-  seats_per_account: 5, price_per_seat: 49, annual_contract_pct: 70, annual_discount: 15,
+  investment: 0, seats_per_account: 5, price_per_seat: 49, annual_contract_pct: 70, annual_discount: 15,
   ad_budget: 8000, cpl: 150, lead_to_demo: 30, demo_to_close: 25,
   sales_cycle_months: 1, expansion_rate: 3, contraction_rate: 1, logo_churn_rate: 2,
   cogs_per_seat: 5, organic_leads_pct: 20, monthly_salary: 20000,
 };
 
 const defaultSaasPhase3: SaasPhaseConfig = {
-  seats_per_account: 8, price_per_seat: 49, annual_contract_pct: 80, annual_discount: 15,
+  investment: 0, seats_per_account: 8, price_per_seat: 49, annual_contract_pct: 80, annual_discount: 15,
   ad_budget: 20000, cpl: 120, lead_to_demo: 35, demo_to_close: 30,
   sales_cycle_months: 1, expansion_rate: 5, contraction_rate: 1, logo_churn_rate: 1.5,
   cogs_per_seat: 4, organic_leads_pct: 30, monthly_salary: 30000,
