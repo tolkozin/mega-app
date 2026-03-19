@@ -7,24 +7,19 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ModelConfig, EcomConfig, SaasConfig } from "@/lib/types";
+import { getModelDef, getBaseEngine } from "@/lib/model-registry";
 
 interface ScenarioPanelProps {
   projectId: string | null;
-  modelType: "subscription" | "ecommerce" | "saas";
+  modelType: string;
   onProjectCreated?: (projectId: string) => void;
 }
-
-const MODEL_LABELS: Record<string, string> = {
-  subscription: "Subscription",
-  ecommerce: "E-commerce",
-  saas: "SaaS",
-};
 
 function CreateProjectForm({
   modelType,
   onCreated,
 }: {
-  modelType: "subscription" | "ecommerce" | "saas";
+  modelType: string;
   onCreated: (projectId: string) => void;
 }) {
   const [showForm, setShowForm] = useState(false);
@@ -69,13 +64,13 @@ function CreateProjectForm({
   return (
     <div className="p-3 space-y-2">
       <p className="text-xs text-[#8181A5]">
-        No {MODEL_LABELS[modelType]} project yet. Create one to save scenarios.
+        No {getModelDef(modelType).label} project yet. Create one to save scenarios.
       </p>
       {!showForm ? (
         <Button
           size="sm"
           onClick={() => {
-            setName(`My ${MODEL_LABELS[modelType]} Project`);
+            setName(`My ${getModelDef(modelType).label} Project`);
             setShowForm(true);
           }}
           className="w-full h-8 text-xs"
@@ -146,9 +141,10 @@ export function ScenarioPanel({ projectId, modelType, onProjectCreated }: Scenar
     if (!name.trim()) return;
     setSaving(true);
     try {
-      const config = modelType === "subscription"
+      const engine = getBaseEngine(modelType);
+      const config = engine === "subscription"
         ? JSON.parse(JSON.stringify(subscriptionConfig))
-        : modelType === "ecommerce"
+        : engine === "ecommerce"
         ? JSON.parse(JSON.stringify(ecommerceConfig))
         : JSON.parse(JSON.stringify(saasConfig));
       await saveScenario(name, notes, config);
@@ -164,9 +160,10 @@ export function ScenarioPanel({ projectId, modelType, onProjectCreated }: Scenar
 
   const handleLoad = (id: string, config: unknown) => {
     const cfg = config as Record<string, unknown>;
-    if (modelType === "saas" || cfg.product_type === "saas") {
+    const engine = getBaseEngine(modelType);
+    if (engine === "saas" || cfg.product_type === "saas") {
       loadSaas(cfg as unknown as SaasConfig);
-    } else if (modelType === "ecommerce" || cfg.product_type === "ecommerce") {
+    } else if (engine === "ecommerce" || cfg.product_type === "ecommerce") {
       loadEcom(cfg as unknown as EcomConfig);
     } else {
       loadSub(cfg as unknown as ModelConfig);
@@ -175,8 +172,9 @@ export function ScenarioPanel({ projectId, modelType, onProjectCreated }: Scenar
   };
 
   const handleNew = () => {
-    if (modelType === "subscription") resetSub();
-    else if (modelType === "ecommerce") resetEcom();
+    const engine = getBaseEngine(modelType);
+    if (engine === "subscription") resetSub();
+    else if (engine === "ecommerce") resetEcom();
     else resetSaas();
     setActiveScenarioId(null);
   };

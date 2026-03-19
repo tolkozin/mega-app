@@ -12,6 +12,21 @@ import {
   MONETIZATION_OPTIONS,
   ACQUISITION_OPTIONS,
 } from "@/lib/survey-types";
+import {
+  Smartphone,
+  ShoppingCart,
+  Cloud,
+  Store,
+  UtensilsCrossed,
+  Plane,
+  Gamepad2,
+  Landmark,
+  HeartPulse,
+  GraduationCap,
+  Building2,
+  Brain,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 /* ─── Animation variants ─── */
 
@@ -27,12 +42,14 @@ function RadioCard({
   selected,
   onClick,
   icon,
+  iconComponent: IconComponent,
   label,
   description,
 }: {
   selected: boolean;
   onClick: () => void;
   icon?: string;
+  iconComponent?: LucideIcon;
   label: string;
   description?: string;
 }) {
@@ -46,7 +63,8 @@ function RadioCard({
       }`}
     >
       <div className="flex items-center gap-3">
-        {icon && <span className="text-xl">{icon}</span>}
+        {IconComponent && <IconComponent className="w-5 h-5 text-[#5E81F4]" />}
+        {icon && !IconComponent && <span className="text-xl">{icon}</span>}
         <div>
           <p className="font-bold text-sm text-[#1C1D21]">{label}</p>
           {description && (
@@ -112,22 +130,32 @@ function StepHeader({ title, subtitle }: { title: string; subtitle?: string }) {
 
 function Step1() {
   const { data, update } = useSurveyStore();
-  const options = [
-    { key: "saas" as const, icon: "💻", label: "SaaS / Subscription software" },
-    { key: "ecommerce" as const, icon: "🛍️", label: "E-commerce / Online store" },
-    { key: "subscription" as const, icon: "📦", label: "Subscription box / Physical subscription" },
+  const options: { key: SurveyData["projectType"] & string; icon: LucideIcon; label: string; description: string }[] = [
+    { key: "subscription", icon: Smartphone, label: "Mobile App", description: "Subscription-based mobile application" },
+    { key: "ecommerce", icon: ShoppingCart, label: "E-Commerce", description: "Online store selling physical or digital goods" },
+    { key: "saas", icon: Cloud, label: "SaaS B2B", description: "Cloud software for businesses" },
+    { key: "marketplace", icon: Store, label: "Marketplace", description: "Platform connecting buyers and sellers" },
+    { key: "foodtech", icon: UtensilsCrossed, label: "FoodTech", description: "Food delivery, meal kits, or cloud kitchens" },
+    { key: "traveltech", icon: Plane, label: "TravelTech", description: "Travel booking and experiences" },
+    { key: "gametech", icon: Gamepad2, label: "GameTech", description: "Games, esports, or gaming tools" },
+    { key: "fintech", icon: Landmark, label: "FinTech", description: "Payments, lending, or financial services" },
+    { key: "healthtech", icon: HeartPulse, label: "HealthTech", description: "Healthcare and wellness technology" },
+    { key: "edtech", icon: GraduationCap, label: "EdTech", description: "Education and learning platforms" },
+    { key: "proptech", icon: Building2, label: "PropTech", description: "Real estate and property technology" },
+    { key: "ai-ml", icon: Brain, label: "AI / ML", description: "AI platforms, APIs, or data analytics" },
   ];
   return (
     <>
       <StepHeader title="What are you building?" subtitle="This helps us set up the right financial model for you" />
-      <div className="space-y-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {options.map((o) => (
           <RadioCard
             key={o.key}
             selected={data.projectType === o.key}
             onClick={() => update({ projectType: o.key, industry: "", industryCustom: "" })}
-            icon={o.icon}
+            iconComponent={o.icon}
             label={o.label}
+            description={o.description}
           />
         ))}
       </div>

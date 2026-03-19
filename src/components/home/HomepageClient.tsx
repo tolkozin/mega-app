@@ -2,22 +2,56 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ReactNode, useState } from "react";
+import { ComponentType, ReactNode, useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import {
+  Search,
+  Smartphone,
+  ShoppingCart,
+  Cloud,
+  Store,
+  UtensilsCrossed,
+  Plane,
+  Gamepad2,
+  Landmark,
+  HeartPulse,
+  GraduationCap,
+  Building2,
+  Brain,
+  RefreshCw,
+  AlertTriangle,
+  FileText,
+} from "lucide-react";
 import { HeroBackground } from "./HeroBackground";
-import { DashboardPreview } from "./DashboardPreview";
 import { AISection } from "./AISection";
 import { RatingWidget } from "./RatingWidget";
 import { SectionDivider } from "./SectionDivider";
 import { AnimatedCounter } from "./AnimatedCounter";
 import type { BlogPost } from "@/types/blog";
 
+/* ─── Icon map (server can't pass React components, so we map keys → icons here) ─── */
+
+const MODEL_ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
+  subscription: Smartphone,
+  ecommerce: ShoppingCart,
+  saas: Cloud,
+  marketplace: Store,
+  foodtech: UtensilsCrossed,
+  traveltech: Plane,
+  gametech: Gamepad2,
+  fintech: Landmark,
+  healthtech: HeartPulse,
+  edtech: GraduationCap,
+  proptech: Building2,
+  "ai-ml": Brain,
+};
+
 /* ─── Types ─── */
 
 interface ModelCard {
   title: string;
   color: string;
-  icon: ReactNode;
+  iconKey: string;
   headline: string;
   description: string;
   question: string;
@@ -71,6 +105,83 @@ const fadeUp = {
 const stagger = {
   visible: { transition: { staggerChildren: 0.12 } },
 };
+
+/* ─── Animated Search Bar ─── */
+
+const SEARCH_QUESTIONS = [
+  "Will my food delivery app be profitable in 12 months?",
+  "How many users do I need to break even?",
+  "Is my SaaS pricing sustainable at $49/seat?",
+  "Can my marketplace reach $1M GMV in year one?",
+  "What's my burn rate if I hire 3 developers?",
+  "Should I go freemium or paid from day one?",
+];
+
+function AnimatedSearchBar() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [displayed, setDisplayed] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const question = SEARCH_QUESTIONS[currentIndex];
+    let timeout: NodeJS.Timeout;
+
+    if (!isDeleting && displayed.length < question.length) {
+      // Typing — variable speed for realism
+      timeout = setTimeout(
+        () => setDisplayed(question.slice(0, displayed.length + 1)),
+        40 + Math.random() * 60
+      );
+    } else if (!isDeleting && displayed.length === question.length) {
+      // Pause before deleting
+      timeout = setTimeout(() => setIsDeleting(true), 2000);
+    } else if (isDeleting && displayed.length > 0) {
+      // Deleting — faster
+      timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 20);
+    } else {
+      // Move to next question
+      setIsDeleting(false);
+      setCurrentIndex((i) => (i + 1) % SEARCH_QUESTIONS.length);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [displayed, isDeleting, currentIndex]);
+
+  return (
+    <div className="relative max-w-2xl mx-auto mt-10">
+      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 flex items-center gap-3 shadow-[0_0_40px_rgba(59,130,246,0.08)]">
+        <Search className="w-5 h-5 text-white/40 shrink-0" />
+        <span className="text-white/80 text-lg font-light">
+          {displayed}
+          <span className="animate-pulse">|</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Why Subscribe cards data ─── */
+
+const WHY_SUBSCRIBE_CARDS = [
+  {
+    icon: RefreshCw,
+    title: "Track Reality vs. Plan",
+    description:
+      "Come back monthly to update actuals. See how your real numbers compare to projections.",
+  },
+  {
+    icon: AlertTriangle,
+    title: "Catch Problems Early",
+    description:
+      "AI alerts you when metrics drift from benchmarks. Fix issues before they become expensive.",
+  },
+  {
+    icon: FileText,
+    title: "Stay Investor-Ready",
+    description:
+      "Your financial model is always current. Generate an updated investor report anytime.",
+  },
+];
 
 /* ─── Visual widgets for feature showcase ─── */
 
@@ -347,10 +458,10 @@ export function HomepageClient({
             {...motionProps(0.1)}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.08] tracking-tight"
           >
-            Skip the Guesswork.
+            Validate Your Startup
             <br />
             <span className="bg-gradient-to-r from-[#3B82F6] via-[#8B5CF6] to-[#3B82F6] bg-clip-text text-transparent">
-              Own Your Growth.
+              Idea in Minutes
             </span>
           </motion.h1>
 
@@ -359,9 +470,8 @@ export function HomepageClient({
             {...motionProps(0.2)}
             className="text-lg md:text-xl text-[#94A3B8] max-w-2xl mx-auto leading-relaxed"
           >
-            For founders who want real answers — not spreadsheet chaos.
-            Build projections, run simulations, and get investor-ready
-            reports in minutes.
+            AI-powered financial modeling that tells you if your business idea
+            works — before you spend months building it.
           </motion.p>
 
           {/* CTAs */}
@@ -371,7 +481,7 @@ export function HomepageClient({
           >
             <Link href="/auth/register">
               <button className="h-12 px-8 bg-[#3B82F6] text-white text-sm font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-lg hover:shadow-[#3B82F6]/25 hover:-translate-y-0.5">
-                Start Free Trial
+                Validate My Idea — Free
               </button>
             </Link>
             <Link href="/#features">
@@ -387,19 +497,12 @@ export function HomepageClient({
           </motion.p>
         </div>
 
-        {/* Floating dashboard preview */}
+        {/* Animated search bar */}
         <motion.div
           {...motionProps(0.5)}
-          className="relative z-10 w-full max-w-5xl mx-auto mt-10"
+          className="relative z-10 w-full max-w-5xl mx-auto"
         >
-          <motion.div
-            animate={prefersReduced ? {} : { y: [0, -8, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="rounded-2xl border border-[#334155]/60 overflow-hidden shadow-2xl shadow-black/40"
-            style={{ background: "rgba(30,41,59,0.5)", backdropFilter: "blur(20px)" }}
-          >
-            <DashboardPreview />
-          </motion.div>
+          <AnimatedSearchBar />
         </motion.div>
 
         {/* Rating widget */}
@@ -433,45 +536,44 @@ export function HomepageClient({
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
             variants={stagger}
-            className="grid md:grid-cols-3 gap-6"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
           >
-            {modelCards.map((card, i) => (
-              <motion.div
-                key={card.title}
-                variants={fadeUp}
-                transition={{ duration: 0.5 }}
-                whileHover={prefersReduced ? {} : { y: -4 }}
-                className="group rounded-2xl border border-[#334155]/60 p-8 transition-all hover:border-opacity-100 cursor-pointer"
-                style={{
-                  background: "rgba(30,41,59,0.4)",
-                  borderColor: `${card.color}30`,
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = `${card.color}60`;
-                  (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 40px ${card.color}15`;
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = `${card.color}30`;
-                  (e.currentTarget as HTMLElement).style.boxShadow = "none";
-                }}
-              >
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110"
-                  style={{ background: `${card.color}15`, color: card.color }}
+            {modelCards.map((card) => {
+              const IconComponent = MODEL_ICON_MAP[card.iconKey];
+              return (
+                <motion.div
+                  key={card.title}
+                  variants={fadeUp}
+                  transition={{ duration: 0.5 }}
+                  whileHover={prefersReduced ? {} : { y: -4 }}
+                  className="group rounded-2xl border border-[#334155]/60 p-6 transition-all hover:border-opacity-100 cursor-pointer"
+                  style={{
+                    background: "rgba(30,41,59,0.4)",
+                    borderColor: `${card.color}30`,
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = `${card.color}60`;
+                    (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 40px ${card.color}15`;
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = `${card.color}30`;
+                    (e.currentTarget as HTMLElement).style.boxShadow = "none";
+                  }}
                 >
-                  {card.icon}
-                </div>
-                <h3 className="text-xl font-bold mb-2">{card.title}</h3>
-                <p className="text-sm font-medium text-[#CBD5E1] mb-3">{card.headline}</p>
-                <p className="text-sm text-[#94A3B8] mb-5 leading-relaxed">{card.description}</p>
-                <div
-                  className="text-xs font-medium px-3 py-2 rounded-lg inline-block"
-                  style={{ background: `${card.color}10`, color: card.color }}
-                >
-                  &ldquo;{card.question}&rdquo;
-                </div>
-              </motion.div>
-            ))}
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
+                    style={{ background: `${card.color}15`, color: card.color }}
+                  >
+                    {IconComponent && <IconComponent className="w-5 h-5" />}
+                  </div>
+                  <h3 className="text-base font-bold mb-1">{card.title}</h3>
+                  <p className="text-sm text-[#94A3B8] mb-4 leading-relaxed line-clamp-2">{card.description}</p>
+                  <p className="text-xs italic text-[#CBD5E1]/70">
+                    &ldquo;{card.question}&rdquo;
+                  </p>
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
       </section>
@@ -593,6 +695,52 @@ export function HomepageClient({
                 <div className="text-sm text-[#94A3B8] mt-1">{stat.label}</div>
               </motion.div>
             ))}
+          </motion.div>
+        </div>
+      </section>
+
+      <SectionDivider />
+
+      {/* ════════════ WHY SUBSCRIBE ════════════ */}
+      <section className="py-24 px-4">
+        <div className="max-w-5xl mx-auto">
+          <motion.div {...motionProps()} className="text-center mb-16">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#3B82F6] mb-3 block">
+              Why Subscribe
+            </span>
+            <h2 className="text-3xl md:text-4xl font-black mb-4">
+              Your idea evolves. So should your model.
+            </h2>
+            <p className="text-[#94A3B8] max-w-2xl mx-auto">
+              Revenue Map isn&apos;t a one-time report. It&apos;s a living financial model that grows with your startup.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={stagger}
+            className="grid md:grid-cols-3 gap-6"
+          >
+            {WHY_SUBSCRIBE_CARDS.map((card) => {
+              const Icon = card.icon;
+              return (
+                <motion.div
+                  key={card.title}
+                  variants={fadeUp}
+                  transition={{ duration: 0.5 }}
+                  className="rounded-2xl border border-[#334155]/60 p-8 hover:border-[#3B82F6]/30 transition-colors"
+                  style={{ background: "rgba(30,41,59,0.4)" }}
+                >
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 bg-[#3B82F6]/10 text-[#3B82F6]">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">{card.title}</h3>
+                  <p className="text-sm text-[#94A3B8] leading-relaxed">{card.description}</p>
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
       </section>
@@ -724,7 +872,7 @@ export function HomepageClient({
           <motion.div {...motionProps(0.2)}>
             <Link href="/auth/register">
               <button className="h-14 px-10 bg-[#3B82F6] text-white text-base font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-xl hover:shadow-[#3B82F6]/30 hover:-translate-y-0.5 animate-pulse-shadow">
-                Start Free Trial
+                Validate My Idea — Free
               </button>
             </Link>
           </motion.div>

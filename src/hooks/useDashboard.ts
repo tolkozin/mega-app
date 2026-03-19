@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { runSubscriptionModel, runEcommerceModel, runSaasModel, type RunResult } from "@/lib/api";
+import { runModelByEngine, type RunResult } from "@/lib/api";
+import { getBaseEngine } from "@/lib/model-registry";
 
 interface DashboardState {
   results: Record<string, RunResult> | null;
@@ -9,7 +10,7 @@ interface DashboardState {
   error: string | null;
 }
 
-export function useDashboard(modelType: "subscription" | "ecommerce" | "saas") {
+export function useDashboard(modelType: string) {
   const [state, setState] = useState<DashboardState>({
     results: null,
     loading: false,
@@ -23,7 +24,9 @@ export function useDashboard(modelType: "subscription" | "ecommerce" | "saas") {
       setState((s) => ({ ...s, loading: true, error: null }));
 
       try {
-        const runFn = modelType === "subscription" ? runSubscriptionModel : modelType === "ecommerce" ? runEcommerceModel : runSaasModel;
+        const engine = getBaseEngine(modelType);
+        const runFn = (config: Record<string, unknown>, sensitivity?: Record<string, number>) =>
+          runModelByEngine(engine, config, sensitivity);
 
         const scenarios = scenarioParams || {
           base: {}, pessimistic: {}, optimistic: {},

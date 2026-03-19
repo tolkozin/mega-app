@@ -7,38 +7,36 @@ import { useUpgradeStore } from "@/stores/upgrade-store";
 import { ChatMessage } from "./ChatMessage";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 
-const WELCOME_MESSAGES: Record<string, string> = {
-  subscription: `Your financial model has been generated based on your survey answers and industry market benchmarks.
+import { getModelDef, getBaseEngine } from "@/lib/model-registry";
 
-All projections use real-world data points for your business type and market segment. Here's what I can help with:
-
-• Answer questions about your metrics (MRR, churn, LTV/CAC, etc.)
-• Adjust your model — say "set my ad budget to $5000" or "configure phase 2 CPI to $3"
-• Upload a CSV/text file with your data and I'll extract parameters automatically
-• Generate an investor report with benchmarks and recommendations
-
-Try: "What are the key assumptions?" or "What's my projected breakeven?"`,
-  ecommerce: `Your financial model has been generated based on your survey answers and industry market benchmarks.
-
-All projections use real-world data points for your business type and market segment. Here's what I can help with:
-
-• Answer questions about your metrics (AOV, ROAS, margins, etc.)
-• Adjust your model — say "set my ad budget to $5000" or "set CPC to $1.50"
-• Upload a CSV/text file with your data and I'll extract parameters automatically
-• Generate an investor report with benchmarks and recommendations
-
-Try: "How can I improve my unit economics?" or "What's my CAC payback period?"`,
-  saas: `Your financial model has been generated based on your survey answers and industry market benchmarks.
-
-All projections use real-world data points for your business type and market segment. Here's what I can help with:
-
-• Answer questions about your metrics (ARR, NDR, CAC payback, etc.)
-• Adjust your model — say "set price per seat to $49" or "set logo churn to 2%"
-• Upload a CSV/text file with your data and I'll extract parameters automatically
-• Generate an investor report with benchmarks and recommendations
-
-Try: "What's my Rule of 40?" or "What's my projected ARR?"`,
+const ENGINE_METRICS: Record<string, string> = {
+  subscription: "MRR, churn, LTV/CAC, ARPU",
+  ecommerce: "AOV, ROAS, margins, CAC",
+  saas: "ARR, NRR, CAC payback, Rule of 40",
 };
+
+const ENGINE_TIPS: Record<string, string> = {
+  subscription: '"What are the key assumptions?" or "What\'s my projected breakeven?"',
+  ecommerce: '"How can I improve my unit economics?" or "What\'s my CAC payback period?"',
+  saas: '"What\'s my Rule of 40?" or "What\'s my projected ARR?"',
+};
+
+function getWelcomeMessage(modelType: string): string {
+  const def = getModelDef(modelType);
+  const engine = getBaseEngine(modelType);
+  const metrics = ENGINE_METRICS[engine] ?? ENGINE_METRICS.subscription;
+  const tips = ENGINE_TIPS[engine] ?? ENGINE_TIPS.subscription;
+  return `Your ${def.label} financial model has been generated based on your survey answers and industry market benchmarks.
+
+All projections use real-world data points for your business type and market segment. Here's what I can help with:
+
+• Answer questions about your metrics (${metrics})
+• Adjust parameters — describe what you want to change in plain English
+• Upload a CSV/text file with your data and I'll extract parameters automatically
+• Generate an investor report with benchmarks and recommendations
+
+Try: ${tips}`;
+}
 
 /** Extract config_patch JSON from <config_patch>...</config_patch> tags */
 function extractConfigPatch(text: string): ConfigPatch | null {
@@ -123,7 +121,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
   useEffect(() => {
     if (isMobile) return;
     if (hasShownWelcome.current || !modelType || messages.length > 0) return;
-    const welcome = WELCOME_MESSAGES[modelType];
+    const welcome = modelType ? getWelcomeMessage(modelType) : null;
     if (!welcome) return;
     hasShownWelcome.current = true;
     openPanel();

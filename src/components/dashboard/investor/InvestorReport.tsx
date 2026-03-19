@@ -16,7 +16,7 @@ export { ReportChart, gradientArea, CHART_COLORS, DONUT_COLORS };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type ModelType = "subscription" | "ecommerce" | "saas";
+export type ModelType = string;
 
 interface InvestorReportProps {
   projectName: string;
@@ -27,17 +27,15 @@ interface InvestorReportProps {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const MODEL_LABEL: Record<ModelType, string> = {
-  subscription: "Subscription",
-  ecommerce: "E-Commerce",
-  saas: "SaaS",
-};
+import { getModelDef, getBaseEngine } from "@/lib/model-registry";
 
-const MODEL_COLOR: Record<ModelType, string> = {
-  subscription: "#4F46E5",
-  ecommerce: "#0EA5E9",
-  saas: "#10B981",
-};
+function getModelLabel(type: string): string {
+  return getModelDef(type).label;
+}
+
+function getModelColor(type: string): string {
+  return getModelDef(type).color;
+}
 
 function num(v: unknown): number {
   const n = Number(v);
@@ -345,8 +343,9 @@ function KeyAssumptions({ data, modelType }: { data: RunResult; modelType: Model
     return `Month ${v}`;
   }
 
+  const engine = getBaseEngine(modelType);
   const assumptions: [string, string][] =
-    modelType === "subscription"
+    engine === "subscription"
       ? [
           ["Break-Even (P&L)", fmtMs(ms.break_even_month)],
           ["Cumulative Break-Even", fmtMs(ms.cumulative_break_even)],
@@ -357,7 +356,7 @@ function KeyAssumptions({ data, modelType }: { data: RunResult; modelType: Model
           ["MRR $10K", fmtMs(ms.mrr_10000)],
           ["MRR $100K", fmtMs(ms.mrr_100000)],
         ]
-      : modelType === "ecommerce"
+      : engine === "ecommerce"
       ? [
           ["Break-Even (P&L)", fmtMs(ms.break_even_month)],
           ["Cumulative Break-Even", fmtMs(ms.cumulative_break_even)],
@@ -444,7 +443,7 @@ export function InvestorReport({
           disabled={exporting}
           className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-60"
           style={{
-            backgroundColor: MODEL_COLOR[modelType],
+            backgroundColor: getModelColor(modelType),
             color: "#ffffff",
           }}
         >
@@ -518,12 +517,12 @@ export function InvestorReport({
           <span
             className="text-xs font-bold px-3 py-1 rounded-full mt-1"
             style={{
-              backgroundColor: MODEL_COLOR[modelType] + "1A",
-              color: MODEL_COLOR[modelType],
-              border: `1px solid ${MODEL_COLOR[modelType]}40`,
+              backgroundColor: getModelColor(modelType) + "1A",
+              color: getModelColor(modelType),
+              border: `1px solid ${getModelColor(modelType)}40`,
             }}
           >
-            {MODEL_LABEL[modelType]} Model
+            {getModelLabel(modelType)} Model
           </span>
         </div>
 

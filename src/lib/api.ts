@@ -56,4 +56,18 @@ export async function runSaasModel(
   });
 }
 
+/** Generic model runner — resolves product type to its base engine endpoint */
+export async function runModelByEngine(
+  engine: "subscription" | "ecommerce" | "saas",
+  config: Record<string, unknown>,
+  sensitivity?: Record<string, number>,
+): Promise<RunResult> {
+  const fns = {
+    subscription: runSubscriptionModel,
+    ecommerce: runEcommerceModel,
+    saas: runSaasModel,
+  };
+  return fns[engine](config, sensitivity);
+}
+
 

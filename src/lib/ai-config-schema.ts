@@ -1,5 +1,7 @@
-// Machine-readable schema for all 3 model types.
+// Machine-readable schema for all product types.
 // Used in AI system prompts so the model knows valid fields and ranges.
+
+import { getBaseEngine, PRODUCT_TYPES } from "@/lib/model-registry";
 
 export interface FieldSchema {
   type: "number" | "boolean" | "string";
@@ -123,6 +125,14 @@ export const CONFIG_SCHEMAS: Record<string, ModelSchema> = {
   ecommerce: { top: ecommerceTop, phase: ecommercePhase },
   saas: { top: saasTop, phase: saasPhase },
 };
+
+// Map new vertical types to their base engine schemas
+for (const type of PRODUCT_TYPES) {
+  if (!(type in CONFIG_SCHEMAS)) {
+    const engine = getBaseEngine(type);
+    CONFIG_SCHEMAS[type] = CONFIG_SCHEMAS[engine];
+  }
+}
 
 /**
  * Build a formatted string describing all config fields for a model type.

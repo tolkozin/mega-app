@@ -44,7 +44,7 @@ export function useProjects() {
   }, [fetchProjects]);
 
   const createProject = useCallback(
-    async (name: string, description: string, productType: "subscription" | "ecommerce" | "saas") => {
+    async (name: string, description: string, productType: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 

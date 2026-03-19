@@ -9,6 +9,7 @@ import { useUpgradeStore } from "@/stores/upgrade-store";
 import type { Project } from "@/lib/types";
 import { useConfigStore } from "@/stores/config-store";
 import { AppShell } from "@/components/layout/AppShell";
+import { getBaseEngine } from "@/lib/model-registry";
 
 export default function ScenariosPage() {
   const params = useParams();
@@ -28,7 +29,7 @@ export default function ScenariosPage() {
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
-  const [configType, setConfigType] = useState<"subscription" | "ecommerce" | "saas">("subscription");
+  const [configType, setConfigType] = useState<string>("subscription");
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -62,9 +63,10 @@ export default function ScenariosPage() {
     if (!name.trim()) return;
     setSaving(true);
     try {
-      const config = configType === "subscription"
+      const engine = getBaseEngine(configType);
+      const config = engine === "subscription"
         ? JSON.parse(JSON.stringify(subscriptionConfig))
-        : configType === "saas"
+        : engine === "saas"
         ? JSON.parse(JSON.stringify(saasConfig))
         : JSON.parse(JSON.stringify(ecommerceConfig));
       await saveScenario(name, notes, config);
@@ -89,14 +91,15 @@ export default function ScenariosPage() {
   const handleLoad = (config: unknown) => {
     const cfg = config as Record<string, unknown>;
     const type = (cfg.product_type as string) || project?.product_type || "subscription";
-    if (type === "ecommerce") {
+    const engine = getBaseEngine(type);
+    if (engine === "ecommerce") {
       loadEcom(cfg as unknown as import("@/lib/types").EcomConfig);
-    } else if (type === "saas") {
+    } else if (engine === "saas") {
       loadSaas(cfg as unknown as import("@/lib/types").SaasConfig);
     } else {
       loadSub(cfg as unknown as import("@/lib/types").ModelConfig);
     }
-    router.push(`/dashboard/${type}`);
+    router.push(`/dashboard/${project?.product_type ?? type}`);
   };
 
   const handleDelete = async (id: string, scenarioName: string) => {
@@ -109,9 +112,9 @@ export default function ScenariosPage() {
   };
 
   const configTypeOptions = [
-    { value: "subscription", label: "Subscription" },
-    { value: "ecommerce", label: "E-commerce" },
-    { value: "saas", label: "SaaS" },
+    { value: "subscription", label: "Mobile App" },
+    { value: "ecommerce", label: "E-Commerce" },
+    { value: "saas", label: "SaaS B2B" },
   ];
 
   return (
@@ -177,7 +180,7 @@ export default function ScenariosPage() {
                       <input
                         type="radio"
                         checked={configType === opt.value}
-                        onChange={() => setConfigType(opt.value as "subscription" | "ecommerce" | "saas")}
+                        onChange={() => setConfigType(opt.value)}
                         className="accent-[#5E81F4]"
                       />
                       {opt.label}

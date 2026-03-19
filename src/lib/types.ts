@@ -141,7 +141,7 @@ export interface Project {
   user_id: string;
   name: string;
   description: string;
-  product_type: "subscription" | "ecommerce" | "saas";
+  product_type: string;
   created_at: string;
   public_token?: string;
   is_public?: boolean;

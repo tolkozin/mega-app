@@ -1,5 +1,5 @@
 export interface SurveyData {
-  projectType: "saas" | "ecommerce" | "subscription" | null;
+  projectType: "subscription" | "ecommerce" | "saas" | "marketplace" | "foodtech" | "traveltech" | "gametech" | "fintech" | "healthtech" | "edtech" | "proptech" | "ai-ml" | null;
   industry: string;
   industryCustom: string;
   stage: "idea" | "building" | "launched" | "growing" | null;
@@ -35,14 +35,13 @@ export const TOTAL_STEPS = 9;
 /* ─── Step 2: Industry options per business type ─── */
 
 export const INDUSTRY_OPTIONS: Record<string, string[]> = {
-  saas: [
-    "Marketing & Sales tools",
-    "Productivity / Workflow",
-    "Finance & Accounting",
-    "Developer tools",
-    "HR & People",
-    "Healthcare / MedTech",
+  subscription: [
+    "Fitness & Wellness",
+    "Entertainment & Media",
+    "Productivity",
+    "Dating & Social",
     "Education",
+    "Finance & Budget",
   ],
   ecommerce: [
     "Fashion & Apparel",
@@ -52,12 +51,85 @@ export const INDUSTRY_OPTIONS: Record<string, string[]> = {
     "Sports & Fitness",
     "Digital products",
   ],
-  subscription: [
-    "Beauty & Grooming",
-    "Food & Snacks",
-    "Hobby & Lifestyle",
-    "Fitness & Wellness",
-    "Books & Education",
+  saas: [
+    "Marketing & Sales tools",
+    "Productivity / Workflow",
+    "Finance & Accounting",
+    "Developer tools",
+    "HR & People",
+    "Healthcare / MedTech",
+  ],
+  marketplace: [
+    "Services",
+    "Rentals",
+    "Freelance",
+    "Handmade / Crafts",
+    "Local delivery",
+    "B2B wholesale",
+  ],
+  foodtech: [
+    "Restaurant delivery",
+    "Grocery",
+    "Meal kits",
+    "Cloud kitchen",
+    "Food marketplace",
+    "Catering",
+  ],
+  traveltech: [
+    "Accommodation",
+    "Flights",
+    "Tours & Experiences",
+    "Car rental",
+    "Business travel",
+    "Travel planning",
+  ],
+  gametech: [
+    "Mobile games",
+    "PC / Console",
+    "Casual / Hyper-casual",
+    "Esports",
+    "Game tools",
+    "VR / AR",
+  ],
+  fintech: [
+    "Payments",
+    "Lending",
+    "Insurance",
+    "Investment",
+    "Neobanking",
+    "Crypto / DeFi",
+  ],
+  healthtech: [
+    "Telemedicine",
+    "Mental health",
+    "Fitness tracking",
+    "Clinical trials",
+    "EHR / EMR",
+    "Wellness",
+  ],
+  edtech: [
+    "K-12",
+    "Higher education",
+    "Corporate training",
+    "Language learning",
+    "Test prep",
+    "Skills / Bootcamp",
+  ],
+  proptech: [
+    "Listings & search",
+    "Property management",
+    "Construction tech",
+    "Mortgage / Lending",
+    "Smart home",
+    "Co-working",
+  ],
+  "ai-ml": [
+    "API / Platform",
+    "Enterprise AI",
+    "Computer vision",
+    "NLP / LLM",
+    "Data analytics",
+    "AI agents",
   ],
 };
 

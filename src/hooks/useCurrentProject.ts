@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Project } from "@/lib/types";
 
-export function useCurrentProject(productType: "subscription" | "ecommerce" | "saas") {
+export function useCurrentProject(productType: string) {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 

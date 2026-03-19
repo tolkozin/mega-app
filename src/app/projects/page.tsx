@@ -6,14 +6,11 @@ import { useProjects, useSharedProjects, UpgradeRequiredError } from "@/hooks/us
 import { useAuth } from "@/hooks/useAuth";
 import { useUpgradeStore } from "@/stores/upgrade-store";
 import { AppShell } from "@/components/layout/AppShell";
+import { getAllModels, getModelDef } from "@/lib/model-registry";
 import type { Project } from "@/lib/types";
 import type { SharedProject } from "@/hooks/useProject";
 
-const productTypeOptions = [
-  { value: "subscription", label: "Subscription" },
-  { value: "ecommerce", label: "E-commerce" },
-  { value: "saas", label: "SaaS" },
-];
+const productTypeOptions = getAllModels().map((m) => ({ value: m.key, label: m.label }));
 
 function ProjectCard({
   project,
@@ -28,11 +25,9 @@ function ProjectCard({
   ownerEmail?: string;
   onDelete?: () => void;
 }) {
-  const typeColors: Record<string, string> = {
-    subscription: "bg-[#5E81F4]/10 text-[#5E81F4]",
-    ecommerce: "bg-[#F4845E]/10 text-[#F4845E]",
-    saas: "bg-[#7B61FF]/10 text-[#7B61FF]",
-  };
+  const def = getModelDef(project.product_type);
+  const typeColorStyle = { backgroundColor: def.color + "1A", color: def.color };
+  const ModelIcon = def.icon;
 
   const roleColors: Record<string, string> = {
     owner: "bg-[#5E81F4] text-white",
@@ -44,8 +39,9 @@ function ProjectCard({
     <div className="bg-white rounded-xl border border-[#ECECF2] p-5 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${typeColors[project.product_type] || "bg-gray-100 text-gray-600"}`}>
-            {project.product_type}
+          <span className="text-xs font-bold px-2.5 py-1 rounded-md inline-flex items-center gap-1" style={typeColorStyle}>
+            <ModelIcon className="w-3.5 h-3.5" />
+            {def.label}
           </span>
           {role && (
             <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${roleColors[role] || ""}`}>
@@ -105,7 +101,7 @@ export default function ProjectsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [productType, setProductType] = useState<"subscription" | "ecommerce" | "saas">("subscription");
+  const [productType, setProductType] = useState<string>("subscription");
   const [creating, setCreating] = useState(false);
 
   const handleCreate = async () => {
@@ -189,7 +185,7 @@ export default function ProjectsPage() {
                 <label className="block text-sm font-bold text-[#1C1D21] mb-2">Product Type</label>
                 <select
                   value={productType}
-                  onChange={(e) => setProductType(e.target.value as "subscription" | "ecommerce" | "saas")}
+                  onChange={(e) => setProductType(e.target.value)}
                   className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]"
                 >
                   {productTypeOptions.map((opt) => (
