@@ -57,7 +57,7 @@ export function Navbar() {
                   Sign In
                 </button>
               </Link>
-              <Link href="/auth/register">
+              <Link href="/onboarding/survey">
                 <button className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors">
                   Get Started
                 </button>

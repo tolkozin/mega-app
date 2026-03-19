@@ -156,7 +156,7 @@ export function MetricCalculator({
         {/* CTA */}
         <p className="text-xs text-[#64748B] mt-3">
           Want to model this over 36 months with scenarios?{" "}
-          <a href="/auth/register" className="font-medium hover:underline" style={{ color }}>
+          <a href="/onboarding/survey" className="font-medium hover:underline" style={{ color }}>
             Try Revenue Map free →
           </a>
         </p>

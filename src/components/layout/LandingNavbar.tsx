@@ -149,7 +149,7 @@ export function LandingNavbar() {
                   Sign In
                 </button>
               </Link>
-              <Link href="/auth/register">
+              <Link href="/onboarding/survey">
                 <button className="h-9 px-5 bg-[#3B82F6] text-white text-sm font-bold rounded-lg hover:bg-[#2563EB] transition-colors">
                   Get Started Free
                 </button>

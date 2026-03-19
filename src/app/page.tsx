@@ -26,7 +26,7 @@ const plans = [
     annualTotal: 276,
     features: ["3 projects, 9 scenarios", "Share with up to 3 people", "30 AI messages per project", "3-day free trial"],
     cta: "Start free trial",
-    href: "/auth?plan=plus",
+    href: "/onboarding/survey",
   },
   {
     name: "Pro",
@@ -37,7 +37,7 @@ const plans = [
     features: ["Unlimited projects & scenarios", "Unlimited AI messages", "Share with up to 10 people", "3-day free trial"],
     highlighted: true,
     cta: "Start free trial",
-    href: "/auth?plan=pro",
+    href: "/onboarding/survey",
   },
   {
     name: "Enterprise",

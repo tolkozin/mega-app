@@ -584,7 +584,7 @@ export default async function ModelPage({
             </p>
 
             <Link
-              href="/auth/register"
+              href="/onboarding/survey"
               className="mt-8 inline-flex items-center gap-2 rounded-xl px-8 py-4 text-lg font-bold text-white transition-all hover:brightness-110"
               style={{ backgroundColor: model.color }}
             >
@@ -702,7 +702,7 @@ export default async function ModelPage({
               minutes — not weeks.
             </p>
             <Link
-              href="/auth/register"
+              href="/onboarding/survey"
               className="mt-8 inline-flex items-center gap-2 rounded-xl px-8 py-4 text-lg font-bold text-white transition-all hover:brightness-110"
               style={{ backgroundColor: model.color }}
             >

@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
 const PLAN_INFO: Record<string, { name: string; monthlyPrice: number; annualPrice: number }> = {
-  plus: { name: "Plus", monthlyPrice: 18, annualPrice: 14.4 },
-  pro: { name: "Pro", monthlyPrice: 29, annualPrice: 23.2 },
+  plus: { name: "Plus", monthlyPrice: 29, annualPrice: 23 },
+  pro: { name: "Pro", monthlyPrice: 49, annualPrice: 39 },
 };
 
 function getVariantId(plan: string, annual: boolean): string {
@@ -116,15 +116,18 @@ function CheckoutPage() {
               </button>
             </div>
           </div>
-          <div className="flex items-baseline gap-1">
+          <div className="flex items-baseline gap-2">
+            {annual && (
+              <span className="text-xl font-bold text-[#8181A5] line-through">${info.monthlyPrice}</span>
+            )}
             <span className="text-3xl font-black text-[#1C1D21]">
-              ${price % 1 === 0 ? price : price.toFixed(2).replace(/0$/, "")}
+              ${price}
             </span>
             <span className="text-sm text-[#8181A5]">/mo</span>
           </div>
           {annual && (
             <p className="text-xs text-[#8181A5] mt-1">
-              Billed ${(info.annualPrice * 12).toFixed(2).replace(/\.00$/, "")}/yr
+              Billed ${info.annualPrice * 12}/yr
             </p>
           )}
           <p className="text-xs text-[#F59E0B] font-bold mt-2">

@@ -10,7 +10,7 @@ import { exportToPDF } from "@/lib/pdf-export";
 import { useChatStore } from "@/stores/chat-store";
 import { useSurveyStore } from "@/stores/survey-store";
 import { getPresetConfig } from "@/lib/industry-presets";
-import { getModelDef, getBaseEngine, isValidProductType, getAllModels } from "@/lib/model-registry";
+import { getModelDef, isValidProductType, getAllModels } from "@/lib/model-registry";
 import type { BaseEngine } from "@/lib/model-registry";
 import type { ModelConfig, EcomConfig, SaasConfig } from "@/lib/types";
 
@@ -190,6 +190,7 @@ function DashboardPage() {
   const [configHidden, setConfigHidden] = useState(false);
   const { project, setProjectId } = useCurrentProject(modelType);
   const setDashboardContext = useChatStore((s) => s.setDashboardContext);
+  const openAIPanel = useChatStore((s) => s.openPanel);
   const presetsApplied = useRef(false);
 
   // Apply industry presets from survey on first visit from onboarding
@@ -217,9 +218,12 @@ function DashboardPage() {
       loadSaas(preset as SaasConfig);
     }
 
+    // Auto-open AI assistant for onboarding users
+    openAIPanel();
+
     // Reset survey store now that presets are applied
     useSurveyStore.getState().reset();
-  }, [searchParams, engine, loadSub, loadEcom, loadSaas]);
+  }, [searchParams, engine, loadSub, loadEcom, loadSaas, openAIPanel]);
 
   const buildScenarioParams = useCallback(() => {
     return SCENARIO_BUILDERS[engine](JSON.parse(JSON.stringify(config)));
@@ -260,7 +264,7 @@ function DashboardPage() {
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
 
   return (
-    <AppShell title={`${modelDef.label} Dashboard`} monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
+    <AppShell monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
       <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)]">
         {!configHidden && <SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} />}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 relative">

@@ -29,9 +29,9 @@ const plans = [
   {
     key: "plus",
     name: "Plus",
-    monthlyPrice: 18,
-    annualPrice: 14.4,
-    annualTotal: 172.8,
+    monthlyPrice: 29,
+    annualPrice: 23,
+    annualTotal: 276,
     features: [
       { label: "Projects", value: "3" },
       { label: "Scenarios / project", value: "3" },
@@ -43,9 +43,9 @@ const plans = [
   {
     key: "pro",
     name: "Pro",
-    monthlyPrice: 29,
-    annualPrice: 23.2,
-    annualTotal: 278.4,
+    monthlyPrice: 49,
+    annualPrice: 39,
+    annualTotal: 468,
     badge: "Most Popular",
     features: [
       { label: "Projects", value: "Unlimited" },
@@ -253,9 +253,7 @@ export default function PlansPage() {
             const isUpgrade = planIndex > currentPlanIndex;
             const price = plan.monthlyPrice === -1
               ? "Custom"
-              : annual
-              ? `$${plan.annualPrice! % 1 === 0 ? plan.annualPrice : plan.annualPrice!.toFixed(2).replace(/0$/, "")}`
-              : `$${plan.monthlyPrice}`;
+              : `$${annual ? plan.annualPrice : plan.monthlyPrice}`;
 
             return (
               <div
@@ -282,6 +280,9 @@ export default function PlansPage() {
                 <h3 className="text-lg font-bold text-[#1C1D21] mb-1">{plan.name}</h3>
 
                 <div className="flex items-baseline gap-1 mb-1">
+                  {annual && plan.monthlyPrice > 0 && (
+                    <span className="text-xl font-bold text-[#8181A5] line-through">${plan.monthlyPrice}</span>
+                  )}
                   <span className="text-3xl font-black text-[#1C1D21]">{price}</span>
                   {plan.monthlyPrice > 0 && <span className="text-sm text-[#8181A5]">/mo</span>}
                 </div>

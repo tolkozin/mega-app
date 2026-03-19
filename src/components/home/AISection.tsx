@@ -118,7 +118,7 @@ export function AISection() {
             </motion.div>
 
             <motion.div {...motionProps(0.4)} className="mt-8">
-              <Link href="/auth/register" className="text-sm font-bold text-[#3B82F6] hover:underline">
+              <Link href="/onboarding/survey" className="text-sm font-bold text-[#3B82F6] hover:underline">
                 See AI in action &rarr;
               </Link>
             </motion.div>

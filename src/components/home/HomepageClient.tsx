@@ -138,7 +138,7 @@ function AnimatedSearchBar() {
 
   return (
     <div className="relative max-w-2xl mx-auto mt-10">
-      <Link href="/auth/register" className="block">
+      <Link href="/onboarding/survey" className="block">
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl pl-6 pr-3 py-3 flex items-center gap-3 shadow-[0_0_40px_rgba(59,130,246,0.08)] hover:border-white/20 transition-colors group">
           <Search className="w-5 h-5 text-white/40 shrink-0" />
           <span className="text-white/70 text-lg font-light flex-1 truncate">
@@ -461,13 +461,6 @@ function ModelsCarousel({ cards, prefersReduced }: { cards: ModelCard[]; prefers
 function PricingToggle({ plans }: { plans: Plan[] }) {
   const [annual, setAnnual] = useState(true);
 
-  function formatPrice(plan: Plan) {
-    if (plan.monthlyPrice === -1) return "Custom";
-    const price = annual ? plan.annualPrice : plan.monthlyPrice;
-    const formatted = price % 1 === 0 ? price.toString() : price.toFixed(2).replace(/0$/, "");
-    return `$${formatted}`;
-  }
-
   return (
     <>
       <div className="inline-flex items-center gap-3 mb-12">
@@ -527,8 +520,13 @@ function PricingToggle({ plans }: { plans: Plan[] }) {
             )}
             <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
             <p className="text-sm text-[#94A3B8] mb-5">{plan.tagline}</p>
-            <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-4xl font-black">{formatPrice(plan)}</span>
+            <div className="flex items-baseline gap-2 mb-1">
+              {annual && plan.monthlyPrice > 0 && (
+                <span className="text-2xl font-bold text-[#64748B] line-through">${plan.monthlyPrice}</span>
+              )}
+              <span className="text-4xl font-black">
+                {plan.monthlyPrice === -1 ? "Custom" : `$${annual ? plan.annualPrice : plan.monthlyPrice}`}
+              </span>
               {plan.monthlyPrice > 0 && <span className="text-[#94A3B8] text-sm">/mo</span>}
             </div>
             {annual && plan.annualTotal && (
@@ -631,7 +629,7 @@ export function HomepageClient({
             {...motionProps(0.3)}
             className="flex items-center justify-center"
           >
-            <Link href="/auth/register">
+            <Link href="/onboarding/survey">
               <button className="h-12 px-8 bg-[#3B82F6] text-white text-sm font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-lg hover:shadow-[#3B82F6]/25 hover:-translate-y-0.5">
                 Validate My Idea — Free
               </button>
@@ -684,7 +682,7 @@ export function HomepageClient({
 
           {/* CTA after models */}
           <motion.div {...motionProps(0.2)} className="text-center mt-10">
-            <Link href="/auth/register">
+            <Link href="/onboarding/survey">
               <button className="h-12 px-8 bg-[#3B82F6] text-white text-sm font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-lg hover:shadow-[#3B82F6]/25 hover:-translate-y-0.5">
                 Start Building Your Model — Free
               </button>
@@ -933,7 +931,7 @@ export function HomepageClient({
             Join 500+ founders who replaced gut feeling with real financial clarity.
           </motion.p>
           <motion.div {...motionProps(0.2)}>
-            <Link href="/auth/register">
+            <Link href="/onboarding/survey">
               <button className="h-14 px-10 bg-[#3B82F6] text-white text-base font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-xl hover:shadow-[#3B82F6]/30 hover:-translate-y-0.5 animate-pulse-shadow">
                 Validate My Idea — Free
               </button>

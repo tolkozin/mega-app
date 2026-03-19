@@ -260,7 +260,7 @@ export function PricingClient() {
 
   async function handleCheckout(plan: string) {
     if (!user) {
-      router.push(`/auth?plan=${plan}`);
+      router.push("/onboarding/survey");
       return;
     }
 
@@ -298,8 +298,7 @@ export function PricingClient() {
   function formatPrice(plan: (typeof plans)[number]) {
     if (plan.monthlyPrice === -1) return "Custom";
     const price = annual ? plan.annualPrice : plan.monthlyPrice;
-    const formatted = price % 1 === 0 ? price.toString() : price.toFixed(2).replace(/0$/, "");
-    return `$${formatted}`;
+    return `$${price}`;
   }
 
   function renderCTA(plan: (typeof plans)[number]) {
@@ -436,7 +435,10 @@ export function PricingClient() {
               <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
               <p className="text-sm text-[#94A3B8] mb-5">{plan.subtitle}</p>
 
-              <div className="flex items-baseline gap-1 mb-1">
+              <div className="flex items-baseline gap-2 mb-1">
+                {annual && plan.monthlyPrice > 0 && (
+                  <span className="text-2xl font-bold text-[#64748B] line-through">${plan.monthlyPrice}</span>
+                )}
                 <span className="text-4xl font-black">{formatPrice(plan)}</span>
                 {plan.monthlyPrice > 0 && <span className="text-[#94A3B8] text-sm">/mo</span>}
               </div>
@@ -602,7 +604,7 @@ export function PricingClient() {
             variants={fadeUp}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <Link href="/auth?plan=plus">
+            <Link href="/onboarding/survey">
               <button className="h-14 px-10 bg-[#3B82F6] text-white text-base font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-xl hover:shadow-[#3B82F6]/30 hover:-translate-y-0.5 cursor-pointer">
                 Start Free Trial
               </button>
