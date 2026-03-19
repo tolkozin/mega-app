@@ -828,7 +828,7 @@ export function HomepageClient({
               Pricing
             </span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
-              Pricing That Grows With You
+              Predictable pricing, designed to scale
             </h2>
             <p className="text-[#94A3B8] max-w-xl mx-auto mb-8">
               No credit card to start. Cancel anytime.
