@@ -86,12 +86,12 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     label: "SaaS B2B",
     shortLabel: "SaaS",
     description:
-      "ARR, NRR, Rule of 40, Magic Number — all calculated instantly using benchmarks from real SaaS companies.",
+      "Every key metric investors care about — calculated instantly using benchmarks from real SaaS companies.",
     icon: Cloud,
     color: "#8B5CF6",
     baseEngine: "saas",
     surveyDescription: "B2B software-as-a-service platform",
-    headline: "The metrics investors actually care about — ready in minutes.",
+    headline: "The numbers investors actually ask for — ready in minutes.",
     question: "Am I growing efficiently enough?",
   },
   marketplace: {
@@ -99,7 +99,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     label: "Marketplace",
     shortLabel: "Marketplace",
     description:
-      "Model both sides of your marketplace with real take-rate and liquidity benchmarks from funded platforms.",
+      "Model both sides of your marketplace with real benchmarks from funded platforms.",
     icon: Store,
     color: "#0EA5E9",
     baseEngine: "ecommerce",
@@ -138,12 +138,12 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     label: "GameTech",
     shortLabel: "GameTech",
     description:
-      "Player LTV, retention curves, and monetization mix — modeled on real data from gaming companies.",
+      "Player value, retention, and monetization — modeled on real data from gaming companies.",
     icon: Gamepad2,
     color: "#A855F7",
     baseEngine: "subscription",
     surveyDescription: "Mobile game, gaming platform, or game studio",
-    headline: "Know your player LTV before spending a dollar on UA.",
+    headline: "Know your player value before spending a dollar on ads.",
     question: "Will players stick around long enough to pay back UA costs?",
   },
   fintech: {
