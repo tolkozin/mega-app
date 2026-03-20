@@ -314,7 +314,7 @@ function ModelCard({ model }: { model: ModelDefinition }) {
   const Icon = model.icon;
   return (
     <Link href={`/models/${model.key}`} className="group block">
-      <div className="element-card border border-[#e5e7eb] bg-white shadow-sm hover:shadow-md transition-all">
+      <div className="model-card border border-[#e5e7eb] bg-white shadow-sm hover:shadow-md transition-all">
         <div className="flex items-start justify-between mb-3">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -473,7 +473,7 @@ export function HomepageClient({
   return (
     <div className="min-h-screen bg-[#f8f9fc] text-[#1a1a2e] overflow-x-hidden">
       {/* ════════════ HERO ════════════ */}
-      <section className="relative min-h-[85vh] flex flex-col items-center justify-center px-4 pt-24 pb-16 pt-bg-pattern">
+      <section className="relative min-h-[85vh] flex flex-col items-center justify-center px-4 pt-24 pb-16 grid-pattern">
         <HeroBackground />
 
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
@@ -805,7 +805,7 @@ export function HomepageClient({
       <SectionDivider />
 
       {/* ════════════ FINAL CTA ════════════ */}
-      <section className="relative py-32 px-4 text-center overflow-hidden pt-bg-pattern">
+      <section className="relative py-32 px-4 text-center overflow-hidden grid-pattern">
         <div
           className="absolute inset-0 pointer-events-none"
           style={{

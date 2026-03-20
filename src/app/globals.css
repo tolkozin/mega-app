@@ -25,36 +25,9 @@
     --sidebar-bg: 228 8% 12%;
     --sidebar-foreground: 0 0% 100%;
 
-    /* ─── Design tokens ─── */
-    --pt-bg: #f8f9fc;
-    --pt-surface: #ffffff;
-    --pt-text: #1a1a2e;
-    --pt-text-secondary: #6b7280;
-    --pt-border: #e5e7eb;
-    --pt-blue: #2163e7;
+    --rm-bg: #f8f9fc;
   }
 
-  .dark {
-    --background: 228 8% 8%;
-    --foreground: 0 0% 95%;
-    --card: 228 8% 12%;
-    --card-foreground: 0 0% 95%;
-    --primary: 226 88% 66%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 228 8% 16%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 228 8% 16%;
-    --muted-foreground: 240 14% 58%;
-    --accent: 228 8% 16%;
-    --accent-foreground: 0 0% 95%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 95%;
-    --border: 228 8% 20%;
-    --input: 228 8% 20%;
-    --ring: 226 88% 66%;
-    --sidebar-bg: 228 8% 8%;
-    --sidebar-foreground: 0 0% 100%;
-  }
 }
 
 @layer base {
@@ -75,24 +48,24 @@
 
 /* ─── Grid pattern background ─── */
 
-.pt-bg-pattern {
-  background-color: var(--pt-bg);
+.grid-pattern {
+  background-color: var(--rm-bg);
   background-image:
     linear-gradient(rgba(33, 99, 231, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(33, 99, 231, 0.03) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
-/* ─── Element card styles ─── */
+/* ─── Model card styles ─── */
 
-.element-card {
+.model-card {
   position: relative;
   border-radius: 8px;
   padding: 1rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.element-card:hover {
+.model-card:hover {
   transform: translateY(-2px);
 }
 

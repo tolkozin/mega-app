@@ -554,7 +554,7 @@ export function PricingClient() {
       </section>
 
       {/* ════════════ BOTTOM CTA ════════════ */}
-      <section className="relative py-24 px-4 text-center overflow-hidden pt-bg-pattern">
+      <section className="relative py-24 px-4 text-center overflow-hidden grid-pattern">
         <div
           className="absolute inset-0 pointer-events-none"
           style={{

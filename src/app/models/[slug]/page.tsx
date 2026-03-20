@@ -550,7 +550,7 @@ export default async function ModelPage({
 
       <div className="min-h-screen bg-[#f8f9fc]">
         {/* ── Hero ── */}
-        <section className="relative overflow-hidden pt-24 pb-20 pt-bg-pattern">
+        <section className="relative overflow-hidden pt-24 pb-20 grid-pattern">
           {/* Subtle gradient */}
           <div
             className="pointer-events-none absolute inset-0 opacity-30"
@@ -698,7 +698,7 @@ export default async function ModelPage({
         </section>
 
         {/* ── Bottom CTA ── */}
-        <section className="py-20 border-t border-[#e5e7eb] pt-bg-pattern">
+        <section className="py-20 border-t border-[#e5e7eb] grid-pattern">
           <div className="mx-auto max-w-3xl px-4 text-center">
             <BarChart3
               className="mx-auto h-10 w-10 mb-4"

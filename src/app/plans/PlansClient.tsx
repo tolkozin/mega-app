@@ -107,12 +107,8 @@ export function PlansClient() {
     setCheckoutLoading(plan);
     try {
       const variantId = getVariantId(plan, annual);
-      console.log("[Checkout] plan:", plan, "annual:", annual, "variantId:", variantId);
 
       if (!variantId) {
-        // Fallback: variant IDs not available (env vars not set in deployment)
-        // Redirect to pricing page
-        console.warn("[Checkout] No variant ID found — env vars may not be set");
         window.location.href = "/pricing";
         return;
       }
@@ -124,7 +120,6 @@ export function PlansClient() {
       });
 
       const data = await res.json();
-      console.log("[Checkout] response:", res.status, data);
 
       if (!res.ok) throw new Error(data.error || "Checkout failed");
       if (!data.url) throw new Error("No checkout URL returned");
