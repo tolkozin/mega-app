@@ -25,30 +25,35 @@ export interface IdeaCollection {
   lists: { slug: string; label: string; icon: string }[];
 }
 
+import { DEMOGRAPHIC_COLLECTION, DEMOGRAPHIC_LISTS } from "./ideas-demographic";
+
+const NICHE_COLLECTION: IdeaCollection = {
+  type: "niche",
+  label: "Top 50 Ideas by Niche",
+  description: "Curated business ideas for every industry vertical — from subscription apps to AI platforms.",
+  slug: "niche",
+  lists: [
+    { slug: "subscription-app", label: "Subscription App", icon: "📱" },
+    { slug: "ecommerce", label: "E-Commerce", icon: "🛒" },
+    { slug: "saas-b2b", label: "SaaS B2B", icon: "☁️" },
+    { slug: "marketplace", label: "Marketplace", icon: "🏪" },
+    { slug: "foodtech", label: "FoodTech", icon: "🍕" },
+    { slug: "traveltech", label: "TravelTech", icon: "✈️" },
+    { slug: "gametech", label: "GameTech", icon: "🎮" },
+    { slug: "fintech", label: "FinTech", icon: "🏦" },
+    { slug: "healthtech", label: "HealthTech", icon: "💊" },
+    { slug: "edtech", label: "EdTech", icon: "🎓" },
+    { slug: "proptech", label: "PropTech", icon: "🏠" },
+    { slug: "ai-ml", label: "AI / ML", icon: "🧠" },
+  ],
+};
+
 export const IDEA_COLLECTIONS: IdeaCollection[] = [
-  {
-    type: "niche",
-    label: "Top 50 Ideas by Niche",
-    description: "Curated business ideas for every industry vertical — from subscription apps to AI platforms.",
-    slug: "niche",
-    lists: [
-      { slug: "subscription-app", label: "Subscription App", icon: "📱" },
-      { slug: "ecommerce", label: "E-Commerce", icon: "🛒" },
-      { slug: "saas-b2b", label: "SaaS B2B", icon: "☁️" },
-      { slug: "marketplace", label: "Marketplace", icon: "🏪" },
-      { slug: "foodtech", label: "FoodTech", icon: "🍕" },
-      { slug: "traveltech", label: "TravelTech", icon: "✈️" },
-      { slug: "gametech", label: "GameTech", icon: "🎮" },
-      { slug: "fintech", label: "FinTech", icon: "🏦" },
-      { slug: "healthtech", label: "HealthTech", icon: "💊" },
-      { slug: "edtech", label: "EdTech", icon: "🎓" },
-      { slug: "proptech", label: "PropTech", icon: "🏠" },
-      { slug: "ai-ml", label: "AI / ML", icon: "🧠" },
-    ],
-  },
+  NICHE_COLLECTION,
+  DEMOGRAPHIC_COLLECTION,
 ];
 
-export const IDEA_LISTS: IdeaList[] = [
+const NICHE_LISTS: IdeaList[] = [
   // ═══════════════════════════════════════════════════════════════════════════════
   // SUBSCRIPTION APP
   // ═══════════════════════════════════════════════════════════════════════════════
@@ -805,6 +810,8 @@ export const IDEA_LISTS: IdeaList[] = [
     ],
   },
 ];
+
+export const IDEA_LISTS: IdeaList[] = [...NICHE_LISTS, ...DEMOGRAPHIC_LISTS];
 
 /* ─── Helpers ─── */
 

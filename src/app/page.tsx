@@ -56,8 +56,9 @@ const footerLinks = {
     { label: "Subscription App", href: "/ideas/subscription-app" },
     { label: "E-Commerce", href: "/ideas/ecommerce" },
     { label: "SaaS B2B", href: "/ideas/saas-b2b" },
-    { label: "FinTech", href: "/ideas/fintech" },
-    { label: "AI / ML", href: "/ideas/ai-ml" },
+    { label: "Ideas for Women", href: "/ideas/ideas-for-women" },
+    { label: "Ideas for Students", href: "/ideas/ideas-for-students" },
+    { label: "Ideas for Remote Workers", href: "/ideas/ideas-for-remote-workers" },
   ],
   Resources: [
     { label: "Blog", href: "/blog" },

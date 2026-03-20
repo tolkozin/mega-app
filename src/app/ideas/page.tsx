@@ -7,35 +7,37 @@ import { ArrowRight } from "lucide-react";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export const metadata: Metadata = {
-  title: "Top 50 Business Ideas for Every Niche (2026) — Revenue Map",
+  title: "1,200+ Business Ideas for Every Niche & Demographic (2026) — Revenue Map",
   description:
-    "Explore curated lists of the best business ideas by niche — subscription apps, e-commerce, SaaS, fintech, healthtech, and more. Each list includes 50 vetted ideas with revenue potential analysis.",
+    "Explore curated lists of the best business ideas by niche and demographic — subscription apps, e-commerce, SaaS, ideas for women, students, parents, remote workers, and more.",
   alternates: { canonical: `${SITE_URL}/ideas` },
   openGraph: {
-    title: "Top 50 Business Ideas for Every Niche (2026)",
+    title: "1,200+ Business Ideas for Every Niche & Demographic (2026)",
     description:
-      "Curated lists of the best business ideas across 12 industries. Find your next startup idea and validate it instantly.",
+      "Curated lists of the best business ideas across 12 industries and 20 demographics. Find your next startup idea and validate it instantly.",
     url: `${SITE_URL}/ideas`,
   },
 };
 
 export default function IdeasHubPage() {
-  const collection = IDEA_COLLECTIONS[0]; // "niche"
+  const nicheCollection = IDEA_COLLECTIONS.find((c) => c.type === "niche")!;
+  const demoCollection = IDEA_COLLECTIONS.find((c) => c.type === "demographic")!;
+  const allLists = [...nicheCollection.lists, ...demoCollection.lists];
 
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Top 50 Business Ideas for Every Niche",
+    name: "1,200+ Business Ideas for Every Niche & Demographic",
     description: metadata.description,
     url: `${SITE_URL}/ideas`,
-    numberOfItems: collection.lists.length,
-    hasPart: collection.lists.map((l) => {
+    numberOfItems: allLists.length,
+    hasPart: allLists.map((l) => {
       const list = IDEA_LISTS.find((il) => il.slug === l.slug);
       return {
         "@type": "ItemList",
         name: list?.title ?? l.label,
         url: `${SITE_URL}/ideas/${l.slug}`,
-        numberOfItems: 50,
+        numberOfItems: list?.ideas.length ?? 50,
         description: list?.subtitle ?? "",
       };
     }),
@@ -52,12 +54,12 @@ export default function IdeasHubPage() {
         {/* Hero */}
         <section className="pt-20 pb-12 px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-heading font-extrabold text-[#1a1a2e] mb-4">
-            Top 50 Business Ideas<br className="hidden sm:block" />
-            for Every Niche
+            1,200+ Business Ideas<br className="hidden sm:block" />
+            for Every Niche & Demographic
           </h1>
           <p className="text-lg text-[#6b7280] max-w-2xl mx-auto mb-8">
-            Curated, vetted startup ideas across {collection.lists.length} industries.
-            Pick your niche, find your next idea, and validate it with real financial projections.
+            Curated startup ideas across {nicheCollection.lists.length} industries and {demoCollection.lists.length} demographics.
+            Pick your niche or audience, find your next idea, and validate it with real financial projections.
           </p>
           <Link href="/onboarding/survey">
             <button className="h-11 px-8 bg-[#2163e7] text-white text-sm font-bold rounded-lg hover:bg-[#1a53c7] transition-colors">
@@ -67,12 +69,13 @@ export default function IdeasHubPage() {
         </section>
 
         {/* Niche grid */}
-        <section className="max-w-5xl mx-auto px-4 pb-24">
-          <h2 className="text-xl font-bold text-[#1a1a2e] mb-6">
-            {collection.label}
+        <section className="max-w-5xl mx-auto px-4 pb-16">
+          <h2 className="text-xl font-bold text-[#1a1a2e] mb-2">
+            {nicheCollection.label}
           </h2>
+          <p className="text-sm text-[#6b7280] mb-6">{nicheCollection.description}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {collection.lists.map((item) => {
+            {nicheCollection.lists.map((item) => {
               const list = IDEA_LISTS.find((il) => il.slug === item.slug);
               return (
                 <Link
@@ -88,8 +91,42 @@ export default function IdeasHubPage() {
                     {list?.subtitle ?? "50 curated business ideas with revenue potential."}
                   </p>
                   <div className="flex items-center gap-1.5 text-sm font-semibold text-[#2163e7]">
-                    View 50 ideas
+                    View {list?.ideas.length ?? 50} ideas
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Demographic grid */}
+        <section className="max-w-5xl mx-auto px-4 pb-24">
+          <h2 className="text-xl font-bold text-[#1a1a2e] mb-2">
+            {demoCollection.label}
+          </h2>
+          <p className="text-sm text-[#6b7280] mb-6">{demoCollection.description}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {demoCollection.lists.map((item) => {
+              const list = IDEA_LISTS.find((il) => il.slug === item.slug);
+              return (
+                <Link
+                  key={item.slug}
+                  href={`/ideas/${item.slug}`}
+                  className="group bg-white rounded-xl border border-[#e5e7eb] p-5 hover:border-[#2163e7]/30 hover:shadow-md transition-all flex flex-col"
+                >
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <span className="text-2xl">{item.icon}</span>
+                    <h3 className="text-sm font-bold text-[#1a1a2e] group-hover:text-[#2163e7] transition-colors">
+                      {item.label}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-[#6b7280] mb-3 flex-1 leading-relaxed line-clamp-2">
+                    {list?.subtitle ?? "30 curated business ideas."}
+                  </p>
+                  <div className="flex items-center gap-1 text-xs font-semibold text-[#2163e7]">
+                    View 30 ideas
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </Link>
               );
