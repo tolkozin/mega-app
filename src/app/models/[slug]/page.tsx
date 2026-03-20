@@ -560,14 +560,12 @@ export default async function ModelPage({
           />
 
           <div className="relative mx-auto max-w-4xl px-4 text-center">
-            {/* Element card */}
+            {/* Model icon */}
             <div
-              className="mx-auto mb-6 flex h-20 w-20 flex-col items-center justify-center rounded-2xl border shadow-sm"
-              style={{ backgroundColor: model.elementBg, borderColor: `${model.elementText}20` }}
+              className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border shadow-sm"
+              style={{ backgroundColor: model.elementBg, borderColor: `${model.elementText}20`, color: model.elementText }}
             >
-              <span className="text-[10px] font-medium" style={{ color: model.elementText }}>{model.elementNumber}</span>
-              <span className="text-2xl font-extrabold font-heading" style={{ color: model.elementText }}>{model.elementSymbol}</span>
-              <span className="text-[9px] font-medium" style={{ color: model.elementText }}>{model.shortLabel}</span>
+              <model.icon className="w-9 h-9" />
             </div>
 
             <h1 className="text-4xl font-extrabold font-heading text-[#1a1a2e] sm:text-5xl lg:text-6xl">

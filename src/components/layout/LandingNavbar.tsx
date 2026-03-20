@@ -75,10 +75,10 @@ export function LandingNavbar() {
                       className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-[#f8f9fc] transition-colors group"
                     >
                       <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold font-heading"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                         style={{ background: m.elementBg, color: m.elementText }}
                       >
-                        {m.elementSymbol}
+                        <m.icon className="w-4 h-4" />
                       </div>
                       <span className="text-sm font-medium text-[#6b7280] group-hover:text-[#1a1a2e] transition-colors">
                         {m.label}
@@ -149,10 +149,10 @@ export function LandingNavbar() {
                   className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#f8f9fc] transition-colors"
                 >
                   <div
-                    className="w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold font-heading"
+                    className="w-6 h-6 rounded flex items-center justify-center"
                     style={{ background: m.elementBg, color: m.elementText }}
                   >
-                    {m.elementSymbol}
+                    <m.icon className="w-3.5 h-3.5" />
                   </div>
                   <span className="text-sm text-[#1a1a2e]">{m.label}</span>
                 </Link>

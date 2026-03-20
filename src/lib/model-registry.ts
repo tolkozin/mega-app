@@ -50,13 +50,13 @@ export interface ModelDefinition {
   surveyDescription: string;
   headline: string;
   question: string;
-  /** Periodic table element symbol (2 letters) */
+  /** Short symbol (2 letters) */
   elementSymbol: string;
-  /** Pastel background for element card */
+  /** Pastel background for model card */
   elementBg: string;
-  /** Saturated text color for element card */
+  /** Accent text color for model card */
   elementText: string;
-  /** Element number (position 1-12) */
+  /** Display order (1-12) */
   elementNumber: number;
 }
 

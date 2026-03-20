@@ -308,32 +308,28 @@ const HOW_IT_WORKS_FEATURES = [
   },
 ];
 
-/* ─── Periodic Table Element Card ─── */
+/* ─── Model Card ─── */
 
-function ElementCard({ model }: { model: ModelDefinition }) {
+function ModelCard({ model }: { model: ModelDefinition }) {
   const Icon = model.icon;
   return (
     <Link href={`/models/${model.key}`} className="group block">
       <div className="element-card border border-[#e5e7eb] bg-white shadow-sm hover:shadow-md transition-all">
-        {/* Element number */}
         <div className="flex items-start justify-between mb-3">
-          <span className="text-[10px] font-medium text-[#6b7280]">{model.elementNumber}</span>
           <div
-            className="w-7 h-7 rounded-md flex items-center justify-center"
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
             style={{ background: model.elementBg, color: model.elementText }}
           >
-            <Icon className="w-3.5 h-3.5" />
+            <Icon className="w-4 h-4" />
           </div>
         </div>
-        {/* Symbol */}
+        {/* Name */}
         <div
-          className="text-2xl font-extrabold font-heading mb-0.5"
+          className="text-base font-bold font-heading mb-1"
           style={{ color: model.elementText }}
         >
-          {model.elementSymbol}
+          {model.label}
         </div>
-        {/* Name */}
-        <div className="text-xs font-medium text-[#1a1a2e] mb-2">{model.label}</div>
         {/* Question */}
         <p className="text-[11px] text-[#6b7280] leading-snug line-clamp-2">{model.headline}</p>
         {/* Bottom accent bar */}
@@ -547,7 +543,7 @@ export function HomepageClient({
 
       <SectionDivider />
 
-      {/* ════════════ PERIODIC TABLE — BUSINESS MODELS ════════════ */}
+      {/* ════════════ BUSINESS MODELS ════════════ */}
       <section id="models" className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <motion.div {...motionProps()} className="text-center mb-14">
@@ -555,14 +551,13 @@ export function HomepageClient({
               Business Models
             </span>
             <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-[#1a1a2e] mb-4">
-              The Periodic Table of Startups
+              Built for Every Type of Startup
             </h2>
             <p className="text-[#6b7280] max-w-2xl mx-auto">
-              12 purpose-built financial models. Pick your element and get real projections in minutes.
+              12 purpose-built financial models. Pick yours and get real projections in minutes.
             </p>
           </motion.div>
 
-          {/* Element grid — 4 cols on desktop, 3 on tablet, 2 on mobile */}
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -572,7 +567,7 @@ export function HomepageClient({
           >
             {models.map((model) => (
               <motion.div key={model.key} variants={fadeUp} transition={{ duration: 0.4 }}>
-                <ElementCard model={model} />
+                <ModelCard model={model} />
               </motion.div>
             ))}
           </motion.div>

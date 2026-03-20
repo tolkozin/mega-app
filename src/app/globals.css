@@ -25,7 +25,7 @@
     --sidebar-bg: 228 8% 12%;
     --sidebar-foreground: 0 0% 100%;
 
-    /* ─── Periodic Table design tokens ─── */
+    /* ─── Design tokens ─── */
     --pt-bg: #f8f9fc;
     --pt-surface: #ffffff;
     --pt-text: #1a1a2e;
@@ -73,7 +73,7 @@
   }
 }
 
-/* ─── Periodic Table pattern background ─── */
+/* ─── Grid pattern background ─── */
 
 .pt-bg-pattern {
   background-color: var(--pt-bg);
