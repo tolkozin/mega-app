@@ -83,7 +83,7 @@ function GmvSummary({ data }: { data: RunResult }) {
               CHART_COLORS.primaryLight,
             ) as Plotly.Data,
           ]}
-          layout={{}}
+          layout={{ title: { text: "Monthly Gross Revenue", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
       <div className="mt-4">
@@ -180,7 +180,7 @@ function AovConversionTable({ data }: { data: RunResult }) {
               CHART_COLORS.primaryLight,
             ) as Plotly.Data,
           ]}
-          layout={{}}
+          layout={{ title: { text: "Average Order Value", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
       <div className="mt-4">
@@ -254,7 +254,7 @@ function CustomerAcquisitionSummary({ data }: { data: RunResult }) {
               line: { color: CHART_COLORS.primary, width: 2 },
             } as Plotly.Data,
           ]}
-          layout={{}}
+          layout={{ title: { text: "Customer Acquisition Cost", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
       <div className="mt-4">
@@ -351,7 +351,7 @@ function GrossMarginTable({ data }: { data: RunResult }) {
               line: { color: CHART_COLORS.primary, width: 2 },
             } as Plotly.Data,
           ]}
-          layout={{}}
+          layout={{ title: { text: "Gross Margin %", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
       <div className="mt-4">

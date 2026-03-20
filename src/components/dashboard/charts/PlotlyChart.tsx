@@ -7,9 +7,12 @@ const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
 type ChartSize = "hero" | "medium" | "small";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ChartLayout = Partial<Omit<Plotly.Layout, "title">> & { title?: any; [key: string]: any };
+
 interface PlotlyChartProps {
   data: Plotly.Data[];
-  layout?: Partial<Plotly.Layout>;
+  layout?: ChartLayout;
   title?: string;
   description?: string;
   className?: string;

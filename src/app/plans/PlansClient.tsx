@@ -226,7 +226,7 @@ export function PlansClient() {
               Annually
             </button>
             <div
-              className="absolute top-0.5 bottom-0.5 rounded-full bg-[#5E81F4] transition-all duration-300"
+              className="absolute top-0.5 bottom-0.5 rounded-full bg-[#2163E7] transition-all duration-300"
               style={{
                 width: "calc(50% - 2px)",
                 left: annual ? "calc(50% + 1px)" : "2px",
@@ -255,14 +255,14 @@ export function PlansClient() {
                 key={plan.key}
                 className={`relative rounded-xl border p-5 transition-all ${
                   isCurrent
-                    ? "border-[#5E81F4] bg-[#5E81F4]/5 ring-1 ring-[#5E81F4]"
+                    ? "border-[#2163E7] bg-[#2163E7]/5 ring-1 ring-[#2163E7]"
                     : plan.badge
-                    ? "border-[#5E81F4]/40 bg-white"
+                    ? "border-[#2163E7]/40 bg-white"
                     : "border-[#ECECF2] bg-white"
                 }`}
               >
                 {plan.badge && !isCurrent && (
-                  <div className="absolute -top-2.5 right-3 rounded-full bg-[#5E81F4] px-2.5 py-0.5 text-[10px] font-bold text-white">
+                  <div className="absolute -top-2.5 right-3 rounded-full bg-[#2163E7] px-2.5 py-0.5 text-[10px] font-bold text-white">
                     {plan.badge}
                   </div>
                 )}
@@ -307,7 +307,7 @@ export function PlansClient() {
                   hasSubscription ? (
                     <button
                       onClick={handleManageSubscription}
-                      className="w-full h-9 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] hover:border-[#5E81F4] transition-colors"
+                      className="w-full h-9 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] hover:border-[#2163E7] transition-colors"
                     >
                       Manage Subscription
                     </button>
@@ -318,7 +318,7 @@ export function PlansClient() {
                   )
                 ) : plan.key === "enterprise" ? (
                   <a href="mailto:hello@revenuemap.app">
-                    <button className="w-full h-9 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] hover:border-[#5E81F4] transition-colors">
+                    <button className="w-full h-9 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] hover:border-[#2163E7] transition-colors">
                       Contact Us
                     </button>
                   </a>
@@ -327,7 +327,7 @@ export function PlansClient() {
                     <button
                       onClick={() => openConfirmModal(plan.key, plan.name, true)}
                       disabled={checkoutLoading === plan.key}
-                      className="w-full h-9 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
+                      className="w-full h-9 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
                     >
                       {checkoutLoading === plan.key ? "Upgrading..." : `Upgrade to ${plan.name}`}
                     </button>
@@ -344,7 +344,7 @@ export function PlansClient() {
                   <button
                     onClick={() => handleCheckout(plan.key)}
                     disabled={checkoutLoading === plan.key}
-                    className="w-full h-9 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
+                    className="w-full h-9 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
                   >
                     {checkoutLoading === plan.key ? "Loading..." : "Start free trial"}
                   </button>
@@ -359,7 +359,7 @@ export function PlansClient() {
           <button
             onClick={handleRefreshPlan}
             disabled={refreshing}
-            className="text-sm text-[#8181A5] hover:text-[#5E81F4] transition-colors flex items-center gap-2 disabled:opacity-50"
+            className="text-sm text-[#8181A5] hover:text-[#2163E7] transition-colors flex items-center gap-2 disabled:opacity-50"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={refreshing ? "animate-spin" : ""}>
               <path d="M14 8A6 6 0 112.34 5.67" />
@@ -449,11 +449,11 @@ function PlanChangeModal({
         <div className="flex items-center gap-3">
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              isUpgrade ? "bg-[#5E81F4]/10" : "bg-[#F59E0B]/10"
+              isUpgrade ? "bg-[#2163E7]/10" : "bg-[#F59E0B]/10"
             }`}
           >
             {isUpgrade ? (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#5E81F4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#2163E7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M10 16V4M10 4l5 5M10 4L5 9" />
               </svg>
             ) : (
@@ -479,7 +479,7 @@ function PlanChangeModal({
           <div
             className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wide ${
               isUpgrade
-                ? "bg-[#5E81F4]/5 text-[#5E81F4]"
+                ? "bg-[#2163E7]/5 text-[#2163E7]"
                 : "bg-[#F59E0B]/5 text-[#F59E0B]"
             }`}
           >
@@ -522,7 +522,7 @@ function PlanChangeModal({
             onClick={onConfirm}
             className={`flex-1 h-10 text-sm font-bold rounded-lg text-white transition-colors ${
               isUpgrade
-                ? "bg-[#5E81F4] hover:bg-[#4B6FE0]"
+                ? "bg-[#2163E7] hover:bg-[#4B6FE0]"
                 : "bg-[#F59E0B] hover:bg-[#D97706]"
             }`}
           >

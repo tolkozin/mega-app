@@ -258,10 +258,10 @@ export function ScenarioPanel({ projectId, modelType, onProjectCreated }: Scenar
                 return (
                   <div
                     key={s.id}
-                    className={`flex items-center justify-between border rounded-md p-2 text-xs hover:bg-muted/50 ${isActive ? "border-[#5E81F4] bg-[#F4F6FF]" : ""}`}
+                    className={`flex items-center justify-between border rounded-md p-2 text-xs hover:bg-muted/50 ${isActive ? "border-[#2163E7] bg-[#F4F6FF]" : ""}`}
                   >
                     <div className="flex-1 min-w-0 mr-2">
-                      <p className="font-medium truncate">{s.name}{isActive && <span className="text-[#5E81F4] ml-1">(active)</span>}</p>
+                      <p className="font-medium truncate">{s.name}{isActive && <span className="text-[#2163E7] ml-1">(active)</span>}</p>
                       {s.notes && <p className="text-muted-foreground truncate">{s.notes}</p>}
                     </div>
                     <div className="flex gap-1 flex-shrink-0">

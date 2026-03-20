@@ -101,7 +101,7 @@ function CheckoutPage() {
               <button
                 onClick={() => setAnnual(false)}
                 className={`px-3 py-1 text-xs font-bold rounded-full transition-colors ${
-                  !annual ? "bg-[#5E81F4] text-white" : "text-[#8181A5]"
+                  !annual ? "bg-[#2163E7] text-white" : "text-[#8181A5]"
                 }`}
               >
                 Monthly
@@ -109,7 +109,7 @@ function CheckoutPage() {
               <button
                 onClick={() => setAnnual(true)}
                 className={`px-3 py-1 text-xs font-bold rounded-full transition-colors ${
-                  annual ? "bg-[#5E81F4] text-white" : "text-[#8181A5]"
+                  annual ? "bg-[#2163E7] text-white" : "text-[#8181A5]"
                 }`}
               >
                 Annually
@@ -139,7 +139,7 @@ function CheckoutPage() {
         <button
           onClick={handleStart}
           disabled={loading}
-          className="w-full h-12 text-sm font-bold rounded-xl bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
+          className="w-full h-12 text-sm font-bold rounded-xl bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
         >
           {loading ? "Redirecting..." : "Start Free Trial →"}
         </button>

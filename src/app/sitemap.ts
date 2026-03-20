@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts, getCategories, getTags } from "@/lib/blog";
+import { METRICS } from "@/lib/knowledge-base";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
@@ -50,5 +51,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticPages, ...postPages, ...categoryPages, ...tagPages];
+  const kbIndex: MetadataRoute.Sitemap = [
+    {
+      url: `${SITE_URL}/knowledge-base`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+  ];
+
+  const kbMetrics: MetadataRoute.Sitemap = METRICS.map((m) => ({
+    url: `${SITE_URL}/knowledge-base/${m.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  }));
+
+  return [...staticPages, ...kbIndex, ...kbMetrics, ...postPages, ...categoryPages, ...tagPages];
 }

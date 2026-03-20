@@ -81,7 +81,7 @@ function IconFilter({ active, className }: { active?: boolean; className?: strin
     >
       <path
         d="M1 2.5h10M3 6h6M5 9.5h2"
-        stroke={active ? "#5E81F4" : "currentColor"}
+        stroke={active ? "#2163E7" : "currentColor"}
         strokeWidth="1.25"
         strokeLinecap="round"
       />
@@ -139,7 +139,7 @@ function ResizerHandle({
       <div
         className={cn(
           "w-[1px] h-4 rounded-full transition-colors",
-          isResizing ? "bg-[#5E81F4]" : "bg-[#ECECF2] group-hover/resizer:bg-[#5E81F4]"
+          isResizing ? "bg-[#2163E7]" : "bg-[#ECECF2] group-hover/resizer:bg-[#2163E7]"
         )}
       />
     </div>
@@ -356,7 +356,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
                             className={cn(
                               "shrink-0 p-0.5 rounded transition-colors",
                               isFilterVisible || isFiltered
-                                ? "text-[#5E81F4]"
+                                ? "text-[#2163E7]"
                                 : "text-[#8181A5] opacity-0 group-hover/header:opacity-100"
                             )}
                             title={isFilterVisible ? "Hide filter" : "Show filter"}
@@ -406,7 +406,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
                               className={cn(
                                 "w-full rounded border border-[#ECECF2] bg-[#F8F8FC] px-2 py-1",
                                 "text-xs text-[#1C1D21] placeholder:text-[#8181A5]",
-                                "focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]/30",
+                                "focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]/30",
                                 "transition-colors"
                               )}
                               // eslint-disable-next-line jsx-a11y/no-autofocus
@@ -507,7 +507,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
               }}
               className={cn(
                 "rounded border border-[#ECECF2] bg-white px-2 py-1 text-xs text-[#1C1D21]",
-                "focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]/30",
+                "focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]/30",
                 "cursor-pointer"
               )}
             >
@@ -600,10 +600,10 @@ function PaginationButton({
       title={title}
       className={cn(
         "min-w-[26px] h-[26px] px-1.5 rounded text-xs font-medium transition-colors",
-        "focus:outline-none focus:ring-1 focus:ring-[#5E81F4]/40",
+        "focus:outline-none focus:ring-1 focus:ring-[#2163E7]/40",
         active
-          ? "bg-[#5E81F4] text-white"
-          : "bg-white border border-[#ECECF2] text-[#1C1D21] hover:border-[#5E81F4] hover:text-[#5E81F4]",
+          ? "bg-[#2163E7] text-white"
+          : "bg-white border border-[#ECECF2] text-[#1C1D21] hover:border-[#2163E7] hover:text-[#2163E7]",
         disabled && "opacity-40 pointer-events-none"
       )}
     >

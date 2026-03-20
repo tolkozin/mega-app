@@ -53,6 +53,7 @@ const footerLinks = {
   ],
   Resources: [
     { label: "Blog", href: "/blog" },
+    { label: "Knowledge Base", href: "/knowledge-base" },
     { label: "Contact", href: "/contact" },
   ],
   Legal: [

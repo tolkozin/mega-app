@@ -59,7 +59,7 @@ function Field({
 }
 
 const inputClass =
-  "w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]";
+  "w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]";
 
 const inputReadonlyClass =
   "w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-[#F8F8FC] text-sm text-[#8181A5] cursor-not-allowed select-none";
@@ -84,7 +84,7 @@ function SaveButton({
       className={`h-9 px-5 text-sm font-bold rounded-lg transition-colors disabled:opacity-50 ${
         saved
           ? "bg-[#14A660] text-white"
-          : "bg-[#5E81F4] hover:bg-[#4B6FE0] text-white"
+          : "bg-[#2163E7] hover:bg-[#4B6FE0] text-white"
       }`}
     >
       {saving ? "Saving..." : saved ? "Saved" : label}
@@ -111,13 +111,12 @@ function Banner({ type, message }: { type: "error" | "success"; message: string 
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 
-type Tab = "profile" | "contacts" | "team" | "invoice" | "delete";
+type Tab = "profile" | "contacts" | "team" | "delete";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "profile", label: "Profile" },
   { key: "contacts", label: "Contacts" },
   { key: "team", label: "Team" },
-  { key: "invoice", label: "Invoice Data" },
   { key: "delete", label: "Delete Account" },
 ];
 
@@ -555,7 +554,7 @@ function TeamTab({ profile }: { profile: Profile }) {
         <button
           onClick={handleAdd}
           disabled={adding}
-          className="h-9 px-5 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
+          className="h-9 px-5 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
         >
           {adding ? "Adding..." : "Add Member"}
         </button>
@@ -590,7 +589,7 @@ function TeamTab({ profile }: { profile: Profile }) {
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
                         m.role === "editor"
-                          ? "bg-[#5E81F4]/10 text-[#5E81F4]"
+                          ? "bg-[#2163E7]/10 text-[#2163E7]"
                           : "bg-[#8181A5]/10 text-[#8181A5]"
                       }`}
                     >
@@ -615,90 +614,6 @@ function TeamTab({ profile }: { profile: Profile }) {
             </tbody>
           </table>
         )}
-      </div>
-    </div>
-  );
-}
-
-// ─── Tab: Invoice Data ────────────────────────────────────────────────────────
-
-function InvoiceDataTab({ profile, onSaved }: { profile: Profile; onSaved: (p: Profile) => void }) {
-  const supabase = createClient();
-  const [companyName, setCompanyName] = useState(profile.company_name ?? "");
-  const [companyAddress, setCompanyAddress] = useState(profile.company_address ?? "");
-  const [taxId, setTaxId] = useState(profile.tax_id ?? "");
-  const [bankDetails, setBankDetails] = useState(profile.bank_details ?? "");
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSave = async () => {
-    setError("");
-    setSaving(true);
-    try {
-      const { error: err } = await supabase
-        .from("profiles")
-        .update({
-          company_name: companyName,
-          company_address: companyAddress,
-          tax_id: taxId,
-          bank_details: bankDetails,
-        })
-        .eq("id", profile.id);
-      if (err) throw err;
-      onSaved({ ...profile, company_name: companyName, company_address: companyAddress, tax_id: taxId, bank_details: bankDetails });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <div className="space-y-4 max-w-lg">
-      <h2 className="text-base font-bold text-[#1C1D21]">Invoice Data</h2>
-      <p className="text-sm text-[#8181A5]">
-        This information will appear on invoices you send to clients.
-      </p>
-      <Field label="Company Name">
-        <input
-          className={inputClass}
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          placeholder="Acme Corp"
-        />
-      </Field>
-      <Field label="Company Address">
-        <textarea
-          className="w-full px-3 py-2.5 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] resize-none"
-          rows={3}
-          value={companyAddress}
-          onChange={(e) => setCompanyAddress(e.target.value)}
-          placeholder="123 Main St, City, Country"
-        />
-      </Field>
-      <Field label="Tax ID / VAT Number">
-        <input
-          className={inputClass}
-          value={taxId}
-          onChange={(e) => setTaxId(e.target.value)}
-          placeholder="GB123456789"
-        />
-      </Field>
-      <Field label="Bank Details">
-        <textarea
-          className="w-full px-3 py-2.5 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] resize-none"
-          rows={3}
-          value={bankDetails}
-          onChange={(e) => setBankDetails(e.target.value)}
-          placeholder="IBAN: GB00 BARC 1234 5678 9012 34&#10;BIC: BARCGB22"
-        />
-      </Field>
-      {error && <Banner type="error" message={error} />}
-      <div className="pt-1">
-        <SaveButton saving={saving} saved={saved} onClick={handleSave} />
       </div>
     </div>
   );
@@ -859,7 +774,7 @@ export function SettingsClient() {
                 activeTab === tab.key
                   ? tab.key === "delete"
                     ? "bg-[#E54545] text-white"
-                    : "bg-[#5E81F4] text-white"
+                    : "bg-[#2163E7] text-white"
                   : tab.key === "delete"
                   ? "text-[#E54545] hover:bg-[#E54545]/10"
                   : "text-[#8181A5] hover:text-[#1C1D21]"
@@ -879,9 +794,6 @@ export function SettingsClient() {
         )}
         {activeTab === "team" && (
           <TeamTab profile={profile} />
-        )}
-{activeTab === "invoice" && (
-          <InvoiceDataTab profile={profile} onSaved={setProfile} />
         )}
         {activeTab === "delete" && (
           <DeleteAccountTab profile={profile} />

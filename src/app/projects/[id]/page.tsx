@@ -68,7 +68,7 @@ export default function ProjectDetailPage() {
   return (
     <AppShell title={project.name}>
       <div className="p-6 max-w-2xl">
-        <Link href="/projects" className="text-sm text-[#8181A5] hover:text-[#5E81F4] transition-colors mb-4 inline-flex items-center gap-1">
+        <Link href="/projects" className="text-sm text-[#8181A5] hover:text-[#2163E7] transition-colors mb-4 inline-flex items-center gap-1">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
             <path d="M10 12L6 8l4-4" />
           </svg>
@@ -81,7 +81,7 @@ export default function ProjectDetailPage() {
 
         <div className="flex gap-2 mb-8">
           <Link href={`/dashboard/${project.product_type}`}>
-            <button className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors">
+            <button className="h-9 px-4 bg-[#2163E7] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors">
               Open Dashboard
             </button>
           </Link>
@@ -100,12 +100,12 @@ export default function ProjectDetailPage() {
                 placeholder="Email address"
                 value={shareEmail}
                 onChange={(e) => setShareEmail(e.target.value)}
-                className="flex-1 h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]"
+                className="flex-1 h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]"
               />
               <select
                 value={shareRole}
                 onChange={(e) => setShareRole(e.target.value as "viewer" | "editor")}
-                className="w-28 h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] focus:outline-none focus:border-[#5E81F4]"
+                className="w-28 h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] focus:outline-none focus:border-[#2163E7]"
               >
                 <option value="viewer">Viewer</option>
                 <option value="editor">Editor</option>
@@ -113,7 +113,7 @@ export default function ProjectDetailPage() {
               <button
                 onClick={handleAddShare}
                 disabled={!shareEmail.trim()}
-                className="h-10 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors disabled:opacity-50"
+                className="h-10 px-4 bg-[#2163E7] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors disabled:opacity-50"
               >
                 Share
               </button>
@@ -130,7 +130,7 @@ export default function ProjectDetailPage() {
                       <select
                         value={s.role}
                         onChange={(e) => handleRoleChange(s.id, e.target.value as "viewer" | "editor")}
-                        className="h-7 text-xs w-24 rounded-md border border-[#ECECF2] bg-white px-2 focus:outline-none focus:border-[#5E81F4]"
+                        className="h-7 text-xs w-24 rounded-md border border-[#ECECF2] bg-white px-2 focus:outline-none focus:border-[#2163E7]"
                       >
                         <option value="viewer">Viewer</option>
                         <option value="editor">Editor</option>

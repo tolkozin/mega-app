@@ -120,7 +120,7 @@ export default function ScenariosPage() {
   return (
     <AppShell title="Scenarios">
       <div className="p-6 max-w-3xl">
-        <Link href={`/projects/${projectId}`} className="text-sm text-[#8181A5] hover:text-[#5E81F4] transition-colors mb-4 inline-flex items-center gap-1">
+        <Link href={`/projects/${projectId}`} className="text-sm text-[#8181A5] hover:text-[#2163E7] transition-colors mb-4 inline-flex items-center gap-1">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
             <path d="M10 12L6 8l4-4" />
           </svg>
@@ -139,7 +139,7 @@ export default function ScenariosPage() {
           {canEdit ? (
             <button
               onClick={() => setShowSave(!showSave)}
-              className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
+              className="h-9 px-4 bg-[#2163E7] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
             >
               {showSave ? "Cancel" : "Save Current Config"}
             </button>
@@ -160,7 +160,7 @@ export default function ScenariosPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Scenario name"
-                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]"
+                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]"
                 />
               </div>
               <div>
@@ -169,7 +169,7 @@ export default function ScenariosPage() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Optional notes"
-                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]"
+                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]"
                 />
               </div>
               <div>
@@ -181,7 +181,7 @@ export default function ScenariosPage() {
                         type="radio"
                         checked={configType === opt.value}
                         onChange={() => setConfigType(opt.value)}
-                        className="accent-[#5E81F4]"
+                        className="accent-[#2163E7]"
                       />
                       {opt.label}
                     </label>
@@ -191,7 +191,7 @@ export default function ScenariosPage() {
               <button
                 onClick={handleSave}
                 disabled={saving || !name.trim()}
-                className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors disabled:opacity-50"
+                className="h-9 px-4 bg-[#2163E7] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors disabled:opacity-50"
               >
                 {saving ? "Saving..." : "Save"}
               </button>
@@ -217,7 +217,7 @@ export default function ScenariosPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleLoad(scenario.config)}
-                    className="h-8 px-3 bg-[#5E81F4] text-white text-xs font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
+                    className="h-8 px-3 bg-[#2163E7] text-white text-xs font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
                   >
                     Load
                   </button>

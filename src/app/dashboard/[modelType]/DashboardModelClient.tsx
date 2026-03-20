@@ -12,6 +12,7 @@ import { useSurveyStore } from "@/stores/survey-store";
 import { getPresetConfig } from "@/lib/industry-presets";
 import { getModelDef, isValidProductType, getAllModels } from "@/lib/model-registry";
 import type { BaseEngine } from "@/lib/model-registry";
+import { DateRangeBar } from "@/components/layout/AppHeader";
 import type { ModelConfig, EcomConfig, SaasConfig } from "@/lib/types";
 
 // ─── Engine-specific component imports ───
@@ -278,35 +279,45 @@ function DashboardPage() {
             </svg>
           </button>
 
-          {/* Model type selector */}
-          <div className="relative inline-block">
-            <button
-              onClick={() => setModelSelectorOpen((v) => !v)}
-              className="flex items-center gap-2 text-sm font-bold text-[#1C1D21] bg-white border border-[#ECECF2] rounded-lg px-3 py-1.5 hover:border-[#5E81F4] transition-colors"
-            >
-              <span className="w-2 h-2 rounded-full" style={{ background: modelDef.color }} />
-              {modelDef.label}
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className={`transition-transform ${modelSelectorOpen ? "rotate-180" : ""}`}>
-                <path d="M4 6l4 4 4-4" />
-              </svg>
-            </button>
-            {modelSelectorOpen && (
-              <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-[#ECECF2] rounded-xl shadow-lg z-20 py-2 max-h-80 overflow-y-auto">
-                {allModels.map((m) => (
-                  <button
-                    key={m.key}
-                    onClick={() => {
-                      setModelSelectorOpen(false);
-                      if (m.key !== modelType) dashboardRouter.push(`/dashboard/${m.key}`);
-                    }}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-left text-sm hover:bg-[#F8F8FC] transition-colors ${m.key === modelType ? "bg-[#F8F8FC] font-bold" : ""}`}
-                  >
-                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />
-                    <span className="text-[#1C1D21]">{m.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+          {/* Model type selector + Date filter */}
+          <div className="flex items-center gap-3">
+            <div className="relative inline-block">
+              <button
+                onClick={() => setModelSelectorOpen((v) => !v)}
+                className="flex items-center gap-2 text-sm font-bold text-[#1C1D21] bg-white border border-[#ECECF2] rounded-lg px-3 py-1.5 hover:border-[#2163E7] transition-colors"
+              >
+                <span className="w-2 h-2 rounded-full" style={{ background: modelDef.color }} />
+                {modelDef.label}
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className={`transition-transform ${modelSelectorOpen ? "rotate-180" : ""}`}>
+                  <path d="M4 6l4 4 4-4" />
+                </svg>
+              </button>
+              {modelSelectorOpen && (
+                <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-[#ECECF2] rounded-xl shadow-lg z-20 py-2 max-h-80 overflow-y-auto">
+                  {allModels.map((m) => (
+                    <button
+                      key={m.key}
+                      onClick={() => {
+                        setModelSelectorOpen(false);
+                        if (m.key !== modelType) dashboardRouter.push(`/dashboard/${m.key}`);
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2 text-left text-sm hover:bg-[#F8F8FC] transition-colors ${m.key === modelType ? "bg-[#F8F8FC] font-bold" : ""}`}
+                    >
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />
+                      <span className="text-[#1C1D21]">{m.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="hidden md:block">
+              <DateRangeBar
+                monthRange={monthRange}
+                onMonthRangeChange={setMonthRange}
+                totalMonths={totalMonths}
+                variant="light"
+              />
+            </div>
           </div>
 
           {loading && !results && (
@@ -324,7 +335,7 @@ function DashboardPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowInvestorReport((v) => !v)}
-                  className="text-sm px-4 py-2 bg-[#5E81F4] text-white rounded-md hover:bg-[#4B6FE0]"
+                  className="text-sm px-4 py-2 bg-[#2163E7] text-white rounded-md hover:bg-[#4B6FE0]"
                 >
                   {showInvestorReport ? "Hide Investor Report" : "Investor Report"}
                 </button>
@@ -352,7 +363,7 @@ function DashboardPage() {
           )}
 
           {loading && results && (
-            <div className="fixed bottom-4 right-4 bg-[#5E81F4] text-white px-3 py-1.5 rounded-lg text-sm shadow-lg">
+            <div className="fixed bottom-4 right-4 bg-[#2163E7] text-white px-3 py-1.5 rounded-lg text-sm shadow-lg">
               Updating...
             </div>
           )}

@@ -102,13 +102,13 @@ function ProcessingPage() {
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => router.push("/dashboard")}
-                className="h-10 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors"
+                className="h-10 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors"
               >
                 Go to Dashboard
               </button>
               <a
                 href="mailto:support@revenuemap.app"
-                className="text-sm text-[#5E81F4] hover:text-[#4B6FE0] font-bold"
+                className="text-sm text-[#2163E7] hover:text-[#4B6FE0] font-bold"
               >
                 Contact support@revenuemap.app
               </a>
@@ -118,7 +118,7 @@ function ProcessingPage() {
           <>
             {/* Spinner */}
             <div className="flex justify-center mb-6">
-              <div className="w-10 h-10 border-3 border-[#ECECF2] border-t-[#5E81F4] rounded-full animate-spin" />
+              <div className="w-10 h-10 border-3 border-[#ECECF2] border-t-[#2163E7] rounded-full animate-spin" />
             </div>
 
             <h2 className="text-xl font-bold text-[#1C1D21] mb-6">
@@ -136,7 +136,7 @@ function ProcessingPage() {
                       </svg>
                     </div>
                   ) : i === activeStep ? (
-                    <div className="w-5 h-5 border-2 border-[#5E81F4] border-t-transparent rounded-full animate-spin shrink-0" />
+                    <div className="w-5 h-5 border-2 border-[#2163E7] border-t-transparent rounded-full animate-spin shrink-0" />
                   ) : (
                     <div className="w-5 h-5 rounded-full border-2 border-[#ECECF2] shrink-0" />
                   )}

@@ -53,10 +53,11 @@ function fmtLabel(m: number) {
 
 // ─── Desktop Date Range Popover ───────────────────────────────────────────────
 
-function DateRangeBar({ monthRange, onMonthRangeChange, totalMonths }: {
+export function DateRangeBar({ monthRange, onMonthRangeChange, totalMonths, variant = "dark" }: {
   monthRange?: [number, number] | null;
   onMonthRangeChange?: (range: [number, number] | null) => void;
   totalMonths?: number;
+  variant?: "dark" | "light";
 }) {
   const [open, setOpen] = useState(false);
 
@@ -84,15 +85,19 @@ function DateRangeBar({ monthRange, onMonthRangeChange, totalMonths }: {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 bg-white/10 border border-[#2A2B30] rounded-lg h-8 px-3 hover:border-[#5E81F4] transition-colors"
+        className={`flex items-center gap-1.5 rounded-lg h-8 px-3 transition-colors ${
+          variant === "light"
+            ? "bg-white border border-[#ECECF2] hover:border-[#2163E7]"
+            : "bg-white/10 border border-[#2A2B30] hover:border-[#2163E7]"
+        }`}
       >
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-[#94A3B8] shrink-0">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={variant === "light" ? "text-[#8181A5] shrink-0" : "text-[#94A3B8] shrink-0"}>
           <rect x="1" y="2" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
           <path d="M1 5.5h12" stroke="currentColor" strokeWidth="1.2" />
           <path d="M4.5 1v2M9.5 1v2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
         </svg>
-        <span className="text-[11px] font-medium text-[#F8FAFC] whitespace-nowrap">{currentLabel}</span>
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-[#94A3B8]">
+        <span className={`text-[11px] font-medium whitespace-nowrap ${variant === "light" ? "text-[#1C1D21]" : "text-[#F8FAFC]"}`}>{currentLabel}</span>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className={variant === "light" ? "text-[#8181A5]" : "text-[#94A3B8]"}>
           <path d="M2.5 4L5 6.5L7.5 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
@@ -110,7 +115,7 @@ function DateRangeBar({ monthRange, onMonthRangeChange, totalMonths }: {
                 <select
                   value={from}
                   onChange={(e) => handleFrom(Number(e.target.value))}
-                  className="w-full h-8 px-2 text-xs rounded-md border border-[#ECECF2] bg-white text-[#1C1D21] focus:outline-none focus:border-[#5E81F4]"
+                  className="w-full h-8 px-2 text-xs rounded-md border border-[#ECECF2] bg-white text-[#1C1D21] focus:outline-none focus:border-[#2163E7]"
                 >
                   {monthOptions.map((m) => (
                     <option key={m} value={m}>{fmtLabel(m)}</option>
@@ -123,7 +128,7 @@ function DateRangeBar({ monthRange, onMonthRangeChange, totalMonths }: {
                 <select
                   value={to}
                   onChange={(e) => handleTo(Number(e.target.value))}
-                  className="w-full h-8 px-2 text-xs rounded-md border border-[#ECECF2] bg-white text-[#1C1D21] focus:outline-none focus:border-[#5E81F4]"
+                  className="w-full h-8 px-2 text-xs rounded-md border border-[#ECECF2] bg-white text-[#1C1D21] focus:outline-none focus:border-[#2163E7]"
                 >
                   {monthOptions.map((m) => (
                     <option key={m} value={m}>{fmtLabel(m)}</option>
@@ -138,7 +143,7 @@ function DateRangeBar({ monthRange, onMonthRangeChange, totalMonths }: {
               <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1 rounded-full bg-[#ECECF2]" />
               {/* Active range */}
               <div
-                className="absolute top-1/2 -translate-y-1/2 h-1 rounded-full bg-[#5E81F4]"
+                className="absolute top-1/2 -translate-y-1/2 h-1 rounded-full bg-[#2163E7]"
                 style={{ left: `${fromPct}%`, right: `${100 - toPct}%` }}
               />
               {/* From thumb */}
@@ -148,7 +153,7 @@ function DateRangeBar({ monthRange, onMonthRangeChange, totalMonths }: {
                 max={totalMonths}
                 value={from}
                 onChange={(e) => handleFrom(Number(e.target.value))}
-                className="absolute inset-0 w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#5E81F4] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#5E81F4] [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
+                className="absolute inset-0 w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2163E7] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#2163E7] [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
                 style={{ zIndex: from === to ? 2 : 1 }}
               />
               {/* To thumb */}
@@ -158,7 +163,7 @@ function DateRangeBar({ monthRange, onMonthRangeChange, totalMonths }: {
                 max={totalMonths}
                 value={to}
                 onChange={(e) => handleTo(Number(e.target.value))}
-                className="absolute inset-0 w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#5E81F4] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#5E81F4] [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
+                className="absolute inset-0 w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2163E7] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#2163E7] [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
                 style={{ zIndex: 2 }}
               />
             </div>
@@ -176,13 +181,13 @@ function DateRangeBar({ monthRange, onMonthRangeChange, totalMonths }: {
             <div className="flex items-center justify-between border-t border-[#ECECF2] pt-3">
               <button
                 onClick={() => { onMonthRangeChange(null); setOpen(false); }}
-                className="text-[11px] text-[#8181A5] hover:text-[#5E81F4] transition-colors"
+                className="text-[11px] text-[#8181A5] hover:text-[#2163E7] transition-colors"
               >
                 Reset to All
               </button>
               <button
                 onClick={() => setOpen(false)}
-                className="text-[11px] px-3 py-1.5 bg-[#5E81F4] text-white rounded-md hover:bg-[#4B6FE0]"
+                className="text-[11px] px-3 py-1.5 bg-[#2163E7] text-white rounded-md hover:bg-[#4B6FE0]"
               >
                 Apply
               </button>
@@ -548,14 +553,6 @@ function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths }: A
     <header className="h-14 border-b border-[#2A2B30] bg-[#1C1D21] flex items-center justify-between px-6 shrink-0">
       <div className="flex items-center gap-4 min-w-0">
         {title && <h1 className="text-lg font-bold text-[#F8FAFC] truncate">{title}</h1>}
-
-        {isDashboard && (
-          <DateRangeBar
-            monthRange={monthRange}
-            onMonthRangeChange={onMonthRangeChange}
-            totalMonths={totalMonths}
-          />
-        )}
       </div>
 
       <div className="flex items-center gap-3">

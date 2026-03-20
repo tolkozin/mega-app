@@ -82,7 +82,7 @@ export function BillingClient() {
         <div className="bg-white rounded-xl border border-[#ECECF2]">
           {loading ? (
             <div className="p-12 text-center">
-              <div className="inline-block w-6 h-6 border-2 border-[#ECECF2] border-t-[#5E81F4] rounded-full animate-spin" />
+              <div className="inline-block w-6 h-6 border-2 border-[#ECECF2] border-t-[#2163E7] rounded-full animate-spin" />
               <p className="text-sm text-[#8181A5] mt-3">
                 Loading payment history...
               </p>
@@ -154,7 +154,7 @@ export function BillingClient() {
                             href="https://revenuemap.lemonsqueezy.com/billing"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
+                            className="text-sm font-bold text-[#2163E7] hover:text-[#4B6FE0] transition-colors"
                           >
                             View
                           </a>
@@ -185,7 +185,7 @@ export function BillingClient() {
                       href="https://revenuemap.lemonsqueezy.com/billing"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm font-bold text-[#5E81F4] hover:text-[#4B6FE0] transition-colors"
+                      className="text-sm font-bold text-[#2163E7] hover:text-[#4B6FE0] transition-colors"
                     >
                       View
                     </a>

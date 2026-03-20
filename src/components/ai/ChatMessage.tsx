@@ -10,7 +10,7 @@ export function ChatMessage({ message }: { message: ChatMessageType }) {
       <div
         className={`max-w-[85%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap break-words ${
           isUser
-            ? "bg-[#5E81F4] text-white"
+            ? "bg-[#2163E7] text-white"
             : "bg-[#F0F0F5] text-[#1C1D21]"
         }`}
       >

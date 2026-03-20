@@ -58,12 +58,12 @@ function RadioCard({
       onClick={onClick}
       className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
         selected
-          ? "border-[#5E81F4] bg-[#5E81F4]/5"
-          : "border-[#ECECF2] hover:border-[#5E81F4]/40"
+          ? "border-[#2163E7] bg-[#2163E7]/5"
+          : "border-[#ECECF2] hover:border-[#2163E7]/40"
       }`}
     >
       <div className="flex items-center gap-3">
-        {IconComponent && <IconComponent className="w-5 h-5 text-[#5E81F4]" />}
+        {IconComponent && <IconComponent className="w-5 h-5 text-[#2163E7]" />}
         {icon && !IconComponent && <span className="text-xl">{icon}</span>}
         <div>
           <p className="font-bold text-sm text-[#1C1D21]">{label}</p>
@@ -92,15 +92,15 @@ function CheckboxCard({
       onClick={onClick}
       className={`w-full text-left p-3.5 rounded-xl border-2 transition-all ${
         checked
-          ? "border-[#5E81F4] bg-[#5E81F4]/5"
-          : "border-[#ECECF2] hover:border-[#5E81F4]/40"
+          ? "border-[#2163E7] bg-[#2163E7]/5"
+          : "border-[#ECECF2] hover:border-[#2163E7]/40"
       }`}
     >
       <div className="flex items-center gap-3">
         <div
           className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
             checked
-              ? "border-[#5E81F4] bg-[#5E81F4]"
+              ? "border-[#2163E7] bg-[#2163E7]"
               : "border-[#ECECF2]"
           }`}
         >
@@ -182,7 +182,7 @@ function Step2() {
         {isOther && (
           <input
             autoFocus
-            className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] mt-1"
+            className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] mt-1"
             placeholder="Describe your niche"
             value={data.industryCustom}
             onChange={(e) => update({ industryCustom: e.target.value })}
@@ -311,7 +311,7 @@ function Step6() {
         {isOther && (
           <input
             autoFocus
-            className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] mt-1"
+            className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] mt-1"
             placeholder="Tell us more about your pricing idea"
             value={data.pricePointCustom}
             onChange={(e) => update({ pricePointCustom: e.target.value })}
@@ -382,7 +382,7 @@ function Step8() {
         {isOther && (
           <input
             autoFocus
-            className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] mt-1"
+            className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] mt-1"
             placeholder="Tell us about your budget"
             value={data.budgetCustom}
             onChange={(e) => update({ budgetCustom: e.target.value })}
@@ -420,7 +420,7 @@ function Step9() {
         {isOther && (
           <input
             autoFocus
-            className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4] mt-1"
+            className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] mt-1"
             placeholder="Tell us about your goal"
             value={data.goalCustom}
             onChange={(e) => update({ goalCustom: e.target.value })}
@@ -514,7 +514,7 @@ function SurveyPage() {
       {/* Progress bar */}
       <div className="h-1 bg-[#ECECF2]">
         <div
-          className="h-full bg-[#5E81F4] transition-all duration-500 ease-out"
+          className="h-full bg-[#2163E7] transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -562,7 +562,7 @@ function SurveyPage() {
             <button
               onClick={handleFinish}
               disabled={!canContinue(step, data) || saving}
-              className="h-10 px-6 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="h-10 px-6 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {saving ? "Saving..." : "See My Financial Projection →"}
             </button>
@@ -570,7 +570,7 @@ function SurveyPage() {
             <button
               onClick={next}
               disabled={!canContinue(step, data)}
-              className="h-10 px-6 text-sm font-bold rounded-lg bg-[#5E81F4] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="h-10 px-6 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Continue &rarr;
             </button>

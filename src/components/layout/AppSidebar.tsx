@@ -85,7 +85,7 @@ function SidebarContent({ expanded, onClose }: { expanded: boolean; onClose?: ()
               onClick={onClose}
               className={`h-[52px] md:h-10 rounded-lg flex items-center gap-3 px-2.5 transition-colors ${
                 isActive
-                  ? "bg-[#5E81F4] text-white"
+                  ? "bg-[#2163E7] text-white"
                   : "text-[#8181A5] hover:text-white hover:bg-white/10"
               }`}
             >

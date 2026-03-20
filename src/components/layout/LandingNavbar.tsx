@@ -96,6 +96,9 @@ export function LandingNavbar() {
           <Link href="/blog" className="text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e] transition-colors">
             Blog
           </Link>
+          <Link href="/knowledge-base" className="text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e] transition-colors">
+            Knowledge Base
+          </Link>
         </div>
 
         {/* Right actions — desktop */}
@@ -162,6 +165,7 @@ export function LandingNavbar() {
           <div className="border-t border-[#e5e7eb] pt-4 space-y-1">
             <Link href="/pricing" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e]">Pricing</Link>
             <Link href="/blog" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e]">Blog</Link>
+            <Link href="/knowledge-base" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e]">Knowledge Base</Link>
           </div>
           <div className="border-t border-[#e5e7eb] pt-4">
             {loading ? null : user ? (

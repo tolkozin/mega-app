@@ -344,8 +344,8 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
     <div
       className={
         fullscreen
-          ? "fixed inset-0 z-50 bg-white flex flex-col"
-          : "w-[320px] lg:w-[320px] md:w-[260px] h-full border-l border-[#2A2B30] bg-white shrink-0 flex flex-col"
+          ? "fixed inset-0 z-50 bg-white flex flex-col safe-area-inset"
+          : "w-[380px] xl:w-[420px] h-full border-l border-[#E8E8EF] bg-white shrink-0 flex flex-col shadow-[-4px_0_12px_rgba(0,0,0,0.04)] rounded-l-2xl"
       }
     >
       {/* Header */}
@@ -361,7 +361,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
               </svg>
             </button>
           )}
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-[#5E81F4]">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-[#2163E7]">
             <path d="M10 2L12.09 7.26L18 8.27L14 12.14L14.18 18.02L10 15.77L5.82 18.02L6 12.14L2 8.27L7.91 7.26L10 2Z" fill="currentColor" />
           </svg>
           <span className="font-semibold text-sm text-[#1C1D21]">AI Assistant</span>
@@ -420,9 +420,9 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
 
         {/* Config Patch Preview Card */}
         {pendingPatch && (
-          <div className="bg-[#F0F4FF] border border-[#5E81F4]/20 rounded-lg p-3 space-y-2">
+          <div className="bg-[#F0F4FF] border border-[#2163E7]/20 rounded-lg p-3 space-y-2">
             <div className="flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-[#5E81F4] shrink-0">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-[#2163E7] shrink-0">
                 <path d="M13.3 2.7L11.3 0.7C11.1 0.5 10.8 0.5 10.6 0.7L1.3 10L0 16L6 14.7L15.3 5.4C15.5 5.2 15.5 4.9 15.3 4.7L13.3 2.7Z" fill="currentColor" opacity="0.2" />
                 <path d="M1.3 10L10.6 0.7C10.8 0.5 11.1 0.5 11.3 0.7L13.3 2.7C13.5 2.9 13.5 3.2 13.3 3.4L4 12.7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
               </svg>
@@ -469,7 +469,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
                 <>
                   <button
                     onClick={applyPatch}
-                    className="flex-1 text-xs py-1.5 rounded-md bg-[#5E81F4] text-white hover:bg-[#4A6DE0] transition-colors"
+                    className="flex-1 text-xs py-1.5 rounded-md bg-[#2163E7] text-white hover:bg-[#4A6DE0] transition-colors"
                   >
                     Apply to Model
                   </button>
@@ -490,7 +490,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
             <h3 className="font-semibold text-sm text-[#1C1D21]">{report.title}</h3>
             {report.sections.map((section, i) => (
               <div key={i}>
-                <h4 className="font-medium text-xs text-[#5E81F4] mb-1">{section.heading}</h4>
+                <h4 className="font-medium text-xs text-[#2163E7] mb-1">{section.heading}</h4>
                 <p className="text-xs text-[#3A3A4A] whitespace-pre-wrap">{section.content}</p>
               </div>
             ))}
@@ -505,7 +505,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
         <button
           onClick={generateReport}
           disabled={reportLoading || !dashboardContext}
-          className="w-full text-xs py-2 rounded-md border border-[#5E81F4] text-[#5E81F4] hover:bg-[#5E81F4] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full text-xs py-2 rounded-md border border-[#2163E7] text-[#2163E7] hover:bg-[#2163E7] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {reportLoading ? "Generating Report..." : "Generate AI Report"}
         </button>
@@ -519,7 +519,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
             onClick={() => fileInputRef.current?.click()}
             disabled={isStreaming || fileUploading}
             title="Upload CSV/text file"
-            className="w-8 h-8 flex items-center justify-center rounded-full border border-[#E8E8EF] text-[#8181A5] hover:text-[#5E81F4] hover:border-[#5E81F4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            className="w-8 h-8 flex items-center justify-center rounded-full border border-[#E8E8EF] text-[#8181A5] hover:text-[#2163E7] hover:border-[#2163E7] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
             {fileUploading ? (
               <svg width="14" height="14" viewBox="0 0 14 14" className="animate-spin">
@@ -546,12 +546,12 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
             onKeyDown={handleKeyDown}
             placeholder="Ask about your data..."
             rows={1}
-            className="flex-1 resize-none rounded-lg border border-[#E8E8EF] px-3 py-2 text-sm text-[#1C1D21] bg-white focus:outline-none focus:border-[#5E81F4] placeholder:text-[#C4C4D4]"
+            className="flex-1 resize-none rounded-lg border border-[#E8E8EF] px-3 py-2 text-sm text-[#1C1D21] bg-white focus:outline-none focus:border-[#2163E7] placeholder:text-[#C4C4D4]"
           />
           <button
             onClick={() => sendMessage()}
             disabled={!input.trim() || isStreaming}
-            className="w-8 h-8 rounded-full bg-[#5E81F4] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            className="w-8 h-8 rounded-full bg-[#2163E7] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M13 1L7 7M13 1L9 13L7 7L1 5L13 1Z" />

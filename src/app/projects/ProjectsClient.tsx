@@ -30,7 +30,7 @@ function ProjectCard({
   const ModelIcon = def.icon;
 
   const roleColors: Record<string, string> = {
-    owner: "bg-[#5E81F4] text-white",
+    owner: "bg-[#2163E7] text-white",
     editor: "bg-[#F4BE5E]/10 text-[#F4BE5E]",
     viewer: "bg-[#ECECF2] text-[#8181A5]",
   };
@@ -73,7 +73,7 @@ function ProjectCard({
 
       <div className="flex gap-2">
         <Link href={`/dashboard/${project.product_type}`}>
-          <button className="h-8 px-3 bg-[#5E81F4] text-white text-xs font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors">
+          <button className="h-8 px-3 bg-[#2163E7] text-white text-xs font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors">
             Dashboard
           </button>
         </Link>
@@ -153,7 +153,7 @@ export function ProjectsClient() {
           <h2 className="text-xl font-bold text-[#1C1D21]">My Projects</h2>
           <button
             onClick={() => setShowCreate(!showCreate)}
-            className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
+            className="h-9 px-4 bg-[#2163E7] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
           >
             {showCreate ? "Cancel" : "+ New Project"}
           </button>
@@ -169,7 +169,7 @@ export function ProjectsClient() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="My Project"
-                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]"
+                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]"
                 />
               </div>
               <div>
@@ -178,7 +178,7 @@ export function ProjectsClient() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Optional description"
-                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]"
+                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]"
                 />
               </div>
               <div>
@@ -186,7 +186,7 @@ export function ProjectsClient() {
                 <select
                   value={productType}
                   onChange={(e) => setProductType(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] focus:outline-none focus:border-[#5E81F4] focus:ring-1 focus:ring-[#5E81F4]"
+                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]"
                 >
                   {productTypeOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -196,7 +196,7 @@ export function ProjectsClient() {
               <button
                 onClick={handleCreate}
                 disabled={creating || !name.trim()}
-                className="h-9 px-4 bg-[#5E81F4] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors disabled:opacity-50"
+                className="h-9 px-4 bg-[#2163E7] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors disabled:opacity-50"
               >
                 {creating ? "Creating..." : "Create"}
               </button>

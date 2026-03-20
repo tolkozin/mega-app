@@ -15,8 +15,8 @@ interface UpgradeModalProps {
 }
 
 const planSuggestion: Record<string, { name: string; color: string }> = {
-  free: { name: "Plus", color: "#5E81F4" },
-  expired: { name: "Plus", color: "#5E81F4" },
+  free: { name: "Plus", color: "#2163E7" },
+  expired: { name: "Plus", color: "#2163E7" },
   plus: { name: "Pro", color: "#8B5CF6" },
   pro: { name: "Enterprise", color: "#F59E0B" },
 };

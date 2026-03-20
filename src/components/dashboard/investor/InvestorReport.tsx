@@ -259,7 +259,7 @@ function ExecutiveSummary({ data, modelType }: { data: RunResult; modelType: Mod
               CHART_COLORS.primaryLight,
             ) as Plotly.Data,
           ]}
-          layout={{}}
+          layout={{ title: { text: "Monthly Revenue", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
     </div>

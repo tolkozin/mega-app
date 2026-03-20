@@ -37,7 +37,7 @@ export function MetricCalculator({
   fields: fieldsJson,
   result: resultJson,
   formula,
-  color = "#5E81F4",
+  color = "#2163E7",
 }: MetricCalculatorProps) {
   const fields: Field[] = useMemo(() => {
     try {

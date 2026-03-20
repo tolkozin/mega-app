@@ -89,7 +89,7 @@ function ArrGrowthSummary({ data }: { data: RunResult }) {
               CHART_COLORS.primaryLight,
             ) as Plotly.Data,
           ]}
-          layout={{}}
+          layout={{ title: { text: "Annual Recurring Revenue", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
 
@@ -202,7 +202,7 @@ function RetentionTable({ data }: { data: RunResult }) {
               CHART_COLORS.primaryLight,
             ) as Plotly.Data,
           ]}
-          layout={{}}
+          layout={{ title: { text: "Net Revenue Retention", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
       <CompactTable
@@ -297,7 +297,7 @@ function PipelineSummary({ data }: { data: RunResult }) {
               line: { color: CHART_COLORS.green, width: 2 },
             } as Plotly.Data,
           ]}
-          layout={{}}
+          layout={{ title: { text: "Leads vs Closed Deals", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
       <CompactTable
@@ -393,7 +393,7 @@ function SaasEfficiencyMetrics({ data }: { data: RunResult }) {
               showlegend: false,
             } as Plotly.Data,
           ]}
-          layout={{}}
+          layout={{ title: { text: "Rule of 40", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
       <CompactTable

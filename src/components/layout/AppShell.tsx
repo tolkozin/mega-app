@@ -67,7 +67,7 @@ export function AppShell({
       {!aiOpen && (
         <button
           onClick={toggleAI}
-          className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-[#5E81F4] text-white shadow-lg shadow-[#5E81F4]/30 hover:bg-[#4A6DE0] hover:shadow-xl hover:shadow-[#5E81F4]/40 transition-all flex items-center justify-center"
+          className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-[#2163E7] text-white shadow-lg shadow-[#2163E7]/30 hover:bg-[#4A6DE0] hover:shadow-xl hover:shadow-[#2163E7]/40 transition-all flex items-center justify-center"
           title="AI Assistant"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

@@ -8,7 +8,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </div>
       {/* Right: blue illustration panel */}
-      <div className="hidden lg:flex lg:flex-1 items-center justify-center bg-[#5E81F4] rounded-l-[32px]">
+      <div className="hidden lg:flex lg:flex-1 items-center justify-center bg-[#2163E7] rounded-l-[32px]">
         <div className="text-center text-white px-12">
           <svg className="mx-auto mb-8" width="200" height="200" viewBox="0 0 200 200" fill="none">
             <rect x="30" y="60" width="140" height="100" rx="12" fill="white" fillOpacity="0.15" />
