@@ -58,6 +58,8 @@ export function PlotlyChart({ data, layout, title, description, className, size 
   const h = HEIGHTS[size];
   const chartHeight = isMobile ? h.mobile : h.desktop;
   const fontSize = isMobile ? 9 : size === "small" ? 10 : 11;
+  const hasPlotlyTitle = !!(layout as Record<string, unknown>)?.title;
+  const topMargin = hasPlotlyTitle ? 30 : 10;
 
   return (
     <div className={`bg-white rounded-xl border border-[#ECECF2] p-4 ${className ?? ""}`}>
@@ -72,8 +74,8 @@ export function PlotlyChart({ data, layout, title, description, className, size 
         layout={{
           autosize: true,
           margin: isMobile
-            ? { l: 35, r: 10, t: 10, b: 30 }
-            : { l: 50, r: 20, t: 10, b: 35 },
+            ? { l: 35, r: 10, t: topMargin, b: 30 }
+            : { l: 50, r: 20, t: topMargin, b: 35 },
           font: { size: fontSize, family: "Lato, sans-serif", color: "#8181A5" },
           legend: {
             orientation: "h",
