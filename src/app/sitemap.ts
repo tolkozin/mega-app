@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllPosts, getCategories, getTags } from "@/lib/blog";
 import { METRICS } from "@/lib/knowledge-base";
 import { PRODUCT_TYPES } from "@/lib/model-registry";
+import { getAllIdeaSlugs } from "@/lib/ideas";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
@@ -84,5 +85,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...modelsIndex, ...modelPages, ...kbIndex, ...kbMetrics, ...postPages, ...categoryPages, ...tagPages];
+  const ideasIndex: MetadataRoute.Sitemap = [
+    {
+      url: `${SITE_URL}/ideas`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+  ];
+
+  const ideaPages: MetadataRoute.Sitemap = getAllIdeaSlugs().map((slug) => ({
+    url: `${SITE_URL}/ideas/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  }));
+
+  return [...staticPages, ...modelsIndex, ...modelPages, ...ideasIndex, ...ideaPages, ...kbIndex, ...kbMetrics, ...postPages, ...categoryPages, ...tagPages];
 }

@@ -51,6 +51,14 @@ const footerLinks = {
     { label: "FinTech", href: "/models/fintech" },
     { label: "AI / ML", href: "/models/ai-ml" },
   ],
+  Ideas: [
+    { label: "All Idea Lists", href: "/ideas" },
+    { label: "Subscription App", href: "/ideas/subscription-app" },
+    { label: "E-Commerce", href: "/ideas/ecommerce" },
+    { label: "SaaS B2B", href: "/ideas/saas-b2b" },
+    { label: "FinTech", href: "/ideas/fintech" },
+    { label: "AI / ML", href: "/ideas/ai-ml" },
+  ],
   Resources: [
     { label: "Blog", href: "/blog" },
     { label: "Knowledge Base", href: "/knowledge-base" },

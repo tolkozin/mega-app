@@ -7,6 +7,7 @@ import { useEffect, useState, useRef } from "react";
 import { ChevronDown, Menu, X, ArrowRight } from "lucide-react";
 import { getAllModels } from "@/lib/model-registry";
 import { METRIC_CATEGORIES, CATEGORY_META } from "@/lib/knowledge-base";
+import { IDEA_COLLECTIONS } from "@/lib/ideas";
 
 const MODELS = getAllModels();
 const TOP_MODELS = MODELS.slice(0, 6);
@@ -16,15 +17,19 @@ const KB_CATEGORIES = METRIC_CATEGORIES.map((key) => ({
   ...CATEGORY_META[key],
 }));
 
+const IDEAS_NICHES = IDEA_COLLECTIONS[0].lists.slice(0, 6);
+
 export function LandingNavbar() {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [modelsOpen, setModelsOpen] = useState(false);
   const [kbOpen, setKbOpen] = useState(false);
+  const [ideasOpen, setIdeasOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const modelsRef = useRef<HTMLDivElement>(null);
   const kbRef = useRef<HTMLDivElement>(null);
+  const ideasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -39,6 +44,9 @@ export function LandingNavbar() {
       }
       if (kbRef.current && !kbRef.current.contains(e.target as Node)) {
         setKbOpen(false);
+      }
+      if (ideasRef.current && !ideasRef.current.contains(e.target as Node)) {
+        setIdeasOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClick);
@@ -73,7 +81,7 @@ export function LandingNavbar() {
           {/* Models dropdown */}
           <div ref={modelsRef} className="relative">
             <button
-              onClick={() => { setModelsOpen(!modelsOpen); setKbOpen(false); }}
+              onClick={() => { setModelsOpen(!modelsOpen); setKbOpen(false); setIdeasOpen(false); }}
               className="flex items-center gap-1 text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e] transition-colors"
             >
               Models
@@ -125,7 +133,7 @@ export function LandingNavbar() {
           {/* Knowledge Base dropdown */}
           <div ref={kbRef} className="relative">
             <button
-              onClick={() => { setKbOpen(!kbOpen); setModelsOpen(false); }}
+              onClick={() => { setKbOpen(!kbOpen); setModelsOpen(false); setIdeasOpen(false); }}
               className="flex items-center gap-1 text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e] transition-colors"
             >
               Knowledge Base
@@ -159,6 +167,47 @@ export function LandingNavbar() {
                     className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#f8f9fc] transition-colors group"
                   >
                     <span className="text-sm font-semibold text-[#2163e7]">Browse all metrics</span>
+                    <ArrowRight className="w-4 h-4 text-[#2163e7] group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Ideas dropdown */}
+          <div ref={ideasRef} className="relative">
+            <button
+              onClick={() => { setIdeasOpen(!ideasOpen); setModelsOpen(false); setKbOpen(false); }}
+              className="flex items-center gap-1 text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e] transition-colors"
+            >
+              Ideas
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${ideasOpen ? "rotate-180" : ""}`} />
+            </button>
+            {ideasOpen && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[380px] rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-xl shadow-black/5">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#9ca3af] px-3 mb-2">Top 50 Ideas by Niche</p>
+                <div className="grid grid-cols-2 gap-1">
+                  {IDEAS_NICHES.map((item) => (
+                    <Link
+                      key={item.slug}
+                      href={`/ideas/${item.slug}`}
+                      onClick={() => setIdeasOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-[#f8f9fc] transition-colors group"
+                    >
+                      <span className="text-base shrink-0">{item.icon}</span>
+                      <span className="text-sm font-medium text-[#6b7280] group-hover:text-[#1a1a2e] transition-colors">
+                        {item.label}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+                <div className="border-t border-[#e5e7eb] mt-3 pt-3">
+                  <Link
+                    href="/ideas"
+                    onClick={() => setIdeasOpen(false)}
+                    className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#f8f9fc] transition-colors group"
+                  >
+                    <span className="text-sm font-semibold text-[#2163e7]">View all idea lists</span>
                     <ArrowRight className="w-4 h-4 text-[#2163e7] group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 </div>
@@ -246,6 +295,25 @@ export function LandingNavbar() {
             ))}
             <Link href="/knowledge-base" onClick={() => setMobileOpen(false)} className="flex items-center gap-1 px-3 py-2 text-sm font-semibold text-[#2163e7]">
               Browse all metrics <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="border-t border-[#e5e7eb] pt-4 space-y-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#6b7280] px-3 py-2">Business Ideas</p>
+            <div className="grid grid-cols-2 gap-1">
+              {IDEAS_NICHES.map((item) => (
+                <Link
+                  key={item.slug}
+                  href={`/ideas/${item.slug}`}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#f8f9fc] transition-colors"
+                >
+                  <span className="text-sm">{item.icon}</span>
+                  <span className="text-sm text-[#1a1a2e]">{item.label}</span>
+                </Link>
+              ))}
+            </div>
+            <Link href="/ideas" onClick={() => setMobileOpen(false)} className="flex items-center gap-1 px-3 py-2 text-sm font-semibold text-[#2163e7]">
+              View all idea lists <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           <div className="border-t border-[#e5e7eb] pt-4 space-y-1">
