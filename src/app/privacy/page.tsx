@@ -21,20 +21,20 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <LandingNavbar />
-      <div className="min-h-screen bg-[#0F172A]">
+      <div className="min-h-screen bg-[#f8f9fc]">
         <div className="mx-auto max-w-3xl px-4 py-20">
           {/* Header */}
           <div className="mb-12 text-center">
-            <h1 className="text-4xl font-black text-[#F8FAFC] mb-3">
+            <h1 className="text-4xl font-heading font-extrabold text-[#1a1a2e] mb-3">
               Privacy Policy
             </h1>
-            <p className="text-sm text-[#64748B]">
+            <p className="text-sm text-[#6b7280]">
               Effective Date: March 10, 2026 &middot; Last Updated: March 10, 2026
             </p>
           </div>
 
           {/* Body */}
-          <div className="prose-dark space-y-8 text-[#CBD5E1] text-[15px] leading-relaxed">
+          <div className="space-y-8 text-[#1a1a2e] text-[15px] leading-relaxed">
             <p>
               Revenue Map (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit revenuemap.app and use our financial modeling platform (the &ldquo;Service&rdquo;). Please read this policy carefully. If you disagree with its terms, please discontinue use of the Service.
             </p>
@@ -42,7 +42,7 @@ export default function PrivacyPolicyPage() {
             <Section title="1. Information We Collect">
               <p>We collect information in the following ways:</p>
 
-              <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">1.1 Information You Provide Directly</h4>
+              <h4 className="text-[#1a1a2e] font-bold mt-6 mb-2">1.1 Information You Provide Directly</h4>
               <BulletList items={[
                 "Account registration data: name, email address, password",
                 "Billing information: processed securely via Lemon Squeezy; we do not store full credit card numbers",
@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage() {
                 "Communications with our support team",
               ]} />
 
-              <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">1.2 Information Collected Automatically</h4>
+              <h4 className="text-[#1a1a2e] font-bold mt-6 mb-2">1.2 Information Collected Automatically</h4>
               <BulletList items={[
                 "Log data: IP address, browser type, pages visited, time and date of visits, referring URLs",
                 "Device information: hardware model, operating system, unique device identifiers",
@@ -59,7 +59,7 @@ export default function PrivacyPolicyPage() {
                 "Cookies and similar tracking technologies (see Section 6)",
               ]} />
 
-              <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">1.3 Information from Third Parties</h4>
+              <h4 className="text-[#1a1a2e] font-bold mt-6 mb-2">1.3 Information from Third Parties</h4>
               <BulletList items={[
                 "Authentication providers (if you sign in via Google or another OAuth provider)",
                 "Payment processors (Lemon Squeezy) — transaction confirmations and billing status only",
@@ -79,7 +79,7 @@ export default function PrivacyPolicyPage() {
                 "Find and prevent fraud and abuse",
                 "Comply with legal obligations",
               ]} />
-              <p className="font-medium text-[#F8FAFC]">
+              <p className="font-medium text-[#1a1a2e]">
                 We do not use your business financial data to train AI models or share it with third parties for advertising purposes.
               </p>
             </Section>
@@ -97,7 +97,7 @@ export default function PrivacyPolicyPage() {
             <Section title="4. How We Share Your Information">
               <p>We do not sell your personal information. We may share your information with:</p>
 
-              <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">4.1 Service Providers</h4>
+              <h4 className="text-[#1a1a2e] font-bold mt-6 mb-2">4.1 Service Providers</h4>
               <p>We share data with trusted third-party vendors who assist in operating the Service, subject to confidentiality agreements:</p>
               <BulletList items={[
                 "Lemon Squeezy — payment processing",
@@ -107,13 +107,13 @@ export default function PrivacyPolicyPage() {
                 "Resend or equivalent — transactional email",
               ]} />
 
-              <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">4.2 Business Transfers</h4>
+              <h4 className="text-[#1a1a2e] font-bold mt-6 mb-2">4.2 Business Transfers</h4>
               <p>If Revenue Map is acquired, merged, or undergoes a change of control, your information may be transferred as part of that transaction. We will notify you before your information is subject to a different privacy policy.</p>
 
-              <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">4.3 Legal Requirements</h4>
+              <h4 className="text-[#1a1a2e] font-bold mt-6 mb-2">4.3 Legal Requirements</h4>
               <p>We may disclose your information if required to do so by law or in response to valid legal requests (subpoenas, court orders, etc.).</p>
 
-              <h4 className="text-[#F8FAFC] font-bold mt-6 mb-2">4.4 With Your Consent</h4>
+              <h4 className="text-[#1a1a2e] font-bold mt-6 mb-2">4.4 With Your Consent</h4>
               <p>We may share your information for other purposes with your explicit consent.</p>
             </Section>
 
@@ -160,7 +160,7 @@ export default function PrivacyPolicyPage() {
                 To exercise any of these rights, contact us at <EmailLink email="privacy@revenuemap.app" />. We will respond within 30 days. We may need to verify your identity before processing requests.
               </p>
               <p>
-                <span className="font-medium text-[#F8FAFC]">California residents:</span> Under the CCPA, you have additional rights including the right to know about and opt out of the &ldquo;sale&rdquo; of personal information. We do not sell personal information.
+                <span className="font-medium text-[#1a1a2e]">California residents:</span> Under the CCPA, you have additional rights including the right to know about and opt out of the &ldquo;sale&rdquo; of personal information. We do not sell personal information.
               </p>
             </Section>
 
@@ -200,15 +200,15 @@ export default function PrivacyPolicyPage() {
 
             <Section title="13. Contact Us">
               <p>If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:</p>
-              <div className="rounded-xl border border-[#334155]/60 p-5 mt-4" style={{ background: "rgba(30,41,59,0.4)" }}>
-                <p className="font-bold text-[#F8FAFC] mb-1">Revenue Map</p>
+              <div className="rounded-xl border border-[#e5e7eb] bg-white p-5 mt-4">
+                <p className="font-bold text-[#1a1a2e] mb-1">Revenue Map</p>
                 <p>Email: <EmailLink email="privacy@revenuemap.app" /></p>
-                <p>Website: <Link href="/" className="text-[#3B82F6] hover:underline">revenuemap.app</Link></p>
+                <p>Website: <Link href="/" className="text-[#2163e7] hover:underline">revenuemap.app</Link></p>
               </div>
               <p className="mt-4">For GDPR-related inquiries, our Data Protection contact is reachable at the email above. We aim to respond to all privacy inquiries within 30 days.</p>
             </Section>
 
-            <div className="border-t border-[#334155]/40 pt-6 mt-10 text-sm text-[#64748B] text-center">
+            <div className="border-t border-[#e5e7eb] pt-6 mt-10 text-sm text-[#6b7280] text-center">
               This Privacy Policy was last reviewed and updated on March 10, 2026.
               <br />
               Revenue Map — revenuemap.app — &copy; 2026 All rights reserved.
@@ -225,7 +225,7 @@ export default function PrivacyPolicyPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="text-xl font-bold text-[#F8FAFC] mb-4">{title}</h2>
+      <h2 className="text-xl font-bold text-[#1a1a2e] mb-4">{title}</h2>
       {children}
     </div>
   );
@@ -236,7 +236,7 @@ function BulletList({ items }: { items: string[] }) {
     <ul className="space-y-2 my-3">
       {items.map((item) => (
         <li key={item} className="flex items-start gap-2.5">
-          <span className="mt-2 w-1.5 h-1.5 rounded-full bg-[#3B82F6] shrink-0" />
+          <span className="mt-2 w-1.5 h-1.5 rounded-full bg-[#2163e7] shrink-0" />
           <span>{item}</span>
         </li>
       ))}
@@ -246,7 +246,7 @@ function BulletList({ items }: { items: string[] }) {
 
 function EmailLink({ email }: { email: string }) {
   return (
-    <a href={`mailto:${email}`} className="text-[#3B82F6] hover:underline">
+    <a href={`mailto:${email}`} className="text-[#2163e7] hover:underline">
       {email}
     </a>
   );

@@ -33,7 +33,7 @@ const features = [
       </svg>
     ),
     title: "Flags risks before they become problems",
-    description: "AI monitors your key ratios and alerts you when CAC payback or burn rate drifts into the danger zone.",
+    description: "AI monitors your key ratios and alerts you when metrics drift into the danger zone.",
   },
   {
     icon: (
@@ -74,19 +74,19 @@ export function AISection() {
         };
 
   return (
-    <section className="py-24 px-4" style={{ background: "rgba(30,41,59,0.3)" }}>
+    <section className="py-24 px-4 bg-white">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left: text content */}
           <div>
             <motion.div {...motionProps()}>
-              <span className="text-xs font-semibold uppercase tracking-widest text-[#3B82F6] mb-3 block">
+              <span className="text-xs font-semibold uppercase tracking-widest text-[#2163e7] mb-3 block">
                 AI Assistant
               </span>
-              <h2 className="text-3xl md:text-4xl font-black text-[#F8FAFC] mb-4">
-                Your numbers, explained in plain Language.
+              <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-[#1a1a2e] mb-4">
+                Your numbers, explained in plain language.
               </h2>
-              <p className="text-[#94A3B8] leading-relaxed mb-10">
+              <p className="text-[#6b7280] leading-relaxed mb-10">
                 Stop guessing what your metrics mean. Revenue Map&apos;s AI reads your model,
                 spots what matters, and tells you exactly what to do next.
               </p>
@@ -106,19 +106,19 @@ export function AISection() {
                   transition={{ duration: 0.4 }}
                   className="flex gap-4"
                 >
-                  <div className="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center bg-[#3B82F6]/10 text-[#3B82F6]">
+                  <div className="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center bg-[#2163e7]/10 text-[#2163e7]">
                     {f.icon}
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-[#F8FAFC] mb-1">{f.title}</h3>
-                    <p className="text-sm text-[#94A3B8] leading-relaxed">{f.description}</p>
+                    <h3 className="text-sm font-bold text-[#1a1a2e] mb-1">{f.title}</h3>
+                    <p className="text-sm text-[#6b7280] leading-relaxed">{f.description}</p>
                   </div>
                 </motion.div>
               ))}
             </motion.div>
 
             <motion.div {...motionProps(0.4)} className="mt-8">
-              <Link href="/onboarding/survey" className="text-sm font-bold text-[#3B82F6] hover:underline">
+              <Link href="/onboarding/survey" className="text-sm font-bold text-[#2163e7] hover:underline">
                 See AI in action &rarr;
               </Link>
             </motion.div>
@@ -127,12 +127,11 @@ export function AISection() {
           {/* Right: chat mock-up */}
           <motion.div
             {...motionProps(0.4)}
-            className="rounded-2xl border border-[#1E293B] overflow-hidden"
-            style={{ background: "#0F172A" }}
+            className="rounded-2xl border border-[#e5e7eb] overflow-hidden bg-[#f8f9fc] shadow-lg shadow-black/5"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1E293B]">
-              <span className="text-sm font-bold text-[#F8FAFC]">AI Financial Assistant</span>
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#e5e7eb] bg-white">
+              <span className="text-sm font-bold text-[#1a1a2e]">AI Financial Assistant</span>
               <div className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
                 <span className="text-xs text-[#10B981] font-medium">Live</span>
@@ -158,8 +157,8 @@ export function AISection() {
                     <div
                       className={`px-3.5 py-2.5 text-[13px] leading-relaxed ${
                         msg.role === "user"
-                          ? "bg-[#3B82F6] text-white rounded-xl rounded-br-sm max-w-[75%]"
-                          : "bg-[#1E293B] text-[#CBD5E1] rounded-xl rounded-bl-sm max-w-[85%]"
+                          ? "bg-[#2163e7] text-white rounded-xl rounded-br-sm max-w-[75%]"
+                          : "bg-white border border-[#e5e7eb] text-[#1a1a2e] rounded-xl rounded-bl-sm max-w-[85%] shadow-sm"
                       }`}
                     >
                       {msg.text.split("\n").map((line, j) => (
@@ -169,7 +168,7 @@ export function AISection() {
                         </span>
                       ))}
                       {"typing" in msg && msg.typing && (
-                        <span className="inline-block w-[2px] h-[14px] bg-[#94A3B8] ml-0.5 align-middle animate-blink" />
+                        <span className="inline-block w-[2px] h-[14px] bg-[#6b7280] ml-0.5 align-middle animate-blink" />
                       )}
                     </div>
                   </motion.div>
@@ -179,7 +178,7 @@ export function AISection() {
               {/* Bottom fade */}
               <div
                 className="absolute inset-x-0 bottom-0 h-12 pointer-events-none"
-                style={{ background: "linear-gradient(to bottom, transparent, #0F172A)" }}
+                style={{ background: "linear-gradient(to bottom, transparent, #f8f9fc)" }}
               />
             </div>
           </motion.div>

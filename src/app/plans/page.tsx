@@ -283,7 +283,7 @@ export default function PlansPage() {
                   {annual && plan.monthlyPrice > 0 && (
                     <span className="text-xl font-bold text-[#8181A5] line-through">${plan.monthlyPrice}</span>
                   )}
-                  <span className="text-3xl font-black text-[#1C1D21]">{price}</span>
+                  <span className="text-3xl font-extrabold text-[#1C1D21]">{price}</span>
                   {plan.monthlyPrice > 0 && <span className="text-sm text-[#8181A5]">/mo</span>}
                 </div>
 

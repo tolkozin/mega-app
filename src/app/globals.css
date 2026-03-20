@@ -8,22 +8,30 @@
     --foreground: 228 8% 12%;
     --card: 0 0% 100%;
     --card-foreground: 228 8% 12%;
-    --primary: 226 88% 66%;
+    --primary: 222 80% 52%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 20% 96%;
     --secondary-foreground: 228 8% 12%;
     --muted: 240 20% 96%;
-    --muted-foreground: 240 14% 58%;
+    --muted-foreground: 220 9% 46%;
     --accent: 240 20% 96%;
     --accent-foreground: 228 8% 12%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 20% 94%;
-    --input: 240 20% 94%;
-    --ring: 226 88% 66%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 222 80% 52%;
     --radius: 0.5rem;
     --sidebar-bg: 228 8% 12%;
     --sidebar-foreground: 0 0% 100%;
+
+    /* ─── Periodic Table design tokens ─── */
+    --pt-bg: #f8f9fc;
+    --pt-surface: #ffffff;
+    --pt-text: #1a1a2e;
+    --pt-text-secondary: #6b7280;
+    --pt-border: #e5e7eb;
+    --pt-blue: #2163e7;
   }
 
   .dark {
@@ -65,7 +73,30 @@
   }
 }
 
-/* ─── Homepage animations ─── */
+/* ─── Periodic Table pattern background ─── */
+
+.pt-bg-pattern {
+  background-color: var(--pt-bg);
+  background-image:
+    linear-gradient(rgba(33, 99, 231, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(33, 99, 231, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ─── Element card styles ─── */
+
+.element-card {
+  position: relative;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.element-card:hover {
+  transform: translateY(-2px);
+}
+
+/* ─── Animations ─── */
 
 @keyframes marquee {
   0% { transform: translateX(0); }
@@ -86,10 +117,19 @@
 }
 
 @keyframes pulse-shadow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-  50% { box-shadow: 0 0 20px 4px rgba(59, 130, 246, 0.15); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(33, 99, 231, 0); }
+  50% { box-shadow: 0 0 20px 4px rgba(33, 99, 231, 0.12); }
 }
 
 .animate-pulse-shadow {
   animation: pulse-shadow 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }

@@ -1,12 +1,24 @@
 import type { Metadata } from "next";
-import { Lato } from "next/font/google";
+import { Commissioner, Roboto } from "next/font/google";
 import "./globals.css";
 import { OrganizationJsonLd } from "@/components/blog/StructuredData";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CookieBanner } from "@/components/CookieBanner";
 
-const lato = Lato({ subsets: ["latin", "latin-ext"], weight: ["400", "700", "900"] });
+const commissioner = Commissioner({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  variable: "--font-commissioner",
+  display: "swap",
+});
+
+const roboto = Roboto({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "700"],
+  variable: "--font-roboto",
+  display: "swap",
+});
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
@@ -44,9 +56,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="bg-[#0F172A]">
+    <html lang="en">
       <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-      <body className={`${lato.className} bg-[#0F172A]`}>
+      <body className={`${roboto.variable} ${commissioner.variable} font-sans bg-[#f8f9fc] text-[#1a1a2e]`}>
         <OrganizationJsonLd />
         {children}
         <CookieBanner />

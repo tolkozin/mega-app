@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 
 const orbs = [
   {
-    bg: "radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)",
+    bg: "radial-gradient(circle, rgba(33,99,231,0.06) 0%, transparent 70%)",
     size: 600,
     top: "-20%",
     left: "-10%",
@@ -13,7 +13,7 @@ const orbs = [
     dur: 12,
   },
   {
-    bg: "radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)",
+    bg: "radial-gradient(circle, rgba(33,99,231,0.04) 0%, transparent 70%)",
     size: 500,
     bottom: "-10%",
     right: "-5%",
@@ -22,7 +22,7 @@ const orbs = [
     dur: 16,
   },
   {
-    bg: "radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)",
+    bg: "radial-gradient(circle, rgba(90,62,227,0.04) 0%, transparent 70%)",
     size: 400,
     top: "30%",
     right: "10%",
@@ -66,15 +66,6 @@ export function HeroBackground() {
           }}
         />
       ))}
-      {/* Dot grid overlay */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, rgba(148,163,184,0.06) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      />
     </div>
   );
 }

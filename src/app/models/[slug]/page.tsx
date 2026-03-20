@@ -16,7 +16,6 @@ import {
   CheckCircle2,
   Sparkles,
   BarChart3,
-  FileCheck,
   ChevronDown,
 } from "lucide-react";
 import { LandingNavbar } from "@/components/layout/LandingNavbar";
@@ -549,47 +548,47 @@ export default async function ModelPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <div className="min-h-screen bg-[#0F172A]">
+      <div className="min-h-screen bg-[#f8f9fc]">
         {/* ── Hero ── */}
-        <section className="relative overflow-hidden pt-24 pb-20">
-          {/* Gradient backdrop */}
+        <section className="relative overflow-hidden pt-24 pb-20 pt-bg-pattern">
+          {/* Subtle gradient */}
           <div
-            className="pointer-events-none absolute inset-0 opacity-20"
+            className="pointer-events-none absolute inset-0 opacity-30"
             style={{
-              background: `radial-gradient(ellipse 60% 50% at 50% 0%, ${model.color}33, transparent)`,
+              background: `radial-gradient(ellipse 60% 50% at 50% 0%, ${model.elementBg}, transparent)`,
             }}
           />
 
           <div className="relative mx-auto max-w-4xl px-4 text-center">
+            {/* Element card */}
             <div
-              className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl"
-              style={{ backgroundColor: `${model.color}20` }}
+              className="mx-auto mb-6 flex h-20 w-20 flex-col items-center justify-center rounded-2xl border shadow-sm"
+              style={{ backgroundColor: model.elementBg, borderColor: `${model.elementText}20` }}
             >
-              <Icon
-                className="h-8 w-8"
-                style={{ color: model.color }}
-              />
+              <span className="text-[10px] font-medium" style={{ color: model.elementText }}>{model.elementNumber}</span>
+              <span className="text-2xl font-extrabold font-heading" style={{ color: model.elementText }}>{model.elementSymbol}</span>
+              <span className="text-[9px] font-medium" style={{ color: model.elementText }}>{model.shortLabel}</span>
             </div>
 
-            <h1 className="text-4xl font-black text-[#F8FAFC] sm:text-5xl lg:text-6xl">
+            <h1 className="text-4xl font-extrabold font-heading text-[#1a1a2e] sm:text-5xl lg:text-6xl">
               {model.label} Financial Model
             </h1>
 
-            <p className="mt-4 text-xl font-bold text-[#F8FAFC] sm:text-2xl max-w-2xl mx-auto">
+            <p className="mt-4 text-xl font-bold text-[#1a1a2e] sm:text-2xl max-w-2xl mx-auto">
               {model.headline}
             </p>
 
-            <p className="mt-3 text-lg text-[#94A3B8] max-w-2xl mx-auto">
+            <p className="mt-3 text-lg text-[#6b7280] max-w-2xl mx-auto">
               {model.description}
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-[#94A3B8]">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-[#6b7280]">
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
                 Ready in under 5 min
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2163e7]" />
                 Trained on real market data
               </span>
               <span className="flex items-center gap-1.5">
@@ -600,8 +599,8 @@ export default async function ModelPage({
 
             <Link
               href="/onboarding/survey"
-              className="mt-8 inline-flex items-center gap-2 rounded-xl px-8 py-4 text-lg font-bold text-white transition-all hover:brightness-110"
-              style={{ backgroundColor: model.color }}
+              className="mt-8 inline-flex items-center gap-2 rounded-xl px-8 py-4 text-lg font-bold text-white transition-all hover:brightness-110 shadow-lg"
+              style={{ backgroundColor: model.elementText }}
             >
               <Sparkles className="h-5 w-5" />
               Build My Model — Free
@@ -610,12 +609,12 @@ export default async function ModelPage({
         </section>
 
         {/* ── What's Included ── */}
-        <section className="py-20">
+        <section className="py-20 bg-white">
           <div className="mx-auto max-w-5xl px-4">
-            <h2 className="text-center text-3xl font-black text-[#F8FAFC] sm:text-4xl">
+            <h2 className="text-center text-3xl font-extrabold font-heading text-[#1a1a2e] sm:text-4xl">
               What You Get
             </h2>
-            <p className="mt-3 text-center text-[#94A3B8] text-lg max-w-2xl mx-auto">
+            <p className="mt-3 text-center text-[#6b7280] text-lg max-w-2xl mx-auto">
               Every number is grounded in real benchmarks — not guesswork.
             </p>
 
@@ -623,14 +622,14 @@ export default async function ModelPage({
               {features.map((feature) => (
                 <div
                   key={feature}
-                  className="rounded-xl border border-[#334155]/60 bg-[rgba(30,41,59,0.4)] p-5 backdrop-blur-sm transition-colors hover:border-[#334155]"
+                  className="rounded-xl border border-[#e5e7eb] bg-[#f8f9fc] p-5 transition-colors hover:border-[#2163e7]/30"
                 >
                   <div className="flex items-start gap-3">
                     <CheckCircle2
                       className="mt-0.5 h-5 w-5 flex-shrink-0"
-                      style={{ color: model.color }}
+                      style={{ color: model.elementText }}
                     />
-                    <span className="text-sm font-semibold text-[#F8FAFC]">
+                    <span className="text-sm font-semibold text-[#1a1a2e]">
                       {feature}
                     </span>
                   </div>
@@ -641,12 +640,12 @@ export default async function ModelPage({
         </section>
 
         {/* ── How It Works ── */}
-        <section className="py-20 border-t border-[#1E293B]">
+        <section className="py-20 border-t border-[#e5e7eb]">
           <div className="mx-auto max-w-4xl px-4">
-            <h2 className="text-center text-3xl font-black text-[#F8FAFC] sm:text-4xl">
+            <h2 className="text-center text-3xl font-extrabold font-heading text-[#1a1a2e] sm:text-4xl">
               How It Works
             </h2>
-            <p className="mt-3 text-center text-[#94A3B8] text-lg">
+            <p className="mt-3 text-center text-[#6b7280] text-lg">
               From idea to investor-ready projections — in minutes, not weeks.
             </p>
 
@@ -654,15 +653,15 @@ export default async function ModelPage({
               {HOW_IT_WORKS.map((item) => (
                 <div key={item.step} className="text-center">
                   <div
-                    className="mx-auto flex h-12 w-12 items-center justify-center rounded-full text-xl font-black text-white"
-                    style={{ backgroundColor: model.color }}
+                    className="mx-auto flex h-12 w-12 items-center justify-center rounded-full text-xl font-extrabold font-heading text-white"
+                    style={{ backgroundColor: model.elementText }}
                   >
                     {item.step}
                   </div>
-                  <h3 className="mt-4 text-lg font-bold text-[#F8FAFC]">
+                  <h3 className="mt-4 text-lg font-bold text-[#1a1a2e]">
                     {item.title}
                   </h3>
-                  <p className="mt-2 text-sm text-[#94A3B8] leading-relaxed">
+                  <p className="mt-2 text-sm text-[#6b7280] leading-relaxed">
                     {item.description}
                   </p>
                 </div>
@@ -672,26 +671,26 @@ export default async function ModelPage({
         </section>
 
         {/* ── FAQ ── */}
-        <section className="py-20 border-t border-[#1E293B]">
+        <section className="py-20 border-t border-[#e5e7eb] bg-white">
           <div className="mx-auto max-w-3xl px-4">
-            <h2 className="text-center text-3xl font-black text-[#F8FAFC] sm:text-4xl">
+            <h2 className="text-center text-3xl font-extrabold font-heading text-[#1a1a2e] sm:text-4xl">
               FAQ
             </h2>
-            <p className="mt-3 text-center text-[#94A3B8] text-lg">
+            <p className="mt-3 text-center text-[#6b7280] text-lg">
               Everything you need to know about {model.label.toLowerCase()} financial modeling.
             </p>
 
-            <div className="mt-12 space-y-4">
+            <div className="mt-12 space-y-3">
               {faqs.map((faq, i) => (
                 <details
                   key={i}
-                  className="group rounded-xl border border-[#334155]/60 bg-[rgba(30,41,59,0.4)] backdrop-blur-sm"
+                  className="group rounded-xl border border-[#e5e7eb] bg-[#f8f9fc]"
                 >
-                  <summary className="flex cursor-pointer items-center justify-between gap-4 p-5 text-left font-semibold text-[#F8FAFC] [&::-webkit-details-marker]:hidden">
+                  <summary className="flex cursor-pointer items-center justify-between gap-4 p-5 text-left font-semibold text-[#1a1a2e] [&::-webkit-details-marker]:hidden">
                     <span>{faq.question}</span>
-                    <ChevronDown className="h-5 w-5 flex-shrink-0 text-[#94A3B8] transition-transform group-open:rotate-180" />
+                    <ChevronDown className="h-5 w-5 flex-shrink-0 text-[#6b7280] transition-transform group-open:rotate-180" />
                   </summary>
-                  <div className="px-5 pb-5 text-sm leading-relaxed text-[#94A3B8]">
+                  <div className="px-5 pb-5 text-sm leading-relaxed text-[#6b7280]">
                     {faq.answer}
                   </div>
                 </details>
@@ -701,22 +700,22 @@ export default async function ModelPage({
         </section>
 
         {/* ── Bottom CTA ── */}
-        <section className="py-20 border-t border-[#1E293B]">
+        <section className="py-20 border-t border-[#e5e7eb] pt-bg-pattern">
           <div className="mx-auto max-w-3xl px-4 text-center">
             <BarChart3
               className="mx-auto h-10 w-10 mb-4"
-              style={{ color: model.color }}
+              style={{ color: model.elementText }}
             />
-            <h2 className="text-3xl font-black text-[#F8FAFC] sm:text-4xl">
+            <h2 className="text-3xl font-extrabold font-heading text-[#1a1a2e] sm:text-4xl">
               Build your {model.label.toLowerCase()} model now
             </h2>
-            <p className="mt-4 text-lg text-[#94A3B8] max-w-xl mx-auto">
+            <p className="mt-4 text-lg text-[#6b7280] max-w-xl mx-auto">
               Real data. Real benchmarks. Your financial model — ready in minutes.
             </p>
             <Link
               href="/onboarding/survey"
-              className="mt-8 inline-flex items-center gap-2 rounded-xl px-8 py-4 text-lg font-bold text-white transition-all hover:brightness-110"
-              style={{ backgroundColor: model.color }}
+              className="mt-8 inline-flex items-center gap-2 rounded-xl px-8 py-4 text-lg font-bold text-white transition-all hover:brightness-110 shadow-lg"
+              style={{ backgroundColor: model.elementText }}
             >
               <Sparkles className="h-5 w-5" />
               Start Free Trial
@@ -725,8 +724,8 @@ export default async function ModelPage({
         </section>
 
         {/* ── Footer ── */}
-        <footer className="border-t border-[#1E293B] py-10">
-          <div className="mx-auto max-w-5xl px-4 text-center text-sm text-[#94A3B8]">
+        <footer className="border-t border-[#e5e7eb] py-10 bg-white">
+          <div className="mx-auto max-w-5xl px-4 text-center text-sm text-[#6b7280]">
             &copy; {new Date().getFullYear()} Revenue Map. All rights
             reserved.
           </div>

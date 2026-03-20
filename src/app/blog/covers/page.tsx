@@ -283,16 +283,16 @@ export default function BlogCoversPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] p-8">
+    <div className="min-h-screen bg-[#f8f9fc] p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-black text-white mb-2">Blog Cover Images Preview</h1>
-        <p className="text-[#94A3B8] mb-8">1200 x 630px (1.91:1) — Click to enlarge, download SVG for conversion</p>
+        <h1 className="text-3xl font-heading font-extrabold text-[#1a1a2e] mb-2">Blog Cover Images Preview</h1>
+        <p className="text-[#6b7280] mb-8">1200 x 630px (1.91:1) — Click to enlarge, download SVG for conversion</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {covers.map((cover) => (
             <div key={cover.slug} className="space-y-3">
               <div
-                className="cursor-pointer hover:ring-2 hover:ring-[#3B82F6] rounded-xl transition-all"
+                className="cursor-pointer hover:ring-2 hover:ring-[#2163e7] rounded-xl transition-all"
                 onClick={() => setSelected(selected === cover.slug ? null : cover.slug)}
               >
                 <div id={`cover-${cover.slug}`}>
@@ -301,12 +301,12 @@ export default function BlogCoversPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-white">{cover.slug}</p>
-                  <p className="text-xs text-[#64748B]">public/blog/{cover.slug}/cover.jpg</p>
+                  <p className="text-sm font-semibold text-[#1a1a2e]">{cover.slug}</p>
+                  <p className="text-xs text-[#6b7280]">public/blog/{cover.slug}/cover.jpg</p>
                 </div>
                 <button
                   onClick={() => downloadSVG(cover.slug)}
-                  className="px-4 py-2 bg-[#1E293B] text-[#CBD5E1] text-sm rounded-lg border border-[#334155] hover:bg-[#334155] transition-colors"
+                  className="px-4 py-2 bg-white text-[#1a1a2e] text-sm rounded-lg border border-[#e5e7eb] hover:bg-[#f8f9fc] transition-colors"
                 >
                   Download SVG
                 </button>
@@ -326,13 +326,13 @@ export default function BlogCoversPage() {
               <div className="flex justify-center mt-4 gap-4">
                 <button
                   onClick={() => downloadSVG(selected)}
-                  className="px-6 py-3 bg-[#3B82F6] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
+                  className="px-6 py-3 bg-[#2163e7] text-white rounded-lg hover:bg-[#1a4fc7] transition-colors"
                 >
                   Download SVG
                 </button>
                 <button
                   onClick={() => setSelected(null)}
-                  className="px-6 py-3 bg-[#1E293B] text-[#CBD5E1] rounded-lg border border-[#334155] hover:bg-[#334155] transition-colors"
+                  className="px-6 py-3 bg-white text-[#1a1a2e] rounded-lg border border-[#e5e7eb] hover:bg-[#f8f9fc] transition-colors"
                 >
                   Close
                 </button>
@@ -342,10 +342,10 @@ export default function BlogCoversPage() {
         )}
 
         {/* Instructions */}
-        <div className="mt-12 p-6 bg-[#1E293B] rounded-xl border border-[#334155]">
-          <h2 className="text-lg font-bold text-white mb-3">Converting to JPG</h2>
-          <p className="text-sm text-[#94A3B8] mb-3">After reviewing, convert SVGs to 1200x630 JPGs:</p>
-          <pre className="bg-[#0F172A] p-4 rounded-lg text-sm text-[#CBD5E1] overflow-x-auto">
+        <div className="mt-12 p-6 bg-white rounded-xl border border-[#e5e7eb]">
+          <h2 className="text-lg font-bold text-[#1a1a2e] mb-3">Converting to JPG</h2>
+          <p className="text-sm text-[#6b7280] mb-3">After reviewing, convert SVGs to 1200x630 JPGs:</p>
+          <pre className="bg-[#f8f9fc] p-4 rounded-lg text-sm text-[#1a1a2e] overflow-x-auto border border-[#e5e7eb]">
 {`# Option 1: Using Inkscape (recommended)
 for f in *.svg; do
   inkscape "$f" --export-type=png --export-width=1200 --export-height=630

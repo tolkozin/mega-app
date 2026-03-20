@@ -194,12 +194,12 @@ function CellContent({ value }: { value: CellValue }) {
   }
   if (value === false) {
     return (
-      <svg className="w-5 h-5 text-[#475569] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5 text-[#d1d5db] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
       </svg>
     );
   }
-  return <span className="text-sm text-[#CBD5E1]">{value}</span>;
+  return <span className="text-sm text-[#1a1a2e]">{value}</span>;
 }
 
 /* ─── FAQ Item ─── */
@@ -208,16 +208,16 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border-b border-[#334155]/60">
+    <div className="border-b border-[#e5e7eb]">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-5 text-left"
       >
-        <span className="text-base font-bold text-[#F8FAFC] pr-4">{q}</span>
+        <span className="text-base font-bold text-[#1a1a2e] pr-4">{q}</span>
         <motion.svg
           animate={{ rotate: open ? 45 : 0 }}
           transition={{ duration: 0.2 }}
-          className="w-5 h-5 shrink-0 text-[#94A3B8]"
+          className="w-5 h-5 shrink-0 text-[#6b7280]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -234,7 +234,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <p className="text-sm text-[#94A3B8] pb-5 leading-relaxed">{a}</p>
+            <p className="text-sm text-[#6b7280] pb-5 leading-relaxed">{a}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -285,7 +285,6 @@ export function PricingClient() {
         throw new Error("No checkout URL returned");
       }
 
-      // Direct redirect — most reliable
       window.location.href = data.url;
     } catch (error) {
       console.error("Checkout error:", error);
@@ -302,12 +301,11 @@ export function PricingClient() {
   }
 
   function renderCTA(plan: (typeof plans)[number]) {
-    // Enterprise uses plain link
     if (plan.href) {
       return (
         <Link href={plan.href}>
           <button
-            className="w-full h-11 rounded-xl text-sm font-bold transition-all cursor-pointer bg-[#1E293B] border border-[#334155] text-[#94A3B8] hover:border-[#3B82F6]/50 hover:text-[#F8FAFC]"
+            className="w-full h-11 rounded-xl text-sm font-bold transition-all cursor-pointer border border-[#e5e7eb] text-[#6b7280] hover:border-[#2163e7]/50 hover:text-[#1a1a2e]"
           >
             {plan.cta}
           </button>
@@ -315,7 +313,6 @@ export function PricingClient() {
       );
     }
 
-    // Plus / Pro → checkout
     const isLoading = checkoutLoading === plan.plan;
     return (
       <button
@@ -323,8 +320,8 @@ export function PricingClient() {
         disabled={isLoading}
         className={`w-full h-11 rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-60 ${
           plan.highlighted
-            ? "bg-[#3B82F6] text-white hover:bg-[#2563EB] hover:shadow-lg hover:shadow-[#3B82F6]/25"
-            : "border border-[#334155] text-[#F8FAFC] hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5"
+            ? "bg-[#2163e7] text-white hover:bg-[#1a53c7] hover:shadow-lg hover:shadow-[#2163e7]/20"
+            : "border border-[#e5e7eb] text-[#1a1a2e] hover:border-[#2163e7]/50 hover:bg-[#2163e7]/5"
         }`}
       >
         {isLoading ? "Loading..." : plan.cta}
@@ -333,14 +330,14 @@ export function PricingClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-[#F8FAFC] overflow-x-hidden">
+    <div className="min-h-screen bg-[#f8f9fc] text-[#1a1a2e] overflow-x-hidden">
       {/* ════════════ HERO ════════════ */}
       <section className="pt-32 pb-16 px-4 text-center">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-4xl md:text-5xl lg:text-6xl font-black mb-4"
+          className="text-4xl md:text-5xl lg:text-6xl font-extrabold font-heading text-[#1a1a2e] mb-4"
         >
           Simple, transparent pricing
         </motion.h1>
@@ -348,7 +345,7 @@ export function PricingClient() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-lg text-[#94A3B8] mb-10"
+          className="text-lg text-[#6b7280] mb-10"
         >
           Start with a 3-day free trial. Cancel anytime.
         </motion.p>
@@ -360,25 +357,24 @@ export function PricingClient() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="inline-flex items-center gap-3"
         >
-          <div className="relative flex items-center rounded-full border border-[#334155] p-1" style={{ background: "rgba(30,41,59,0.6)" }}>
+          <div className="relative flex items-center rounded-full border border-[#e5e7eb] p-1 bg-white">
             <button
               onClick={() => setAnnual(false)}
               className="relative z-10 px-5 py-2 text-sm font-bold rounded-full transition-colors"
-              style={{ color: !annual ? "#F8FAFC" : "#94A3B8" }}
+              style={{ color: !annual ? "#fff" : "#6b7280" }}
             >
               Monthly
             </button>
             <button
               onClick={() => setAnnual(true)}
               className="relative z-10 px-5 py-2 text-sm font-bold rounded-full transition-colors"
-              style={{ color: annual ? "#F8FAFC" : "#94A3B8" }}
+              style={{ color: annual ? "#fff" : "#6b7280" }}
             >
               Annually
             </button>
-            {/* Sliding pill */}
             <motion.div
               layout
-              className="absolute top-1 bottom-1 rounded-full bg-[#3B82F6]"
+              className="absolute top-1 bottom-1 rounded-full bg-[#2163e7]"
               style={{
                 width: "calc(50% - 4px)",
                 left: annual ? "calc(50% + 2px)" : "4px",
@@ -390,7 +386,7 @@ export function PricingClient() {
             <motion.span
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-xs font-bold text-[#14A660] bg-[#14A660]/10 px-2.5 py-1 rounded-full"
+              className="text-xs font-bold text-[#10B981] bg-[#10B981]/10 px-2.5 py-1 rounded-full"
             >
               Save 20%
             </motion.span>
@@ -411,39 +407,30 @@ export function PricingClient() {
               key={plan.name}
               variants={fadeUp}
               transition={{ duration: 0.5 }}
-              className={`relative rounded-2xl border p-7 transition-all ${
+              className={`relative rounded-2xl border p-7 transition-all bg-white ${
                 plan.highlighted
-                  ? "border-[#3B82F6] shadow-[0_0_30px_rgba(59,130,246,0.15)]"
-                  : plan.name === "Enterprise"
-                    ? "border-[#334155]/60 bg-[rgba(15,23,42,0.5)]"
-                    : "border-[#334155]/60"
+                  ? "border-[#2163e7] shadow-lg shadow-[#2163e7]/10"
+                  : "border-[#e5e7eb] shadow-sm"
               }`}
-              style={{
-                background: plan.highlighted
-                  ? "rgba(30,41,59,0.6)"
-                  : plan.name === "Enterprise"
-                    ? "rgba(15,23,42,0.5)"
-                    : "rgba(30,41,59,0.4)",
-              }}
             >
               {plan.badge && (
-                <div className="absolute -top-3 right-4 rounded-full bg-[#3B82F6] px-3 py-1 text-xs font-bold text-white">
+                <div className="absolute -top-3 right-4 rounded-full bg-[#2163e7] px-3 py-1 text-xs font-bold text-white">
                   {plan.badge}
                 </div>
               )}
 
-              <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
-              <p className="text-sm text-[#94A3B8] mb-5">{plan.subtitle}</p>
+              <h3 className="text-xl font-bold text-[#1a1a2e] mb-1">{plan.name}</h3>
+              <p className="text-sm text-[#6b7280] mb-5">{plan.subtitle}</p>
 
               <div className="flex items-baseline gap-2 mb-1">
                 {annual && plan.monthlyPrice > 0 && (
-                  <span className="text-2xl font-bold text-[#64748B] line-through">${plan.monthlyPrice}</span>
+                  <span className="text-2xl font-bold text-[#6b7280]/50 line-through">${plan.monthlyPrice}</span>
                 )}
-                <span className="text-4xl font-black">{formatPrice(plan)}</span>
-                {plan.monthlyPrice > 0 && <span className="text-[#94A3B8] text-sm">/mo</span>}
+                <span className="text-4xl font-black text-[#1a1a2e]">{formatPrice(plan)}</span>
+                {plan.monthlyPrice > 0 && <span className="text-[#6b7280] text-sm">/mo</span>}
               </div>
               {annual && plan.annualTotal && (
-                <p className="text-xs text-[#64748B] mb-1">
+                <p className="text-xs text-[#6b7280] mb-1">
                   Billed ${plan.annualTotal.toFixed(2).replace(/\.00$/, "")}/yr
                 </p>
               )}
@@ -454,7 +441,7 @@ export function PricingClient() {
 
               <ul className="space-y-3 mb-8">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-[#CBD5E1]">
+                  <li key={f} className="flex items-start gap-2 text-sm text-[#1a1a2e]">
                     <svg className="w-4 h-4 mt-0.5 shrink-0 text-[#10B981]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -470,7 +457,7 @@ export function PricingClient() {
       </section>
 
       {/* ════════════ COMPARISON TABLE ════════════ */}
-      <section className="py-24 px-4" style={{ background: "rgba(30,41,59,0.2)" }}>
+      <section className="py-24 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial="hidden"
@@ -480,8 +467,8 @@ export function PricingClient() {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-black mb-4">Compare plans in detail</h2>
-            <p className="text-[#94A3B8]">Every feature, every plan — at a glance.</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-[#1a1a2e] mb-4">Compare plans in detail</h2>
+            <p className="text-[#6b7280]">Every feature, every plan — at a glance.</p>
           </motion.div>
 
           <motion.div
@@ -490,20 +477,19 @@ export function PricingClient() {
             viewport={{ once: true, margin: "-80px" }}
             variants={fadeUp}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="overflow-x-auto rounded-2xl border border-[#334155]/60"
-            style={{ background: "rgba(15,23,42,0.5)" }}
+            className="overflow-x-auto rounded-2xl border border-[#e5e7eb] bg-white shadow-sm"
           >
             <table className="w-full min-w-[540px]">
               <thead>
-                <tr className="sticky top-0 z-10" style={{ background: "rgba(15,23,42,0.95)", backdropFilter: "blur(8px)" }}>
-                  <th className="text-left text-sm font-bold text-[#94A3B8] p-4 w-[220px] sticky left-0 bg-[#0F172A]">
+                <tr className="sticky top-0 z-10 bg-[#f8f9fc]">
+                  <th className="text-left text-sm font-bold text-[#6b7280] p-4 w-[220px] sticky left-0 bg-[#f8f9fc]">
                     Feature
                   </th>
-                  <th className="text-center text-sm font-bold text-[#F8FAFC] p-4">
+                  <th className="text-center text-sm font-bold text-[#1a1a2e] p-4">
                     Plus
                   </th>
-                  <th className="text-center text-sm font-bold text-[#F8FAFC] p-4 border-t-[3px] border-t-[#3B82F6]">Pro</th>
-                  <th className="text-center text-sm font-bold text-[#F8FAFC] p-4">Enterprise</th>
+                  <th className="text-center text-sm font-bold text-[#1a1a2e] p-4 border-t-[3px] border-t-[#2163e7]">Pro</th>
+                  <th className="text-center text-sm font-bold text-[#1a1a2e] p-4">Enterprise</th>
                 </tr>
               </thead>
               <tbody>
@@ -512,7 +498,7 @@ export function PricingClient() {
                     <tr key={`section-${section.title}`}>
                       <td
                         colSpan={4}
-                        className="text-xs font-bold uppercase tracking-widest text-[#3B82F6] px-4 pt-6 pb-2"
+                        className="text-xs font-bold uppercase tracking-widest text-[#2163e7] px-4 pt-6 pb-2"
                       >
                         {section.title}
                       </td>
@@ -520,9 +506,9 @@ export function PricingClient() {
                     {section.rows.map((row, ri) => (
                       <tr
                         key={row.feature}
-                        className={ri % 2 === 0 ? "bg-[#1E293B]/30" : ""}
+                        className={ri % 2 === 0 ? "bg-[#f8f9fc]/50" : ""}
                       >
-                        <td className="text-sm text-[#CBD5E1] p-4 sticky left-0 bg-inherit font-medium">
+                        <td className="text-sm text-[#1a1a2e] p-4 sticky left-0 bg-inherit font-medium">
                           {row.feature}
                         </td>
                         <td className="text-center p-4"><CellContent value={row.plus} /></td>
@@ -549,7 +535,7 @@ export function PricingClient() {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-black mb-4">Frequently asked questions</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-[#1a1a2e] mb-4">Frequently asked questions</h2>
           </motion.div>
 
           <motion.div
@@ -568,11 +554,11 @@ export function PricingClient() {
       </section>
 
       {/* ════════════ BOTTOM CTA ════════════ */}
-      <section className="relative py-24 px-4 text-center overflow-hidden">
+      <section className="relative py-24 px-4 text-center overflow-hidden pt-bg-pattern">
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: "radial-gradient(ellipse at center, rgba(59,130,246,0.12) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse at center, rgba(33,99,231,0.06) 0%, transparent 70%)",
           }}
         />
 
@@ -583,7 +569,7 @@ export function PricingClient() {
             viewport={{ once: true, margin: "-80px" }}
             variants={fadeUp}
             transition={{ duration: 0.5 }}
-            className="text-3xl md:text-4xl font-black mb-4"
+            className="text-3xl md:text-4xl font-extrabold font-heading text-[#1a1a2e] mb-4"
           >
             Ready to build your model?
           </motion.h2>
@@ -593,7 +579,7 @@ export function PricingClient() {
             viewport={{ once: true, margin: "-80px" }}
             variants={fadeUp}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-lg text-[#94A3B8] mb-8"
+            className="text-lg text-[#6b7280] mb-8"
           >
             Start your 3-day free trial today — cancel anytime, no questions asked.
           </motion.p>
@@ -605,7 +591,7 @@ export function PricingClient() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Link href="/onboarding/survey">
-              <button className="h-14 px-10 bg-[#3B82F6] text-white text-base font-bold rounded-xl hover:bg-[#2563EB] transition-all hover:shadow-xl hover:shadow-[#3B82F6]/30 hover:-translate-y-0.5 cursor-pointer">
+              <button className="h-14 px-10 bg-[#2163e7] text-white text-base font-bold rounded-xl hover:bg-[#1a53c7] transition-all hover:shadow-xl hover:shadow-[#2163e7]/20 hover:-translate-y-0.5 cursor-pointer">
                 Start Free Trial
               </button>
             </Link>
@@ -614,8 +600,8 @@ export function PricingClient() {
       </section>
 
       {/* ════════════ FOOTER ════════════ */}
-      <footer className="border-t border-[#334155]/40 py-12 px-4 text-center" style={{ background: "rgba(15,23,42,0.8)" }}>
-        <p className="text-xs text-[#64748B]">
+      <footer className="border-t border-[#e5e7eb] py-12 px-4 text-center bg-white">
+        <p className="text-xs text-[#6b7280]">
           &copy; {new Date().getFullYear()} Revenue Map. All rights reserved.
         </p>
       </footer>

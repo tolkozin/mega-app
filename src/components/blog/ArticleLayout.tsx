@@ -105,7 +105,7 @@ export function ArticleLayout({ post }: { post: BlogPost }) {
       {/* Body + TOC */}
       <div className="flex gap-10 max-w-6xl">
         <div className="min-w-0 max-w-3xl flex-1">
-          <div className="prose dark:prose-invert prose-lg max-w-none">
+          <div className="prose prose-lg max-w-none">
             <MDXRemote
               source={post.content}
               components={mdxComponents}

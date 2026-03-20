@@ -120,7 +120,7 @@ function CheckoutPage() {
             {annual && (
               <span className="text-xl font-bold text-[#8181A5] line-through">${info.monthlyPrice}</span>
             )}
-            <span className="text-3xl font-black text-[#1C1D21]">
+            <span className="text-3xl font-extrabold text-[#1C1D21]">
               ${price}
             </span>
             <span className="text-sm text-[#8181A5]">/mo</span>

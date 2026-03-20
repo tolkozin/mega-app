@@ -50,6 +50,14 @@ export interface ModelDefinition {
   surveyDescription: string;
   headline: string;
   question: string;
+  /** Periodic table element symbol (2 letters) */
+  elementSymbol: string;
+  /** Pastel background for element card */
+  elementBg: string;
+  /** Saturated text color for element card */
+  elementText: string;
+  /** Element number (position 1-12) */
+  elementNumber: number;
 }
 
 /* ─── Registry ─── */
@@ -67,6 +75,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "Mobile app with in-app subscriptions",
     headline: "See if your app idea is profitable — in under 5 minutes.",
     question: "Will my mobile app subscription be profitable?",
+    elementSymbol: "Ma",
+    elementBg: "#e4eefd",
+    elementText: "#2163e7",
+    elementNumber: 1,
   },
   ecommerce: {
     key: "ecommerce",
@@ -80,6 +92,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "Online store selling physical or digital products",
     headline: "Get real numbers on every order — in minutes, not months.",
     question: "Am I spending too much to acquire customers?",
+    elementSymbol: "Ec",
+    elementBg: "#fdf7e2",
+    elementText: "#8c591d",
+    elementNumber: 2,
   },
   saas: {
     key: "saas",
@@ -93,6 +109,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "B2B software-as-a-service platform",
     headline: "The numbers investors actually ask for — ready in minutes.",
     question: "Am I growing efficiently enough?",
+    elementSymbol: "Sa",
+    elementBg: "#f1e8fb",
+    elementText: "#5a3ee3",
+    elementNumber: 3,
   },
   marketplace: {
     key: "marketplace",
@@ -106,6 +126,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "Two-sided marketplace connecting buyers and sellers",
     headline: "Know if your marketplace can reach critical mass — before you build it.",
     question: "Can my marketplace reach critical mass?",
+    elementSymbol: "Mp",
+    elementBg: "#def7fe",
+    elementText: "#317389",
+    elementNumber: 4,
   },
   foodtech: {
     key: "foodtech",
@@ -119,6 +143,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "Food delivery, cloud kitchen, or food-tech platform",
     headline: "Find out if each order makes money — before you deliver the first one.",
     question: "Is my food business actually profitable per order?",
+    elementSymbol: "Ft",
+    elementBg: "#fbe8e7",
+    elementText: "#c4292e",
+    elementNumber: 5,
   },
   traveltech: {
     key: "traveltech",
@@ -132,6 +160,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "Travel booking, hospitality, or tourism platform",
     headline: "Model your travel business across peak and off-peak — instantly.",
     question: "Will my travel platform be sustainable year-round?",
+    elementSymbol: "Tt",
+    elementBg: "#e3f2fe",
+    elementText: "#113352",
+    elementNumber: 6,
   },
   gametech: {
     key: "gametech",
@@ -145,6 +177,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "Mobile game, gaming platform, or game studio",
     headline: "Know your player value before spending a dollar on ads.",
     question: "Will players stick around long enough to pay back UA costs?",
+    elementSymbol: "Gt",
+    elementBg: "#fbe8eb",
+    elementText: "#bc335f",
+    elementNumber: 7,
   },
   fintech: {
     key: "fintech",
@@ -158,6 +194,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "Payments, banking, lending, or insurance platform",
     headline: "See if your fintech scales past compliance costs — in minutes.",
     question: "Can my fintech product scale profitably?",
+    elementSymbol: "Fn",
+    elementBg: "#ddf8e9",
+    elementText: "#0e6b06",
+    elementNumber: 8,
   },
   healthtech: {
     key: "healthtech",
@@ -171,6 +211,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "Digital health, telemedicine, or wellness platform",
     headline: "Model patient acquisition and retention — with real health-tech data.",
     question: "Can my health platform scale with regulatory overhead?",
+    elementSymbol: "Ht",
+    elementBg: "#fbe7d6",
+    elementText: "#b83e1d",
+    elementNumber: 9,
   },
   edtech: {
     key: "edtech",
@@ -184,6 +228,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "Online learning, courses, or education platform",
     headline: "See if your education platform is viable — before creating content.",
     question: "Will students stay long enough to make my platform viable?",
+    elementSymbol: "Et",
+    elementBg: "#fdf7e2",
+    elementText: "#8c591d",
+    elementNumber: 10,
   },
   proptech: {
     key: "proptech",
@@ -197,6 +245,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "Real estate, property management, or construction platform",
     headline: "Know your cost per deal and margin — before you list anything.",
     question: "Can my property platform generate positive unit economics?",
+    elementSymbol: "Pt",
+    elementBg: "#e7e7ea",
+    elementText: "#3e374d",
+    elementNumber: 11,
   },
   "ai-ml": {
     key: "ai-ml",
@@ -210,6 +262,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     surveyDescription: "AI/ML product, API, or platform",
     headline: "Find out if your AI product can scale without burning cash.",
     question: "Can my AI product scale without burning through compute?",
+    elementSymbol: "Ai",
+    elementBg: "#f1e8fb",
+    elementText: "#5a3ee3",
+    elementNumber: 12,
   },
 };
 

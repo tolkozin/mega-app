@@ -2,20 +2,7 @@ import { getAllPosts } from "@/lib/blog";
 import { LandingNavbar } from "@/components/layout/LandingNavbar";
 import { SoftwareApplicationJsonLd } from "@/components/blog/StructuredData";
 import { HomepageClient } from "@/components/home/HomepageClient";
-import { getAllModels } from "@/lib/model-registry";
-
 /* ─── Data ─── */
-
-const modelCards = getAllModels().map((m) => ({
-  title: m.label,
-  color: m.color,
-  iconKey: m.key,
-  headline: m.headline,
-  description: m.description,
-  question: m.question,
-}));
-
-/* Steps and features are now embedded directly in HomepageClient */
 
 const plans = [
   {
@@ -85,7 +72,6 @@ export default function LandingPage() {
       <SoftwareApplicationJsonLd />
       <LandingNavbar />
       <HomepageClient
-        modelCards={modelCards}
         plans={plans}
         footerLinks={footerLinks}
         featuredPosts={featuredPosts}
