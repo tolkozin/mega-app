@@ -39,12 +39,12 @@ const plans = [
 
 const footerLinks = {
   Product: [
-    { label: "All Business Models", href: "/#models" },
+    { label: "All Business Models", href: "/models" },
     { label: "Features", href: "/#features" },
     { label: "Pricing", href: "/pricing" },
   ],
   Models: [
-    { label: "Mobile App", href: "/models/subscription" },
+    { label: "Subscription App", href: "/models/subscription" },
     { label: "E-Commerce", href: "/models/ecommerce" },
     { label: "SaaS B2B", href: "/models/saas" },
     { label: "Marketplace", href: "/models/marketplace" },

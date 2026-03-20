@@ -112,7 +112,7 @@ export default function ScenariosPage() {
   };
 
   const configTypeOptions = [
-    { value: "subscription", label: "Mobile App" },
+    { value: "subscription", label: "Subscription App" },
     { value: "ecommerce", label: "E-Commerce" },
     { value: "saas", label: "SaaS B2B" },
   ];

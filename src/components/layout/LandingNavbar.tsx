@@ -4,18 +4,27 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState, useRef } from "react";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X, ArrowRight } from "lucide-react";
 import { getAllModels } from "@/lib/model-registry";
+import { METRIC_CATEGORIES, CATEGORY_META } from "@/lib/knowledge-base";
 
 const MODELS = getAllModels();
+const TOP_MODELS = MODELS.slice(0, 6);
+
+const KB_CATEGORIES = METRIC_CATEGORIES.map((key) => ({
+  key,
+  ...CATEGORY_META[key],
+}));
 
 export function LandingNavbar() {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [modelsOpen, setModelsOpen] = useState(false);
+  const [kbOpen, setKbOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const modelsRef = useRef<HTMLDivElement>(null);
+  const kbRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -25,8 +34,11 @@ export function LandingNavbar() {
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (modelsRef.current && !modelsRef.current.contains(e.target as Node)) {
         setModelsOpen(false);
+      }
+      if (kbRef.current && !kbRef.current.contains(e.target as Node)) {
+        setKbOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClick);
@@ -39,8 +51,11 @@ export function LandingNavbar() {
   };
 
   return (
+    <>
+    {/* Spacer for fixed navbar */}
+    <div className="h-16" />
     <nav
-      className={`sticky top-0 z-50 backdrop-blur-md border-b transition-all duration-200 ${
+      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b transition-all duration-200 ${
         scrolled
           ? "bg-white/90 border-[#e5e7eb] shadow-sm"
           : "bg-[#f8f9fc]/80 border-transparent"
@@ -56,18 +71,18 @@ export function LandingNavbar() {
         {/* Center nav links — desktop */}
         <div className="hidden md:flex flex-1 items-center justify-center space-x-8">
           {/* Models dropdown */}
-          <div ref={dropdownRef} className="relative">
+          <div ref={modelsRef} className="relative">
             <button
-              onClick={() => setModelsOpen(!modelsOpen)}
+              onClick={() => { setModelsOpen(!modelsOpen); setKbOpen(false); }}
               className="flex items-center gap-1 text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e] transition-colors"
             >
               Models
               <ChevronDown className={`w-3.5 h-3.5 transition-transform ${modelsOpen ? "rotate-180" : ""}`} />
             </button>
             {modelsOpen && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[520px] rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-xl shadow-black/5">
-                <div className="grid grid-cols-3 gap-1">
-                  {MODELS.map((m) => (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[420px] rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-xl shadow-black/5">
+                <div className="grid grid-cols-2 gap-1">
+                  {TOP_MODELS.map((m) => (
                     <Link
                       key={m.key}
                       href={`/models/${m.key}`}
@@ -86,6 +101,16 @@ export function LandingNavbar() {
                     </Link>
                   ))}
                 </div>
+                <div className="border-t border-[#e5e7eb] mt-3 pt-3">
+                  <Link
+                    href="/models"
+                    onClick={() => setModelsOpen(false)}
+                    className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#f8f9fc] transition-colors group"
+                  >
+                    <span className="text-sm font-semibold text-[#2163e7]">View all {MODELS.length} models</span>
+                    <ArrowRight className="w-4 h-4 text-[#2163e7] group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </div>
               </div>
             )}
           </div>
@@ -96,9 +121,50 @@ export function LandingNavbar() {
           <Link href="/blog" className="text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e] transition-colors">
             Blog
           </Link>
-          <Link href="/knowledge-base" className="text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e] transition-colors">
-            Knowledge Base
-          </Link>
+
+          {/* Knowledge Base dropdown */}
+          <div ref={kbRef} className="relative">
+            <button
+              onClick={() => { setKbOpen(!kbOpen); setModelsOpen(false); }}
+              className="flex items-center gap-1 text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e] transition-colors"
+            >
+              Knowledge Base
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${kbOpen ? "rotate-180" : ""}`} />
+            </button>
+            {kbOpen && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[380px] rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-xl shadow-black/5">
+                <div className="space-y-1">
+                  {KB_CATEGORIES.map((cat) => (
+                    <Link
+                      key={cat.key}
+                      href={`/knowledge-base?category=${cat.key}`}
+                      onClick={() => setKbOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#f8f9fc] transition-colors group"
+                    >
+                      <div
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ background: cat.color }}
+                      />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-[#6b7280] group-hover:text-[#1a1a2e] transition-colors">{cat.label}</p>
+                        <p className="text-[11px] text-[#9ca3af] truncate">{cat.description}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <div className="border-t border-[#e5e7eb] mt-3 pt-3">
+                  <Link
+                    href="/knowledge-base"
+                    onClick={() => setKbOpen(false)}
+                    className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#f8f9fc] transition-colors group"
+                  >
+                    <span className="text-sm font-semibold text-[#2163e7]">Browse all metrics</span>
+                    <ArrowRight className="w-4 h-4 text-[#2163e7] group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right actions — desktop */}
@@ -140,11 +206,11 @@ export function LandingNavbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-[#e5e7eb] bg-white px-4 pb-6 pt-4 space-y-4">
+        <div className="md:hidden border-t border-[#e5e7eb] bg-white px-4 pb-6 pt-4 space-y-4 max-h-[80vh] overflow-y-auto">
           <div className="space-y-1">
             <p className="text-xs font-bold uppercase tracking-wider text-[#6b7280] px-3 py-2">Models</p>
             <div className="grid grid-cols-2 gap-1">
-              {MODELS.map((m) => (
+              {TOP_MODELS.map((m) => (
                 <Link
                   key={m.key}
                   href={`/models/${m.key}`}
@@ -161,11 +227,30 @@ export function LandingNavbar() {
                 </Link>
               ))}
             </div>
+            <Link href="/models" onClick={() => setMobileOpen(false)} className="flex items-center gap-1 px-3 py-2 text-sm font-semibold text-[#2163e7]">
+              View all models <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="border-t border-[#e5e7eb] pt-4 space-y-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#6b7280] px-3 py-2">Knowledge Base</p>
+            {KB_CATEGORIES.map((cat) => (
+              <Link
+                key={cat.key}
+                href={`/knowledge-base?category=${cat.key}`}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#f8f9fc] transition-colors"
+              >
+                <div className="w-2 h-2 rounded-full shrink-0" style={{ background: cat.color }} />
+                <span className="text-sm text-[#1a1a2e]">{cat.label}</span>
+              </Link>
+            ))}
+            <Link href="/knowledge-base" onClick={() => setMobileOpen(false)} className="flex items-center gap-1 px-3 py-2 text-sm font-semibold text-[#2163e7]">
+              Browse all metrics <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
           <div className="border-t border-[#e5e7eb] pt-4 space-y-1">
             <Link href="/pricing" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e]">Pricing</Link>
             <Link href="/blog" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e]">Blog</Link>
-            <Link href="/knowledge-base" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-medium text-[#6b7280] hover:text-[#1a1a2e]">Knowledge Base</Link>
           </div>
           <div className="border-t border-[#e5e7eb] pt-4">
             {loading ? null : user ? (
@@ -187,5 +272,6 @@ export function LandingNavbar() {
         </div>
       )}
     </nav>
+    </>
   );
 }

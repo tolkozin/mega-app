@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { METRICS } from "@/lib/knowledge-base";
 import { KBIndexClient } from "@/components/knowledge-base/KBIndexClient";
 
@@ -44,7 +45,9 @@ export default function KnowledgeBasePage() {
           </p>
         </div>
 
-        <KBIndexClient metrics={METRICS} />
+        <Suspense fallback={null}>
+          <KBIndexClient metrics={METRICS} />
+        </Suspense>
       </div>
     </>
   );

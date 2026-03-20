@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { MetricCard } from "./MetricCard";
 import { CATEGORY_META, METRIC_CATEGORIES } from "@/lib/knowledge-base";
 import { getAllModels } from "@/lib/model-registry";
@@ -11,7 +12,11 @@ import { Search } from "lucide-react";
 const MODELS = getAllModels();
 
 export function KBIndexClient({ metrics }: { metrics: MetricDefinition[] }) {
-  const [category, setCategory] = useState<MetricCategory | null>(null);
+  const searchParams = useSearchParams();
+  const initialCategory = (searchParams.get("category") as MetricCategory) ?? null;
+  const [category, setCategory] = useState<MetricCategory | null>(
+    initialCategory && METRIC_CATEGORIES.includes(initialCategory) ? initialCategory : null
+  );
   const [model, setModel] = useState<ProductType | null>(null);
   const [query, setQuery] = useState("");
 

@@ -65,8 +65,8 @@ export interface ModelDefinition {
 export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
   subscription: {
     key: "subscription",
-    label: "Mobile App",
-    shortLabel: "Mobile App",
+    label: "Subscription App",
+    shortLabel: "Subscription",
     description:
       "Instant financial projections for subscription apps — built on real benchmarks from thousands of mobile businesses.",
     icon: Smartphone,
