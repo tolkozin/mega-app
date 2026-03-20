@@ -1,0 +1,182 @@
+---
+title: "Mobile App Financial Model: Revenue Projections, Unit Economics, and Benchmarks"
+description: "Learn how to build a financial model for a mobile app, from MAU-to-MRR projections and unit economics to category benchmarks. Includes a free LTV calculator and worked examples."
+date: "2026-02-14"
+author: "Revenue Map Team"
+category: "financial-modeling"
+tags:
+  - mobile-app
+  - subscription-metrics
+  - ltv
+  - cac
+  - app-store
+  - financial-modeling
+image: "/blog/mobile-app-financial-model/cover.jpg"
+imageAlt: "Revenue Map dashboard showing mobile app subscription revenue projections and unit economics"
+featured: false
+draft: false
+keyword: "mobile app financial model"
+dateModified: "2026-02-14"
+sitemapPriority: 0.9
+sitemapChangeFreq: "monthly"
+# canonicalUrl: "https://revenuemap.app/blog/mobile-app-financial-model"
+# Uncomment ONLY when cross-posting to Dev.to, Medium, Hashnode, etc.
+# Always publish on revenuemap.app FIRST, wait 1-3 days for indexing, then cross-post.
+speakable: "A mobile app financial model projects revenue by converting monthly active users through a freemium or trial funnel into paying subscribers, then modeling ARPU, churn, and LTV against customer acquisition cost. The key differences from standard SaaS models are app store fee deductions of 15 to 30 percent, lower freemium-to-paid conversion rates of 2 to 5 percent, and platform-specific retention curves."
+twitterHook: "Most mobile app financial models are wrong because they use SaaS assumptions. App store fees, 2-5% freemium conversion, and platform-specific retention curves change the math completely. Here's how to build one that actually works."
+linkedinStub: "Building a financial model for a mobile app? Standard SaaS templates don't work — app store fees eat 15-30% of revenue, freemium conversion sits at 2-5%, and retention curves behave differently on mobile. Here's a step-by-step framework for projecting mobile app revenue, calculating unit economics, and benchmarking against real category data."
+faq:
+  - question: "How do you build a financial model for a mobile app?"
+    answer: "Start with your monthly active user (MAU) projection, then model the conversion funnel: MAU to trial to paid subscriber. Multiply paid subscribers by ARPU to get MRR. Deduct app store fees (15-30%), apply monthly churn, and calculate LTV and CAC to validate unit economics. A complete mobile app financial model also includes cohort-based retention curves and seasonal adjustments."
+  - question: "What is a good LTV:CAC ratio for a mobile app?"
+    answer: "A 3:1 LTV:CAC ratio is the standard benchmark for a healthy mobile app subscription business. Below 2:1 indicates unsustainable acquisition economics. Above 5:1 suggests strong unit economics and potential underinvestment in growth. Always use net LTV after app store fees when calculating this ratio."
+  - question: "How much do app store fees reduce mobile app revenue?"
+    answer: "Apple and Google charge a 30% commission on in-app purchases for the first year, reduced to 15% for developers earning under $1M annually or for subscriptions retained beyond 12 months. This fee must be deducted before calculating net ARPU, LTV, and all downstream unit economics. Ignoring app store fees inflates projected revenue by 15-30%."
+  - question: "What is a typical freemium-to-paid conversion rate for mobile apps?"
+    answer: "The industry average freemium-to-paid conversion rate for mobile apps is 2-5%. Top-performing apps in productivity and business categories can reach 7-10%. Consumer entertainment apps typically convert at 1-3%. These rates are significantly lower than B2B SaaS web applications, which commonly see 5-15% trial-to-paid conversion."
+howTo:
+  name: "How to Build a Mobile App Revenue Forecast"
+  description: "A step-by-step method for projecting mobile app subscription revenue from MAU through to net MRR."
+  steps:
+    - name: "Project monthly active users (MAU)"
+      text: "Estimate MAU from organic installs, paid acquisition, and viral growth. Apply a download-to-MAU activation rate of 20-40% depending on category. Build month-by-month projections for at least 12 months."
+    - name: "Model the trial and conversion funnel"
+      text: "Apply your freemium-to-trial rate (10-25% of MAU start a trial) and trial-to-paid conversion rate (20-40% of trials convert). For direct freemium-to-paid, use 2-5% of MAU as your baseline conversion rate."
+    - name: "Calculate net ARPU after app store fees"
+      text: "Take your subscription price, deduct the applicable app store commission (15% or 30%), and arrive at net ARPU. A $9.99/month subscription yields $6.99 net at the 30% tier or $8.49 net at the 15% tier."
+    - name: "Build the MRR model with cohort-based churn"
+      text: "Multiply paid subscribers by net ARPU to get gross MRR. Apply monthly churn rates by cohort age — month-1 churn is typically 2-3x the steady-state rate. Sum surviving cohorts each month to project net MRR over time."
+---
+
+A mobile app financial model converts your user acquisition and engagement assumptions into revenue projections, unit economics, and cash flow forecasts. Build one by starting with monthly active users, modeling the conversion funnel from free to paid, applying net ARPU after app store fees, and projecting MRR with cohort-based churn. If you skip any of these steps — or worse, use a generic SaaS template — your projections will be off by 20-40% before you write a single line of code.
+
+## What Is a Mobile App Financial Model?
+
+**A mobile app financial model is a structured framework that projects revenue, costs, and profitability for an app business by modeling the user journey from download through monetization.**
+
+Unlike a static spreadsheet with top-down revenue guesses, a proper mobile app model is bottom-up. It starts with acquisition inputs (installs, organic vs. paid mix), flows through activation and conversion metrics (MAU, trial starts, paid conversions), and outputs financial results (MRR, LTV, CAC payback, contribution margin). Every assumption is explicit, every output is traceable to an input, and you can run scenarios by changing any variable in the chain.
+
+The model serves three audiences: founders making resource allocation decisions, investors evaluating unit economics for funding, and product teams testing the financial impact of pricing and conversion experiments. Each audience cares about different outputs, but all three need the same underlying model to be correct.
+
+## Why Mobile Apps Need a Different Approach
+
+**Standard SaaS financial models systematically overstate mobile app revenue because they ignore three structural differences: app store fees, lower conversion rates, and trial-specific retention mechanics.**
+
+### App Store Fees Eat 15-30% of Revenue
+
+Apple and Google take a 30% commission on all in-app subscription revenue for the first year. After 12 months of continuous subscription, Apple reduces this to 15% (Google matches this through its own program). Developers earning under $1M annually qualify for the 15% Small Business Program rate from day one.
+
+This isn't a rounding error. On a $9.99/month subscription, you net $6.99 at the 30% tier. Your unit economics — LTV, CAC payback, contribution margin — must be calculated on the net number, not the sticker price. A model built on gross ARPU will show healthy economics that don't exist in your actual bank account.
+
+### Freemium Conversion Runs 2-5%
+
+B2B SaaS web apps commonly convert 5-15% of trial users to paid. Mobile apps operate in a fundamentally different environment: lower intent at install, higher volume, and more casual usage patterns. The typical freemium-to-paid conversion rate for mobile apps is 2-5%. Top-performing productivity apps push toward 7-10%, but consumer entertainment apps often sit at 1-3%.
+
+If you plug a 10% conversion rate into a mobile app model because "that's what SaaS benchmarks say," you'll overstate paid subscriber counts by 2-5x. Get this number wrong and every downstream metric — MRR, LTV, revenue forecast — inherits the error.
+
+### Trial Mechanics Change Retention Math
+
+Mobile app trials behave differently from SaaS trials. App store billing handles trial expiration automatically, which means your "conversion" often happens through inaction (the user doesn't cancel) rather than action (the user enters a credit card). This produces higher initial conversion but significantly higher month-1 churn — 15-25% of auto-converted trial users cancel within the first billing cycle. Your model needs to account for this front-loaded churn or it will overstate subscriber retention by a wide margin.
+
+## The Five Metrics That Define App Profitability
+
+**Mobile app unit economics come down to five numbers: LTV, CAC, ARPU, retention rate, and payback period. Get these right and the rest of the model follows.**
+
+### Lifetime Value (LTV)
+
+LTV estimates the total net revenue a subscriber generates before churning. The simplest formula for subscription apps:
+
+```
+LTV = Net ARPU / Monthly Churn Rate
+```
+
+A subscriber paying $9.99/month (net $6.99 after 30% app store fee) with 6% monthly churn has an LTV of $6.99 / 0.06 = **$116.50**. Note: this uses net ARPU. Using gross ARPU would overstate LTV by 43%.
+
+### Customer Acquisition Cost (CAC)
+
+CAC is total acquisition spend divided by paid subscribers acquired — not installs, not MAU, not trial starts. If you spend $15,000 on ads that generate 10,000 installs, 3,000 MAU, 150 trial starts, and 45 paid subscribers, your CAC is $15,000 / 45 = **$333**.
+
+Many mobile app founders report CAC per install ($1.50 in this example) and confuse it with CAC per paying customer. These are off by an order of magnitude. Your financial model must use the fully-loaded cost per paying subscriber.
+
+### Average Revenue Per User (ARPU)
+
+ARPU in a mobile app context should always be calculated net of app store fees. If you offer a $9.99/month and $79.99/year plan with a 60/40 monthly/annual split:
+
+```
+Blended Gross ARPU = (0.60 × $9.99) + (0.40 × $6.67) = $8.66/month
+Net ARPU (after 30% fee) = $8.66 × 0.70 = $6.06/month
+```
+
+### Retention Rate
+
+Retention rate is the inverse of [churn rate](/blog/churn-rate-calculation). For mobile apps, retention follows a decay curve that's steepest in month 1 and flattens over time. A typical pattern: 75% month-1 retention, 60% month-3, 50% month-6, 40% month-12. Model retention by cohort month, not as a flat monthly rate — the flat-rate shortcut underestimates early-stage losses.
+
+### Payback Period
+
+Payback period measures how many months of subscriber revenue it takes to recover CAC:
+
+```
+Payback Period = CAC / (Net ARPU × Gross Margin)
+```
+
+With a $333 CAC, $6.06 net ARPU, and 85% gross margin: $333 / ($6.06 × 0.85) = **64.6 months**. That's over 5 years — clearly unsustainable. This is why most successful mobile apps rely heavily on organic acquisition to blend down their effective CAC.
+
+## How to Build Your Mobile App Revenue Forecast
+
+**Build your revenue forecast bottom-up: MAU to trial to paid conversion to ARPU to MRR, then layer in churn and growth.**
+
+**Step 1 — Project MAU by acquisition channel.** Break installs into organic (ASO, word-of-mouth, viral) and paid (Apple Search Ads, Meta, Google UAC). Apply a download-to-MAU activation rate — typically 20-40% depending on category. A productivity app averaging 5,000 monthly installs with 35% activation produces 1,750 MAU.
+
+**Step 2 — Model the conversion funnel.** Of your 1,750 MAU, assume 15% start a free trial (263 trials) and 30% of trials convert to paid (79 new subscribers per month). Alternatively, for direct freemium-to-paid models, apply a 3% conversion rate: 1,750 × 0.03 = 53 new subscribers.
+
+**Step 3 — Calculate net MRR.** Multiply new paid subscribers by net ARPU. With 79 new subscribers at $6.06 net ARPU, that's $479 in new MRR from this month's cohort. But total MRR includes all surviving previous cohorts — this is where cohort-based retention modeling matters.
+
+**Step 4 — Apply cohort churn and sum surviving MRR.** Each monthly cohort loses subscribers according to your retention curve. Month-1 retains 75%, month-2 retains 65%, and steady-state monthly retention stabilizes around 94% (6% churn). Sum the surviving MRR from all active cohorts to get your total MRR for any given month.
+
+**Step 5 — Model growth scenarios.** Run three scenarios: conservative (current organic-only growth), base (moderate paid acquisition), and aggressive (scaled paid + viral growth). Compare the LTV:CAC ratio across scenarios. If scaling paid acquisition pushes your LTV:CAC below 2:1, the growth isn't sustainable — you need to improve conversion or retention before spending more on acquisition.
+
+**Worked example:** An app launches with 1,000 MAU in month 1, growing 12% monthly through a mix of organic and paid. At 3% freemium-to-paid conversion and $6.06 net ARPU, month-12 MRR reaches approximately $3,800 with 630 cumulative surviving subscribers. By month 24, compounding MAU growth and stacking cohorts produce roughly $18,500 MRR. These are realistic numbers for a well-executed indie app — not a hockey stick, but a fundable trajectory if unit economics are sound.
+
+<MetricCalculator
+  title="Mobile App LTV Calculator"
+  description="Enter your net ARPU (after app store fees) and monthly churn rate to calculate subscriber lifetime value."
+  fields='[{"name":"arpu","label":"Net ARPU (after app store fees)","defaultValue":6.99,"min":0.01,"step":0.01},{"name":"monthlyChurn","label":"Monthly Churn Rate (%)","defaultValue":6,"min":0.1,"step":0.1}]'
+  result='{"label":"Subscriber LTV","prefix":"$"}'
+  formula="arpu / (monthlyChurn / 100)"
+/>
+
+## Benchmarks by App Category
+
+**Benchmark your assumptions against category data to avoid modeling with numbers that don't match your market.**
+
+| Category | Trial-to-Paid Rate | Monthly Churn | Avg Net ARPU | Estimated LTV |
+|---|---|---|---|---|
+| Productivity | 35–45% | 4–6% | $5.50–$8.00 | $110–$180 |
+| Health & Fitness | 25–35% | 7–10% | $4.00–$7.00 | $45–$90 |
+| Entertainment | 20–30% | 8–12% | $3.50–$6.00 | $30–$70 |
+| Education | 30–40% | 5–8% | $5.00–$9.00 | $70–$160 |
+
+Three things to note. First, these are net ARPU figures after app store fees — gross numbers would be 15-43% higher depending on the fee tier. Second, productivity and education apps show the best unit economics because they solve recurring professional or skill-building needs that create habitual usage. Third, entertainment apps have the highest churn because content consumption patterns are inherently more volatile — users binge and leave.
+
+These benchmarks come from aggregated modeling data. Your specific numbers will vary based on pricing, market positioning, and onboarding quality. Use these as a sanity check, not as inputs. If your model assumes 2% monthly churn for an entertainment app, you're modeling a fantasy.
+
+## Common Mistakes in Mobile App Financial Models
+
+**1. Ignoring app store fees in unit economics.** This is the single most common and most damaging error. Every LTV, CAC payback, and margin calculation must use net revenue after the 15-30% platform commission. A model built on gross ARPU will show a 3:1 LTV:CAC ratio that's actually 2.1:1 in practice. That's the difference between "fundable" and "fix your economics." Always model net.
+
+**2. Overestimating organic acquisition.** Early traction often comes from launch momentum, Product Hunt features, or press coverage — sources that don't compound. Modeling 50% month-over-month organic install growth for 24 months produces projections disconnected from reality. Organic growth for most apps stabilizes at 5-10% monthly after the initial launch window. Model a growth decay curve, not a straight line.
+
+**3. Using flat churn instead of cohort analysis.** A 6% flat monthly churn rate applied uniformly across all subscribers ignores the reality that month-1 churn is typically 15-25% while month-6+ churn stabilizes at 3-5%. Flat-rate models undercount early losses and overcount late losses, producing MRR projections that look right at month 6 but diverge significantly by month 18. Model churn by cohort age.
+
+**4. Not modeling seasonality.** Mobile app installs and conversions follow predictable seasonal patterns. Fitness apps spike in January and drop by March. Productivity apps see back-to-school surges in August-September. Entertainment apps peak during holidays. A model that assumes constant monthly acquisition will understate Q1 revenue for fitness apps by 30-40% and overstate Q2 by a similar margin. Layer seasonal multipliers onto your base acquisition assumptions.
+
+![Mobile app financial model dashboard showing cohort retention curves and MRR growth projections](/blog/mobile-app-financial-model/inline-01.jpg)
+
+## Key Takeaways
+
+- **Net ARPU is the only ARPU that matters** — deduct app store fees (15-30%) before calculating LTV, CAC payback, or any unit economics metric; gross ARPU models overstate revenue by up to 43%
+- **Freemium conversion for mobile apps is 2-5%, not 10-15%** — using B2B SaaS conversion benchmarks in a mobile app model inflates subscriber projections by 2-5x and produces forecasts you'll never hit
+- **Model churn by cohort age, not as a flat rate** — month-1 churn of 15-25% tapering to 3-5% steady-state produces materially different MRR projections than a flat 6% applied uniformly
+- **Validate unit economics before scaling paid acquisition** — if your LTV:CAC ratio is below 2:1 on net revenue, spending more on ads accelerates losses; fix conversion and retention first, then scale
+
+If you want to model these scenarios against your actual app metrics, Revenue Map lets you set your ARPU, conversion rates, churn curves, and acquisition costs in one place — then run side-by-side comparisons to see exactly where your unit economics break or hold. Start with the [MRR fundamentals](/blog/understanding-mrr-metrics) if you're building your first subscription model, or dive into [churn rate calculation](/blog/churn-rate-calculation) to get your retention assumptions right before plugging them into a full forecast.

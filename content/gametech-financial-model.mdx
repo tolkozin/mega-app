@@ -1,0 +1,194 @@
+---
+title: "GameTech Financial Model: Player LTV, Monetization Metrics, and UA Economics"
+description: "Build a GameTech financial model from player-level unit economics. Learn how to forecast DAU, ARPDAU, player LTV, and UA payback across casual, mid-core, hyper-casual, and RPG game types."
+date: "2026-03-01"
+author: "Revenue Map Team"
+category: "financial-modeling"
+tags:
+  - gametech
+  - gaming
+  - player-ltv
+  - user-acquisition
+  - monetization
+  - in-app-purchases
+  - financial-modeling
+image: "/blog/gametech-financial-model/cover.jpg"
+imageAlt: "Revenue Map dashboard showing GameTech player LTV projections and UA economics"
+featured: false
+draft: false
+keyword: "gametech financial model"
+dateModified: "2026-03-01"
+sitemapPriority: 0.8
+sitemapChangeFreq: "monthly"
+# canonicalUrl: "https://revenuemap.app/blog/gametech-financial-model"
+# Uncomment ONLY when cross-posting to Dev.to, Medium, Hashnode, etc.
+# Always publish on revenuemap.app FIRST, wait 1-3 days for indexing, then cross-post.
+speakable: "A GameTech financial model projects revenue by modeling daily active users, average revenue per daily active user, and player lifetime value against user acquisition costs. The key metrics are ARPDAU, DAU/MAU stickiness ratio, Day-1/Day-7/Day-30 retention rates, player LTV, and UA payback period. A healthy free-to-play game targets an LTV-to-CPI ratio of 1.5 to 1 or above within 180 days of install."
+twitterHook: "Most game studios model revenue as DAU times ARPDAU. That's the easy part. The hard part: 70% of your players are gone by Day 7, and the ones who stay monetize at 10x the rate of the ones who leave. Here's how to model the retention curve that actually drives GameTech economics."
+linkedinStub: "GameTech economics are uniquely front-loaded on cost and back-loaded on revenue. You pay for a user install on Day 0. You lose 60-75% of those users by Day 7. The 25-40% who remain generate nearly all of your lifetime revenue — and whether that revenue exceeds the acquisition cost is determined by retention curves and monetization depth, not install volume. Here's how to build a financial model that captures this dynamic."
+faq:
+  - question: "What is a GameTech financial model?"
+    answer: "A GameTech financial model is a dynamic framework that projects revenue, costs, and profitability for a gaming business by modeling player acquisition, retention curves, and monetization per active user. It connects user acquisition spend to install volume, installs to retained DAU via retention curves, DAU to revenue via ARPDAU, and cumulative revenue per user to player LTV — which is then compared against cost per install to determine unit economics viability."
+  - question: "How do you calculate player LTV in gaming?"
+    answer: "Player LTV equals ARPDAU multiplied by the average number of active session days per player over their lifetime. For a simplified model: LTV = ARPDAU x Average Session Days. A more precise calculation integrates the retention curve: LTV = ARPDAU x sum of daily retention rates from Day 0 through Day N. The retention-curve method is more accurate because it accounts for the non-linear drop-off in player engagement over time."
+  - question: "What is ARPDAU and why does it matter?"
+    answer: "ARPDAU — average revenue per daily active user — is the core monetization metric in free-to-play gaming. It measures how much revenue each active player generates per day across all revenue streams: in-app purchases, advertising, subscriptions, and battle passes. ARPDAU typically ranges from $0.01-$0.05 for hyper-casual games to $0.15-$0.50 for mid-core and RPG titles. Small differences in ARPDAU compound dramatically over a player's lifetime."
+  - question: "What is a good LTV-to-CPI ratio for mobile games?"
+    answer: "A healthy LTV-to-CPI ratio for a mobile game is 1.5:1 or above measured at Day 180 post-install. At 1:1, the game is breaking even on user acquisition with no margin for overhead or profit. Below 1:1, the game is destroying value with every install. Above 2:1 indicates strong unit economics and potential to scale UA spend aggressively. Hyper-casual games often operate at thin 1.2-1.5:1 ratios but compensate with massive install volume."
+---
+
+A GameTech financial model projects revenue from the player level up — starting with user acquisition costs, running installs through retention curves to produce daily active users, and monetizing those users via ARPDAU to arrive at player lifetime value. The fundamental question the model answers is whether the revenue a player generates over their lifetime exceeds the cost of acquiring them — and by how much. Unlike [SaaS models](/blog/saas-financial-modeling) where churn is a monthly percentage applied to a subscription base, gaming retention is a daily curve where 60-75% of players disappear within the first week and monetization is concentrated in the small percentage who remain.
+
+## Why GameTech Economics Are Unique
+
+**GameTech economics are defined by three structural characteristics: front-loaded acquisition costs, exponentially decaying retention, and heavily skewed monetization where a small percentage of players generate the majority of revenue.**
+
+These three characteristics create a modeling challenge unlike any other digital business.
+
+**User acquisition cost is paid on Day 0; revenue arrives over months.** When a game studio spends $2.50 to acquire a player install, the full cost is incurred immediately. Revenue from that player trickles in over days, weeks, and months — and the cumulative revenue may never exceed the acquisition cost if retention is poor or monetization is shallow. This front-loaded cost structure means that GameTech businesses are structurally cash-negative during growth phases, and the payback period on UA spend is the critical financial constraint.
+
+**Retention curves are non-linear and decay rapidly.** A typical mobile game retains 35-45% of players on Day 1, 15-25% on Day 7, and 5-12% on Day 30. The players who survive past Day 30 are disproportionately valuable — they are more engaged, more likely to make in-app purchases, and generate 5-10x the lifetime revenue of players who churn in the first week. A financial model that uses average ARPDAU across all installs — rather than weighting by retention cohort — will systematically underestimate LTV for retained players and overestimate it for churned players.
+
+**Monetization follows a power law.** In most free-to-play games, 2-5% of players generate 50-70% of total revenue. These "whale" players make large and repeated in-app purchases. The remaining 95-98% of players either never spend or make small, infrequent purchases. This means that ARPDAU — an average across all active users — obscures a bimodal distribution. A game with $0.08 ARPDAU might have 97% of players at $0.01 and 3% at $2.40. Losing a small number of high-value players has a disproportionate impact on revenue that average metrics will not surface until it is too late.
+
+## Core GameTech Metrics
+
+### ARPDAU (Average Revenue per Daily Active User)
+
+The total revenue generated in a day divided by the number of daily active users. This is the master monetization metric in gaming.
+
+```
+ARPDAU = Daily Revenue / Daily Active Users
+```
+
+ARPDAU captures all revenue streams — in-app purchases (IAP), advertising revenue (ads shown to non-paying users), subscription revenue (battle passes, VIP memberships), and any other monetization. For most free-to-play games, IAP and advertising split varies by genre: hyper-casual games derive 70-90% of revenue from advertising, while mid-core and RPG titles derive 60-80% from IAP.
+
+Benchmark ranges: hyper-casual $0.01-$0.05, casual $0.04-$0.12, mid-core $0.10-$0.35, RPG $0.15-$0.50. These ranges reflect the fundamental tradeoff between audience breadth and monetization depth — hyper-casual games reach massive audiences with thin monetization, while RPGs reach smaller audiences with deep monetization per retained player.
+
+### DAU/MAU Stickiness Ratio
+
+The percentage of monthly active users who play on any given day. This ratio measures engagement intensity.
+
+```
+Stickiness = DAU / MAU x 100
+```
+
+A game with 100,000 MAU and 30,000 DAU has 30% stickiness — meaning on average, each monthly player opens the game roughly 9 days per month (30% x 30 days). Stickiness directly multiplies ARPDAU into monthly revenue per user: a game with $0.10 ARPDAU and 30% stickiness generates $0.90 per MAU per month. At 45% stickiness, the same ARPDAU produces $1.35 per MAU per month — a 50% increase in monthly revenue per user with no change in monetization.
+
+Benchmark ranges: hyper-casual 10-18%, casual 15-25%, mid-core 20-35%, RPG 25-45%. Games above 40% stickiness have exceptional engagement — players are returning almost daily, which correlates strongly with both monetization and long-term retention.
+
+### Retention Rates (Day-1, Day-7, Day-30)
+
+The percentage of players who installed the game on Day 0 and return to play on Day 1, Day 7, and Day 30 respectively. Retention is the single most predictive metric for game success.
+
+```
+Day-N Retention = Players Active on Day N / Players Installed on Day 0 x 100
+```
+
+Day-1 retention is the quality gate. A game with below 30% Day-1 retention has a fundamental engagement problem — the first session is not compelling enough to drive a return visit. Day-7 retention separates games with a core loop from games with a novelty hook. Day-30 retention identifies games with long-term engagement potential and is the strongest predictor of LTV.
+
+Industry benchmarks — Day-1 / Day-7 / Day-30:
+- Hyper-casual: 30-40% / 8-15% / 2-5%
+- Casual: 35-45% / 15-22% / 6-12%
+- Mid-core: 30-40% / 12-20% / 6-14%
+- RPG: 28-38% / 12-22% / 8-18%
+
+A 5 percentage point improvement in Day-7 retention — from 15% to 20% — has a larger impact on player LTV than a 30% improvement in ARPDAU, because it compounds across every subsequent day the player is retained.
+
+### Player LTV (Lifetime Value)
+
+The total revenue a single player generates over their entire engagement with the game. This is the metric compared against CPI to determine unit economics viability.
+
+```
+Player LTV = ARPDAU x Average Session Days
+```
+
+The simplified formula above works for quick estimation. The precise calculation integrates the daily retention curve:
+
+```
+LTV = ARPDAU x (D0 Retention + D1 Retention + D2 Retention + ... + DN Retention)
+```
+
+Where each day's retention rate represents the probability that a Day-0 install is active on that day. For a game with $0.08 ARPDAU and the retention curve 100%, 38%, 28%, 22%, 19%, 17%, 15% (Days 0-6), the first seven days of LTV equal $0.08 x (1 + 0.38 + 0.28 + 0.22 + 0.19 + 0.17 + 0.15) = $0.08 x 2.39 = $0.19. Extending through Day 180 with a long-tail retention curve, this might reach $0.80-$1.50 depending on how the curve flattens.
+
+### UA Payback Period
+
+The number of days after install at which cumulative revenue per user equals the cost per install.
+
+```
+UA Payback = Day N where Cumulative ARPDAU from Day 0 to Day N >= CPI
+```
+
+Target: payback within 90 days for hyper-casual, within 180 days for casual and mid-core, within 365 days for RPG. A game that does not reach payback within its category's target window likely has a structural unit economics problem that requires either improved retention, deeper monetization, or lower CPI — not just more installs.
+
+## Player LTV Calculator
+
+<MetricCalculator
+  title="GameTech Player LTV Calculator"
+  description="Enter your ARPDAU and average session days to estimate player lifetime value. Compare against your CPI to assess unit economics."
+  fields='[{"name":"arpdau","label":"ARPDAU (Avg Revenue per DAU)","defaultValue":0.08,"min":0,"prefix":"$","step":0.01},{"name":"avgSessionDays","label":"Avg. Session Days per Player","defaultValue":18,"min":1,"step":1}]'
+  result='{"label":"Estimated Player LTV","prefix":"$"}'
+  formula="arpdau * avgSessionDays"
+/>
+
+## GameTech Benchmarks by Game Type
+
+**Unit economics vary dramatically across game genres — a hyper-casual game and an RPG operate with fundamentally different acquisition costs, retention curves, monetization depths, and LTV profiles.**
+
+| Metric | Casual | Mid-core | Hyper-casual | RPG |
+|---|---|---|---|---|
+| CPI (iOS) | $1.50-$4.00 | $3.00-$8.00 | $0.20-$0.80 | $4.00-$12.00 |
+| ARPDAU | $0.04-$0.12 | $0.10-$0.35 | $0.01-$0.05 | $0.15-$0.50 |
+| Day-1 Retention | 35-45% | 30-40% | 30-40% | 28-38% |
+| Day-7 Retention | 15-22% | 12-20% | 8-15% | 12-22% |
+| Day-30 Retention | 6-12% | 6-14% | 2-5% | 8-18% |
+| DAU/MAU Stickiness | 15-25% | 20-35% | 10-18% | 25-45% |
+| Player LTV (D180) | $1.20-$4.50 | $3.00-$12.00 | $0.30-$1.20 | $5.00-$25.00 |
+| LTV:CPI Ratio | 1.2-1.8x | 1.3-2.0x | 1.2-1.5x | 1.2-2.5x |
+| Payer Conversion | 2-5% | 3-8% | 0.5-2% (ad-driven) | 3-10% |
+| UA Payback Target | 90-180 days | 120-270 days | 30-90 days | 180-365 days |
+
+Three observations from these benchmarks.
+
+**Hyper-casual operates on razor-thin margins at massive volume.** With CPI as low as $0.20-$0.80 and LTV of $0.30-$1.20, the LTV:CPI ratio is thin (1.2-1.5x) but the CPI is so low that even small positive margins generate returns at scale. A hyper-casual game acquiring 500,000 installs per month at $0.40 CPI and $0.55 LTV generates $75,000 in monthly profit — but that profit disappears entirely if CPI rises by $0.15 or Day-7 retention drops by 2 percentage points. The margin of error is extremely narrow.
+
+**RPGs have the highest LTV but also the highest CPI and longest payback period.** A player worth $15 in LTV sounds strong until you account for the $8 CPI and the 6-12 month payback period. RPG studios need significantly more working capital than casual or hyper-casual studios — they are funding user acquisition 6-12 months before those installs reach payback. A studio spending $200,000 per month on RPG UA needs $1.2-$2.4 million in working capital just to fund the payback lag.
+
+**Mid-core offers the most balanced risk-return profile.** Moderate CPI ($3-$8), meaningful Day-30 retention (6-14%), and ARPDAU in the $0.10-$0.35 range produce LTV:CPI ratios of 1.3-2.0x with payback periods of 120-270 days. The unit economics are robust enough to sustain scaling while the margin of error is wider than hyper-casual — making mid-core the genre most forgiving of small modeling errors.
+
+## The Retention-Revenue Compound Effect
+
+**In gaming, retention and monetization compound against each other — a player retained for twice as long does not generate twice the revenue; they generate more because monetization depth increases with engagement duration.**
+
+This is the most commonly missed dynamic in GameTech modeling. ARPDAU is not constant across a player's lifetime. Players who are retained past Day 30 typically have 2-3x the ARPDAU of the average Day-1 cohort, because they have progressed deeper into the game, encountered more monetization touchpoints, and developed higher willingness to pay to maintain progress.
+
+A model that applies a flat ARPDAU across all retention days will underestimate LTV for long-retained players (who monetize at higher rates) and overestimate it for short-retained players (who rarely monetize at all). The more accurate approach is to use cohorted ARPDAU — different monetization rates for Day 1-7 players, Day 8-30 players, and Day 31+ players.
+
+Typical ARPDAU progression:
+- Day 1-7: 60-75% of average ARPDAU
+- Day 8-30: 90-110% of average ARPDAU
+- Day 31-90: 120-160% of average ARPDAU
+- Day 91+: 150-250% of average ARPDAU
+
+This progression is why Day-30 retention is the strongest predictor of game economics — the players who survive past Day 30 enter the highest-monetization tier, and every additional day they are retained generates disproportionate revenue.
+
+## 4 Common GameTech Financial Modeling Mistakes
+
+**1. Using flat ARPDAU without cohort weighting.** ARPDAU varies by 2-4x between early-lifecycle and late-lifecycle players. A model that applies the blended average across all days of a player's lifetime understates the value of long-retained players and overstates the value of short-retained players. This leads to incorrect UA budget allocation — you end up optimizing for install volume rather than retention quality, acquiring cheap installs that churn before reaching the high-monetization phase.
+
+**2. Modeling retention as a linear decline.** Player retention follows an exponential decay curve, not a linear one. A game losing 60% of players by Day 7 is not losing 8.6% per day evenly — it is losing 25-30% on Day 1, another 15-20% by Day 3, and progressively smaller percentages thereafter as the remaining cohort stabilizes. Linear retention assumptions will overestimate DAU in early days (when the real curve drops faster) and underestimate DAU in later periods (when the real curve flattens). Use empirical retention curves from soft launch data, not linear approximations.
+
+**3. Ignoring platform fee erosion on IAP revenue.** Apple and Google take 15-30% of in-app purchase revenue. A game generating $0.15 ARPDAU from IAP actually retains $0.105-$0.1275 after platform fees. For games where IAP represents 60-80% of revenue, platform fees reduce effective ARPDAU by 10-24%. Models that project IAP revenue without deducting platform fees overstate LTV proportionally — and the overstatement is largest for the highest-monetizing games where IAP dominance is greatest.
+
+**4. Scaling UA spend without monitoring marginal CPI.** CPI increases as you scale spend because you exhaust the most efficient audience segments first and push into progressively more expensive inventory. A game acquiring installs at $0.40 CPI on $50,000 monthly spend may see CPI rise to $0.65 at $200,000 monthly spend. If the LTV:CPI ratio at $0.40 is 1.5x, the ratio at $0.65 is only 0.92x — scaling has crossed the break-even line. Model CPI as a function of spend level, not as a fixed input. Most studios that "scale profitably" and then lose money made this exact error.
+
+## Key Takeaways
+
+- **Player LTV = ARPDAU x Average Session Days** as a simplified formula — for precision, integrate the daily retention curve because monetization compounds with engagement duration
+- **Retention, not monetization, is the primary LTV driver** — a 5 percentage point improvement in Day-7 retention typically has a larger LTV impact than a 30% increase in ARPDAU
+- **ARPDAU varies 2-4x across a player's lifecycle** — early-stage players monetize at 60-75% of average while Day-31+ players monetize at 150-250%; flat ARPDAU models misallocate UA budgets toward volume over quality
+- **LTV:CPI ratio of 1.5:1 or above at Day 180 is the viability threshold** — below 1:1 means every install destroys value; margins are tightest in hyper-casual (1.2-1.5x) and widest in RPG (1.2-2.5x)
+- **CPI is not fixed — it increases with spend** — model marginal CPI as a function of UA budget level; the most common scaling failure is crossing the break-even CPI without detecting it in time
+- **Platform fees (15-30%) on IAP revenue reduce effective ARPDAU by 10-24%** — models that omit platform fees overstate LTV for IAP-heavy games, producing incorrect payback period calculations
+
+GameTech financial modeling demands a fundamentally different approach than [SaaS recurring revenue models](/blog/saas-financial-modeling) or [e-commerce unit economics](/blog/ecommerce-unit-economics) — the combination of exponentially decaying retention, lifecycle-variable monetization, and scale-dependent acquisition costs creates compounding model error if any one variable is oversimplified. The principles of [churn modeling](/blog/churn-rate-calculation) apply directionally, but the daily cadence and non-linear retention curves in gaming require more granular inputs. Revenue Map lets you build player-cohort models with configurable retention curves, ARPDAU tiers, and CPI scaling assumptions — so you can test how each variable moves LTV:CPI ratio and UA payback period before committing acquisition budget.
