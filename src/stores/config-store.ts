@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type { ModelConfig, PhaseConfig, EcomConfig, EcomPhaseConfig, SaasConfig, SaasPhaseConfig } from "@/lib/types";
 
 // Default PhaseConfigs matching Python dataclass defaults
@@ -122,65 +123,78 @@ interface ConfigStore {
   resetSaas: () => void;
 }
 
-export const useConfigStore = create<ConfigStore>((set) => ({
-  subscriptionConfig: defaultModelConfig,
-  ecommerceConfig: defaultEcomConfig,
+export const useConfigStore = create<ConfigStore>()(
+  persist(
+    (set) => ({
+      subscriptionConfig: defaultModelConfig,
+      ecommerceConfig: defaultEcomConfig,
 
-  setSubscriptionConfig: (partial) =>
-    set((state) => ({
-      subscriptionConfig: { ...state.subscriptionConfig, ...partial },
-    })),
+      setSubscriptionConfig: (partial) =>
+        set((state) => ({
+          subscriptionConfig: { ...state.subscriptionConfig, ...partial },
+        })),
 
-  setEcommerceConfig: (partial) =>
-    set((state) => ({
-      ecommerceConfig: { ...state.ecommerceConfig, ...partial },
-    })),
+      setEcommerceConfig: (partial) =>
+        set((state) => ({
+          ecommerceConfig: { ...state.ecommerceConfig, ...partial },
+        })),
 
-  setSubscriptionPhase: (phase, partial) =>
-    set((state) => {
-      const key = `phase${phase}` as "phase1" | "phase2" | "phase3";
-      return {
-        subscriptionConfig: {
-          ...state.subscriptionConfig,
-          [key]: { ...state.subscriptionConfig[key], ...partial },
-        },
-      };
+      setSubscriptionPhase: (phase, partial) =>
+        set((state) => {
+          const key = `phase${phase}` as "phase1" | "phase2" | "phase3";
+          return {
+            subscriptionConfig: {
+              ...state.subscriptionConfig,
+              [key]: { ...state.subscriptionConfig[key], ...partial },
+            },
+          };
+        }),
+
+      setEcommercePhase: (phase, partial) =>
+        set((state) => {
+          const key = `phase${phase}` as "phase1" | "phase2" | "phase3";
+          return {
+            ecommerceConfig: {
+              ...state.ecommerceConfig,
+              [key]: { ...state.ecommerceConfig[key], ...partial },
+            },
+          };
+        }),
+
+      loadSubscriptionConfig: (config) => set({ subscriptionConfig: config }),
+      loadEcommerceConfig: (config) => set({ ecommerceConfig: config }),
+      resetSubscription: () => set({ subscriptionConfig: defaultModelConfig }),
+      resetEcommerce: () => set({ ecommerceConfig: defaultEcomConfig }),
+
+      saasConfig: defaultSaasConfig,
+
+      setSaasConfig: (partial) =>
+        set((state) => ({
+          saasConfig: { ...state.saasConfig, ...partial },
+        })),
+
+      setSaasPhase: (phase, partial) =>
+        set((state) => {
+          const key = `phase${phase}` as "phase1" | "phase2" | "phase3";
+          return {
+            saasConfig: {
+              ...state.saasConfig,
+              [key]: { ...state.saasConfig[key], ...partial },
+            },
+          };
+        }),
+
+      loadSaasConfig: (config) => set({ saasConfig: config }),
+      resetSaas: () => set({ saasConfig: defaultSaasConfig }),
     }),
-
-  setEcommercePhase: (phase, partial) =>
-    set((state) => {
-      const key = `phase${phase}` as "phase1" | "phase2" | "phase3";
-      return {
-        ecommerceConfig: {
-          ...state.ecommerceConfig,
-          [key]: { ...state.ecommerceConfig[key], ...partial },
-        },
-      };
-    }),
-
-  loadSubscriptionConfig: (config) => set({ subscriptionConfig: config }),
-  loadEcommerceConfig: (config) => set({ ecommerceConfig: config }),
-  resetSubscription: () => set({ subscriptionConfig: defaultModelConfig }),
-  resetEcommerce: () => set({ ecommerceConfig: defaultEcomConfig }),
-
-  saasConfig: defaultSaasConfig,
-
-  setSaasConfig: (partial) =>
-    set((state) => ({
-      saasConfig: { ...state.saasConfig, ...partial },
-    })),
-
-  setSaasPhase: (phase, partial) =>
-    set((state) => {
-      const key = `phase${phase}` as "phase1" | "phase2" | "phase3";
-      return {
-        saasConfig: {
-          ...state.saasConfig,
-          [key]: { ...state.saasConfig[key], ...partial },
-        },
-      };
-    }),
-
-  loadSaasConfig: (config) => set({ saasConfig: config }),
-  resetSaas: () => set({ saasConfig: defaultSaasConfig }),
-}));
+    {
+      name: "revenuemap-config",
+      version: 1,
+      partialize: (state) => ({
+        subscriptionConfig: state.subscriptionConfig,
+        ecommerceConfig: state.ecommerceConfig,
+        saasConfig: state.saasConfig,
+      }),
+    }
+  )
+);
