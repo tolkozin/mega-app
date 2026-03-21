@@ -473,16 +473,20 @@ function SurveyPage() {
     if (p === "plus" || p === "pro") setPlan(p);
   }, [searchParams, setPlan]);
 
-  // Require auth
-  useEffect(() => {
-    if (!authLoading && !user) router.push("/auth/login");
-  }, [authLoading, user, router]);
+  // Auth not required to fill out survey — only needed at submit (handleFinish).
+  // If not logged in at submit time, redirect to register.
 
   const StepComponent = STEPS[step];
   const isLast = step === TOTAL_STEPS - 1;
   const progress = ((step + 1) / TOTAL_STEPS) * 100;
 
   async function handleFinish() {
+    // If not logged in, save draft to store and redirect to register
+    if (!user) {
+      router.push(`/auth/register?plan=${plan}`);
+      return;
+    }
+
     setSaving(true);
     try {
       const res = await fetch("/api/survey/save", {
@@ -501,13 +505,7 @@ function SurveyPage() {
     }
   }
 
-  if (authLoading) {
-    return (
-      <div className="min-h-[100dvh] flex items-center justify-center">
-        <p className="text-sm text-[#8181A5]">Loading...</p>
-      </div>
-    );
-  }
+  // No auth loading gate — survey is accessible without login
 
   return (
     <div className="min-h-[100dvh] flex flex-col">
