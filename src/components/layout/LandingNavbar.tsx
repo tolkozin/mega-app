@@ -17,8 +17,9 @@ const KB_CATEGORIES = METRIC_CATEGORIES.map((key) => ({
   ...CATEGORY_META[key],
 }));
 
-const IDEAS_NICHES = IDEA_COLLECTIONS[0].lists.slice(0, 6);
-const IDEAS_DEMOGRAPHICS = IDEA_COLLECTIONS[1]?.lists.slice(0, 4) ?? [];
+const IDEAS_NICHES = IDEA_COLLECTIONS.find((c) => c.type === "niche")!.lists.slice(0, 6);
+const IDEAS_DEMOGRAPHICS = IDEA_COLLECTIONS.find((c) => c.type === "demographic")?.lists.slice(0, 4) ?? [];
+const IDEAS_BUDGETS = IDEA_COLLECTIONS.find((c) => c.type === "budget")?.lists.slice(0, 4) ?? [];
 
 export function LandingNavbar() {
   const { user, loading, signOut } = useAuth();
@@ -222,13 +223,33 @@ export function LandingNavbar() {
                     </div>
                   </>
                 )}
+                {IDEAS_BUDGETS.length > 0 && (
+                  <>
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#9ca3af] px-3 mt-3 mb-2">By Budget</p>
+                    <div className="grid grid-cols-2 gap-1">
+                      {IDEAS_BUDGETS.map((item) => (
+                        <Link
+                          key={item.slug}
+                          href={`/ideas/${item.slug}`}
+                          onClick={() => setIdeasOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-[#f8f9fc] transition-colors group"
+                        >
+                          <span className="text-base shrink-0">{item.icon}</span>
+                          <span className="text-sm font-medium text-[#6b7280] group-hover:text-[#1a1a2e] transition-colors">
+                            {item.label}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                )}
                 <div className="border-t border-[#e5e7eb] mt-3 pt-3">
                   <Link
                     href="/ideas"
                     onClick={() => setIdeasOpen(false)}
                     className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#f8f9fc] transition-colors group"
                   >
-                    <span className="text-sm font-semibold text-[#2163e7]">View all 32 idea lists</span>
+                    <span className="text-sm font-semibold text-[#2163e7]">View all 42 idea lists</span>
                     <ArrowRight className="w-4 h-4 text-[#2163e7] group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 </div>
@@ -351,8 +372,26 @@ export function LandingNavbar() {
                 </div>
               </>
             )}
+            {IDEAS_BUDGETS.length > 0 && (
+              <>
+                <p className="text-xs font-bold uppercase tracking-wider text-[#6b7280] px-3 py-2 mt-2">Ideas by Budget</p>
+                <div className="grid grid-cols-2 gap-1">
+                  {IDEAS_BUDGETS.map((item) => (
+                    <Link
+                      key={item.slug}
+                      href={`/ideas/${item.slug}`}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#f8f9fc] transition-colors"
+                    >
+                      <span className="text-sm">{item.icon}</span>
+                      <span className="text-sm text-[#1a1a2e]">{item.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
             <Link href="/ideas" onClick={() => setMobileOpen(false)} className="flex items-center gap-1 px-3 py-2 text-sm font-semibold text-[#2163e7]">
-              View all 32 idea lists <ArrowRight className="w-3.5 h-3.5" />
+              View all 42 idea lists <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           <div className="border-t border-[#e5e7eb] pt-4 space-y-1">

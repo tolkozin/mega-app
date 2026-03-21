@@ -15,7 +15,7 @@ export interface IdeaList {
   ideas: BusinessIdea[];
 }
 
-export type IdeaCollectionType = "niche" | "demographic";
+export type IdeaCollectionType = "niche" | "demographic" | "budget";
 
 export interface IdeaCollection {
   type: IdeaCollectionType;
@@ -26,6 +26,7 @@ export interface IdeaCollection {
 }
 
 import { DEMOGRAPHIC_COLLECTION, DEMOGRAPHIC_LISTS } from "./ideas-demographic";
+import { BUDGET_COLLECTION, BUDGET_LISTS } from "./ideas-budget";
 
 const NICHE_COLLECTION: IdeaCollection = {
   type: "niche",
@@ -51,6 +52,7 @@ const NICHE_COLLECTION: IdeaCollection = {
 export const IDEA_COLLECTIONS: IdeaCollection[] = [
   NICHE_COLLECTION,
   DEMOGRAPHIC_COLLECTION,
+  BUDGET_COLLECTION,
 ];
 
 const NICHE_LISTS: IdeaList[] = [
@@ -811,7 +813,7 @@ const NICHE_LISTS: IdeaList[] = [
   },
 ];
 
-export const IDEA_LISTS: IdeaList[] = [...NICHE_LISTS, ...DEMOGRAPHIC_LISTS];
+export const IDEA_LISTS: IdeaList[] = [...NICHE_LISTS, ...DEMOGRAPHIC_LISTS, ...BUDGET_LISTS];
 
 /* ─── Helpers ─── */
 

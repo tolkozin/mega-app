@@ -57,8 +57,8 @@ const footerLinks = {
     { label: "E-Commerce", href: "/ideas/ecommerce" },
     { label: "SaaS B2B", href: "/ideas/saas-b2b" },
     { label: "Ideas for Women", href: "/ideas/ideas-for-women" },
-    { label: "Ideas for Students", href: "/ideas/ideas-for-students" },
-    { label: "Ideas for Remote Workers", href: "/ideas/ideas-for-remote-workers" },
+    { label: "Zero-Cost Ideas", href: "/ideas/zero-cost-business-ideas" },
+    { label: "Passive Income", href: "/ideas/passive-income-business-ideas" },
   ],
   Resources: [
     { label: "Blog", href: "/blog" },
