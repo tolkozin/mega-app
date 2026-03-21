@@ -96,6 +96,15 @@ CREATE TABLE public.survey_responses (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- 7. WEBHOOK EVENTS (idempotency tracking)
+CREATE TABLE public.webhook_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_key TEXT NOT NULL UNIQUE,
+    event_name TEXT NOT NULL,
+    subscription_id TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ========================
 -- STEP 2: INDEXES
 -- ========================
@@ -111,6 +120,8 @@ CREATE INDEX idx_project_shares_project_id ON public.project_shares(project_id);
 CREATE INDEX idx_survey_responses_user_id ON public.survey_responses(user_id);
 CREATE INDEX idx_survey_responses_status ON public.survey_responses(status) WHERE status = 'pending';
 CREATE INDEX idx_project_shares_shared_with_id ON public.project_shares(shared_with_id);
+CREATE INDEX idx_project_shares_owner_id ON public.project_shares(owner_id);
+CREATE INDEX idx_scenarios_user_id ON public.scenarios(user_id);
 CREATE INDEX idx_invoices_user_id ON public.invoices(user_id);
 
 -- ========================

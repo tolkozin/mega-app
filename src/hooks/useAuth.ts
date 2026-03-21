@@ -10,13 +10,8 @@ export function useAuth() {
   const supabase = createClient();
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      setLoading(false);
-    };
-    getUser();
-
+    // Single auth check via onAuthStateChange — fires immediately with current session,
+    // then on every sign-in/sign-out. Avoids the double getUser() + onAuthStateChange call.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);

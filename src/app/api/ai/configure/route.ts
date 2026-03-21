@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { checkAndIncrement } from "@/lib/ai-limits";
 import { buildFileExtractPrompt } from "@/lib/ai-prompts";
+import { rateLimit } from "@/lib/rate-limit";
 import OpenAI from "openai";
 
 export async function POST(request: Request) {
@@ -13,6 +14,15 @@ export async function POST(request: Request) {
         status: 401,
         headers: { "Content-Type": "application/json" },
       });
+    }
+
+    // Rate limit: 5 file uploads per minute per user
+    const rl = rateLimit(`ai-configure:${user.id}`, 5, 60_000);
+    if (!rl.allowed) {
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please wait a moment." }),
+        { status: 429, headers: { "Content-Type": "application/json", "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } }
+      );
     }
 
     const formData = await request.formData();
@@ -64,7 +74,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, timeout: 30_000 });
     const systemPrompt = buildFileExtractPrompt(modelType);
 
     const response = await openai.chat.completions.create({

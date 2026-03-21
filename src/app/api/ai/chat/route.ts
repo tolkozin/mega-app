@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { checkAndIncrement } from "@/lib/ai-limits";
 import { buildChatSystemPrompt } from "@/lib/ai-prompts";
+import { rateLimit } from "@/lib/rate-limit";
 import OpenAI from "openai";
 
 export async function POST(request: Request) {
@@ -13,6 +14,15 @@ export async function POST(request: Request) {
         status: 401,
         headers: { "Content-Type": "application/json" },
       });
+    }
+
+    // Rate limit: 20 requests per minute per user
+    const rl = rateLimit(`ai-chat:${user.id}`, 20, 60_000);
+    if (!rl.allowed) {
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please wait a moment." }),
+        { status: 429, headers: { "Content-Type": "application/json", "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } }
+      );
     }
 
     const body = await request.json();
@@ -45,7 +55,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, timeout: 30_000 });
     const systemPrompt = buildChatSystemPrompt(modelType, dashboardContext || "No data loaded yet.");
 
     const chatHistory = (history || [])

@@ -6,6 +6,11 @@ import type { BlogPost, TOCItem, CategoryInfo, TagInfo } from "@/types/blog";
 
 const contentDir = path.join(process.cwd(), "content");
 
+// In-memory cache to avoid re-reading 16+ MDX files on every request
+let postsCache: BlogPost[] | null = null;
+let postsCacheTime = 0;
+const CACHE_TTL = 60_000; // 1 minute (ISR handles longer caching)
+
 function parseMdxFile(fileName: string): BlogPost | null {
   const slug = fileName.replace(/\.mdx$/, "");
   const filePath = path.join(contentDir, fileName);
@@ -46,6 +51,11 @@ function parseMdxFile(fileName: string): BlogPost | null {
 }
 
 export function getAllPosts(): BlogPost[] {
+  const now = Date.now();
+  if (postsCache && now - postsCacheTime < CACHE_TTL) {
+    return postsCache;
+  }
+
   if (!fs.existsSync(contentDir)) return [];
 
   const files = fs
@@ -56,9 +66,13 @@ export function getAllPosts(): BlogPost[] {
     .map(parseMdxFile)
     .filter((p): p is BlogPost => p !== null);
 
-  return posts.sort(
+  posts.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
+
+  postsCache = posts;
+  postsCacheTime = now;
+  return posts;
 }
 
 export function getPostBySlug(slug: string): BlogPost | null {

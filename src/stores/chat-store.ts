@@ -72,12 +72,12 @@ export const useChatStore = create<ChatStore>((set) => ({
 
   messages: [],
   addMessage: (role, content) =>
-    set((s) => ({
-      messages: [
-        ...s.messages,
-        { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, role, content, timestamp: Date.now() },
-      ],
-    })),
+    set((s) => {
+      const newMsg: ChatMessage = { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, role, content, timestamp: Date.now() };
+      const msgs = [...s.messages, newMsg];
+      // Cap at 100 messages to prevent memory growth in long sessions
+      return { messages: msgs.length > 100 ? msgs.slice(-100) : msgs };
+    }),
   appendToLastAssistant: (chunk) =>
     set((s) => {
       const msgs = [...s.messages];

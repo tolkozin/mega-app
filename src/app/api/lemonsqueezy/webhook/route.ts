@@ -42,6 +42,34 @@ interface WebhookEvent {
   };
 }
 
+/**
+ * Idempotency: check if this event was already processed.
+ * Uses subscription_id + event_name as a dedup key.
+ * Returns true if already processed (skip), false if new.
+ */
+async function isDuplicate(
+  supabase: ReturnType<typeof getAdminClient>,
+  subscriptionId: string,
+  eventName: string
+): Promise<boolean> {
+  const eventKey = `${subscriptionId}:${eventName}`;
+
+  const { data } = await supabase
+    .from("webhook_events")
+    .select("id")
+    .eq("event_key", eventKey)
+    .maybeSingle();
+
+  if (data) return true;
+
+  // Insert — if it fails (race condition), treat as duplicate
+  const { error } = await supabase
+    .from("webhook_events")
+    .insert({ event_key: eventKey, event_name: eventName, subscription_id: subscriptionId });
+
+  return !!error;
+}
+
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
@@ -59,6 +87,15 @@ export async function POST(request: Request) {
     const variantId = String(attrs.variant_id);
 
     const supabase = getAdminClient();
+
+    // Idempotency check — skip if already processed
+    // Only for state-changing events (skip for subscription_updated which can repeat with new data)
+    if (eventName === "subscription_created") {
+      const dup = await isDuplicate(supabase, subscriptionId, eventName);
+      if (dup) {
+        return Response.json({ ok: true, skipped: "duplicate" });
+      }
+    }
 
     switch (eventName) {
       case "subscription_created": {
@@ -84,14 +121,15 @@ export async function POST(request: Request) {
         // Create project from survey if survey_id is present
         if (surveyId) {
           try {
+            // Check if survey already has a project (prevent duplicates)
             const { data: survey } = await supabase
               .from("survey_responses")
-              .select("answers")
+              .select("answers, status, project_id")
               .eq("id", surveyId)
               .eq("user_id", userId)
               .single();
 
-            if (survey?.answers) {
+            if (survey?.answers && survey.status !== "completed") {
               const answers = survey.answers as Record<string, unknown>;
               const productType = (answers.projectType as string) ?? "subscription";
               const validTypes = ["subscription", "ecommerce", "saas"];
@@ -124,7 +162,6 @@ export async function POST(request: Request) {
             }
           } catch (e) {
             console.error("Failed to create project from survey:", e);
-            // Don't fail the webhook — profile is already updated
           }
         }
 
@@ -132,7 +169,6 @@ export async function POST(request: Request) {
       }
 
       case "subscription_updated": {
-        // Variant may have changed (plan upgrade/downgrade)
         const plan = variantIdToPlan(variantId);
 
         const updateData: Record<string, string> = {
@@ -149,7 +185,6 @@ export async function POST(request: Request) {
       }
 
       case "subscription_cancelled": {
-        // Plan stays until end of billing period
         await supabase
           .from("profiles")
           .update({ subscription_status: "cancelled" })
