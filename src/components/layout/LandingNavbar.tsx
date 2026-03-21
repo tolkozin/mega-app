@@ -24,7 +24,7 @@ const IDEAS_GROUPS = IDEA_COLLECTIONS.map((c) => ({
   description: c.description,
   count: c.lists.length,
   slug: c.slug,
-  icon: c.type === "niche" ? "🏢" : c.type === "demographic" ? "👥" : "💰",
+  icon: c.type === "niche" ? "🏢" : c.type === "demographic" ? "👥" : c.type === "budget" ? "💰" : c.type === "category" ? "📱" : "⏱️",
 }));
 
 export function LandingNavbar() {

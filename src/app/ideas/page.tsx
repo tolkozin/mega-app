@@ -6,17 +6,14 @@ import { IdeasHubClient } from "@/components/ideas/IdeasHubClient";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
-const totalIdeas = IDEA_LISTS.length * 30;
-const totalLists = IDEA_COLLECTIONS.reduce((sum, c) => sum + c.lists.length, 0);
-
 export const metadata: Metadata = {
-  title: `${totalIdeas.toLocaleString()}+ Business Ideas — Find Yours by Niche, Category & Budget (2026)`,
+  title: "Business Ideas — Find & Validate Your Next Startup Idea | Revenue Map",
   description:
-    `Not sure what to build? Browse ${totalIdeas.toLocaleString()}+ curated business ideas across ${totalLists} lists — by niche, demographic, budget, app category, and build timeline. Each idea comes with a revenue model you can validate instantly.`,
+    "Not sure what to build? Browse curated business ideas by industry niche, target audience, budget, app category, and build timeline. Pick an idea and validate it with real financial projections — revenue, costs, and break-even analysis.",
   alternates: { canonical: `${SITE_URL}/ideas` },
   openGraph: {
-    title: `${totalIdeas.toLocaleString()}+ Business Ideas — Find Your Next Startup`,
-    description: `Browse business ideas by niche, audience, budget, app category, and build time. Each one can be validated with a real financial model in minutes.`,
+    title: "Business Ideas — Find & Validate Your Next Startup",
+    description: "Browse curated startup ideas by niche, audience, budget, app category, and build time. Validate any idea with a real financial model in minutes.",
     url: `${SITE_URL}/ideas`,
   },
 };
@@ -27,7 +24,7 @@ export default function IdeasHubPage() {
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: `${totalIdeas.toLocaleString()}+ Business Ideas by Niche, Category & Budget`,
+    name: "Business Ideas by Niche, Category & Budget",
     description: metadata.description,
     url: `${SITE_URL}/ideas`,
     numberOfItems: allCollectionLists.length,
@@ -52,7 +49,7 @@ export default function IdeasHubPage() {
         name: "How do I choose the right business idea?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Start by filtering our 1,500+ ideas by your budget, target demographic, or industry niche. Then use Revenue Map's financial projection tool to validate your top picks with real revenue, cost, and break-even analysis before investing any money.",
+          text: "Start by filtering ideas by your budget, target demographic, or industry niche. Then use Revenue Map's financial projection tool to validate your top picks with real revenue, cost, and break-even analysis before investing any money.",
         },
       },
       {
@@ -76,7 +73,7 @@ export default function IdeasHubPage() {
         name: "How many business ideas are in this collection?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Our collection contains over 1,500 curated business ideas across 42 lists: 12 industry niches (50 ideas each), 20 demographic groups (30 ideas each), and 10 budget levels (30 ideas each).",
+          text: "Our collection contains thousands of curated business ideas across dozens of lists — organized by industry niche, target demographic, startup budget, app category, and build timeline. Each list focuses on a specific angle to help you find the right fit.",
         },
       },
     ],

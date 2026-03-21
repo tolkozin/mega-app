@@ -73,13 +73,13 @@ export function IdeasHubClient() {
       {/* Hero */}
       <section className="pt-20 pb-10 px-4 text-center">
         <h1 className="text-4xl md:text-5xl font-heading font-extrabold text-[#1a1a2e] mb-4">
-          {IDEA_LISTS.length * 30}+ Business Ideas<br className="hidden sm:block" />
-          Across {IDEA_COLLECTIONS.length} Categories
+          Find Your Next Business Idea<br className="hidden sm:block" />
+          & Validate It Instantly
         </h1>
         <p className="text-lg text-[#6b7280] max-w-2xl mx-auto mb-8">
-          Curated startup ideas across {IDEA_COLLECTIONS.reduce((sum, c) => sum + c.lists.length, 0)} lists —
-          by niche, demographic, budget, app category, and build time.
-          Find your next idea and validate it with real financial projections.
+          Browse curated startup ideas by industry niche, target audience, budget, app category,
+          and build timeline — then plug any idea into Revenue Map to get a full financial
+          projection with revenue, costs, and break-even analysis.
         </p>
         <Link href="/onboarding/survey">
           <button className="h-11 px-8 bg-[#2163e7] text-white text-sm font-bold rounded-lg hover:bg-[#1a53c7] transition-colors">
@@ -112,11 +112,10 @@ export function IdeasHubClient() {
                 : "bg-white text-[#6b7280] border-[#e5e7eb] hover:border-[#1a1a2e]"
             }`}
           >
-            All Lists ({ALL_ITEMS.length})
+            All Lists
           </button>
           {COLLECTION_TYPES.map((type) => {
             const meta = COLLECTION_META[type];
-            const count = ALL_ITEMS.filter((i) => i.collectionType === type).length;
             return (
               <button
                 key={type}
@@ -128,7 +127,7 @@ export function IdeasHubClient() {
                 }`}
                 style={filter === type ? { backgroundColor: meta.color } : undefined}
               >
-                {meta.label} ({count})
+                {meta.label}
               </button>
             );
           })}
