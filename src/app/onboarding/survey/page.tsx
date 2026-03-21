@@ -464,8 +464,19 @@ function SurveyPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
-  const { step, direction, data, plan, next, back, setPlan, reset } = useSurveyStore();
+  const store = useSurveyStore();
+  const { step, direction, data, plan, next, back, setPlan, reset } = store;
   const [saving, setSaving] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Wait for Zustand persist hydration before reading store values
+  useEffect(() => {
+    // Zustand persist stores expose onFinishHydration on the persist API
+    const unsub = useSurveyStore.persist.onFinishHydration(() => setHydrated(true));
+    // If already hydrated (e.g. hot reload), set immediately
+    if (useSurveyStore.persist.hasHydrated()) setHydrated(true);
+    return () => unsub();
+  }, []);
 
   // Read plan from URL on mount
   useEffect(() => {
@@ -476,14 +487,14 @@ function SurveyPage() {
   // Auto-submit: user came back from registration with a completed survey draft
   const [autoSubmitted, setAutoSubmitted] = useState(false);
   useEffect(() => {
-    if (autoSubmitted || authLoading || !user || saving) return;
+    if (!hydrated || autoSubmitted || authLoading || !user || saving) return;
     // Survey is filled if user was on the last step and projectType is set
     const isSurveyFilled = step === TOTAL_STEPS - 1 && data.projectType !== null;
     if (isSurveyFilled) {
       setAutoSubmitted(true);
       handleFinish();
     }
-  }, [authLoading, user, step, data.projectType]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [hydrated, authLoading, user, step, data.projectType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const StepComponent = STEPS[step];
   const isLast = step === TOTAL_STEPS - 1;
@@ -514,7 +525,15 @@ function SurveyPage() {
     }
   }
 
-  // No auth loading gate — survey is accessible without login
+  // Show loading while auto-submitting after registration
+  if (autoSubmitted && saving) {
+    return (
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center gap-4">
+        <div className="w-10 h-10 border-3 border-[#ECECF2] border-t-[#2163E7] rounded-full animate-spin" />
+        <p className="text-sm text-[#8181A5]">Saving your answers...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[100dvh] flex flex-col">

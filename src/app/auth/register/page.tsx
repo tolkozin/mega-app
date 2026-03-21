@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -14,13 +14,20 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const { signUp, user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const plan = searchParams.get("plan");
 
-  // Redirect if already authenticated
+  // If already logged in, go back to survey (not dashboard)
+  // so auto-submit can pick up the draft
   useEffect(() => {
     if (!authLoading && user) {
-      router.replace("/dashboard");
+      if (plan) {
+        router.replace(`/onboarding/survey?plan=${plan}`);
+      } else {
+        router.replace("/onboarding/survey");
+      }
     }
-  }, [authLoading, user, router]);
+  }, [authLoading, user, router, plan]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,19 +49,33 @@ export default function RegisterPage() {
       <>
         <div className="mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
-          <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" />
-          <span className="text-2xl font-bold text-[#1C1D21]">Revenue Map</span>
-        </Link>
+            <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" />
+            <span className="text-2xl font-bold text-[#1C1D21]">Revenue Map</span>
+          </Link>
         </div>
-        <h1 className="text-[28px] font-bold text-[#1C1D21] mb-2">Check Your Email</h1>
-        <p className="text-[#8181A5] text-sm mb-8">
-          We sent a verification link to <strong className="text-[#1C1D21]">{email}</strong>. Click the link to activate your account.
+        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+          <svg className="w-6 h-6 text-[#2163E7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <h1 className="text-[28px] font-bold text-[#1C1D21] mb-2 text-center">Check Your Email</h1>
+        <p className="text-[#8181A5] text-sm mb-2 text-center">
+          We sent a verification link to <strong className="text-[#1C1D21]">{email}</strong>.
         </p>
-        <Link href="/auth/login">
-          <button className="w-full h-11 border border-[#ECECF2] text-[#1C1D21] font-bold text-sm rounded-lg hover:bg-[#F8F8FC] transition-colors">
-            Back to Sign In
-          </button>
-        </Link>
+        <p className="text-[#8181A5] text-sm mb-8 text-center">
+          Click the link in your email to continue. Your survey answers are saved — you&apos;ll pick up right where you left off.
+        </p>
+        <div className="bg-[#F8F8FC] rounded-lg p-4 mb-6">
+          <p className="text-xs text-[#8181A5] text-center">
+            Didn&apos;t receive the email? Check your spam folder or{" "}
+            <button
+              onClick={handleSubmit}
+              className="text-[#2163E7] hover:underline font-bold"
+            >
+              resend it
+            </button>.
+          </p>
+        </div>
       </>
     );
   }
