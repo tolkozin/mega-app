@@ -105,9 +105,9 @@ function SidebarContent({ expanded, onClose }: { expanded: boolean; onClose?: ()
           className="h-[52px] md:h-10 rounded-lg flex items-center gap-3 px-2.5 text-[#8181A5] hover:text-white hover:bg-white/10 transition-colors"
         >
           <span className="shrink-0 w-5 flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M8.325 2.317a1 1 0 011.35 0l.588.534a1 1 0 00.849.253l.78-.153a1 1 0 011.156.675l.231.758a1 1 0 00.586.586l.758.231a1 1 0 01.675 1.156l-.153.78a1 1 0 00.253.849l.534.588a1 1 0 010 1.35l-.534.588a1 1 0 00-.253.849l.153.78a1 1 0 01-.675 1.156l-.758.231a1 1 0 00-.586.586l-.231.758a1 1 0 01-1.156.675l-.78-.153a1 1 0 00-.849.253l-.588.534a1 1 0 01-1.35 0l-.588-.534a1 1 0 00-.849-.253l-.78.153a1 1 0 01-1.156-.675l-.231-.758a1 1 0 00-.586-.586l-.758-.231a1 1 0 01-.675-1.156l.153-.78a1 1 0 00-.253-.849l-.534-.588a1 1 0 010-1.35l.534-.588a1 1 0 00.253-.849l-.153-.78a1 1 0 01.675-1.156l.758-.231a1 1 0 00.586-.586l.231-.758a1 1 0 011.156-.675l.78.153a1 1 0 00.849-.253l.588-.534z" />
-              <circle cx="10" cy="10" r="2.5" />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z" />
+              <circle cx="12" cy="12" r="3" />
             </svg>
           </span>
           {expanded && <span className="text-sm whitespace-nowrap">Settings</span>}

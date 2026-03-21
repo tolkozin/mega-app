@@ -483,16 +483,17 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: Ap
       {isDashboard && (
         <div className="h-11 bg-[#0F172A] border-b border-[#1E293B] flex items-center justify-between px-4 gap-3 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
-            {/* Model type selector pill */}
+            {/* Config panel toggle */}
             <button
               onClick={() => setConfigDrawerOpen(true)}
-              className="flex items-center gap-1.5 bg-[#3B82F6] text-white rounded-full px-3 h-8 max-w-[160px]"
+              className="w-8 h-8 flex items-center justify-center bg-[#2163E7] text-white rounded-lg shrink-0"
+              title="Open configuration"
             >
-              <span className="text-[13px] font-medium truncate">{activeCategoryLabel ?? title ?? "Dashboard"}</span>
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="shrink-0">
-                <path d="M2.5 4L5 6.5L7.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 3l5 5-5 5" />
               </svg>
             </button>
+            <span className="text-[13px] font-medium text-[#CBD5E1] truncate">{activeCategoryLabel ?? title ?? "Dashboard"}</span>
 
             {/* Category tabs removed — model selector is in dashboard content */}
           </div>

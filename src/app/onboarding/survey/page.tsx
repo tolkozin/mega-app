@@ -454,7 +454,7 @@ function canContinue(step: number, data: SurveyData): boolean {
 
 export default function SurveyPageWrapper() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-sm text-[#8181A5]">Loading...</p></div>}>
+    <Suspense fallback={<div className="min-h-[100dvh] flex items-center justify-center"><p className="text-sm text-[#8181A5]">Loading...</p></div>}>
       <SurveyPage />
     </Suspense>
   );
@@ -503,14 +503,14 @@ function SurveyPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-[100dvh] flex items-center justify-center">
         <p className="text-sm text-[#8181A5]">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-[100dvh] flex flex-col">
       {/* Progress bar */}
       <div className="h-1 bg-[#ECECF2]">
         <div

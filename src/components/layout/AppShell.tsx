@@ -43,10 +43,10 @@ export function AppShell({
   }, [profile, profileLoading]);
 
   return (
-    <div className="flex min-h-screen bg-[#F8F8FC]" style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}>
+    <div className="flex min-h-[100dvh] bg-[#F8F8FC]" style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}>
       <LandscapeLock />
       <AppSidebar />
-      <div className="flex-1 flex flex-col h-screen min-w-0">
+      <div className="flex-1 flex flex-col h-[100dvh] min-w-0">
         <AppHeader
           title={title}
           monthRange={monthRange}
@@ -67,7 +67,7 @@ export function AppShell({
       {!aiOpen && (
         <button
           onClick={toggleAI}
-          className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-[#2163E7] text-white shadow-lg shadow-[#2163E7]/30 hover:bg-[#4A6DE0] hover:shadow-xl hover:shadow-[#2163E7]/40 transition-all flex items-center justify-center"
+          className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-4 md:right-6 z-40 w-12 h-12 md:w-14 md:h-14 rounded-full bg-[#2163E7] text-white shadow-lg shadow-[#2163E7]/30 hover:bg-[#4A6DE0] hover:shadow-xl hover:shadow-[#2163E7]/40 transition-all flex items-center justify-center"
           title="AI Assistant"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
