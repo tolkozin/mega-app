@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { checkAndIncrement } from "@/lib/ai-limits";
 import { buildReportSystemPrompt } from "@/lib/ai-prompts";
 import { rateLimit } from "@/lib/rate-limit";
+import { checkSpendingGuard, recordSpend, AI_COST_ESTIMATES } from "@/lib/ai-spending-guard";
 import OpenAI from "openai";
 
 export async function POST(request: Request) {
@@ -22,6 +23,15 @@ export async function POST(request: Request) {
       return new Response(
         JSON.stringify({ error: "Too many requests. Please wait a moment." }),
         { status: 429, headers: { "Content-Type": "application/json", "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } }
+      );
+    }
+
+    // Global spending guard
+    const budget = checkSpendingGuard();
+    if (!budget.allowed) {
+      return new Response(
+        JSON.stringify({ error: "AI service temporarily unavailable. Please try again later." }),
+        { status: 503, headers: { "Content-Type": "application/json" } }
       );
     }
 
@@ -60,6 +70,7 @@ export async function POST(request: Request) {
       response_format: { type: "json_object" },
     });
 
+    recordSpend(AI_COST_ESTIMATES.report);
     const reportText = completion.choices[0]?.message?.content || "{}";
     let report;
     try {

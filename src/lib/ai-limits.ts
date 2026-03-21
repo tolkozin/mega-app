@@ -25,10 +25,8 @@ export async function checkAndIncrement(
     .single();
 
   if (error || !profile) {
-    console.warn("ai-limits: could not read profile AI columns, skipping rate limit", error?.message);
-    const limits = getPlanLimits("free");
-    const fallbackLimit = type === "chat" ? limits.aiMessagesPerMonth : limits.aiReportsPerMonth;
-    return { allowed: true, current: 0, limit: fallbackLimit, remaining: fallbackLimit, plan: "free" };
+    console.error("ai-limits: could not read profile, denying request", error?.message);
+    return { allowed: false, current: 0, limit: 0, remaining: 0, plan: "unknown" };
   }
 
   const limits = getPlanLimits(profile.plan ?? "free");

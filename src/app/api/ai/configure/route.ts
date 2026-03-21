@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { checkAndIncrement } from "@/lib/ai-limits";
 import { buildFileExtractPrompt } from "@/lib/ai-prompts";
 import { rateLimit } from "@/lib/rate-limit";
+import { checkSpendingGuard, recordSpend, AI_COST_ESTIMATES } from "@/lib/ai-spending-guard";
 import OpenAI from "openai";
 
 export async function POST(request: Request) {
@@ -25,12 +26,29 @@ export async function POST(request: Request) {
       );
     }
 
+    // Global spending guard
+    const budget = checkSpendingGuard();
+    if (!budget.allowed) {
+      return new Response(
+        JSON.stringify({ error: "AI service temporarily unavailable. Please try again later." }),
+        { status: 503, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const modelType = formData.get("modelType") as string | null;
 
     if (!file || !modelType) {
       return new Response(JSON.stringify({ error: "Missing file or modelType" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const validModelTypes = ["subscription", "ecommerce", "saas"];
+    if (!validModelTypes.includes(modelType)) {
+      return new Response(JSON.stringify({ error: "Invalid modelType" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
@@ -87,6 +105,7 @@ export async function POST(request: Request) {
       response_format: { type: "json_object" },
     });
 
+    recordSpend(AI_COST_ESTIMATES.configure);
     const raw = response.choices[0]?.message?.content;
     if (!raw) {
       return new Response(JSON.stringify({ error: "No response from AI" }), {

@@ -33,7 +33,8 @@ export function useProjects() {
       .from("projects")
       .select("*")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(50);
 
     if (!error && data) setProjects(data);
     setLoading(false);
@@ -106,7 +107,8 @@ export function useScenarios(projectId: string | null) {
       .from("scenarios")
       .select("*")
       .eq("project_id", projectId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(50);
 
     if (!error && data) setScenarios(data);
     setLoading(false);
@@ -174,7 +176,8 @@ export function useProjectShares(projectId: string | null) {
     const { data } = await supabase
       .from("project_shares")
       .select("*, profiles!project_shares_shared_with_id_fkey(email)")
-      .eq("project_id", projectId);
+      .eq("project_id", projectId)
+      .limit(100);
 
     if (data) {
       setShares(
@@ -280,7 +283,8 @@ export function useSharedProjects() {
     const { data, error } = await supabase
       .from("project_shares")
       .select("role, projects(*), profiles!project_shares_owner_id_fkey(email)")
-      .eq("shared_with_id", user.id);
+      .eq("shared_with_id", user.id)
+      .limit(50);
 
     if (!error && data) {
       const mapped = data

@@ -89,8 +89,14 @@ export async function POST(request: Request) {
     const supabase = getAdminClient();
 
     // Idempotency check — skip if already processed
-    // Only for state-changing events (skip for subscription_updated which can repeat with new data)
-    if (eventName === "subscription_created") {
+    const deduplicatedEvents = [
+      "subscription_created",
+      "subscription_cancelled",
+      "subscription_expired",
+      "subscription_resumed",
+      "subscription_payment_failed",
+    ];
+    if (deduplicatedEvents.includes(eventName)) {
       const dup = await isDuplicate(supabase, subscriptionId, eventName);
       if (dup) {
         return Response.json({ ok: true, skipped: "duplicate" });
