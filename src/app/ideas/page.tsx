@@ -7,14 +7,13 @@ import { IdeasHubClient } from "@/components/ideas/IdeasHubClient";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export const metadata: Metadata = {
-  title: "1,500+ Business Ideas by Niche, Demographic & Budget (2026) — Revenue Map",
+  title: "1,500+ Business Ideas — Find Yours by Niche, Audience & Budget (2026)",
   description:
-    "Explore curated lists of the best business ideas by niche, demographic, and budget — subscription apps, e-commerce, SaaS, ideas for women, students, zero-cost startups, million-dollar ventures, and more.",
+    "Not sure what to build? Browse 1,500+ curated business ideas across 12 niches, 20 audiences, and 10 budget levels. Each idea comes with a revenue model you can validate instantly with real benchmarks.",
   alternates: { canonical: `${SITE_URL}/ideas` },
   openGraph: {
-    title: "1,500+ Business Ideas by Niche, Demographic & Budget (2026)",
-    description:
-      "Curated lists of the best business ideas across 12 industries, 20 demographics, and 10 budget levels. Find your next startup idea and validate it instantly.",
+    title: "1,500+ Business Ideas — Find Your Next Startup",
+    description: "Browse business ideas by niche, audience, and budget. Each one can be validated with a real financial model in minutes.",
     url: `${SITE_URL}/ideas`,
   },
 };

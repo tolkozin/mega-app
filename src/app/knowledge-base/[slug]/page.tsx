@@ -32,16 +32,16 @@ export async function generateMetadata({
   const metric = getMetricBySlug(slug);
   if (!metric) return { title: "Metric Not Found" };
 
-  const title = `${metric.name} Calculator — Formula, Benchmarks & How to Improve`;
-  const description = `Calculate ${metric.name} instantly with our free calculator. Learn the formula, see industry benchmarks, and understand what a good ${metric.name} looks like for your business.`;
+  const title = `${metric.name} Calculator — What It Is, Formula & Real Benchmarks`;
+  const description = `What is ${metric.name}? Calculate it instantly, see the formula, learn what good looks like with real industry benchmarks, and understand why it matters for your business. Free, no signup.`;
 
   return {
     title,
     description,
     alternates: { canonical: `${SITE_URL}/knowledge-base/${slug}` },
     openGraph: {
-      title: `${metric.name} Calculator — Free Online Tool`,
-      description,
+      title: `Free ${metric.name} Calculator — Revenue Map`,
+      description: `Calculate ${metric.name} instantly. Formula + real benchmarks + plain-English guide.`,
       url: `${SITE_URL}/knowledge-base/${slug}`,
     },
   };

@@ -5,16 +5,15 @@ import { PricingClient } from "@/components/pricing/PricingClient";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export const metadata: Metadata = {
-  title: "Pricing — Start Your 3-Day Free Trial",
+  title: "Pricing — 3-Day Free Trial, Plans from $23/mo",
   description:
-    "Simple, transparent pricing with a 3-day free trial on every plan. From $23/mo for solo founders to unlimited Pro plans for growing teams. No spreadsheets, no consultants — just accurate financial models.",
+    "Try Revenue Map free for 3 days. Plus plan from $23/mo for solo founders, Pro for teams. Real industry benchmarks, AI assistant, investor-ready reports — everything included. Cancel anytime.",
   alternates: {
     canonical: `${SITE_URL}/pricing`,
   },
   openGraph: {
     title: "Pricing — Revenue Map",
-    description:
-      "3-day free trial on every plan. Accurate financial models from $23/mo.",
+    description: "3-day free trial. Plans from $23/mo. Real benchmarks, AI assistant, investor reports included.",
     url: `${SITE_URL}/pricing`,
   },
 };

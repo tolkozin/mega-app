@@ -20,11 +20,11 @@ export async function generateMetadata({
   const list = getIdeaList(slug);
   if (!list) return {};
   return {
-    title: `${list.title} — Revenue Map`,
-    description: list.subtitle,
+    title: `${list.title} (2026) — Top ${list.ideas.length} Curated Ideas`,
+    description: `${list.subtitle} Each idea includes a revenue model you can validate with real industry benchmarks. Curated for 2026.`,
     alternates: { canonical: `${SITE_URL}/ideas/${list.slug}` },
     openGraph: {
-      title: list.title,
+      title: `${list.title} — Revenue Map`,
       description: list.subtitle,
       url: `${SITE_URL}/ideas/${list.slug}`,
     },

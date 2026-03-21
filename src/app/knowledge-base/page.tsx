@@ -4,9 +4,9 @@ import { METRICS } from "@/lib/knowledge-base";
 import { KBIndexClient } from "@/components/knowledge-base/KBIndexClient";
 
 export const metadata: Metadata = {
-  title: "Free Financial Calculators & Metric Guides for Startups",
+  title: "Free Startup Calculators — MRR, CAC, LTV, Churn & More",
   description:
-    "Calculate MRR, CAC, LTV, churn rate, ROAS, burn rate, and 20+ other startup metrics instantly. Each calculator includes the formula, real-world benchmarks, and expert interpretation — free, no signup required.",
+    "Calculate any startup metric in seconds. 20+ free calculators with formulas, real industry benchmarks, and plain-English explanations. No signup, no spreadsheet — just type your numbers and get the answer.",
   alternates: {
     canonical: "https://revenuemap.app/knowledge-base",
   },

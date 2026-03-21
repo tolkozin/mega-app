@@ -5,12 +5,12 @@ import { SoftwareApplicationJsonLd } from "@/components/blog/StructuredData";
 import { HomepageClient } from "@/components/home/HomepageClient";
 
 export const metadata: Metadata = {
-  title: "Revenue Map — Build Accurate Financial Models in Minutes, Not Weeks",
+  title: "Revenue Map — Know Your Revenue Before You Launch",
   description:
-    "Stop guessing your revenue. Revenue Map uses real market data and AI to generate investor-ready financial projections for subscription apps, e-commerce, and B2B SaaS — in under 5 minutes. Monte Carlo simulations, scenario analysis, and exportable reports included.",
+    "Answer the #1 startup question: will this make money? Revenue Map turns real industry benchmarks into a full financial model — revenue, costs, break-even, investor report — in under 5 minutes. No spreadsheets. No guessing.",
   openGraph: {
-    title: "Revenue Map — Build Accurate Financial Models in Minutes",
-    description: "AI-powered financial modeling with real market data. Get investor-ready projections for any business model in under 5 minutes.",
+    title: "Revenue Map — Know Your Revenue Before You Launch",
+    description: "Real benchmarks. Real projections. Full financial model in 5 minutes — no spreadsheets needed.",
   },
 };
 

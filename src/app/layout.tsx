@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import { Commissioner, Roboto } from "next/font/google";
 import "./globals.css";
 import { OrganizationJsonLd } from "@/components/blog/StructuredData";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CookieBanner } from "@/components/CookieBanner";
+
+const GA_ID = "G-HRSG8S8VQK";
 
 const commissioner = Commissioner({
   subsets: ["latin"],
@@ -25,11 +28,11 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Revenue Map — AI-Powered Financial Modeling in Minutes",
+    default: "Revenue Map — Know Your Revenue Before You Launch",
     template: "%s | Revenue Map",
   },
   description:
-    "Build accurate financial models in under 5 minutes. Real market data, AI-powered projections, Monte Carlo simulations, and investor-ready reports for subscription, e-commerce, and B2B SaaS businesses.",
+    "Revenue Map builds your financial model in minutes — not weeks. Powered by real industry benchmarks and AI. See exactly when you'll break even, how much you'll earn, and what investors need to see.",
   manifest: "/site.webmanifest",
   icons: {
     icon: [
@@ -67,7 +70,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
+        </Script>
+      </head>
       <body className={`${roboto.variable} ${commissioner.variable} font-sans bg-[#f8f9fc] text-[#1a1a2e]`}>
         <OrganizationJsonLd />
         {children}

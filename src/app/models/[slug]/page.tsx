@@ -493,15 +493,15 @@ export async function generateMetadata({
     return { title: "Model Not Found — Revenue Map" };
   }
   const model = getModelDef(slug);
-  const title = `${model.label} Financial Model — Accurate Projections in 5 Minutes`;
-  const description = `${model.description} Get real market benchmarks, Monte Carlo risk simulations, AI-powered scenario analysis, and an investor-ready PDF report — all generated automatically.`;
+  const title = `${model.label} Financial Model — Real Benchmarks, Ready in 5 Min`;
+  const description = `${model.description} Built on data from real ${model.label.toLowerCase()} companies — not assumptions. Revenue, costs, break-even, and investor report generated automatically.`;
   return {
     title,
     description,
     alternates: { canonical: `${SITE_URL}/models/${slug}` },
     openGraph: {
       title: `${model.label} Financial Model — Revenue Map`,
-      description,
+      description: `${model.description} Built on real industry benchmarks.`,
       url: `${SITE_URL}/models/${slug}`,
     },
   };
