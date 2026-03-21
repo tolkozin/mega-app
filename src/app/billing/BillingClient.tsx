@@ -140,9 +140,7 @@ export function BillingClient() {
               </div>
               {isActivePlan(profile.plan) ? (
                 <a
-                  href="https://revenuemap.lemonsqueezy.com/billing"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/plans"
                   className="text-sm font-bold text-[#2163E7] hover:text-[#4B6FE0] transition-colors"
                 >
                   Manage Subscription

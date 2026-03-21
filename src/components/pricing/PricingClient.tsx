@@ -248,12 +248,18 @@ export function PricingClient() {
   const [annual, setAnnual] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+  const [currentPlan, setCurrentPlan] = useState<string>("expired");
   const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user: u } }) => {
-      if (u) setUser({ id: u.id, email: u.email ?? "" });
+      if (u) {
+        setUser({ id: u.id, email: u.email ?? "" });
+        supabase.from("profiles").select("plan").eq("id", u.id).single().then(({ data }) => {
+          if (data?.plan) setCurrentPlan(data.plan);
+        });
+      }
     });
   }, []);
 
@@ -261,6 +267,12 @@ export function PricingClient() {
   async function handleCheckout(plan: string) {
     if (!user) {
       router.push("/onboarding/survey");
+      return;
+    }
+
+    // If already on an active plan, redirect to LS portal to change plan
+    if (currentPlan === "plus" || currentPlan === "pro") {
+      window.location.href = "https://revenuemap.lemonsqueezy.com/billing";
       return;
     }
 
@@ -314,17 +326,24 @@ export function PricingClient() {
     }
 
     const isLoading = checkoutLoading === plan.plan;
+    const isCurrentPlan = plan.plan === currentPlan;
+    const ctaLabel = isCurrentPlan
+      ? "Current Plan"
+      : (currentPlan === "plus" || currentPlan === "pro")
+        ? "Change Plan"
+        : isLoading ? "Loading..." : plan.cta;
+
     return (
       <button
-        onClick={() => handleCheckout(plan.plan!)}
-        disabled={isLoading}
+        onClick={() => !isCurrentPlan && handleCheckout(plan.plan!)}
+        disabled={isLoading || isCurrentPlan}
         className={`w-full h-11 rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-60 ${
           plan.highlighted
             ? "bg-[#2163e7] text-white hover:bg-[#1a53c7] hover:shadow-lg hover:shadow-[#2163e7]/20"
             : "border border-[#e5e7eb] text-[#1a1a2e] hover:border-[#2163e7]/50 hover:bg-[#2163e7]/5"
         }`}
       >
-        {isLoading ? "Loading..." : plan.cta}
+        {ctaLabel}
       </button>
     );
   }
