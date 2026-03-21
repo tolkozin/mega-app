@@ -7,14 +7,14 @@ import { ArrowRight } from "lucide-react";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
 export const metadata: Metadata = {
-  title: "All Financial Models — Revenue Map",
+  title: "Financial Models for Every Business Type — Subscription, E-Commerce, SaaS & More",
   description:
-    "Explore all business model types available in Revenue Map. From subscription apps to marketplaces, SaaS to AI — get instant financial projections for any business.",
+    "Choose from 9+ ready-made financial model templates. Each uses real industry benchmarks, Monte Carlo simulations, and AI to deliver accurate projections in minutes — no spreadsheets required.",
   alternates: { canonical: `${SITE_URL}/models` },
   openGraph: {
-    title: "All Financial Models — Revenue Map",
+    title: "Financial Models for Every Business Type — Revenue Map",
     description:
-      "Explore all business model types. Get instant financial projections for any business.",
+      "9+ ready-made financial models with real benchmarks and AI projections. Subscription apps, e-commerce, B2B SaaS, marketplaces, and more.",
     url: `${SITE_URL}/models`,
   },
 };

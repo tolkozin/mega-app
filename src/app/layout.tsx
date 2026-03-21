@@ -25,16 +25,18 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Revenue Map — Financial Modeling for SaaS & E-commerce",
+    default: "Revenue Map — AI-Powered Financial Modeling in Minutes",
     template: "%s | Revenue Map",
   },
   description:
-    "Build investor-ready financial models for subscription and e-commerce businesses. Monte Carlo simulations, scenario analysis, and more.",
+    "Build accurate financial models in under 5 minutes. Real market data, AI-powered projections, Monte Carlo simulations, and investor-ready reports for subscription, e-commerce, and B2B SaaS businesses.",
+  manifest: "/site.webmanifest",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.ico", sizes: "48x48" },
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/logo.svg", type: "image/svg+xml" },
+      { url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: "/apple-touch-icon.png",
   },

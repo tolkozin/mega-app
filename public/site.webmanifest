@@ -1,0 +1,21 @@
+{
+  "name": "Revenue Map",
+  "short_name": "Revenue Map",
+  "description": "AI-powered financial modeling for subscription, e-commerce, and SaaS businesses",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#2163E7",
+  "background_color": "#F8F8FC",
+  "display": "standalone",
+  "start_url": "/"
+}

@@ -1,7 +1,19 @@
+import type { Metadata } from "next";
 import { getAllPosts } from "@/lib/blog";
 import { LandingNavbar } from "@/components/layout/LandingNavbar";
 import { SoftwareApplicationJsonLd } from "@/components/blog/StructuredData";
 import { HomepageClient } from "@/components/home/HomepageClient";
+
+export const metadata: Metadata = {
+  title: "Revenue Map — Build Accurate Financial Models in Minutes, Not Weeks",
+  description:
+    "Stop guessing your revenue. Revenue Map uses real market data and AI to generate investor-ready financial projections for subscription apps, e-commerce, and B2B SaaS — in under 5 minutes. Monte Carlo simulations, scenario analysis, and exportable reports included.",
+  openGraph: {
+    title: "Revenue Map — Build Accurate Financial Models in Minutes",
+    description: "AI-powered financial modeling with real market data. Get investor-ready projections for any business model in under 5 minutes.",
+  },
+};
+
 /* ─── Data ─── */
 
 const plans = [

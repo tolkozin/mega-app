@@ -4,9 +4,9 @@ import { getAllPosts, getCategories } from "@/lib/blog";
 import { BlogCard } from "@/components/blog/BlogCard";
 
 export const metadata: Metadata = {
-  title: "Blog",
+  title: "Blog — Financial Modeling Insights for Founders",
   description:
-    "Insights on SaaS metrics, financial modeling, e-commerce analytics, and building investor-ready businesses.",
+    "Practical guides on SaaS metrics, startup unit economics, e-commerce profitability, and building investor-ready financial models. Written for founders who want real numbers, not theory.",
 };
 
 const POSTS_PER_PAGE = 12;
