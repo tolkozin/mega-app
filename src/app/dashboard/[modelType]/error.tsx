@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 export default function ModelDashboardError({
   error,
@@ -10,7 +11,7 @@ export default function ModelDashboardError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Model dashboard error:", error);
+    Sentry.captureException(error);
   }, [error]);
 
   return (
