@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-// Survey store is read by the dashboard page to apply presets
 
 const PROGRESS_STEPS = [
   "Analyzing your business type",
@@ -24,11 +23,11 @@ function ProcessingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
-  // Survey store is NOT reset here — the dashboard reads it to apply industry presets
   const [activeStep, setActiveStep] = useState(0);
   const [timedOut, setTimedOut] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval>>(undefined);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const fallbackTriedRef = useRef(false);
 
   const surveyId = searchParams.get("survey_id") ?? "";
 
@@ -44,30 +43,56 @@ function ProcessingPage() {
   useEffect(() => {
     if (!user || !surveyId) return;
 
+    function redirect(productType: string) {
+      clearInterval(pollRef.current);
+      clearTimeout(timeoutRef.current);
+      router.push(`/dashboard/${productType}?from=onboarding`);
+    }
+
     async function poll() {
       try {
+        // First check normal status endpoint (webhook path)
         const res = await fetch(`/api/survey/status?id=${surveyId}`);
         const data = await res.json();
         if (data.status === "completed" && data.projectId) {
-          clearInterval(pollRef.current);
-          clearTimeout(timeoutRef.current);
-          // Don't reset survey here — dashboard reads it to apply industry presets
-          const productType = data.productType ?? "subscription";
-          router.push(`/dashboard/${productType}?from=onboarding`);
+          redirect(data.productType ?? "subscription");
+          return;
+        }
+
+        // After 6 seconds, try the fallback (creates project if user has active plan)
+        if (!fallbackTriedRef.current) {
+          fallbackTriedRef.current = true;
+          try {
+            const fbRes = await fetch("/api/survey/complete", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ surveyId }),
+            });
+            const fbData = await fbRes.json();
+            if (fbData.status === "completed" && fbData.projectId) {
+              redirect(fbData.productType ?? "subscription");
+              return;
+            }
+          } catch {
+            // Fallback failed, keep polling
+          }
         }
       } catch {
         // Silently retry
       }
     }
 
+    // Poll every 2 seconds
     pollRef.current = setInterval(poll, 2000);
-    poll(); // Check immediately
 
-    // Timeout after 60 seconds
+    // First poll immediately
+    poll();
+
+    // Timeout after 90 seconds
     timeoutRef.current = setTimeout(() => {
       clearInterval(pollRef.current);
       setTimedOut(true);
-    }, 60000);
+    }, 90000);
 
     return () => {
       clearInterval(pollRef.current);

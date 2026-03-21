@@ -49,12 +49,12 @@ interface HomepageClientProps {
 /* ─── Animation helpers ─── */
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
 };
 
 const stagger = {
-  visible: { transition: { staggerChildren: 0.08 } },
+  visible: { transition: { staggerChildren: 0.04 } },
 };
 
 /* ─── Animated Search Bar ─── */
@@ -101,7 +101,7 @@ function AnimatedSearchBar() {
       <Link href="/onboarding/survey" className="block">
         <div className="bg-white border border-[#e5e7eb] rounded-2xl pl-6 pr-3 py-3 flex items-center gap-3 shadow-lg shadow-black/5 hover:border-[#2163e7]/30 transition-colors group">
           <Search className="w-5 h-5 text-[#6b7280] shrink-0" />
-          <span className="text-[#6b7280] text-lg font-light flex-1 truncate">
+          <span className="text-[#6b7280] text-lg font-light flex-1 truncate min-h-[28px]">
             {displayed}
             <span className="animate-pulse text-[#2163e7]">|</span>
           </span>
@@ -467,7 +467,7 @@ export function HomepageClient({
           whileInView: "visible" as const,
           viewport: { once: true, margin: "-80px" },
           variants: fadeUp,
-          transition: { duration: 0.5, delay },
+          transition: { duration: 0.35, delay: Math.min(delay, 0.2) },
         };
 
   return (
@@ -840,7 +840,7 @@ export function HomepageClient({
             {/* Brand column */}
             <div className="col-span-2">
               <Link href="/" className="flex items-center space-x-2 mb-4">
-                <img src="/logo.svg" alt="Revenue Map" className="w-7 h-7" />
+                <img src="/logo.svg" alt="Revenue Map" className="w-7 h-7" width={28} height={28} />
                 <span className="text-sm font-bold text-[#1a1a2e]">Revenue Map</span>
               </Link>
               <p className="text-xs text-[#6b7280] leading-relaxed">

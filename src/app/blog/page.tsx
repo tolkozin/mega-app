@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { getAllPosts, getCategories } from "@/lib/blog";
 import { BlogCard } from "@/components/blog/BlogCard";
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Blog — Financial Modeling Insights for Founders",
   description:

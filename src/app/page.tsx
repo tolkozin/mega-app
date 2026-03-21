@@ -84,6 +84,9 @@ const footerLinks = {
   ],
 };
 
+// ISR: regenerate every hour instead of every request
+export const revalidate = 3600;
+
 /* ─── Page (server component — data fetching) ─── */
 
 export default function LandingPage() {

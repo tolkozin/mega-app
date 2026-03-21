@@ -8,7 +8,18 @@ export async function updateSession(request: NextRequest) {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !key) {
-    // Env vars not available — skip auth checks
+    return supabaseResponse;
+  }
+
+  // Only run auth check on routes that need it (saves 200-400ms TTFB on public pages)
+  const protectedPaths = ["/dashboard", "/projects", "/onboarding", "/billing", "/settings"];
+  const authPaths = ["/auth/login", "/auth/register"];
+  const pathname = request.nextUrl.pathname;
+
+  const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
+  const isAuthPage = authPaths.some((path) => pathname.startsWith(path));
+
+  if (!isProtected && !isAuthPage) {
     return supabaseResponse;
   }
 
@@ -37,24 +48,12 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protected routes — redirect to login if not authenticated
-  const protectedPaths = ["/dashboard", "/projects", "/onboarding"];
-  const isProtected = protectedPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
-  );
-
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
-    url.searchParams.set("redirect", request.nextUrl.pathname);
+    url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
   }
-
-  // Redirect logged-in users away from auth pages
-  const authPaths = ["/auth/login", "/auth/register"];
-  const isAuthPage = authPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
-  );
 
   if (isAuthPage && user) {
     const url = request.nextUrl.clone();

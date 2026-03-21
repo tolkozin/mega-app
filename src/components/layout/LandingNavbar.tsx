@@ -85,7 +85,7 @@ export function LandingNavbar() {
       <div className="container mx-auto flex h-16 items-center px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 shrink-0">
-          <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" />
+          <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" width={32} height={32} />
           <span className="text-lg font-bold text-[#1a1a2e]">Revenue Map</span>
         </Link>
 

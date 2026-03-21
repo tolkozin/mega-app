@@ -298,7 +298,7 @@ function Step6() {
   const isOther = data.pricePoint === "Something else";
   return (
     <>
-      <StepHeader title="What's your planned price point?" subtitle="Approximate is fine — you can change this later" />
+      <StepHeader title="How much will you charge per customer?" subtitle="Your average price per month or per order — approximate is fine" />
       <div className="space-y-3">
         {options.map((o) => (
           <RadioCard

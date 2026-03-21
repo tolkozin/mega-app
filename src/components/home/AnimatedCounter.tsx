@@ -29,7 +29,7 @@ export function AnimatedCounter({
       : value.toLocaleString();
 
   return (
-    <span ref={ref}>
+    <span ref={ref} style={{ fontVariantNumeric: "tabular-nums" }}>
       {prefix}
       {display}
       {suffix}

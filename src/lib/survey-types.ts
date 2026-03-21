@@ -136,12 +136,16 @@ export const INDUSTRY_OPTIONS: Record<string, string[]> = {
 /* ─── Step 4: Monetization options ─── */
 
 export const MONETIZATION_OPTIONS = [
+  "Weekly subscription",
   "Monthly subscription",
   "Annual subscription",
   "One-time purchase",
   "Freemium → paid upgrade",
+  "Tiered pricing (multiple plans)",
   "Usage-based / Pay-per-use",
+  "Per-seat / Per-user licensing",
   "Commission / Revenue share",
+  "Advertising / Sponsorship",
   "I'm not sure yet",
 ];
 
