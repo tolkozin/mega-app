@@ -473,8 +473,17 @@ function SurveyPage() {
     if (p === "plus" || p === "pro") setPlan(p);
   }, [searchParams, setPlan]);
 
-  // Auth not required to fill out survey — only needed at submit (handleFinish).
-  // If not logged in at submit time, redirect to register.
+  // Auto-submit: user came back from registration with a completed survey draft
+  const [autoSubmitted, setAutoSubmitted] = useState(false);
+  useEffect(() => {
+    if (autoSubmitted || authLoading || !user || saving) return;
+    // Survey is filled if user was on the last step and projectType is set
+    const isSurveyFilled = step === TOTAL_STEPS - 1 && data.projectType !== null;
+    if (isSurveyFilled) {
+      setAutoSubmitted(true);
+      handleFinish();
+    }
+  }, [authLoading, user, step, data.projectType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const StepComponent = STEPS[step];
   const isLast = step === TOTAL_STEPS - 1;
