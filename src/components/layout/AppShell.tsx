@@ -33,12 +33,16 @@ export function AppShell({
   const { profile, loading: profileLoading } = useProfile();
   const shownExpiredRef = useRef(false);
 
-  // Auto-show expired modal once when user has expired/free plan
+  // Auto-show expired modal once per browser session (not on tab switch)
   useEffect(() => {
     if (profileLoading || !profile || shownExpiredRef.current) return;
     if (!isActivePlan(profile.plan)) {
       shownExpiredRef.current = true;
-      useUpgradeStore.getState().showExpiredModal();
+      const key = "rm_expired_shown";
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, "1");
+        useUpgradeStore.getState().showExpiredModal();
+      }
     }
   }, [profile, profileLoading]);
 

@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
 import { MobileConfigDrawer } from "./MobileConfigDrawer";
 import { useIsMobile } from "@/hooks/useMediaQuery";
+import { useProfile } from "@/hooks/useProfile";
+import { isActivePlan } from "@/lib/plan-limits";
+import { useUpgradeStore } from "@/stores/upgrade-store";
 import type { EcomPhaseConfig } from "@/lib/types";
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
@@ -114,9 +117,17 @@ export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string
   const config = useConfigStore((s) => s.ecommerceConfig);
   const setConfig = useConfigStore((s) => s.setEcommerceConfig);
   const isMobile = useIsMobile();
+  const { profile } = useProfile();
+  const readOnly = !isActivePlan(profile?.plan ?? "expired");
 
   const content = (
-    <>
+    <div className="relative">
+      {readOnly && (
+        <div
+          className="absolute inset-0 z-10 cursor-not-allowed"
+          onClick={() => useUpgradeStore.getState().showExpiredModal()}
+        />
+      )}
       <div className="p-3 border-b">
         <h2 className="font-semibold text-sm">E-commerce Model Config</h2>
       </div>
@@ -165,7 +176,7 @@ export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string
       <EcomPhaseSection phase={config.phase1} phaseNum={1} />
       <EcomPhaseSection phase={config.phase2} phaseNum={2} />
       <EcomPhaseSection phase={config.phase3} phaseNum={3} />
-    </>
+    </div>
   );
 
   if (isMobile) {

@@ -9,23 +9,19 @@ export interface PlanLimits {
   readOnly: boolean;
 }
 
+/** No active subscription — same as expired. "free" kept for DB compat only. */
+const NO_PLAN: PlanLimits = {
+  maxProjects: 0,
+  maxScenariosPerProject: 0,
+  maxShares: 0,
+  aiMessagesPerMonth: 0,
+  aiReportsPerMonth: 0,
+  readOnly: true,
+};
+
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
-  free: {
-    maxProjects: 0,
-    maxScenariosPerProject: 0,
-    maxShares: 0,
-    aiMessagesPerMonth: 0,
-    aiReportsPerMonth: 0,
-    readOnly: true,
-  },
-  expired: {
-    maxProjects: 0,
-    maxScenariosPerProject: 0,
-    maxShares: 0,
-    aiMessagesPerMonth: 0,
-    aiReportsPerMonth: 0,
-    readOnly: true,
-  },
+  free: NO_PLAN,
+  expired: NO_PLAN,
   plus: {
     maxProjects: 3,
     maxScenariosPerProject: 3,

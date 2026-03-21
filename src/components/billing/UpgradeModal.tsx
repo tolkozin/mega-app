@@ -15,8 +15,8 @@ interface UpgradeModalProps {
 }
 
 const planSuggestion: Record<string, { name: string; color: string }> = {
-  free: { name: "Plus", color: "#2163E7" },
-  expired: { name: "Plus", color: "#2163E7" },
+  free: { name: "Plus or Pro", color: "#2163E7" },
+  expired: { name: "Plus or Pro", color: "#2163E7" },
   plus: { name: "Pro", color: "#8B5CF6" },
   pro: { name: "Enterprise", color: "#F59E0B" },
 };
@@ -152,12 +152,14 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
                         Contact us for custom Enterprise limits tailored to your team.
                       </p>
                     ) : (
+                      /* expired or free (no subscription) → show Plus features */
                       <ul className="space-y-2">
-                        <CompareRow label="Projects" current="0" next="3" />
-                        <CompareRow label="Scenarios / project" current="0" next="3" />
-                        <CompareRow label="Sharing" current="None" next="3 people" />
-                        <CompareRow label="AI messages / month" current="0" next="30" />
-                        <CompareRow label="AI reports / month" current="0" next="3" />
+                        <CompareRow label="Projects" current="Read-only" next="3 (Plus) / Unlimited (Pro)" />
+                        <CompareRow label="Scenarios / project" current="None" next="3 / Unlimited" />
+                        <CompareRow label="Sharing" current="None" next="3 / 10 people" />
+                        <CompareRow label="AI messages / month" current="None" next="30 / Unlimited" />
+                        <CompareRow label="AI reports / month" current="None" next="3 / Unlimited" />
+                        <li className="text-xs text-[#8181A5] pt-1">All plans include a 3-day free trial.</li>
                       </ul>
                     )}
                   </>

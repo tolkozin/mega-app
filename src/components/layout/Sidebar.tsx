@@ -8,6 +8,9 @@ import { Select } from "@/components/ui/select";
 import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
 import { MobileConfigDrawer } from "./MobileConfigDrawer";
 import { useIsMobile } from "@/hooks/useMediaQuery";
+import { useProfile } from "@/hooks/useProfile";
+import { isActivePlan } from "@/lib/plan-limits";
+import { useUpgradeStore } from "@/stores/upgrade-store";
 import type { PhaseConfig } from "@/lib/types";
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
@@ -159,9 +162,17 @@ export function Sidebar({ projectId, onProjectCreated }: { projectId: string | n
   const config = useConfigStore((s) => s.subscriptionConfig);
   const setConfig = useConfigStore((s) => s.setSubscriptionConfig);
   const isMobile = useIsMobile();
+  const { profile } = useProfile();
+  const readOnly = !isActivePlan(profile?.plan ?? "expired");
 
   const content = (
-    <>
+    <div className="relative">
+      {readOnly && (
+        <div
+          className="absolute inset-0 z-10 cursor-not-allowed"
+          onClick={() => useUpgradeStore.getState().showExpiredModal()}
+        />
+      )}
       <div className="p-3 border-b">
         <h2 className="font-semibold text-sm">Subscription Model Config</h2>
       </div>
@@ -225,7 +236,7 @@ export function Sidebar({ projectId, onProjectCreated }: { projectId: string | n
       <PhaseSection phase={config.phase1} phaseNum={1} />
       <PhaseSection phase={config.phase2} phaseNum={2} />
       <PhaseSection phase={config.phase3} phaseNum={3} />
-    </>
+    </div>
   );
 
   if (isMobile) {

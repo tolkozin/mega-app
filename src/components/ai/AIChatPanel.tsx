@@ -6,6 +6,8 @@ import { useConfigStore } from "@/stores/config-store";
 import { useUpgradeStore } from "@/stores/upgrade-store";
 import { ChatMessage } from "./ChatMessage";
 import { useIsMobile } from "@/hooks/useMediaQuery";
+import { useProfile } from "@/hooks/useProfile";
+import { isActivePlan } from "@/lib/plan-limits";
 
 import { getModelDef, getBaseEngine } from "@/lib/model-registry";
 
@@ -95,6 +97,8 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
   } = useChatStore();
 
   const configStore = useConfigStore();
+  const { profile } = useProfile();
+  const readOnly = !isActivePlan(profile?.plan ?? "expired");
 
   const [input, setInput] = useState("");
   const [fileUploading, setFileUploading] = useState(false);
@@ -111,12 +115,12 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
     scrollToBottom();
   }, [messages, pendingPatch, scrollToBottom]);
 
-  useEffect(() => {
-    if (isOpen) inputRef.current?.focus();
-  }, [isOpen]);
-
   // Auto-open panel with welcome message when dashboard first loads (skip on mobile)
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (isOpen && !isMobile) inputRef.current?.focus();
+  }, [isOpen, isMobile]);
   const hasShownWelcome = useRef(false);
   useEffect(() => {
     if (isMobile) return;
@@ -142,6 +146,10 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
 
   const applyPatch = () => {
     if (!pendingPatch) return;
+    if (readOnly) {
+      useUpgradeStore.getState().showExpiredModal();
+      return;
+    }
     const mt = pendingPatch.type || modelType;
 
     // Apply top-level fields
@@ -168,6 +176,10 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
   const sendMessage = async (text?: string) => {
     const msg = (text || input).trim();
     if (!msg || isStreaming) return;
+    if (readOnly) {
+      useUpgradeStore.getState().showExpiredModal();
+      return;
+    }
     setInput("");
     clearPendingPatch();
     setPatchApplied(false);
@@ -245,6 +257,11 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (readOnly) {
+      e.target.value = "";
+      useUpgradeStore.getState().showExpiredModal();
+      return;
+    }
     // Reset input so same file can be re-selected
     e.target.value = "";
 
@@ -294,6 +311,10 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
 
   const generateReport = async () => {
     if (reportLoading || !dashboardContext) return;
+    if (readOnly) {
+      useUpgradeStore.getState().showExpiredModal();
+      return;
+    }
     setReportLoading(true);
 
     try {

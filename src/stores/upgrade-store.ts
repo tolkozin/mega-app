@@ -18,9 +18,9 @@ export const useUpgradeStore = create<UpgradeStore>((set) => ({
   open: false,
   mode: "upgrade",
   feature: "",
-  currentPlan: "free",
+  currentPlan: "expired",
   limitValue: "",
-  showUpgradeModal: ({ feature, currentPlan = "free", limitValue = "" }) =>
+  showUpgradeModal: ({ feature, currentPlan = "expired", limitValue = "" }) =>
     set({ open: true, mode: "upgrade", feature, currentPlan, limitValue }),
   showExpiredModal: () =>
     set({ open: true, mode: "expired", feature: "", currentPlan: "expired", limitValue: "" }),

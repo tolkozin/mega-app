@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { useProfile } from "@/hooks/useProfile";
+import { isActivePlan, formatLimit } from "@/lib/plan-limits";
+import { useUpgradeStore } from "@/stores/upgrade-store";
+import { createClient } from "@/lib/supabase/client";
 
 interface Payment {
   id: string;
@@ -41,10 +45,49 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
   );
 }
 
+function UsageBar({ label, current, limit }: { label: string; current: number; limit: number }) {
+  const isUnlimited = limit === Infinity;
+  const pct = isUnlimited ? 0 : limit > 0 ? Math.min((current / limit) * 100, 100) : 0;
+  const isNearLimit = !isUnlimited && limit > 0 && pct >= 80;
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-[#1C1D21] font-medium">{label}</span>
+        <span className="text-[#8181A5]">
+          {current} / {isUnlimited ? "Unlimited" : formatLimit(limit)}
+        </span>
+      </div>
+      <div className="h-2 bg-[#ECECF2] rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all ${isNearLimit ? "bg-[#F59E0B]" : "bg-[#2163E7]"}`}
+          style={{ width: isUnlimited ? "0%" : `${pct}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function BillingClient() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { profile, limits } = useProfile();
+  const [projectCount, setProjectCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchProjectCount() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { count } = await supabase
+        .from("projects")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id);
+      setProjectCount(count ?? 0);
+    }
+    fetchProjectCount();
+  }, []);
 
   useEffect(() => {
     async function fetchPayments() {
@@ -79,6 +122,51 @@ export function BillingClient() {
           </p>
         </div>
 
+        {/* Plan & Usage */}
+        {profile && (
+          <div className="bg-white rounded-xl border border-[#ECECF2] p-5 mb-6 space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <h2 className="text-base font-bold text-[#1C1D21]">Current Plan</h2>
+                <span
+                  className={`text-xs font-bold px-2.5 py-1 rounded-md ${
+                    isActivePlan(profile.plan)
+                      ? "bg-[#E6F9F1] text-[#14A660]"
+                      : "bg-[#FFF8E6] text-[#F59E0B]"
+                  }`}
+                >
+                  {isActivePlan(profile.plan) ? profile.plan.charAt(0).toUpperCase() + profile.plan.slice(1) : "No Active Plan"}
+                </span>
+              </div>
+              {isActivePlan(profile.plan) ? (
+                <a
+                  href="https://revenuemap.lemonsqueezy.com/billing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-bold text-[#2163E7] hover:text-[#4B6FE0] transition-colors"
+                >
+                  Manage Subscription
+                </a>
+              ) : (
+                <button
+                  onClick={() => useUpgradeStore.getState().showExpiredModal()}
+                  className="text-sm font-bold px-4 py-2 bg-[#F59E0B] text-white rounded-lg hover:bg-[#D97706] transition-colors"
+                >
+                  Subscribe Now
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <UsageBar label="Projects" current={projectCount} limit={limits.maxProjects} />
+              <UsageBar label="AI Messages / month" current={profile.ai_chat_count ?? 0} limit={limits.aiMessagesPerMonth} />
+              <UsageBar label="AI Reports / month" current={profile.ai_report_count ?? 0} limit={limits.aiReportsPerMonth} />
+              <UsageBar label="Team Shares" current={0} limit={limits.maxShares} />
+            </div>
+          </div>
+        )}
+
+        {/* Payment History */}
         <div className="bg-white rounded-xl border border-[#ECECF2]">
           {loading ? (
             <div className="p-12 text-center">

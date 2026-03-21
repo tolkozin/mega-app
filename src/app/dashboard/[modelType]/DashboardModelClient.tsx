@@ -9,6 +9,9 @@ import { AppShell } from "@/components/layout/AppShell";
 import { exportToPDF } from "@/lib/pdf-export";
 import { useChatStore } from "@/stores/chat-store";
 import { useSurveyStore } from "@/stores/survey-store";
+import { useProfile } from "@/hooks/useProfile";
+import { isActivePlan } from "@/lib/plan-limits";
+import { useUpgradeStore } from "@/stores/upgrade-store";
 import { getPresetConfig } from "@/lib/industry-presets";
 import { getModelDef, isValidProductType, getAllModels } from "@/lib/model-registry";
 import type { BaseEngine } from "@/lib/model-registry";
@@ -263,6 +266,8 @@ function DashboardPage() {
   const dashboardRouter = useRouter();
   const allModels = getAllModels();
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
+  const { profile } = useProfile();
+  const planReadOnly = !isActivePlan(profile?.plan ?? "expired");
 
   return (
     <AppShell monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
@@ -341,7 +346,13 @@ function DashboardPage() {
                 </button>
                 {showInvestorReport && (
                   <button
-                    onClick={() => exportToPDF(reportRef, `${project?.name ?? modelType}_investor_report.pdf`)}
+                    onClick={() => {
+                      if (planReadOnly) {
+                        useUpgradeStore.getState().showExpiredModal();
+                        return;
+                      }
+                      exportToPDF(reportRef, `${project?.name ?? modelType}_investor_report.pdf`);
+                    }}
                     className="text-sm px-4 py-2 border rounded-md hover:bg-muted"
                   >
                     Download PDF
