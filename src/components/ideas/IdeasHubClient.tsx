@@ -11,9 +11,11 @@ const COLLECTION_META: Record<IdeaCollectionType, { label: string; color: string
   niche: { label: "By Niche", color: "#2163e7" },
   demographic: { label: "By Demographic", color: "#7c3aed" },
   budget: { label: "By Budget", color: "#059669" },
+  category: { label: "By App Category", color: "#d97706" },
+  timeline: { label: "By Build Time", color: "#dc2626" },
 };
 
-const COLLECTION_TYPES: IdeaCollectionType[] = ["niche", "demographic", "budget"];
+const COLLECTION_TYPES: IdeaCollectionType[] = ["niche", "demographic", "budget", "category", "timeline"];
 
 interface FlatListItem {
   slug: string;
@@ -71,13 +73,12 @@ export function IdeasHubClient() {
       {/* Hero */}
       <section className="pt-20 pb-10 px-4 text-center">
         <h1 className="text-4xl md:text-5xl font-heading font-extrabold text-[#1a1a2e] mb-4">
-          1,500+ Business Ideas<br className="hidden sm:block" />
-          for Every Niche, Demographic & Budget
+          {IDEA_LISTS.length * 30}+ Business Ideas<br className="hidden sm:block" />
+          Across {IDEA_COLLECTIONS.length} Categories
         </h1>
         <p className="text-lg text-[#6b7280] max-w-2xl mx-auto mb-8">
-          Curated startup ideas across {IDEA_COLLECTIONS.find((c) => c.type === "niche")!.lists.length} industries,{" "}
-          {IDEA_COLLECTIONS.find((c) => c.type === "demographic")!.lists.length} demographics,
-          and {IDEA_COLLECTIONS.find((c) => c.type === "budget")!.lists.length} budget levels.
+          Curated startup ideas across {IDEA_COLLECTIONS.reduce((sum, c) => sum + c.lists.length, 0)} lists —
+          by niche, demographic, budget, app category, and build time.
           Find your next idea and validate it with real financial projections.
         </p>
         <Link href="/onboarding/survey">

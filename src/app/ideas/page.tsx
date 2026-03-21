@@ -6,14 +6,17 @@ import { IdeasHubClient } from "@/components/ideas/IdeasHubClient";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";
 
+const totalIdeas = IDEA_LISTS.length * 30;
+const totalLists = IDEA_COLLECTIONS.reduce((sum, c) => sum + c.lists.length, 0);
+
 export const metadata: Metadata = {
-  title: "1,500+ Business Ideas — Find Yours by Niche, Audience & Budget (2026)",
+  title: `${totalIdeas.toLocaleString()}+ Business Ideas — Find Yours by Niche, Category & Budget (2026)`,
   description:
-    "Not sure what to build? Browse 1,500+ curated business ideas across 12 niches, 20 audiences, and 10 budget levels. Each idea comes with a revenue model you can validate instantly with real benchmarks.",
+    `Not sure what to build? Browse ${totalIdeas.toLocaleString()}+ curated business ideas across ${totalLists} lists — by niche, demographic, budget, app category, and build timeline. Each idea comes with a revenue model you can validate instantly.`,
   alternates: { canonical: `${SITE_URL}/ideas` },
   openGraph: {
-    title: "1,500+ Business Ideas — Find Your Next Startup",
-    description: "Browse business ideas by niche, audience, and budget. Each one can be validated with a real financial model in minutes.",
+    title: `${totalIdeas.toLocaleString()}+ Business Ideas — Find Your Next Startup`,
+    description: `Browse business ideas by niche, audience, budget, app category, and build time. Each one can be validated with a real financial model in minutes.`,
     url: `${SITE_URL}/ideas`,
   },
 };
@@ -24,7 +27,7 @@ export default function IdeasHubPage() {
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "1,500+ Business Ideas by Niche, Demographic & Budget",
+    name: `${totalIdeas.toLocaleString()}+ Business Ideas by Niche, Category & Budget`,
     description: metadata.description,
     url: `${SITE_URL}/ideas`,
     numberOfItems: allCollectionLists.length,
