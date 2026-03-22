@@ -85,7 +85,7 @@ function AnimatedSearchBar() {
       <Link href="/onboarding/survey" className="block">
         <div className="bg-white border border-[#e5e7eb] rounded-2xl pl-6 pr-3 py-3 flex items-center gap-3 shadow-lg shadow-black/5 hover:border-[#2163e7]/30 transition-colors group">
           <Search className="w-5 h-5 text-[#6b7280] shrink-0" />
-          <span className="text-[#6b7280] text-lg font-light flex-1 truncate min-h-[28px] transition-opacity duration-500" key={currentIndex}>
+          <span className="text-[#6b7280] text-lg font-light flex-1 truncate h-[28px] leading-[28px] transition-opacity duration-500" key={currentIndex}>
             {SEARCH_QUESTIONS[currentIndex]}
             <span className="animate-pulse text-[#2163e7]">|</span>
           </span>
@@ -359,15 +359,13 @@ function PricingToggle({ plans }: { plans: Plan[] }) {
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
         </div>
-        {annual && (
-          <motion.span
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-xs font-bold text-[#10B981] bg-[#10B981]/10 px-2.5 py-1 rounded-full"
-          >
-            Save 20%
-          </motion.span>
-        )}
+        <span
+          className={`text-xs font-bold px-2.5 py-1 rounded-full transition-opacity duration-200 ${
+            annual ? "text-[#10B981] bg-[#10B981]/10 opacity-100" : "opacity-0"
+          }`}
+        >
+          Save 20%
+        </span>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 items-start">

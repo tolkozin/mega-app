@@ -13,14 +13,14 @@ const commissioner = Commissioner({
   subsets: ["latin"],
   weight: ["600", "700", "800"],
   variable: "--font-commissioner",
-  display: "swap",
+  display: "optional",
 });
 
 const roboto = Roboto({
   subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "700"],
   variable: "--font-roboto",
-  display: "swap",
+  display: "optional",
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://revenuemap.app";

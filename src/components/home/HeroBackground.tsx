@@ -49,6 +49,7 @@ export function HeroBackground() {
             left: orb.left,
             bottom: orb.bottom,
             right: orb.right,
+            willChange: "transform",
           }}
           animate={
             prefersReduced

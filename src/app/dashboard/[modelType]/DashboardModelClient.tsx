@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useCallback, useRef, useState } from "react";
+import { Suspense, useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { useParams, useSearchParams, useRouter, notFound } from "next/navigation";
 import { useConfigStore } from "@/stores/config-store";
 import { useDashboard } from "@/hooks/useDashboard";
@@ -34,9 +34,11 @@ import { SubscriptionReports } from "@/components/dashboard/reports/FinancialRep
 import { EcommerceReports } from "@/components/dashboard/reports/FinancialReports";
 import { SaasReports } from "@/components/dashboard/reports/SaasReports";
 
-import { SubscriptionInvestorReport } from "@/components/dashboard/investor/SubscriptionInvestorReport";
-import { EcommerceInvestorReport } from "@/components/dashboard/investor/EcommerceInvestorReport";
-import { SaasInvestorReport } from "@/components/dashboard/investor/SaasInvestorReport";
+import dynamic from "next/dynamic";
+
+const SubscriptionInvestorReport = dynamic(() => import("@/components/dashboard/investor/SubscriptionInvestorReport").then(m => ({ default: m.SubscriptionInvestorReport })), { ssr: false });
+const EcommerceInvestorReport = dynamic(() => import("@/components/dashboard/investor/EcommerceInvestorReport").then(m => ({ default: m.EcommerceInvestorReport })), { ssr: false });
+const SaasInvestorReport = dynamic(() => import("@/components/dashboard/investor/SaasInvestorReport").then(m => ({ default: m.SaasInvestorReport })), { ssr: false });
 
 // ─── Engine component maps ───
 
@@ -286,7 +288,7 @@ function DashboardPage() {
   const SidebarComponent = ENGINE_SIDEBAR[engine];
   const ContentComponent = ENGINE_CONTENT[engine];
   const InvestorReportComponent = ENGINE_INVESTOR[engine];
-  const allModels = getAllModels();
+  const allModels = useMemo(() => getAllModels(), []);
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
   const [engineSelectorOpen, setEngineSelectorOpen] = useState(false);
   const { profile } = useProfile();

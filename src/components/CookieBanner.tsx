@@ -53,7 +53,8 @@ export function CookieBanner() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="fixed z-[9999] bottom-0 left-0 right-0 sm:bottom-6 sm:left-6 sm:right-auto sm:max-w-[420px]"
+          className="fixed z-[9999] bottom-0 left-0 right-0 sm:bottom-6 sm:left-6 sm:right-auto sm:max-w-[420px] pointer-events-auto"
+          style={{ contain: "layout" }}
         >
           <div
             className="rounded-t-2xl sm:rounded-2xl border border-[#334155]/80 p-4 sm:p-5"
