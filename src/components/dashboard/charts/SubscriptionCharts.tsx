@@ -98,17 +98,17 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
             description="Total active subscribers"
             size="medium"
             data={[
-              gradientArea(months, getCol(base, "Active Users"), "Base", CHART_COLORS.teal, CHART_COLORS.tealLight) as Plotly.Data,
+              gradientArea(months, getCol(base, "Total Active Users"), "Base", CHART_COLORS.teal, CHART_COLORS.tealLight) as Plotly.Data,
               {
                 x: months,
-                y: getCol(pess, "Active Users"),
+                y: getCol(pess, "Total Active Users"),
                 mode: "lines",
                 name: "Pessimistic",
                 line: { dash: "dot", color: CHART_COLORS.red, width: 1.5 },
               } as Plotly.Data,
               {
                 x: months,
-                y: getCol(opt, "Active Users"),
+                y: getCol(opt, "Total Active Users"),
                 mode: "lines",
                 name: "Optimistic",
                 line: { dash: "dash", color: CHART_COLORS.green, width: 1.5 },
@@ -142,7 +142,7 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
             title="CAC"
             description="Customer Acquisition Cost"
             size="medium"
-            data={scenarioLines(months, getCol(base, "CAC"), getCol(pess, "CAC"), getCol(opt, "CAC")) as Plotly.Data[]}
+            data={scenarioLines(months, getCol(base, "Blended CAC"), getCol(pess, "Blended CAC"), getCol(opt, "Blended CAC")) as Plotly.Data[]}
             layout={{ shapes }}
           />
 
@@ -168,14 +168,14 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
             data={[
               {
                 x: months,
-                y: getCol(base, "New Paid"),
+                y: getCol(base, "New Paid Users"),
                 type: "bar",
                 name: "New Paid",
                 marker: { color: CHART_COLORS.green },
               } as Plotly.Data,
               {
                 x: months,
-                y: getCol(base, "Total Churned").map((v) => -v),
+                y: getCol(base, "Total Active Users").map((v, i) => -(v * (getCol(base, "Blended Churn")[i] ?? 0))),
                 type: "bar",
                 name: "Churned",
                 marker: { color: CHART_COLORS.red },
@@ -213,17 +213,17 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
             description="Running total profit/loss"
             size="medium"
             data={[
-              gradientArea(months, getCol(base, "Cumulative Profit"), "Base", CHART_COLORS.primary, CHART_COLORS.primaryLight) as Plotly.Data,
+              gradientArea(months, getCol(base, "Cumulative Net Profit"), "Base", CHART_COLORS.primary, CHART_COLORS.primaryLight) as Plotly.Data,
               {
                 x: months,
-                y: getCol(pess, "Cumulative Profit"),
+                y: getCol(pess, "Cumulative Net Profit"),
                 mode: "lines",
                 name: "Pessimistic",
                 line: { dash: "dot", color: CHART_COLORS.red, width: 1.5 },
               } as Plotly.Data,
               {
                 x: months,
-                y: getCol(opt, "Cumulative Profit"),
+                y: getCol(opt, "Cumulative Net Profit"),
                 mode: "lines",
                 name: "Optimistic",
                 line: { dash: "dash", color: CHART_COLORS.green, width: 1.5 },
@@ -246,14 +246,14 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
               } as Plotly.Data,
               {
                 x: months,
-                y: getCol(base, "Total OpEx"),
+                y: getCol(base, "Total Expenses"),
                 type: "bar",
                 name: "OpEx",
                 marker: { color: CHART_COLORS.red },
               } as Plotly.Data,
               {
                 x: months,
-                y: getCol(base, "Ad Spend"),
+                y: getCol(base, "Ad Budget"),
                 type: "bar",
                 name: "Ad Spend",
                 marker: { color: CHART_COLORS.amber },

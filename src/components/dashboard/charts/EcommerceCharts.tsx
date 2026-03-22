@@ -27,7 +27,7 @@ export const EcommerceCharts = memo(function EcommerceCharts({ results, p1End, p
 
   const lastIdx = base.length - 1;
   const lastPaidClicks = (base[lastIdx]["Paid Clicks"] as number) ?? 0;
-  const lastOrganicVisitors = (base[lastIdx]["Organic Visitors"] as number) ?? 0;
+  const lastOrganicVisitors = (base[lastIdx]["Organic Purchases"] as number) ?? 0;
 
   return (
     <Tabs defaultValue="revenue" className="space-y-4">
@@ -57,7 +57,7 @@ export const EcommerceCharts = memo(function EcommerceCharts({ results, p1End, p
             data={[
               {
                 values: [lastPaidClicks, lastOrganicVisitors],
-                labels: ["Paid Traffic", "Organic Traffic"],
+                labels: ["Paid", "Organic"],
                 type: "pie",
                 hole: 0.65,
                 marker: { colors: [CHART_COLORS.primary, CHART_COLORS.green] },
@@ -137,7 +137,7 @@ export const EcommerceCharts = memo(function EcommerceCharts({ results, p1End, p
             data={[
               {
                 x: months,
-                y: getCol(base, "Effective AOV"),
+                y: getCol(base, "AOV"),
                 mode: "lines",
                 name: "AOV",
                 line: { color: CHART_COLORS.amber, width: 2.5, shape: "spline" },
@@ -162,7 +162,7 @@ export const EcommerceCharts = memo(function EcommerceCharts({ results, p1End, p
               } as Plotly.Data,
               {
                 x: months,
-                y: getCol(base, "Returning Customers"),
+                y: getCol(base, "Returning Orders"),
                 type: "bar",
                 name: "Returning",
                 marker: { color: CHART_COLORS.green },
@@ -186,7 +186,7 @@ export const EcommerceCharts = memo(function EcommerceCharts({ results, p1End, p
               } as Plotly.Data,
               {
                 x: months,
-                y: getCol(base, "Organic Visitors"),
+                y: getCol(base, "Organic Purchases"),
                 mode: "lines",
                 stackgroup: "traffic",
                 name: "Organic",
@@ -213,10 +213,10 @@ export const EcommerceCharts = memo(function EcommerceCharts({ results, p1End, p
             description="Running total profit"
             size="medium"
             data={[
-              gradientArea(months, getCol(base, "Cumulative Profit"), "Base", CHART_COLORS.purple, CHART_COLORS.purpleLight) as Plotly.Data,
+              gradientArea(months, getCol(base, "Cumulative Net Profit"), "Base", CHART_COLORS.purple, CHART_COLORS.purpleLight) as Plotly.Data,
               {
                 x: months,
-                y: getCol(pess, "Cumulative Profit"),
+                y: getCol(pess, "Cumulative Net Profit"),
                 mode: "lines",
                 name: "Pessimistic",
                 line: { dash: "dot", color: CHART_COLORS.red, width: 1.5 },
