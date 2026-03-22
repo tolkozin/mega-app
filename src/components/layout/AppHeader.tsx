@@ -448,7 +448,7 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: Ap
 
         {/* Center — Logo */}
         <button onClick={() => router.push("/dashboard")} className="flex items-center gap-2">
-          <img src="/logo.svg" alt="Revenue Map" className="w-7 h-7" />
+          <img src="/logo.svg" alt="Revenue Map" className="w-7 h-7" width={28} height={28} />
           <span className="text-sm font-bold text-white">Revenue Map</span>
         </button>
 

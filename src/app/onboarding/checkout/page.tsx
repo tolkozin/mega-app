@@ -112,7 +112,7 @@ function CheckoutPage() {
       <div className="w-full max-w-2xl">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <img src="/logo.svg" alt="Revenue Map" className="w-10 h-10" />
+          <img src="/logo.svg" alt="Revenue Map" className="w-10 h-10" width={40} height={40} />
         </div>
 
         <h1 className="text-2xl font-bold text-[#1C1D21] text-center mb-1">

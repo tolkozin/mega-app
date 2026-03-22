@@ -547,7 +547,7 @@ function SurveyPage() {
 
       {/* Logo */}
       <div className="px-6 pt-5 pb-2">
-        <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" />
+        <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" width={32} height={32} />
       </div>
 
       {/* Step content */}

@@ -108,7 +108,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
   }, []);
 
   useEffect(() => {

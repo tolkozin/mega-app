@@ -72,37 +72,21 @@ const SEARCH_QUESTIONS = [
 
 function AnimatedSearchBar() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [displayed, setDisplayed] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const question = SEARCH_QUESTIONS[currentIndex];
-    let timeout: NodeJS.Timeout;
-
-    if (!isDeleting && displayed.length < question.length) {
-      timeout = setTimeout(
-        () => setDisplayed(question.slice(0, displayed.length + 1)),
-        40 + Math.random() * 60
-      );
-    } else if (!isDeleting && displayed.length === question.length) {
-      timeout = setTimeout(() => setIsDeleting(true), 2000);
-    } else if (isDeleting && displayed.length > 0) {
-      timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 20);
-    } else {
-      setIsDeleting(false);
+    const interval = setInterval(() => {
       setCurrentIndex((i) => (i + 1) % SEARCH_QUESTIONS.length);
-    }
-
-    return () => clearTimeout(timeout);
-  }, [displayed, isDeleting, currentIndex]);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="relative max-w-2xl mx-auto mt-10">
       <Link href="/onboarding/survey" className="block">
         <div className="bg-white border border-[#e5e7eb] rounded-2xl pl-6 pr-3 py-3 flex items-center gap-3 shadow-lg shadow-black/5 hover:border-[#2163e7]/30 transition-colors group">
           <Search className="w-5 h-5 text-[#6b7280] shrink-0" />
-          <span className="text-[#6b7280] text-lg font-light flex-1 truncate min-h-[28px]">
-            {displayed}
+          <span className="text-[#6b7280] text-lg font-light flex-1 truncate min-h-[28px] transition-opacity duration-500" key={currentIndex}>
+            {SEARCH_QUESTIONS[currentIndex]}
             <span className="animate-pulse text-[#2163e7]">|</span>
           </span>
           <button className="shrink-0 w-10 h-10 rounded-xl bg-[#2163e7] flex items-center justify-center text-white group-hover:bg-[#1a53c7] transition-colors">

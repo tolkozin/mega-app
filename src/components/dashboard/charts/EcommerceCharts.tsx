@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { PlotlyChart, phaseLines, gradientArea, scenarioLines, CHART_COLORS, DONUT_COLORS } from "./PlotlyChart";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { RunResult } from "@/lib/api";
@@ -17,7 +18,7 @@ function getMonths(data: Record<string, unknown>[]): number[] {
   return data.map((r) => r["Month"] as number);
 }
 
-export function EcommerceCharts({ results, p1End, p2End }: ChartsProps) {
+export const EcommerceCharts = memo(function EcommerceCharts({ results, p1End, p2End }: ChartsProps) {
   const base = results.base.dataframe;
   const pess = results.pessimistic.dataframe;
   const opt = results.optimistic.dataframe;
@@ -272,4 +273,4 @@ export function EcommerceCharts({ results, p1End, p2End }: ChartsProps) {
       </TabsContent>
     </Tabs>
   );
-}
+});

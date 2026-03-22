@@ -1,9 +1,22 @@
 "use client";
 
+import { memo } from "react";
 import dynamic from "next/dynamic";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 
-const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
+function ChartSkeleton({ height }: { height: string }) {
+  return (
+    <div
+      className="w-full animate-pulse rounded-lg bg-[#F0F0F5]"
+      style={{ height }}
+    />
+  );
+}
+
+const Plot = dynamic(() => import("react-plotly.js"), {
+  ssr: false,
+  loading: () => <ChartSkeleton height="320px" />,
+});
 
 type ChartSize = "hero" | "medium" | "small";
 
@@ -53,7 +66,7 @@ export const DONUT_COLORS = [
   CHART_COLORS.red,
 ];
 
-export function PlotlyChart({ data, layout, title, description, className, size = "medium" }: PlotlyChartProps) {
+export const PlotlyChart = memo(function PlotlyChart({ data, layout, title, description, className, size = "medium" }: PlotlyChartProps) {
   const isMobile = useIsMobile();
   const h = HEIGHTS[size];
   const chartHeight = isMobile ? h.mobile : h.desktop;
@@ -62,7 +75,7 @@ export function PlotlyChart({ data, layout, title, description, className, size 
   const topMargin = hasPlotlyTitle ? 30 : 10;
 
   return (
-    <div className={`bg-white rounded-xl border border-[#ECECF2] p-4 ${className ?? ""}`}>
+    <div className={`bg-white rounded-xl border border-[#ECECF2] p-4 ${className ?? ""}`} style={{ minHeight: chartHeight }}>
       {(title || description) && (
         <div className="mb-2">
           {title && <h3 className="text-sm font-bold text-[#1C1D21]">{title}</h3>}
@@ -107,7 +120,7 @@ export function PlotlyChart({ data, layout, title, description, className, size 
       />
     </div>
   );
-}
+});
 
 // Helper: add vertical phase boundary lines
 export function phaseLines(p1End: number, p2End: number): Partial<Plotly.Shape>[] {

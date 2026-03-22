@@ -58,7 +58,7 @@ function SidebarContent({ expanded, onClose }: { expanded: boolean; onClose?: ()
       {/* Logo + close button */}
       <div className="mb-6 flex items-center justify-between px-4">
         <Link href="/dashboard" className="flex items-center gap-2" onClick={onClose}>
-          <img src="/logo.svg" alt="Revenue Map" className="w-9 h-9 shrink-0" />
+          <img src="/logo.svg" alt="Revenue Map" className="w-9 h-9 shrink-0" width={36} height={36} />
           {expanded && <span className="text-white font-bold text-sm whitespace-nowrap">Revenue Map</span>}
         </Link>
         {onClose && (

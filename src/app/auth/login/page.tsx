@@ -49,7 +49,7 @@ function LoginForm() {
     <>
       <div className="mb-8">
         <Link href="/" className="inline-flex items-center gap-2">
-          <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" />
+          <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" width={32} height={32} />
           <span className="text-2xl font-bold text-[#1C1D21]">Revenue Map</span>
         </Link>
       </div>

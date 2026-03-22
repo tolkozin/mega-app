@@ -113,7 +113,7 @@ function ProcessingPage() {
       <div className="w-full max-w-md text-center">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <img src="/logo.svg" alt="Revenue Map" className="w-10 h-10" />
+          <img src="/logo.svg" alt="Revenue Map" className="w-10 h-10" width={40} height={40} />
         </div>
 
         {timedOut ? (
