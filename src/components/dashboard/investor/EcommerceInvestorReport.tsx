@@ -71,7 +71,7 @@ function GmvSummary({ data }: { data: RunResult }) {
           sub={endGM ? `${formatPercent(endGM * 100)} gross margin` : undefined}
         />
       </KPIGrid>
-      <div className="mt-4">
+      <div className="mt-3">
         <ReportChart
           size="small"
           data={[
@@ -86,7 +86,7 @@ function GmvSummary({ data }: { data: RunResult }) {
           layout={{ title: { text: "Monthly Gross Revenue", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
-      <div className="mt-4">
+      <div className="mt-3">
         <CompactTable
           headers={["Month", "Gross Revenue", "Total Orders", "Net Profit"]}
           rows={(() => {
@@ -168,7 +168,7 @@ function AovConversionTable({ data }: { data: RunResult }) {
           sub="last month ROI"
         />
       </KPIGrid>
-      <div className="mt-4">
+      <div className="mt-3">
         <ReportChart
           size="small"
           data={[
@@ -183,7 +183,7 @@ function AovConversionTable({ data }: { data: RunResult }) {
           layout={{ title: { text: "Average Order Value", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
-      <div className="mt-4">
+      <div className="mt-3">
         <CompactTable
           headers={["Month", "AOV", "Orders", "Revenue", "Gross Margin", "ROAS", "ROI"]}
           rows={rows}
@@ -242,7 +242,7 @@ function CustomerAcquisitionSummary({ data }: { data: RunResult }) {
         />
       </KPIGrid>
 
-      <div className="mt-4">
+      <div className="mt-3">
         <ReportChart
           size="small"
           data={[
@@ -257,7 +257,7 @@ function CustomerAcquisitionSummary({ data }: { data: RunResult }) {
           layout={{ title: { text: "Customer Acquisition Cost", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
-      <div className="mt-4">
+      <div className="mt-3">
         <CompactTable
           headers={["Month", "CAC", "LTV", "LTV/CAC", "Ad Spend", "Organic Spend"]}
           rows={(() => {
@@ -339,7 +339,7 @@ function GrossMarginTable({ data }: { data: RunResult }) {
           sub="sum of net profit"
         />
       </KPIGrid>
-      <div className="mt-4">
+      <div className="mt-3">
         <ReportChart
           size="small"
           data={[
@@ -354,7 +354,7 @@ function GrossMarginTable({ data }: { data: RunResult }) {
           layout={{ title: { text: "Gross Margin %", font: { size: 13, color: "#8181A5" } } }}
         />
       </div>
-      <div className="mt-4">
+      <div className="mt-3">
         <CompactTable
           headers={["Month", "Revenue", "COGS", "Gross Profit", "GM%", "Net Profit", "Net Margin"]}
           rows={rows}

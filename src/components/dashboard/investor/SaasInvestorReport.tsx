@@ -77,7 +77,7 @@ function ArrGrowthSummary({ data }: { data: RunResult }) {
           sub="avg revenue per account"
         />
       </KPIGrid>
-      <div className="mt-4">
+      <div className="mt-3">
         <ReportChart
           size="small"
           data={[
@@ -121,7 +121,7 @@ function ArrGrowthSummary({ data }: { data: RunResult }) {
           });
 
         return (
-          <div className="mt-4">
+          <div className="mt-3">
             <CompactTable
               headers={["Month", "MRR", "ARR", "Customers", "Seats", "MoM ARR Growth"]}
               rows={rows}
@@ -168,7 +168,7 @@ function RetentionTable({ data }: { data: RunResult }) {
   return (
     <div>
       <SectionHeader>NRR / GRR Retention</SectionHeader>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-4 gap-2 mb-3">
         <KPICard
           label="Avg NRR"
           value={avgNrr ? formatPercent(avgNrr) : "—"}
@@ -190,7 +190,7 @@ function RetentionTable({ data }: { data: RunResult }) {
           sub="latest month"
         />
       </div>
-      <div className="mt-4 mb-4">
+      <div className="mt-3 mb-3">
         <ReportChart
           size="small"
           data={[
@@ -250,7 +250,7 @@ function PipelineSummary({ data }: { data: RunResult }) {
   return (
     <div>
       <SectionHeader>Pipeline Summary</SectionHeader>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-4 gap-2 mb-3">
         <KPICard
           label="Total Leads"
           value={formatNumber(totalLeads)}
@@ -276,7 +276,7 @@ function PipelineSummary({ data }: { data: RunResult }) {
           sub="leads to closed deals"
         />
       </div>
-      <div className="mt-4 mb-4">
+      <div className="mt-3 mb-3">
         <ReportChart
           size="small"
           data={[
@@ -349,7 +349,7 @@ function SaasEfficiencyMetrics({ data }: { data: RunResult }) {
   return (
     <div>
       <SectionHeader>SaaS Efficiency Metrics</SectionHeader>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-4 gap-2 mb-3">
         <KPICard
           label="Rule of 40"
           value={isNaN(rule40) ? "—" : `${rule40.toFixed(1)}%`}
@@ -371,7 +371,7 @@ function SaasEfficiencyMetrics({ data }: { data: RunResult }) {
           sub="latest month"
         />
       </div>
-      <div className="mt-4 mb-4">
+      <div className="mt-3 mb-3">
         <ReportChart
           size="small"
           data={[

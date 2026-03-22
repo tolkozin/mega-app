@@ -217,24 +217,24 @@ export default async function MetricPage({
             <h2 className="text-2xl font-extrabold font-heading text-[#1a1a2e] mb-6">
               Industry Benchmarks
             </h2>
-            <div className="rounded-xl border border-[#e5e7eb] bg-white overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="rounded-xl border border-[#e5e7eb] bg-white overflow-x-auto">
+              <table className="w-full text-sm min-w-[400px]">
                 <thead>
                   <tr className="border-b border-[#e5e7eb] bg-[#f8f9fc]">
-                    <th className="text-left px-5 py-3 font-bold text-[#1a1a2e]">Segment</th>
-                    <th className="text-left px-5 py-3 font-bold text-[#10B981]">
+                    <th className="text-left px-3 sm:px-5 py-3 font-bold text-[#1a1a2e]">Segment</th>
+                    <th className="text-left px-3 sm:px-5 py-3 font-bold text-[#10B981]">
                       <span className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-[#10B981]" />
                         Good
                       </span>
                     </th>
-                    <th className="text-left px-5 py-3 font-bold text-[#F59E0B]">
+                    <th className="text-left px-3 sm:px-5 py-3 font-bold text-[#F59E0B]">
                       <span className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
                         Average
                       </span>
                     </th>
-                    <th className="text-left px-5 py-3 font-bold text-[#EF4444]">
+                    <th className="text-left px-3 sm:px-5 py-3 font-bold text-[#EF4444]">
                       <span className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
                         Poor
@@ -248,10 +248,10 @@ export default async function MetricPage({
                       key={i}
                       className={i < metric.benchmarks.length - 1 ? "border-b border-[#e5e7eb]" : ""}
                     >
-                      <td className="px-5 py-3 font-medium text-[#1a1a2e]">{row.segment}</td>
-                      <td className="px-5 py-3 text-[#10B981] font-semibold">{row.good}</td>
-                      <td className="px-5 py-3 text-[#F59E0B] font-semibold">{row.average}</td>
-                      <td className="px-5 py-3 text-[#EF4444] font-semibold">{row.poor}</td>
+                      <td className="px-3 sm:px-5 py-3 font-medium text-[#1a1a2e] whitespace-nowrap">{row.segment}</td>
+                      <td className="px-3 sm:px-5 py-3 text-[#10B981] font-semibold whitespace-nowrap">{row.good}</td>
+                      <td className="px-3 sm:px-5 py-3 text-[#F59E0B] font-semibold whitespace-nowrap">{row.average}</td>
+                      <td className="px-3 sm:px-5 py-3 text-[#EF4444] font-semibold whitespace-nowrap">{row.poor}</td>
                     </tr>
                   ))}
                 </tbody>

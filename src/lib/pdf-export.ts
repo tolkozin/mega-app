@@ -29,7 +29,7 @@ function addFooter(
   pageWidth: number,
   margin: number,
 ) {
-  const footerY = 297 - margin - 2;
+  const footerY = 297 - 6;
   pdf.setFontSize(7);
   pdf.setTextColor(130, 130, 165);
   const date = new Date().toLocaleDateString("en-US", {
@@ -42,9 +42,53 @@ function addFooter(
 }
 
 /**
+ * Slice a canvas into page-sized chunks and return them.
+ */
+function sliceCanvas(
+  canvas: HTMLCanvasElement,
+  scaledWidth: number,
+  contentHeight: number,
+): { imgData: string; height: number }[] {
+  const imgRatio = canvas.width / canvas.height;
+  const scaledHeight = scaledWidth / imgRatio;
+
+  if (scaledHeight <= contentHeight) {
+    return [{ imgData: canvas.toDataURL("image/png"), height: scaledHeight }];
+  }
+
+  // Need to slice across multiple pages
+  const pages: { imgData: string; height: number }[] = [];
+  const totalSlices = Math.ceil(scaledHeight / contentHeight);
+
+  for (let s = 0; s < totalSlices; s++) {
+    const srcY = Math.round((s * contentHeight * canvas.width) / scaledWidth);
+    const srcHeight = Math.round((contentHeight * canvas.width) / scaledWidth);
+    const actualSrcHeight = Math.min(srcHeight, canvas.height - srcY);
+
+    if (actualSrcHeight <= 0) break;
+
+    const sliceCanvas = document.createElement("canvas");
+    sliceCanvas.width = canvas.width;
+    sliceCanvas.height = actualSrcHeight;
+    const ctx = sliceCanvas.getContext("2d");
+    if (ctx) {
+      ctx.drawImage(
+        canvas,
+        0, srcY, canvas.width, actualSrcHeight,
+        0, 0, canvas.width, actualSrcHeight,
+      );
+    }
+    const sliceHeight = (actualSrcHeight * scaledWidth) / canvas.width;
+    pages.push({ imgData: sliceCanvas.toDataURL("image/png"), height: sliceHeight });
+  }
+
+  return pages;
+}
+
+/**
  * Export an element to PDF. If the element contains children with
- * `data-pdf-page` attributes, each section gets its own PDF page.
- * Otherwise falls back to slicing the full element across pages.
+ * `data-pdf-page` attributes, each section is rendered and properly
+ * paginated. Otherwise falls back to slicing the full element.
  */
 export async function exportToPDF(
   elementRef: React.RefObject<HTMLElement | null>,
@@ -60,48 +104,31 @@ export async function exportToPDF(
   // A4 dimensions in mm
   const pageWidth = 210;
   const pageHeight = 297;
-  const margin = 12;
-  const footerHeight = 10;
+  const margin = 10;
+  const footerHeight = 8;
   const contentWidth = pageWidth - margin * 2;
   const contentHeight = pageHeight - margin * 2 - footerHeight;
+
+  // Use a fixed render width for consistent output
+  const renderWidth = element.scrollWidth;
 
   // Check for section-based page breaks
   const sections = element.querySelectorAll("[data-pdf-page]");
 
   if (sections.length > 0) {
-    // ── Section-based export: each [data-pdf-page] gets its own page ──
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    const windowWidth = element.scrollWidth;
+    // ── Section-based export ──
 
-    // First: render the report header (everything before the first data-pdf-page)
-    // We'll render the whole element as page 1, then overlay sections
-    // Simpler approach: collect all section canvases first, then paginate
-
-    const canvases: HTMLCanvasElement[] = [];
-
-    // Render header section: clone the element, hide all data-pdf-page + Divider siblings
-    // Instead, render each data-pdf-page section individually
-    for (let i = 0; i < sections.length; i++) {
-      const section = sections[i] as HTMLElement;
-      const canvas = await renderElement(html2canvas, section, windowWidth);
-      canvases.push(canvas);
-    }
-
-    // Also render the report header (the part before sections)
-    // Find the first data-pdf-page and render everything above it
+    // 1. Render header (everything before first data-pdf-page)
     const headerEl = element.querySelector("[data-pdf-page]");
     let headerCanvas: HTMLCanvasElement | null = null;
     if (headerEl) {
-      // Create a wrapper with the header content
       const wrapper = document.createElement("div");
-      wrapper.style.cssText = element.style.cssText;
-      wrapper.style.padding = "40px 48px";
+      wrapper.style.width = `${element.offsetWidth}px`;
+      wrapper.style.padding = "32px 40px";
       wrapper.style.fontFamily = "'Lato', sans-serif";
       wrapper.style.color = "#1C1D21";
       wrapper.style.backgroundColor = "#ffffff";
-      wrapper.style.width = `${element.offsetWidth}px`;
 
-      // Copy header children (before the first data-pdf-page)
       let sibling = element.firstElementChild;
       while (sibling) {
         if (sibling.querySelector("[data-pdf-page]") || sibling.hasAttribute("data-pdf-page")) break;
@@ -111,24 +138,36 @@ export async function exportToPDF(
 
       if (wrapper.children.length > 0) {
         document.body.appendChild(wrapper);
-        headerCanvas = await renderElement(html2canvas, wrapper, windowWidth);
+        headerCanvas = await renderElement(html2canvas, wrapper, renderWidth);
         document.body.removeChild(wrapper);
       }
     }
 
-    // Count total pages needed
-    const allCanvases = headerCanvas ? [headerCanvas, ...canvases] : canvases;
-    const totalPages = allCanvases.length;
+    // 2. Render all sections
+    const sectionCanvases: HTMLCanvasElement[] = [];
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i] as HTMLElement;
+      const canvas = await renderElement(html2canvas, section, renderWidth);
+      sectionCanvases.push(canvas);
+    }
 
-    for (let i = 0; i < allCanvases.length; i++) {
+    // 3. Build pages — slice sections that are too tall
+    const allCanvases = headerCanvas ? [headerCanvas, ...sectionCanvases] : sectionCanvases;
+    const allSlices: { imgData: string; height: number }[] = [];
+
+    for (const canvas of allCanvases) {
+      const slices = sliceCanvas(canvas, contentWidth, contentHeight);
+      allSlices.push(...slices);
+    }
+
+    // 4. Write to PDF
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const totalPages = allSlices.length;
+
+    for (let i = 0; i < allSlices.length; i++) {
       if (i > 0) pdf.addPage();
-      const canvas = allCanvases[i];
-      const imgData = canvas.toDataURL("image/png");
-      const imgRatio = canvas.width / canvas.height;
-      const scaledWidth = contentWidth;
-      const scaledHeight = Math.min(scaledWidth / imgRatio, contentHeight);
-
-      pdf.addImage(imgData, "PNG", margin, margin, scaledWidth, scaledHeight);
+      const { imgData, height } = allSlices[i];
+      pdf.addImage(imgData, "PNG", margin, margin, contentWidth, height);
       addFooter(pdf, i + 1, totalPages, pageWidth, margin);
     }
 
@@ -138,32 +177,16 @@ export async function exportToPDF(
 
   // ── Fallback: slice full element across pages ──
   const canvas = await renderElement(html2canvas, element, element.scrollWidth);
-  const imgWidth = canvas.width;
-  const imgHeight = canvas.height;
-  const ratio = imgWidth / imgHeight;
-  const scaledWidth = contentWidth;
-  const scaledHeight = scaledWidth / ratio;
+  const slices = sliceCanvas(canvas, contentWidth, contentHeight);
 
   const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const totalPages = Math.ceil(scaledHeight / contentHeight);
+  const totalPages = slices.length;
 
-  for (let page = 0; page < totalPages; page++) {
-    if (page > 0) pdf.addPage();
-
-    const srcY = (page * contentHeight * imgWidth) / scaledWidth;
-    const srcHeight = (contentHeight * imgWidth) / scaledWidth;
-
-    const pageCanvas = document.createElement("canvas");
-    pageCanvas.width = imgWidth;
-    pageCanvas.height = Math.min(srcHeight, imgHeight - srcY);
-    const ctx = pageCanvas.getContext("2d");
-    if (ctx) {
-      ctx.drawImage(canvas, 0, -srcY);
-    }
-    const pageImgData = pageCanvas.toDataURL("image/png");
-    const sliceHeight = (pageCanvas.height * scaledWidth) / imgWidth;
-    pdf.addImage(pageImgData, "PNG", margin, margin, scaledWidth, sliceHeight);
-    addFooter(pdf, page + 1, totalPages, pageWidth, margin);
+  for (let i = 0; i < totalPages; i++) {
+    if (i > 0) pdf.addPage();
+    const { imgData, height } = slices[i];
+    pdf.addImage(imgData, "PNG", margin, margin, contentWidth, height);
+    addFooter(pdf, i + 1, totalPages, pageWidth, margin);
   }
 
   pdf.save(filename.endsWith(".pdf") ? filename : `${filename}.pdf`);

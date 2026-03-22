@@ -82,7 +82,7 @@ function RevenueBreakdown({ data }: { data: RunResult }) {
           sub="last month"
         />
       </KPIGrid>
-      <div className="mt-4">
+      <div className="mt-3">
         <ReportChart
           size="small"
           data={[{
@@ -97,7 +97,7 @@ function RevenueBreakdown({ data }: { data: RunResult }) {
           layout={{ yaxis: { title: "MRR ($)" } }}
         />
       </div>
-      <div className="mt-4">
+      <div className="mt-3">
         <CompactTable
           headers={["Month", "Total MRR", "ARR Run-Rate", "Weekly MRR", "Monthly MRR", "Annual MRR", "Active Users"]}
           rows={rows}
@@ -159,7 +159,7 @@ function UnitEconomics({ data }: { data: RunResult }) {
           sub="months to recover CAC"
         />
       </KPIGrid>
-      <div className="mt-4">
+      <div className="mt-3">
         <ReportChart
           size="small"
           data={[{
@@ -172,7 +172,7 @@ function UnitEconomics({ data }: { data: RunResult }) {
           layout={{ yaxis: { title: "Ratio" } }}
         />
       </div>
-      <div className="mt-4">
+      <div className="mt-3">
         <CompactTable
           headers={["Month", "LTV", "CAC", "LTV/CAC", "ARPU", "Gross Margin"]}
           rows={(() => {
@@ -260,7 +260,7 @@ function ChurnSummary({ data }: { data: RunResult }) {
           sub="last − first month"
         />
       </KPIGrid>
-      <div className="mt-4">
+      <div className="mt-3">
         <ReportChart
           size="small"
           data={[{
@@ -273,7 +273,7 @@ function ChurnSummary({ data }: { data: RunResult }) {
           layout={{ yaxis: { title: "Churn Rate (%)" } }}
         />
       </div>
-      <div className="mt-4">
+      <div className="mt-3">
         <CompactTable
           headers={["Month", "Churn Rate", "Churned Users", "New Users", "Active Users", "ROAS"]}
           rows={rows}

@@ -3,7 +3,6 @@
 import React, { useRef, useState } from "react";
 import { formatCurrency, formatPercent, formatNumber } from "@/lib/utils";
 import { exportToPDF } from "@/lib/pdf-export";
-import { useIsMobile } from "@/hooks/useMediaQuery";
 import type { RunResult } from "@/lib/api";
 import {
   PlotlyChart as ReportChart,
@@ -60,7 +59,7 @@ function fmtRaw(v: unknown) {
 export function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
     <h2
-      className="text-sm font-bold uppercase tracking-widest mb-3"
+      className="text-sm font-bold uppercase tracking-widest mb-2"
       style={{ color: "#1C1D21", letterSpacing: "0.08em" }}
     >
       {children}
@@ -69,12 +68,12 @@ export function SectionHeader({ children }: { children: React.ReactNode }) {
 }
 
 export function Divider() {
-  return <div className="border-t my-5" style={{ borderColor: "#ECECF2" }} />;
+  return <div className="border-t my-4" style={{ borderColor: "#ECECF2" }} />;
 }
 
 export function KPIGrid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">{children}</div>
+    <div className="grid grid-cols-4 gap-2">{children}</div>
   );
 }
 
@@ -89,17 +88,17 @@ export function KPICard({
 }) {
   return (
     <div
-      className="rounded-lg p-3"
+      className="rounded-lg p-2.5"
       style={{ border: "1px solid #ECECF2", backgroundColor: "#FAFAFA" }}
     >
-      <p className="text-xs font-medium" style={{ color: "#8181A5" }}>
+      <p className="text-[10px] font-medium" style={{ color: "#8181A5" }}>
         {label}
       </p>
-      <p className="text-base font-bold mt-0.5" style={{ color: "#1C1D21" }}>
+      <p className="text-sm font-bold mt-0.5" style={{ color: "#1C1D21" }}>
         {value}
       </p>
       {sub && (
-        <p className="text-xs mt-0.5" style={{ color: "#8181A5" }}>
+        <p className="text-[10px] mt-0.5" style={{ color: "#8181A5" }}>
           {sub}
         </p>
       )}
@@ -114,49 +113,15 @@ export function CompactTable({
   headers: string[];
   rows: (string | number)[][];
 }) {
-  const isMobile = useIsMobile();
-
-  if (isMobile) {
-    // Mobile: stacked card layout
-    return (
-      <div className="space-y-2">
-        {rows.map((row, i) => (
-          <div
-            key={i}
-            className="rounded-lg p-3"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
-          >
-            <p className="text-xs font-bold mb-2" style={{ color: "#F8FAFC" }}>
-              {row[0]}
-            </p>
-            <div className="space-y-1">
-              {row.slice(1).map((cell, j) => (
-                <div key={j} className="flex items-center justify-between">
-                  <span className="text-[11px]" style={{ color: "#94A3B8" }}>
-                    {headers[j + 1]}
-                  </span>
-                  <span className="text-xs font-medium" style={{ color: "#F8FAFC" }}>
-                    {cell}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  // Desktop: standard table
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-xs border-collapse">
+      <table className="w-full text-[11px] border-collapse">
         <thead>
           <tr style={{ borderBottom: "1px solid #ECECF2" }}>
             {headers.map((h) => (
               <th
                 key={h}
-                className="text-left py-1.5 pr-4 font-semibold"
+                className="text-left py-1 pr-3 font-semibold whitespace-nowrap"
                 style={{ color: "#8181A5" }}
               >
                 {h}
@@ -173,7 +138,7 @@ export function CompactTable({
               {row.map((cell, j) => (
                 <td
                   key={j}
-                  className="py-1.5 pr-4"
+                  className="py-1 pr-3 whitespace-nowrap"
                   style={{ color: "#1C1D21" }}
                 >
                   {cell}
@@ -247,7 +212,7 @@ function ExecutiveSummary({ data, modelType }: { data: RunResult; modelType: Mod
           }
         />
       </KPIGrid>
-      <div className="mt-4">
+      <div className="mt-3">
         <ReportChart
           size="small"
           data={[
@@ -494,16 +459,18 @@ export function InvestorReport({
       {/* Printable report */}
       <div
         ref={reportRef}
-        className="max-w-4xl mx-auto bg-white"
+        className="mx-auto bg-white"
         style={{
           fontFamily: "'Lato', sans-serif",
-          padding: "40px 48px",
+          padding: "32px 40px",
           color: "#1C1D21",
+          width: "800px",
+          maxWidth: "100%",
         }}
       >
         {/* Report header */}
         <div
-          className="flex items-start justify-between pb-5 mb-6"
+          className="flex items-start justify-between pb-4 mb-5"
           style={{ borderBottom: "2px solid #1C1D21" }}
         >
           <div>
