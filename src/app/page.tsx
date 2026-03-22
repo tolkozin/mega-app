@@ -56,7 +56,7 @@ const footerLinks = {
     { label: "Pricing", href: "/pricing" },
   ],
   Models: [
-    { label: "Subscription App", href: "/models/subscription" },
+    { label: "Mobile App", href: "/models/subscription" },
     { label: "E-Commerce", href: "/models/ecommerce" },
     { label: "SaaS B2B", href: "/models/saas" },
     { label: "Marketplace", href: "/models/marketplace" },
@@ -65,7 +65,7 @@ const footerLinks = {
   ],
   Ideas: [
     { label: "All Idea Lists", href: "/ideas" },
-    { label: "Subscription App", href: "/ideas/subscription-app" },
+    { label: "Mobile App", href: "/ideas/subscription-app" },
     { label: "E-Commerce", href: "/ideas/ecommerce" },
     { label: "SaaS B2B", href: "/ideas/saas-b2b" },
     { label: "Ideas for Women", href: "/ideas/ideas-for-women" },

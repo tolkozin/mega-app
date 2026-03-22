@@ -36,7 +36,7 @@ const NICHE_COLLECTION: IdeaCollection = {
   description: "Curated business ideas for every industry vertical — from subscription apps to AI platforms.",
   slug: "niche",
   lists: [
-    { slug: "subscription-app", label: "Subscription App", icon: "📱" },
+    { slug: "subscription-app", label: "Mobile App", icon: "📱" },
     { slug: "ecommerce", label: "E-Commerce", icon: "🛒" },
     { slug: "saas-b2b", label: "SaaS B2B", icon: "☁️" },
     { slug: "marketplace", label: "Marketplace", icon: "🏪" },
@@ -66,8 +66,8 @@ const NICHE_LISTS: IdeaList[] = [
   {
     slug: "subscription-app",
     modelKey: "subscription",
-    title: "Top 50 Subscription App Ideas for 2026",
-    subtitle: "Proven subscription-based mobile app concepts with strong recurring revenue potential.",
+    title: "Top 50 Mobile App Ideas for 2026",
+    subtitle: "Proven mobile app concepts with strong recurring revenue potential.",
     overview: "The subscription app economy is booming — global mobile subscription revenue is projected to exceed $150B by 2027. Users increasingly prefer paying monthly for curated, ad-free experiences over one-time purchases. The model works because it aligns value delivery with revenue: the longer you keep users happy, the more you earn. Key advantages include predictable recurring revenue, higher lifetime value, lower churn with habit-forming features, and strong investor appeal. Whether you're building a productivity tool, wellness platform, or content app — subscriptions reward quality and retention over vanity downloads.",
     ideas: [
       { name: "AI Personal Finance Coach", description: "Analyzes spending, suggests budgets, and sends personalized saving tips via push notifications.", bestPick: true },

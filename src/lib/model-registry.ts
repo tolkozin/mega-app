@@ -37,6 +37,13 @@ export type ProductType = (typeof PRODUCT_TYPES)[number];
 
 export type BaseEngine = "subscription" | "ecommerce" | "saas";
 
+/* ─── Engine option — user-friendly engine name per model ─── */
+
+export interface EngineOption {
+  engine: BaseEngine;
+  label: string;
+}
+
 /* ─── Model definition ─── */
 
 export interface ModelDefinition {
@@ -47,6 +54,8 @@ export interface ModelDefinition {
   icon: ComponentType<{ className?: string }>;
   color: string;
   baseEngine: BaseEngine;
+  /** Available engines for this model with user-friendly labels */
+  availableEngines: EngineOption[];
   surveyDescription: string;
   headline: string;
   question: string;
@@ -65,16 +74,20 @@ export interface ModelDefinition {
 export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
   subscription: {
     key: "subscription",
-    label: "Subscription App",
-    shortLabel: "Subscription",
+    label: "Mobile App",
+    shortLabel: "Mobile App",
     description:
-      "Instant financial projections for subscription apps — built on real benchmarks from thousands of mobile businesses.",
+      "Instant financial projections for mobile apps — built on real benchmarks from thousands of mobile businesses.",
     icon: Smartphone,
     color: "#5E81F4",
     baseEngine: "subscription",
-    surveyDescription: "Mobile app with in-app subscriptions",
+    availableEngines: [
+      { engine: "subscription", label: "App Subscriptions" },
+      { engine: "ecommerce", label: "In-App Purchases" },
+    ],
+    surveyDescription: "Mobile app with subscriptions or in-app purchases",
     headline: "See if your app idea is profitable — in under 5 minutes.",
-    question: "Will my mobile app subscription be profitable?",
+    question: "Will my mobile app be profitable?",
     elementSymbol: "Ma",
     elementBg: "#e4eefd",
     elementText: "#2163e7",
@@ -89,6 +102,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     icon: ShoppingCart,
     color: "#F59E0B",
     baseEngine: "ecommerce",
+    availableEngines: [
+      { engine: "ecommerce", label: "Per Order" },
+      { engine: "subscription", label: "Subscription Box" },
+    ],
     surveyDescription: "Online store selling physical or digital products",
     headline: "Get real numbers on every order — in minutes, not months.",
     question: "Am I spending too much to acquire customers?",
@@ -106,6 +123,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     icon: Cloud,
     color: "#8B5CF6",
     baseEngine: "saas",
+    availableEngines: [
+      { engine: "saas", label: "Per Seat" },
+      { engine: "subscription", label: "Self-Serve Subscription" },
+    ],
     surveyDescription: "B2B software-as-a-service platform",
     headline: "The numbers investors actually ask for — ready in minutes.",
     question: "Am I growing efficiently enough?",
@@ -123,6 +144,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     icon: Store,
     color: "#0EA5E9",
     baseEngine: "ecommerce",
+    availableEngines: [
+      { engine: "ecommerce", label: "Per Transaction" },
+      { engine: "saas", label: "Platform SaaS" },
+    ],
     surveyDescription: "Two-sided marketplace connecting buyers and sellers",
     headline: "Know if your marketplace can reach critical mass — before you build it.",
     question: "Can my marketplace reach critical mass?",
@@ -140,6 +165,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     icon: UtensilsCrossed,
     color: "#EF4444",
     baseEngine: "ecommerce",
+    availableEngines: [
+      { engine: "ecommerce", label: "Per Order Delivery" },
+      { engine: "subscription", label: "Meal Kit Subscription" },
+    ],
     surveyDescription: "Food delivery, cloud kitchen, or food-tech platform",
     headline: "Find out if each order makes money — before you deliver the first one.",
     question: "Is my food business actually profitable per order?",
@@ -157,6 +186,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     icon: Plane,
     color: "#06B6D4",
     baseEngine: "ecommerce",
+    availableEngines: [
+      { engine: "ecommerce", label: "Per Booking" },
+      { engine: "subscription", label: "Travel Membership" },
+    ],
     surveyDescription: "Travel booking, hospitality, or tourism platform",
     headline: "Model your travel business across peak and off-peak — instantly.",
     question: "Will my travel platform be sustainable year-round?",
@@ -174,6 +207,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     icon: Gamepad2,
     color: "#A855F7",
     baseEngine: "subscription",
+    availableEngines: [
+      { engine: "subscription", label: "In-Game Subscriptions" },
+      { engine: "ecommerce", label: "In-Game Purchases" },
+    ],
     surveyDescription: "Mobile game, gaming platform, or game studio",
     headline: "Know your player value before spending a dollar on ads.",
     question: "Will players stick around long enough to pay back UA costs?",
@@ -191,6 +228,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     icon: Landmark,
     color: "#10B981",
     baseEngine: "saas",
+    availableEngines: [
+      { engine: "saas", label: "B2B Platform" },
+      { engine: "ecommerce", label: "Per Transaction" },
+    ],
     surveyDescription: "Payments, banking, lending, or insurance platform",
     headline: "See if your fintech scales past compliance costs — in minutes.",
     question: "Can my fintech product scale profitably?",
@@ -208,6 +249,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     icon: HeartPulse,
     color: "#EC4899",
     baseEngine: "saas",
+    availableEngines: [
+      { engine: "saas", label: "B2B Platform" },
+      { engine: "subscription", label: "Patient Subscription" },
+    ],
     surveyDescription: "Digital health, telemedicine, or wellness platform",
     headline: "Model patient acquisition and retention — with real health-tech data.",
     question: "Can my health platform scale with regulatory overhead?",
@@ -225,6 +270,11 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     icon: GraduationCap,
     color: "#F97316",
     baseEngine: "saas",
+    availableEngines: [
+      { engine: "saas", label: "B2B Platform" },
+      { engine: "subscription", label: "Student Subscription" },
+      { engine: "ecommerce", label: "Course Sales" },
+    ],
     surveyDescription: "Online learning, courses, or education platform",
     headline: "See if your education platform is viable — before creating content.",
     question: "Will students stay long enough to make my platform viable?",
@@ -242,6 +292,10 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     icon: Building2,
     color: "#6366F1",
     baseEngine: "ecommerce",
+    availableEngines: [
+      { engine: "ecommerce", label: "Per Deal" },
+      { engine: "saas", label: "Property Management SaaS" },
+    ],
     surveyDescription: "Real estate, property management, or construction platform",
     headline: "Know your cost per deal and margin — before you list anything.",
     question: "Can my property platform generate positive unit economics?",
@@ -259,6 +313,11 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     icon: Brain,
     color: "#14B8A6",
     baseEngine: "saas",
+    availableEngines: [
+      { engine: "saas", label: "B2B Platform" },
+      { engine: "subscription", label: "API Subscription" },
+      { engine: "ecommerce", label: "Pay-per-Use" },
+    ],
     surveyDescription: "AI/ML product, API, or platform",
     headline: "Find out if your AI product can scale without burning cash.",
     question: "Can my AI product scale without burning through compute?",
@@ -286,4 +345,15 @@ export function isValidProductType(type: string): type is ProductType {
 /** Get all model definitions as an array, ordered by registry order */
 export function getAllModels(): ModelDefinition[] {
   return PRODUCT_TYPES.map((key) => MODEL_REGISTRY[key]);
+}
+
+/** Get available engines for a model with user-friendly labels */
+export function getAvailableEngines(type: string): EngineOption[] {
+  return getModelDef(type).availableEngines;
+}
+
+/** Get user-friendly engine label for a model+engine combo */
+export function getEngineLabel(modelType: string, engine: BaseEngine): string {
+  const options = getModelDef(modelType).availableEngines;
+  return options.find((o) => o.engine === engine)?.label ?? engine;
 }

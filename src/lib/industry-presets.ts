@@ -7,7 +7,7 @@
  */
 
 import type { PhaseConfig, ModelConfig, EcomPhaseConfig, EcomConfig, SaasPhaseConfig, SaasConfig } from "./types";
-import { getBaseEngine } from "./model-registry";
+import { getBaseEngine, type BaseEngine } from "./model-registry";
 import { defaultModelConfig, defaultEcomConfig, defaultSaasConfig } from "@/stores/config-store";
 
 /* ─── Deep-merge helper ─── */
@@ -35,14 +35,63 @@ function deepMerge<T extends Record<string, any>>(base: T, patch: DeepPartial<T>
 type SubPreset = DeepPartial<ModelConfig>;
 
 const SUB_BASE: Record<string, SubPreset> = {
-  // ── Mobile App (subscription) ──
+  // ── Mobile App (subscription) — default engine ──
   subscription: {},
-  // ── GameTech ──
+  // ── GameTech — default engine ──
   gametech: {
     phase1: { cpi: 4, ad_budget: 0, price_weekly: 2.99, price_monthly: 4.99, price_annual: 29.99, mix_weekly: 0.3, mix_monthly: 0.5, mix_annual: 0.2 },
     phase2: { cpi: 3.5, ad_budget: 8000, conv_trial: 25, conv_paid: 15, churn_mult: 2 },
     phase3: { ad_budget: 200000, cpi: 3, organic_growth_pct: 20, organic_conv_paid: 20 },
     weekly_cancel_rate: 25, monthly_churn_rate: 15, annual_non_renewal: 40,
+  },
+  // ── E-Commerce on subscription engine → Subscription Box ──
+  ecommerce: {
+    phase1: { price_monthly: 29.99, price_annual: 299.99, cpi: 12, ad_budget: 4000, conv_trial: 10, conv_paid: 8, mix_monthly: 0.6, mix_annual: 0.4, mix_weekly: 0, cogs: 0.35, investment: 60000 },
+    phase2: { ad_budget: 8000, cpi: 10, conv_trial: 15, conv_paid: 12, organic_growth_pct: 12 },
+    phase3: { ad_budget: 20000, cpi: 8, conv_trial: 20, conv_paid: 15, organic_growth_pct: 15 },
+    monthly_churn_rate: 10, annual_non_renewal: 30, trial_days: 0,
+  },
+  // ── SaaS on subscription engine → Self-Serve SaaS ──
+  saas: {
+    phase1: { price_monthly: 29, price_annual: 290, cpi: 25, ad_budget: 5000, conv_trial: 20, conv_paid: 12, mix_monthly: 0.4, mix_annual: 0.6, mix_weekly: 0, cogs: 0.05, investment: 100000 },
+    phase2: { ad_budget: 12000, cpi: 20, conv_trial: 25, conv_paid: 18, organic_growth_pct: 15 },
+    phase3: { ad_budget: 30000, cpi: 15, conv_trial: 30, conv_paid: 22, organic_growth_pct: 20 },
+    monthly_churn_rate: 5, annual_non_renewal: 15, trial_days: 14,
+  },
+  // ── FoodTech on subscription engine → Meal Kit Subscription ──
+  foodtech: {
+    phase1: { price_monthly: 49.99, price_annual: 479.99, cpi: 18, ad_budget: 5000, conv_trial: 8, conv_paid: 6, mix_monthly: 0.7, mix_annual: 0.3, mix_weekly: 0, cogs: 0.45, investment: 80000 },
+    phase2: { ad_budget: 10000, cpi: 15, conv_trial: 12, conv_paid: 10, organic_growth_pct: 10 },
+    phase3: { ad_budget: 25000, cpi: 12, conv_trial: 18, conv_paid: 15, organic_growth_pct: 15 },
+    monthly_churn_rate: 12, annual_non_renewal: 35, trial_days: 0,
+  },
+  // ── TravelTech on subscription engine → Travel Membership ──
+  traveltech: {
+    phase1: { price_monthly: 19.99, price_annual: 199.99, cpi: 15, ad_budget: 4000, conv_trial: 12, conv_paid: 8, mix_monthly: 0.3, mix_annual: 0.7, mix_weekly: 0, cogs: 0.1, investment: 80000 },
+    phase2: { ad_budget: 8000, cpi: 12, conv_trial: 18, conv_paid: 12, organic_growth_pct: 12 },
+    phase3: { ad_budget: 20000, cpi: 10, conv_trial: 22, conv_paid: 16, organic_growth_pct: 18 },
+    monthly_churn_rate: 8, annual_non_renewal: 25, trial_days: 7,
+  },
+  // ── HealthTech on subscription engine → Patient Subscription ──
+  healthtech: {
+    phase1: { price_monthly: 39.99, price_annual: 399.99, cpi: 20, ad_budget: 4000, conv_trial: 10, conv_paid: 8, mix_monthly: 0.5, mix_annual: 0.5, mix_weekly: 0, cogs: 0.08, investment: 100000 },
+    phase2: { ad_budget: 8000, cpi: 16, conv_trial: 15, conv_paid: 12, organic_growth_pct: 10 },
+    phase3: { ad_budget: 20000, cpi: 12, conv_trial: 20, conv_paid: 18, organic_growth_pct: 15 },
+    monthly_churn_rate: 6, annual_non_renewal: 18, trial_days: 7,
+  },
+  // ── EdTech on subscription engine → Student Subscription ──
+  edtech: {
+    phase1: { price_monthly: 14.99, price_annual: 119.99, cpi: 10, ad_budget: 3000, conv_trial: 15, conv_paid: 10, mix_monthly: 0.4, mix_annual: 0.6, mix_weekly: 0, cogs: 0.05, investment: 60000 },
+    phase2: { ad_budget: 6000, cpi: 8, conv_trial: 20, conv_paid: 15, organic_growth_pct: 15 },
+    phase3: { ad_budget: 15000, cpi: 6, conv_trial: 25, conv_paid: 20, organic_growth_pct: 20 },
+    monthly_churn_rate: 7, annual_non_renewal: 20, trial_days: 7,
+  },
+  // ── AI/ML on subscription engine → API Subscription ──
+  "ai-ml": {
+    phase1: { price_monthly: 49, price_annual: 490, cpi: 30, ad_budget: 5000, conv_trial: 15, conv_paid: 10, mix_monthly: 0.4, mix_annual: 0.6, mix_weekly: 0, cogs: 0.2, investment: 150000 },
+    phase2: { ad_budget: 12000, cpi: 25, conv_trial: 20, conv_paid: 15, organic_growth_pct: 15 },
+    phase3: { ad_budget: 30000, cpi: 20, conv_trial: 25, conv_paid: 20, organic_growth_pct: 20 },
+    monthly_churn_rate: 5, annual_non_renewal: 12, trial_days: 14,
   },
 };
 
@@ -122,26 +171,63 @@ const SUB_INDUSTRY: Record<string, SubPreset> = {
 type EcomPreset = DeepPartial<EcomConfig>;
 
 const ECOM_BASE: Record<string, EcomPreset> = {
+  // ── E-Commerce — default engine ──
   ecommerce: {},
+  // ── Marketplace — default engine ──
   marketplace: {
     phase1: { avg_order_value: 35, cogs_pct: 15, cpc: 1.5, repeat_purchase_rate: 15 },
     phase2: { avg_order_value: 40, cogs_pct: 12, organic_pct: 25, repeat_purchase_rate: 25 },
     phase3: { avg_order_value: 45, cogs_pct: 10, organic_pct: 35, repeat_purchase_rate: 35 },
   },
+  // ── FoodTech — default engine ──
   foodtech: {
     phase1: { avg_order_value: 28, cogs_pct: 55, cpc: 1.2, repeat_purchase_rate: 20, return_rate: 2, investment: 80000 },
     phase2: { avg_order_value: 32, cogs_pct: 50, repeat_purchase_rate: 35, orders_per_returning: 2.5, organic_pct: 15 },
     phase3: { avg_order_value: 35, cogs_pct: 45, repeat_purchase_rate: 50, orders_per_returning: 4, organic_pct: 25 },
   },
+  // ── TravelTech — default engine ──
   traveltech: {
     phase1: { avg_order_value: 250, cogs_pct: 20, cpc: 3, click_to_purchase: 1, repeat_purchase_rate: 5, investment: 100000 },
     phase2: { avg_order_value: 300, cpc: 2.5, click_to_purchase: 1.5, repeat_purchase_rate: 15, organic_pct: 20 },
     phase3: { avg_order_value: 350, cpc: 2, click_to_purchase: 2, repeat_purchase_rate: 25, organic_pct: 30 },
   },
+  // ── PropTech — default engine ──
   proptech: {
     phase1: { avg_order_value: 500, cogs_pct: 10, cpc: 5, click_to_purchase: 0.5, repeat_purchase_rate: 3, investment: 120000 },
     phase2: { avg_order_value: 600, cpc: 4, click_to_purchase: 1, repeat_purchase_rate: 8, organic_pct: 20 },
     phase3: { avg_order_value: 700, cpc: 3, click_to_purchase: 1.5, repeat_purchase_rate: 12, organic_pct: 35 },
+  },
+  // ── Subscription App on ecommerce engine → In-App Purchases ──
+  subscription: {
+    phase1: { avg_order_value: 4.99, cogs_pct: 30, cpc: 0.8, click_to_purchase: 2, repeat_purchase_rate: 25, return_rate: 0, investment: 80000 },
+    phase2: { avg_order_value: 5.99, cpc: 0.6, click_to_purchase: 3, repeat_purchase_rate: 35, orders_per_returning: 3, organic_pct: 20 },
+    phase3: { avg_order_value: 6.99, cpc: 0.5, click_to_purchase: 4, repeat_purchase_rate: 45, orders_per_returning: 4, organic_pct: 30 },
+  },
+  // ── GameTech on ecommerce engine → In-Game Purchases ──
+  gametech: {
+    phase1: { avg_order_value: 3.99, cogs_pct: 30, cpc: 0.5, click_to_purchase: 3, repeat_purchase_rate: 30, return_rate: 0, investment: 150000 },
+    phase2: { avg_order_value: 4.99, cpc: 0.4, click_to_purchase: 4, repeat_purchase_rate: 40, orders_per_returning: 4, organic_pct: 20 },
+    phase3: { avg_order_value: 5.99, cpc: 0.3, click_to_purchase: 5, repeat_purchase_rate: 50, orders_per_returning: 5, organic_pct: 30 },
+  },
+  // ── FinTech on ecommerce engine → Per Transaction ──
+  fintech: {
+    phase1: { avg_order_value: 150, cogs_pct: 5, cpc: 3, click_to_purchase: 1.5, repeat_purchase_rate: 30, return_rate: 1, investment: 150000 },
+    phase2: { avg_order_value: 180, cpc: 2.5, click_to_purchase: 2, repeat_purchase_rate: 40, orders_per_returning: 3, organic_pct: 20 },
+    phase3: { avg_order_value: 200, cpc: 2, click_to_purchase: 2.5, repeat_purchase_rate: 50, orders_per_returning: 4, organic_pct: 30 },
+    misc_costs: 5000,
+  },
+  // ── EdTech on ecommerce engine → Course Sales ──
+  edtech: {
+    phase1: { avg_order_value: 49, cogs_pct: 10, cpc: 2, click_to_purchase: 2, repeat_purchase_rate: 15, return_rate: 5, investment: 50000 },
+    phase2: { avg_order_value: 59, cpc: 1.5, click_to_purchase: 3, repeat_purchase_rate: 25, orders_per_returning: 2, organic_pct: 25 },
+    phase3: { avg_order_value: 69, cpc: 1.2, click_to_purchase: 4, repeat_purchase_rate: 35, orders_per_returning: 2.5, organic_pct: 35 },
+  },
+  // ── AI/ML on ecommerce engine → Pay-per-Use ──
+  "ai-ml": {
+    phase1: { avg_order_value: 25, cogs_pct: 30, cpc: 2, click_to_purchase: 2, repeat_purchase_rate: 40, return_rate: 0, investment: 150000 },
+    phase2: { avg_order_value: 35, cpc: 1.5, click_to_purchase: 3, repeat_purchase_rate: 55, orders_per_returning: 4, organic_pct: 20 },
+    phase3: { avg_order_value: 45, cpc: 1.2, click_to_purchase: 4, repeat_purchase_rate: 65, orders_per_returning: 6, organic_pct: 30 },
+    misc_costs: 5000,
   },
 };
 
@@ -214,29 +300,48 @@ const ECOM_INDUSTRY: Record<string, EcomPreset> = {
 type SaasPreset = DeepPartial<SaasConfig>;
 
 const SAAS_BASE: Record<string, SaasPreset> = {
+  // ── SaaS B2B — default engine ──
   saas: {},
+  // ── FinTech — default engine ──
   fintech: {
     phase1: { price_per_seat: 59, cpl: 300, lead_to_demo: 15, demo_to_close: 10, cogs_per_seat: 10, investment: 200000 },
     phase2: { price_per_seat: 69, cpl: 250, lead_to_demo: 20, demo_to_close: 15, expansion_rate: 4 },
     phase3: { price_per_seat: 79, cpl: 200, lead_to_demo: 25, demo_to_close: 20, expansion_rate: 6 },
     misc_costs: 5000,
   },
+  // ── HealthTech — default engine ──
   healthtech: {
     phase1: { price_per_seat: 49, cpl: 350, lead_to_demo: 12, demo_to_close: 8, sales_cycle_months: 3, cogs_per_seat: 8, investment: 150000 },
     phase2: { price_per_seat: 59, cpl: 280, lead_to_demo: 18, demo_to_close: 12, expansion_rate: 2 },
     phase3: { price_per_seat: 69, cpl: 220, lead_to_demo: 25, demo_to_close: 18, expansion_rate: 4 },
     misc_costs: 8000,
   },
+  // ── EdTech — default engine ──
   edtech: {
     phase1: { price_per_seat: 19, seats_per_account: 10, cpl: 100, lead_to_demo: 25, demo_to_close: 20, cogs_per_seat: 3, investment: 80000 },
     phase2: { price_per_seat: 25, seats_per_account: 15, cpl: 80, lead_to_demo: 30, demo_to_close: 25, expansion_rate: 5 },
     phase3: { price_per_seat: 29, seats_per_account: 25, cpl: 60, lead_to_demo: 35, demo_to_close: 30, expansion_rate: 8 },
   },
+  // ── AI/ML — default engine ──
   "ai-ml": {
     phase1: { price_per_seat: 79, seats_per_account: 2, cpl: 250, lead_to_demo: 20, demo_to_close: 12, cogs_per_seat: 15, investment: 200000 },
     phase2: { price_per_seat: 99, seats_per_account: 4, cpl: 200, lead_to_demo: 25, demo_to_close: 18, expansion_rate: 5 },
     phase3: { price_per_seat: 99, seats_per_account: 6, cpl: 150, lead_to_demo: 30, demo_to_close: 25, expansion_rate: 8 },
     misc_costs: 6000,
+  },
+  // ── Marketplace on SaaS engine → Platform SaaS ──
+  marketplace: {
+    phase1: { price_per_seat: 29, seats_per_account: 3, cpl: 150, lead_to_demo: 20, demo_to_close: 15, cogs_per_seat: 5, investment: 120000 },
+    phase2: { price_per_seat: 39, seats_per_account: 5, cpl: 120, lead_to_demo: 25, demo_to_close: 20, expansion_rate: 5 },
+    phase3: { price_per_seat: 49, seats_per_account: 8, cpl: 90, lead_to_demo: 30, demo_to_close: 25, expansion_rate: 7 },
+    misc_costs: 4000,
+  },
+  // ── PropTech on SaaS engine → Property Management SaaS ──
+  proptech: {
+    phase1: { price_per_seat: 39, seats_per_account: 5, cpl: 200, lead_to_demo: 18, demo_to_close: 12, sales_cycle_months: 2, cogs_per_seat: 5, investment: 100000 },
+    phase2: { price_per_seat: 49, seats_per_account: 8, cpl: 160, lead_to_demo: 22, demo_to_close: 18, expansion_rate: 4 },
+    phase3: { price_per_seat: 59, seats_per_account: 12, cpl: 120, lead_to_demo: 28, demo_to_close: 22, expansion_rate: 6 },
+    misc_costs: 5000,
   },
 };
 
@@ -335,14 +440,40 @@ export interface PresetInput {
   industry: string;
   stage?: string | null;
   budget?: string | null;
+  /** Override engine (defaults to model's baseEngine) */
+  engine?: BaseEngine | null;
 }
 
 /**
  * Returns a fully-merged config for the given product type and industry.
  * Engine defaults → product type base → industry specifics → stage/budget adjustments.
  */
+/**
+ * Returns the base default config for a model+engine combo (no industry/stage adjustments).
+ * Used when user switches engine in the dashboard.
+ */
+export function getModelEngineDefaults(productType: string, engine: BaseEngine): ModelConfig | EcomConfig | SaasConfig {
+  if (engine === "subscription") {
+    let config = { ...defaultModelConfig, phase1: { ...defaultModelConfig.phase1 }, phase2: { ...defaultModelConfig.phase2 }, phase3: { ...defaultModelConfig.phase3 } };
+    const base = SUB_BASE[productType];
+    if (base) config = deepMerge<ModelConfig>(config, base);
+    return config;
+  }
+  if (engine === "ecommerce") {
+    let config = { ...defaultEcomConfig, phase1: { ...defaultEcomConfig.phase1 }, phase2: { ...defaultEcomConfig.phase2 }, phase3: { ...defaultEcomConfig.phase3 } };
+    const base = ECOM_BASE[productType];
+    if (base) config = deepMerge<EcomConfig>(config, base);
+    return config;
+  }
+  // saas
+  let config = { ...defaultSaasConfig, phase1: { ...defaultSaasConfig.phase1 }, phase2: { ...defaultSaasConfig.phase2 }, phase3: { ...defaultSaasConfig.phase3 } };
+  const base = SAAS_BASE[productType];
+  if (base) config = deepMerge<SaasConfig>(config, base);
+  return config;
+}
+
 export function getPresetConfig(input: PresetInput): ModelConfig | EcomConfig | SaasConfig {
-  const engine = getBaseEngine(input.productType);
+  const engine = input.engine ?? getBaseEngine(input.productType);
   const stage = STAGE_MODIFIERS[input.stage ?? "idea"] ?? STAGE_MODIFIERS.idea;
   const budgetInv = budgetToInvestment(input.budget ?? "");
 

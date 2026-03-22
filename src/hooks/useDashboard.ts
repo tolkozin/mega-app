@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { runModelByEngine, type RunResult } from "@/lib/api";
-import { getBaseEngine } from "@/lib/model-registry";
+import { getBaseEngine, type BaseEngine } from "@/lib/model-registry";
 
 interface DashboardState {
   results: Record<string, RunResult> | null;
@@ -10,7 +10,7 @@ interface DashboardState {
   error: string | null;
 }
 
-export function useDashboard(modelType: string) {
+export function useDashboard(modelType: string, engineOverride?: BaseEngine) {
   const [state, setState] = useState<DashboardState>({
     results: null,
     loading: false,
@@ -24,7 +24,7 @@ export function useDashboard(modelType: string) {
       setState((s) => ({ ...s, loading: true, error: null }));
 
       try {
-        const engine = getBaseEngine(modelType);
+        const engine = engineOverride ?? getBaseEngine(modelType);
         const runFn = (config: Record<string, unknown>, sensitivity?: Record<string, number>) =>
           runModelByEngine(engine, config, sensitivity);
 
@@ -51,7 +51,7 @@ export function useDashboard(modelType: string) {
         });
       }
     },
-    [modelType]
+    [modelType, engineOverride]
   );
 
   const debouncedRun = useCallback(

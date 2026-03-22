@@ -131,7 +131,7 @@ function StepHeader({ title, subtitle }: { title: string; subtitle?: string }) {
 function Step1() {
   const { data, update } = useSurveyStore();
   const options: { key: SurveyData["projectType"] & string; icon: LucideIcon; label: string; description: string }[] = [
-    { key: "subscription", icon: Smartphone, label: "Subscription App", description: "Subscription-based mobile application" },
+    { key: "subscription", icon: Smartphone, label: "Mobile App", description: "Mobile app with subscriptions or in-app purchases" },
     { key: "ecommerce", icon: ShoppingCart, label: "E-Commerce", description: "Online store selling physical or digital goods" },
     { key: "saas", icon: Cloud, label: "SaaS B2B", description: "Cloud software for businesses" },
     { key: "marketplace", icon: Store, label: "Marketplace", description: "Platform connecting buyers and sellers" },
