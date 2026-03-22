@@ -493,8 +493,6 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: Ap
                 <path d="M6 3l5 5-5 5" />
               </svg>
             </button>
-            <span className="text-[13px] font-medium text-[#CBD5E1] truncate">{activeCategoryLabel ?? title ?? "Dashboard"}</span>
-
             {/* Category tabs removed — model selector is in dashboard content */}
           </div>
 
