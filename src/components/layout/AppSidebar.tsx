@@ -140,7 +140,7 @@ export function AppSidebar() {
               onClick={() => setMobileOpen(false)}
             />
             <motion.aside
-              className="fixed top-0 left-0 z-40 h-full w-[280px] bg-[#0F172A] border-r border-[#1E293B] flex flex-col items-stretch py-5"
+              className="fixed top-0 left-0 z-40 h-full w-[280px] max-w-[85vw] bg-[#0F172A] border-r border-[#1E293B] flex flex-col items-stretch py-5"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}

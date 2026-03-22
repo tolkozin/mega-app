@@ -1,6 +1,6 @@
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-[100dvh]" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+    <div className="flex min-h-[100dvh] overflow-x-hidden" style={{ paddingTop: "env(safe-area-inset-top)" }}>
       {/* Left: form panel */}
       <div className="flex flex-1 flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-12 bg-white">
         <div className="w-full max-w-[400px]">

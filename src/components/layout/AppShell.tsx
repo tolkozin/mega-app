@@ -47,7 +47,7 @@ export function AppShell({
   }, [profile, profileLoading]);
 
   return (
-    <div className="flex min-h-[100dvh] bg-[#F8F8FC]" style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}>
+    <div className="flex min-h-[100dvh] bg-[#F8F8FC] overflow-x-hidden max-w-[100vw]" style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}>
       <LandscapeLock />
       <AppSidebar />
       <div className="flex-1 flex flex-col h-[100dvh] min-w-0">

@@ -14,30 +14,33 @@ import { useUpgradeStore } from "@/stores/upgrade-store";
 import type { PhaseConfig } from "@/lib/types";
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
-  const [hover, setHover] = useState(false);
+  const [show, setShow] = useState(false);
   const ref = React.useRef<HTMLSpanElement>(null);
   const [above, setAbove] = useState(true);
+  const [alignRight, setAlignRight] = useState(false);
 
-  const handleEnter = () => {
-    setHover(true);
-    if (ref.current) {
+  const handleToggle = () => {
+    if (!show && ref.current) {
       const rect = ref.current.getBoundingClientRect();
       setAbove(rect.top > 120);
+      setAlignRight(rect.left > window.innerWidth / 2);
     }
+    setShow((v) => !v);
   };
 
   return (
     <span
       ref={ref}
       className="relative inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#ECECF2] text-[#8181A5] text-[9px] font-bold cursor-help ml-1"
-      onMouseEnter={handleEnter}
-      onMouseLeave={() => setHover(false)}
+      onMouseEnter={() => handleToggle()}
+      onMouseLeave={() => setShow(false)}
+      onClick={(e) => { e.stopPropagation(); handleToggle(); }}
     >
       ?
-      {hover && (
-        <span className={`absolute z-[100] ${above ? "bottom-full mb-2" : "top-full mt-2"} left-0 px-2.5 py-1.5 bg-[#1C1D21] text-white text-[10px] leading-relaxed rounded-lg shadow-lg w-[200px] whitespace-normal pointer-events-none`}>
+      {show && (
+        <span className={`absolute z-[100] ${above ? "bottom-full mb-2" : "top-full mt-2"} ${alignRight ? "right-0" : "left-0"} px-2.5 py-1.5 bg-[#1C1D21] text-white text-[10px] leading-relaxed rounded-lg shadow-lg w-[200px] max-w-[calc(100vw-3rem)] whitespace-normal pointer-events-none`}>
           {tooltip}
-          <span className={`absolute ${above ? "top-full" : "bottom-full"} left-4 w-0 h-0 border-l-4 border-r-4 ${above ? "border-t-4 border-t-[#1C1D21]" : "border-b-4 border-b-[#1C1D21]"} border-l-transparent border-r-transparent`} />
+          <span className={`absolute ${above ? "top-full" : "bottom-full"} ${alignRight ? "right-4" : "left-4"} w-0 h-0 border-l-4 border-r-4 ${above ? "border-t-4 border-t-[#1C1D21]" : "border-b-4 border-b-[#1C1D21]"} border-l-transparent border-r-transparent`} />
         </span>
       )}
     </span>

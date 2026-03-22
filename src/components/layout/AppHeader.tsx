@@ -105,7 +105,7 @@ export function DateRangeBar({ monthRange, onMonthRangeChange, totalMonths, vari
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute top-full left-0 mt-1 z-50 bg-white border border-[#ECECF2] rounded-lg shadow-lg p-4 w-[320px]">
+          <div className="absolute top-full left-0 mt-1 z-50 bg-white border border-[#ECECF2] rounded-lg shadow-lg p-4 w-[320px] max-w-[calc(100vw-2rem)]">
             <p className="text-[11px] font-semibold text-[#1C1D21] mb-3">Select Month Range</p>
 
             {/* Dropdowns */}
