@@ -68,7 +68,7 @@ function GmvSummary({ data }: { data: RunResult }) {
         <KPICard
           label="Net Profit"
           value={fmtMoney(totalProfit)}
-          sub={endGM ? `${formatPercent(endGM * 100)} gross margin` : undefined}
+          sub={endGM ? `${formatPercent(endGM)} gross margin` : undefined}
         />
       </KPIGrid>
       <div className="mt-3">
@@ -115,7 +115,7 @@ function AovConversionTable({ data }: { data: RunResult }) {
   const last = df[df.length - 1];
 
   const avgAov =
-    df.reduce((s, r) => s + num(r["Effective AOV"] ?? r["AOV"]), 0) / df.length;
+    df.reduce((s, r) => s + num(r["AOV"]), 0) / df.length;
   const totalOrders = df.reduce((s, r) => s + num(r["Total Orders"]), 0);
   const endRoas = num(last["Cumulative ROAS"] ?? last["ROAS"]);
   const endRoi = num(last["ROI %"]);
@@ -124,7 +124,7 @@ function AovConversionTable({ data }: { data: RunResult }) {
   const _filt = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
   const _samp = _filt.length > 12 ? [..._filt.slice(0, 11), _filt[_filt.length - 1]] : _filt;
   const rows = _samp.map((r) => {
-      const aov = num(r["Effective AOV"] ?? r["AOV"]);
+      const aov = num(r["AOV"]);
       const orders = num(r["Total Orders"]);
       const rev = num(r["Gross Revenue"]);
       const gm = num(r["Gross Margin %"]);
@@ -135,7 +135,7 @@ function AovConversionTable({ data }: { data: RunResult }) {
         `$${aov.toFixed(2)}`,
         formatNumber(orders),
         fmtMoney(rev),
-        gm ? formatPercent(gm * 100) : "—",
+        gm ? formatPercent(gm) : "—",
         `${roas.toFixed(1)}x`,
         `${roi.toFixed(0)}%`,
       ];
@@ -172,7 +172,7 @@ function AovConversionTable({ data }: { data: RunResult }) {
           data={[
             gradientArea(
               df.map((_, i) => i + 1),
-              df.map((r) => num(r["Effective AOV"] ?? r["AOV"])),
+              df.map((r) => num(r["AOV"])),
               "AOV",
               CHART_COLORS.primary,
               CHART_COLORS.primaryLight,
@@ -203,11 +203,8 @@ function CustomerAcquisitionSummary({ data }: { data: RunResult }) {
   const avgLtv = df.reduce((s, r) => s + num(r["LTV"]), 0) / df.length;
   const avgLtvCac =
     df.reduce((s, r) => s + num(r["LTV/CAC"]), 0) / df.length;
-  const totalAdSpend = df.reduce((s, r) => s + num(r["Ad Spend"]), 0);
-  const totalOrganicSpend = df.reduce(
-    (s, r) => s + num(r["Organic Spend"] ?? 0),
-    0
-  );
+  const totalAdSpend = df.reduce((s, r) => s + num(r["Ad Budget"]), 0);
+  const totalMarketing = df.reduce((s, r) => s + num(r["Marketing"]), 0);
   const endRoas = num(last["Cumulative ROAS"] ?? last["ROAS"]);
 
   return (
@@ -230,13 +227,9 @@ function CustomerAcquisitionSummary({ data }: { data: RunResult }) {
           sub=">3x is healthy"
         />
         <KPICard
-          label="Total Ad Spend"
-          value={fmtMoney(totalAdSpend)}
-          sub={
-            totalOrganicSpend > 0
-              ? `+${fmtMoney(totalOrganicSpend)} organic`
-              : undefined
-          }
+          label="Total Marketing"
+          value={fmtMoney(totalMarketing)}
+          sub={`${fmtMoney(totalAdSpend)} ad spend`}
         />
       </KPIGrid>
 
@@ -257,7 +250,7 @@ function CustomerAcquisitionSummary({ data }: { data: RunResult }) {
       </div>
       <div className="mt-3">
         <CompactTable
-          headers={["Month", "CAC", "LTV", "LTV/CAC", "Ad Spend", "Organic Spend"]}
+          headers={["Month", "CAC", "LTV", "LTV/CAC", "Ad Budget", "ROAS"]}
           rows={(() => {
             const step = Math.max(1, Math.floor(df.length / 10));
             const _f2 = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
@@ -267,8 +260,8 @@ function CustomerAcquisitionSummary({ data }: { data: RunResult }) {
                 `$${num(r["CAC"]).toFixed(2)}`,
                 `$${num(r["LTV"]).toFixed(2)}`,
                 `${num(r["LTV/CAC"]).toFixed(2)}x`,
-                fmtMoney(r["Ad Spend"]),
-                fmtMoney(r["Organic Spend"] ?? 0),
+                fmtMoney(r["Ad Budget"]),
+                `${num(r["ROAS"]).toFixed(1)}x`,
               ]);
           })()}
         />
@@ -284,7 +277,7 @@ function GrossMarginTable({ data }: { data: RunResult }) {
   if (!df.length) return null;
 
   const avgGm =
-    (df.reduce((s, r) => s + num(r["Gross Margin %"]), 0) / df.length) * 100;
+    df.reduce((s, r) => s + num(r["Gross Margin %"]), 0) / df.length;
   const totalRevenue = df.reduce((s, r) => s + num(r["Gross Revenue"]), 0);
   const totalCogs = df.reduce((s, r) => s + num(r["COGS"]), 0);
   const cumNetProfit = df.reduce((s, r) => s + num(r["Net Profit"]), 0);
@@ -297,16 +290,15 @@ function GrossMarginTable({ data }: { data: RunResult }) {
       const cogs = num(r["COGS"]);
       const gp = rev - cogs;
       const gm = num(r["Gross Margin %"]);
-      const netMargin = num(r["Net Margin %"] ?? 0);
       const netProfit = num(r["Net Profit"]);
       return [
         `Mo ${num(r["Month"]).toFixed(0)}`,
         fmtMoney(rev),
         fmtMoney(cogs),
         fmtMoney(gp),
-        gm ? formatPercent(gm * 100) : "—",
+        gm ? formatPercent(gm) : "—",
         fmtMoney(netProfit),
-        netMargin ? formatPercent(netMargin * 100) : "—",
+        netProfit && num(r["Gross Revenue"]) > 0 ? formatPercent(netProfit / num(r["Gross Revenue"]) * 100) : "—",
       ];
     });
 
@@ -341,7 +333,7 @@ function GrossMarginTable({ data }: { data: RunResult }) {
           data={[
             {
               x: df.map((_, i) => i + 1),
-              y: df.map((r) => num(r["Gross Margin %"]) * 100),
+              y: df.map((r) => num(r["Gross Margin %"])),
               mode: "lines",
               name: "Gross Margin %",
               line: { color: CHART_COLORS.primary, width: 2 },

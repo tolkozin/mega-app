@@ -178,7 +178,7 @@ function UnitEconomics({ data }: { data: RunResult }) {
                 fmtMoney(r["Blended CAC"]),
                 `${num(r["LTV/CAC"]).toFixed(2)}x`,
                 fmtMoney(r["ARPU"]),
-                formatPercent(num(r["Gross Margin %"])),
+                formatPercent(num(r["Gross Margin %"]) * 100),
               ]);
           })()}
         />

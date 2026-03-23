@@ -46,11 +46,6 @@ function fmtMoney(v: unknown) {
   return formatCurrency(num(v));
 }
 
-function fmtPct100(v: unknown) {
-  // values stored as 0-1 fractions
-  return formatPercent(num(v) * 100);
-}
-
 function fmtRaw(v: unknown) {
   return num(v).toFixed(1);
 }
@@ -196,16 +191,17 @@ function ExecutiveSummary({ data, modelType }: { data: RunResult; modelType: Mod
   const last = df[df.length - 1];
   const first = df[0];
 
+  const engine = getBaseEngine(modelType);
   const totalRevKey =
     modelType === "subscription" ? "Total Gross Revenue" : "Gross Revenue";
   const totalRev = df.reduce((s, r) => s + num(r[totalRevKey]), 0);
   const totalProfit = df.reduce((s, r) => s + num(r["Net Profit"]), 0);
   const endCash = num(last["Cash Balance"]);
-  const peakBurn = Math.max(...df.map((r) => num(r["Burn Rate"])));
   const runway = num(last["Runway (Months)"]);
-  const grossMarginKey = "Gross Margin %";
-  const avgGM =
-    df.reduce((s, r) => s + num(r[grossMarginKey]), 0) / df.length;
+  const rawAvgGM =
+    df.reduce((s, r) => s + num(r["Gross Margin %"]), 0) / df.length;
+  // Subscription stores Gross Margin as 0-1 fraction; ecommerce/saas store as 0-100
+  const avgGM = engine === "subscription" ? rawAvgGM * 100 : rawAvgGM;
 
   const months = df.length;
   const revenueGrowth =
@@ -239,7 +235,7 @@ function ExecutiveSummary({ data, modelType }: { data: RunResult; modelType: Mod
         />
         <KPICard
           label="Avg Gross Margin"
-          value={avgGM ? fmtPct100(avgGM) : "—"}
+          value={avgGM ? formatPercent(avgGM) : "—"}
           sub={
             revenueGrowth !== null
               ? `Rev growth ${revenueGrowth.toFixed(0)}%`
