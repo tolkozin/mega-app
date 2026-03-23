@@ -336,9 +336,12 @@ class InvestorPDF {
     const df = this.df;
     if (!df.length) return [];
     const step = Math.max(1, Math.floor(df.length / maxRows));
-    return df
-      .filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1)
-      .slice(0, maxRows);
+    const filtered = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
+    // Always keep the last month visible
+    if (filtered.length > maxRows) {
+      return [...filtered.slice(0, maxRows - 1), filtered[filtered.length - 1]];
+    }
+    return filtered;
   }
 
   private months(): number[] {
@@ -573,6 +576,28 @@ class InvestorPDF {
       this.months(),
       [{ values: this.col("LTV/CAC"), color: CLR.green, label: "LTV/CAC" }],
       "number",
+    );
+
+    // Churn & Retention
+    const avgChurn = this.df.length > 1
+      ? this.df.slice(1).reduce((s, r) => s + n(r["Blended Churn"]), 0) / (this.df.length - 1) * 100
+      : 0;
+    const endCRR = n(last["CRR %"]);
+    const endNRR = n(last["NRR %"]);
+
+    this.sectionTitle("Churn & Retention");
+    this.kpiRow([
+      { label: "Avg Monthly Churn", value: fP(avgChurn) },
+      { label: "End CRR", value: fP(endCRR), sub: "customer retention" },
+      { label: "End NRR", value: fP(endNRR), sub: "net revenue retention" },
+      { label: "Quick Ratio", value: fN(n(last["Quick Ratio"])) },
+    ]);
+
+    this.lineChart(
+      "Monthly Churn %",
+      this.months(),
+      [{ values: this.col("Monthly Churn %"), color: CLR.red, label: "Monthly Churn %" }],
+      "percent",
     );
   }
 

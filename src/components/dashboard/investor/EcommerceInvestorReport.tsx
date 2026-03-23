@@ -91,10 +91,9 @@ function GmvSummary({ data }: { data: RunResult }) {
           headers={["Month", "Gross Revenue", "Total Orders", "Net Profit"]}
           rows={(() => {
             const step = Math.max(1, Math.floor(df.length / 10));
-            return df
-              .filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1)
-              .slice(0, 10)
-              .map((r) => [
+            const _f = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
+            const _s = _f.length > 10 ? [..._f.slice(0, 9), _f[_f.length - 1]] : _f;
+            return _s.map((r) => [
                 `Mo ${num(r["Month"]).toFixed(0)}`,
                 fmtMoney(r["Gross Revenue"]),
                 formatNumber(num(r["Total Orders"])),
@@ -122,10 +121,9 @@ function AovConversionTable({ data }: { data: RunResult }) {
   const endRoi = num(last["ROI %"]);
 
   const step = Math.max(1, Math.floor(df.length / 12));
-  const rows = df
-    .filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1)
-    .slice(0, 12)
-    .map((r) => {
+  const _filt = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
+  const _samp = _filt.length > 12 ? [..._filt.slice(0, 11), _filt[_filt.length - 1]] : _filt;
+  const rows = _samp.map((r) => {
       const aov = num(r["Effective AOV"] ?? r["AOV"]);
       const orders = num(r["Total Orders"]);
       const rev = num(r["Gross Revenue"]);
@@ -262,10 +260,9 @@ function CustomerAcquisitionSummary({ data }: { data: RunResult }) {
           headers={["Month", "CAC", "LTV", "LTV/CAC", "Ad Spend", "Organic Spend"]}
           rows={(() => {
             const step = Math.max(1, Math.floor(df.length / 10));
-            return df
-              .filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1)
-              .slice(0, 10)
-              .map((r) => [
+            const _f2 = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
+            const _s2 = _f2.length > 10 ? [..._f2.slice(0, 9), _f2[_f2.length - 1]] : _f2;
+            return _s2.map((r) => [
                 `Mo ${num(r["Month"]).toFixed(0)}`,
                 `$${num(r["CAC"]).toFixed(2)}`,
                 `$${num(r["LTV"]).toFixed(2)}`,
@@ -293,10 +290,9 @@ function GrossMarginTable({ data }: { data: RunResult }) {
   const cumNetProfit = df.reduce((s, r) => s + num(r["Net Profit"]), 0);
 
   const step = Math.max(1, Math.floor(df.length / 10));
-  const rows = df
-    .filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1)
-    .slice(0, 10)
-    .map((r) => {
+  const _f3 = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
+  const _s3 = _f3.length > 10 ? [..._f3.slice(0, 9), _f3[_f3.length - 1]] : _f3;
+  const rows = _s3.map((r) => {
       const rev = num(r["Gross Revenue"]);
       const cogs = num(r["COGS"]);
       const gp = rev - cogs;

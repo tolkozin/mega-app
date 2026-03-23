@@ -7,6 +7,7 @@ import { useDashboard } from "@/hooks/useDashboard";
 import { useCurrentProject } from "@/hooks/useCurrentProject";
 import { AppShell } from "@/components/layout/AppShell";
 import { generateInvestorPDF } from "@/lib/pdf-report";
+import { startKeepAlive, stopKeepAlive } from "@/lib/api";
 import { useChatStore } from "@/stores/chat-store";
 import { useSurveyStore } from "@/stores/survey-store";
 import { useProfile } from "@/hooks/useProfile";
@@ -220,6 +221,12 @@ function DashboardPage() {
       : `/dashboard/${modelType}?engine=${newEngine}`;
     dashboardRouter.replace(url);
   }, [engine, modelType, modelDef.baseEngine, loadSub, loadEcom, loadSaas, dashboardRouter]);
+
+  // Keep backend warm (prevents Render free-tier cold starts)
+  useEffect(() => {
+    startKeepAlive();
+    return () => stopKeepAlive();
+  }, []);
 
   // Apply industry presets from survey on first visit from onboarding
   useEffect(() => {

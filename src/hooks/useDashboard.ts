@@ -44,10 +44,20 @@ export function useDashboard(modelType: string, engineOverride?: BaseEngine) {
           error: null,
         });
       } catch (err) {
+        const raw = err instanceof Error ? err.message : "Failed to run model";
+        // Map technical backend errors to user-friendly messages
+        let message = raw;
+        if (raw === "Invalid configuration") {
+          message = "This configuration is not compatible with the selected model engine. Please check your settings or try a different engine.";
+        } else if (raw.includes("timed out")) {
+          message = "The model took too long to compute. Try reducing the number of months or Monte Carlo iterations.";
+        } else if (raw === "Model execution failed") {
+          message = "Something went wrong running the model. Please adjust your settings and try again.";
+        }
         setState({
           results: null,
           loading: false,
-          error: err instanceof Error ? err.message : "Failed to run model",
+          error: message,
         });
       }
     },

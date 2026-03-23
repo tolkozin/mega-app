@@ -272,10 +272,11 @@ function PnLOverview({ data }: { data: RunResult }) {
 
   // Show quarterly snapshots (every 3 months) up to 12 rows
   const step = Math.max(1, Math.floor(df.length / 12));
-  const rows = df
-    .filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1)
-    .slice(0, 12)
-    .map((r) => {
+  const filtered = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
+  const sampled = filtered.length > 12
+    ? [...filtered.slice(0, 11), filtered[filtered.length - 1]]
+    : filtered;
+  const rows = sampled.map((r) => {
       const rev = num(r["Total Gross Revenue"] ?? r["Gross Revenue"]);
       const cogs = num(r["Total COGS"] ?? r["COGS"]);
       const opex = num(r["Total OpEx"] ?? r["Total Expenses"]);
@@ -307,13 +308,14 @@ function CashFlowSummary({ data }: { data: RunResult }) {
   if (!df.length) return null;
 
   const step = Math.max(1, Math.floor(df.length / 10));
-  const rows = df
-    .filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1)
-    .slice(0, 10)
-    .map((r) => {
+  const filtered = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
+  const sampled = filtered.length > 10
+    ? [...filtered.slice(0, 9), filtered[filtered.length - 1]]
+    : filtered;
+  const rows = sampled.map((r) => {
       const burn = num(r["Burn Rate"]);
       const cash = num(r["Cash Balance"]);
-      const cumProfit = num(r["Cumulative Profit"]);
+      const cumProfit = num(r["Cumulative Net Profit"]);
       const runway = num(r["Runway (Months)"]);
       return [
         `Mo ${num(r["Month"]).toFixed(0)}`,

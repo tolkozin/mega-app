@@ -96,12 +96,13 @@ function ArrGrowthSummary({ data }: { data: RunResult }) {
       {/* ARR progression table */}
       {(() => {
         const step = Math.max(1, Math.floor(df.length / 12));
-        const rows = df
-          .filter(
+        const _filtered = df.filter(
             (_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1
-          )
-          .slice(0, 12)
-          .map((r) => {
+          );
+        const _sampled = _filtered.length > 12
+          ? [..._filtered.slice(0, 11), _filtered[_filtered.length - 1]]
+          : _filtered;
+        const rows = _sampled.map((r) => {
             const prevIdx = Math.max(
               0,
               df.findIndex((x) => x["Month"] === r["Month"]) - 1
@@ -140,10 +141,9 @@ function RetentionTable({ data }: { data: RunResult }) {
   if (!df.length) return null;
 
   const step = Math.max(1, Math.floor(df.length / 12));
-  const rows = df
-    .filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1)
-    .slice(0, 12)
-    .map((r) => {
+  const _filt = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
+  const _samp = _filt.length > 12 ? [..._filt.slice(0, 11), _filt[_filt.length - 1]] : _filt;
+  const rows = _samp.map((r) => {
       const nrr = num(r["NRR %"]);
       const grr = num(r["GRR %"]);
       const quickRatio = num(r["Quick Ratio"]);
@@ -228,10 +228,9 @@ function PipelineSummary({ data }: { data: RunResult }) {
     totalDemos > 0 ? ((totalDeals / totalDemos) * 100).toFixed(1) : "—";
 
   const step = Math.max(1, Math.floor(df.length / 10));
-  const rows = df
-    .filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1)
-    .slice(0, 10)
-    .map((r) => {
+  const _f2 = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
+  const _s2 = _f2.length > 10 ? [..._f2.slice(0, 9), _f2[_f2.length - 1]] : _f2;
+  const rows = _s2.map((r) => {
       const leads = num(r["Total Leads"]);
       const demos = num(r["Demos"]);
       const deals = num(r["New Deals"]);
@@ -327,10 +326,9 @@ function SaasEfficiencyMetrics({ data }: { data: RunResult }) {
     df.reduce((s, r) => s + num(r["Magic Number"]), 0) / df.length;
 
   const step = Math.max(1, Math.floor(df.length / 10));
-  const rows = df
-    .filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1)
-    .slice(0, 10)
-    .map((r) => {
+  const _f3 = df.filter((_, i) => i === 0 || (i + 1) % step === 0 || i === df.length - 1);
+  const _s3 = _f3.length > 10 ? [..._f3.slice(0, 9), _f3[_f3.length - 1]] : _f3;
+  const rows = _s3.map((r) => {
       const r40 = num(r["Rule of 40"]);
       const mn = num(r["Magic Number"]);
       const lc = num(r["LTV/CAC"]);
