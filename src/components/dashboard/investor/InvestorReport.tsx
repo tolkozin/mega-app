@@ -46,10 +46,6 @@ function fmtMoney(v: unknown) {
   return formatCurrency(num(v));
 }
 
-function fmtRaw(v: unknown) {
-  return num(v).toFixed(1);
-}
-
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 export function SectionHeader({ children }: { children: React.ReactNode }) {

@@ -424,7 +424,9 @@ class InvestorPDF {
     const totalRev = this.sum(revKey);
     const totalProfit = this.sum("Net Profit");
     const endCash = n(this.last()["Cash Balance"]);
-    const avgGM = this.avg("Gross Margin %");
+    const rawAvgGM = this.avg("Gross Margin %");
+    // Subscription stores GM as 0-1 fraction; ecommerce/saas store as 0-100
+    const avgGM = this.engine === "subscription" ? rawAvgGM * 100 : rawAvgGM;
     const runway = n(this.last()["Runway (Months)"]);
 
     this.sectionTitle("Executive Summary");

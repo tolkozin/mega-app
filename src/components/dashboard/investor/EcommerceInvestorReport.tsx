@@ -12,7 +12,6 @@ import {
   ReportChart,
   gradientArea,
   CHART_COLORS,
-  DONUT_COLORS,
 } from "./InvestorReport";
 
 interface EcommerceInvestorReportProps {
