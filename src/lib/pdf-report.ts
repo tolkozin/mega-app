@@ -560,6 +560,22 @@ class InvestorPDF {
       "currency",
     );
 
+    // Revenue breakdown table
+    const revSampled = this.sample(12);
+    this.table(
+      ["Month", "Total MRR", "ARR", "Weekly", "Monthly", "Annual", "Users"],
+      revSampled.map((r) => [
+        fMonth(n(r["Month"])),
+        fC(n(r["Total MRR"])),
+        fC(n(r["Total MRR"]) * 12),
+        fC(n(r["MRR Weekly"])),
+        fC(n(r["MRR Monthly"])),
+        fC(n(r["MRR Annual"])),
+        fN(n(r["Total Active Users"])),
+      ]),
+      [22, 26, 26, 26, 26, 26, 28],
+    );
+
     // Unit economics
     const cac = n(last["Blended CAC"]);
     const ltv = n(last["LTV"]);
@@ -578,6 +594,21 @@ class InvestorPDF {
       this.months(),
       [{ values: this.col("LTV/CAC"), color: CLR.green, label: "LTV/CAC" }],
       "number",
+    );
+
+    // Unit economics table
+    const ueSampled = this.sample(10);
+    this.table(
+      ["Month", "LTV", "CAC", "LTV/CAC", "ARPU", "Gross Margin"],
+      ueSampled.map((r) => [
+        fMonth(n(r["Month"])),
+        fC(n(r["LTV"])),
+        fC(n(r["Blended CAC"])),
+        `${n(r["LTV/CAC"]).toFixed(2)}x`,
+        fC(n(r["ARPU"])),
+        fP(n(r["Gross Margin %"]) * 100),
+      ]),
+      [22, 30, 30, 30, 34, 34],
     );
 
     // Churn & Retention
@@ -600,6 +631,20 @@ class InvestorPDF {
       this.months(),
       [{ values: this.col("Monthly Churn %"), color: CLR.red, label: "Monthly Churn %" }],
       "percent",
+    );
+
+    // Churn table
+    const churnSampled = this.sample(10);
+    this.table(
+      ["Month", "Monthly Churn", "CRR %", "New Users", "Active Users"],
+      churnSampled.map((r) => [
+        fMonth(n(r["Month"])),
+        fP(n(r["Monthly Churn %"])),
+        fP(n(r["CRR %"])),
+        fN(n(r["New Paid Users"])),
+        fN(n(r["Total Active Users"])),
+      ]),
+      [22, 36, 36, 42, 44],
     );
   }
 
@@ -626,6 +671,46 @@ class InvestorPDF {
       "number",
     );
 
+    // GMV table
+    const gmvSampled = this.sample(10);
+    this.table(
+      ["Month", "Revenue", "Orders", "Net Profit"],
+      gmvSampled.map((r) => [
+        fMonth(n(r["Month"])),
+        fC(n(r["Gross Revenue"])),
+        fN(n(r["Total Orders"])),
+        fC(n(r["Net Profit"])),
+      ]),
+      [30, 50, 50, 50],
+    );
+
+    // AOV & Conversion
+    this.sectionTitle("AOV & Conversion");
+    const avgAOVVal = this.avg("AOV");
+    const endROI = n(last["ROI %"]);
+    const endRoas = n(last["Cumulative ROAS"]);
+    this.kpiRow([
+      { label: "Avg AOV", value: fC(avgAOVVal) },
+      { label: "End ROAS", value: `${endRoas.toFixed(1)}x` },
+      { label: "End ROI", value: fP(endROI) },
+      { label: "Avg GM", value: fP(this.avg("Gross Margin %")) },
+    ]);
+
+    const aovSampled = this.sample(10);
+    this.table(
+      ["Month", "AOV", "Orders", "Revenue", "GM%", "ROAS", "ROI"],
+      aovSampled.map((r) => [
+        fMonth(n(r["Month"])),
+        fC(n(r["AOV"])),
+        fN(n(r["Total Orders"])),
+        fC(n(r["Gross Revenue"])),
+        fP(n(r["Gross Margin %"])),
+        `${n(r["ROAS"]).toFixed(1)}x`,
+        `${n(r["ROI %"]).toFixed(0)}%`,
+      ]),
+      [22, 24, 24, 28, 24, 24, 24],
+    );
+
     // Customer acquisition
     const cac = n(last["CAC"]);
     const ltv = n(last["LTV"]);
@@ -645,6 +730,41 @@ class InvestorPDF {
       this.months(),
       [{ values: this.col("ROAS"), color: CLR.green, label: "ROAS" }],
       "number",
+    );
+
+    // Customer acquisition table
+    const cacSampled = this.sample(10);
+    this.table(
+      ["Month", "CAC", "LTV", "LTV/CAC", "Ad Budget", "ROAS"],
+      cacSampled.map((r) => [
+        fMonth(n(r["Month"])),
+        fC(n(r["CAC"])),
+        fC(n(r["LTV"])),
+        `${n(r["LTV/CAC"]).toFixed(2)}x`,
+        fC(n(r["Ad Budget"])),
+        `${n(r["ROAS"]).toFixed(1)}x`,
+      ]),
+      [22, 30, 30, 30, 34, 34],
+    );
+
+    // Gross Margin Analysis
+    this.sectionTitle("Gross Margin Analysis");
+    const gmSampled = this.sample(10);
+    this.table(
+      ["Month", "Revenue", "COGS", "Gross Profit", "GM%", "Net Profit"],
+      gmSampled.map((r) => {
+        const rev = n(r["Gross Revenue"]);
+        const cogs2 = n(r["COGS"]);
+        return [
+          fMonth(n(r["Month"])),
+          fC(rev),
+          fC(cogs2),
+          fC(rev - cogs2),
+          fP(n(r["Gross Margin %"])),
+          fC(n(r["Net Profit"])),
+        ];
+      }),
+      [22, 30, 30, 34, 30, 34],
     );
   }
 
@@ -672,6 +792,20 @@ class InvestorPDF {
       "currency",
     );
 
+    // ARR progression table
+    const arrSampled = this.sample(12);
+    this.table(
+      ["Month", "MRR", "ARR", "Customers", "Seats"],
+      arrSampled.map((r) => [
+        fMonth(n(r["Month"])),
+        fC(n(r["Total MRR"])),
+        fC(n(r["ARR"])),
+        fN(n(r["Active Customers"])),
+        fN(n(r["Active Seats"])),
+      ]),
+      [22, 36, 40, 42, 40],
+    );
+
     // Retention
     const nrr = n(last["NRR %"]);
     const grr = n(last["GRR %"]);
@@ -693,6 +827,22 @@ class InvestorPDF {
       "percent",
     );
 
+    // Retention table
+    const retSampled = this.sample(10);
+    this.table(
+      ["Month", "NRR", "GRR", "Quick Ratio", "Expansion", "Contraction", "Churned"],
+      retSampled.map((r) => [
+        fMonth(n(r["Month"])),
+        n(r["NRR %"]) ? fP(n(r["NRR %"])) : "—",
+        n(r["GRR %"]) ? fP(n(r["GRR %"])) : "—",
+        isFinite(n(r["Quick Ratio"])) ? n(r["Quick Ratio"]).toFixed(2) : "—",
+        fC(n(r["Expansion MRR"])),
+        fC(n(r["Contraction MRR"])),
+        fC(n(r["Churned MRR"])),
+      ]),
+      [22, 24, 24, 26, 28, 28, 28],
+    );
+
     // SaaS efficiency metrics
     const rule40 = n(last["Rule of 40"]);
     const magicNum = n(last["Magic Number"]);
@@ -706,9 +856,25 @@ class InvestorPDF {
       { label: "End LTV", value: fC(n(last["LTV"])) },
     ]);
 
-    // Pipeline table
-    const sampled = this.sample(10);
-    const rows = sampled.map((r) => [
+    // Efficiency metrics table
+    const effSampled = this.sample(10);
+    this.table(
+      ["Month", "Rule of 40", "Magic #", "LTV/CAC", "NRR", "CAC", "LTV"],
+      effSampled.map((r) => [
+        fMonth(n(r["Month"])),
+        isFinite(n(r["Rule of 40"])) ? fP(n(r["Rule of 40"])) : "—",
+        isFinite(n(r["Magic Number"])) ? n(r["Magic Number"]).toFixed(2) : "—",
+        isFinite(n(r["LTV/CAC"])) ? `${n(r["LTV/CAC"]).toFixed(2)}x` : "—",
+        n(r["NRR %"]) ? fP(n(r["NRR %"])) : "—",
+        fC(n(r["CAC"])),
+        fC(n(r["LTV"])),
+      ]),
+      [22, 26, 24, 26, 24, 28, 30],
+    );
+
+    // Pipeline
+    const pipeSampled = this.sample(10);
+    const pipeRows = pipeSampled.map((r) => [
       fMonth(n(r["Month"])),
       fN(n(r["Total Leads"])),
       fN(n(r["Demos"])),
@@ -716,11 +882,11 @@ class InvestorPDF {
       fC(n(r["CAC"])),
       n(r["Organic %"]) ? fP(n(r["Organic %"])) : "—",
     ]);
-    if (rows.length) {
+    if (pipeRows.length) {
       this.sectionTitle("Pipeline");
       this.table(
         ["Month", "Leads", "Demos", "Deals", "CAC", "Organic %"],
-        rows,
+        pipeRows,
         [22, 30, 30, 30, 34, 34],
       );
     }
