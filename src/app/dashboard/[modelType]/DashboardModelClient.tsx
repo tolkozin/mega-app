@@ -6,7 +6,7 @@ import { useConfigStore } from "@/stores/config-store";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useCurrentProject } from "@/hooks/useCurrentProject";
 import { AppShell } from "@/components/layout/AppShell";
-import { exportToPDF } from "@/lib/pdf-export";
+import { generateInvestorPDF } from "@/lib/pdf-report";
 import { useChatStore } from "@/stores/chat-store";
 import { useSurveyStore } from "@/stores/survey-store";
 import { useProfile } from "@/hooks/useProfile";
@@ -421,20 +421,23 @@ function DashboardPage() {
                 >
                   {showInvestorReport ? "Hide Investor Report" : "Investor Report"}
                 </button>
-                {showInvestorReport && (
-                  <button
-                    onClick={() => {
-                      if (planReadOnly) {
-                        useUpgradeStore.getState().showExpiredModal();
-                        return;
-                      }
-                      exportToPDF(reportRef, `${project?.name ?? modelType}_investor_report.pdf`);
-                    }}
-                    className="text-sm px-4 py-2 border rounded-md hover:bg-muted"
-                  >
-                    Download PDF
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    if (planReadOnly) {
+                      useUpgradeStore.getState().showExpiredModal();
+                      return;
+                    }
+                    generateInvestorPDF(
+                      project?.name ?? `${modelDef.label} Model`,
+                      modelType,
+                      engine,
+                      results.base,
+                    );
+                  }}
+                  className="text-sm px-4 py-2 border rounded-md hover:bg-muted"
+                >
+                  Download PDF
+                </button>
               </div>
 
               {showInvestorReport && (
