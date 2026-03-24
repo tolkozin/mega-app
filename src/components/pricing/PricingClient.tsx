@@ -24,7 +24,7 @@ const plans = [
       "30 AI messages per month per project",
       "3 AI reports per month per project",
       "Scenario comparison",
-      "3-day free trial",
+      "10-day free trial",
     ],
   },
   {
@@ -44,7 +44,7 @@ const plans = [
       "Unlimited AI messages",
       "Unlimited AI reports",
       "Scenario comparison",
-      "3-day free trial",
+      "10-day free trial",
       "Everything in Plus",
     ],
   },
@@ -134,7 +134,7 @@ const comparisonData: ComparisonSection[] = [
   {
     title: "Extras",
     rows: [
-      { feature: "Free trial", plus: "3 days", pro: "3 days", enterprise: false },
+      { feature: "Free trial", plus: "10 days", pro: "10 days", enterprise: false },
       { feature: "Priority support", plus: false, pro: false, enterprise: true },
       { feature: "Custom onboarding", plus: false, pro: false, enterprise: true },
       { feature: "SLA", plus: false, pro: false, enterprise: true },
@@ -147,7 +147,7 @@ const comparisonData: ComparisonSection[] = [
 const faqs = [
   {
     q: "Is there a free trial?",
-    a: "Yes! Both Plus and Pro plans include a 3-day free trial. You won't be charged until the trial ends. Cancel anytime during the trial at no cost.",
+    a: "Yes! Both Plus and Pro plans include a 10-day free trial. You won't be charged until the trial ends. Cancel anytime during the trial at no cost.",
   },
   {
     q: "Can I switch plans anytime?",
@@ -212,6 +212,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-5 text-left"
+        aria-expanded={open}
       >
         <span className="text-base font-bold text-[#1a1a2e] pr-4">{q}</span>
         <motion.svg
@@ -366,7 +367,7 @@ export function PricingClient() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-lg text-[#6b7280] mb-10"
         >
-          Start with a 3-day free trial. Cancel anytime.
+          Start with a 10-day free trial. Cancel anytime.
         </motion.p>
 
         {/* Toggle */}
@@ -454,7 +455,7 @@ export function PricingClient() {
                 </p>
               )}
               {plan.monthlyPrice > 0 && (
-                <p className="text-xs text-[#F59E0B] font-bold mb-5">3-day free trial</p>
+                <p className="text-xs text-[#F59E0B] font-bold mb-5">10-day free trial</p>
               )}
               {plan.monthlyPrice === -1 && <div className="mb-5" />}
 
@@ -600,7 +601,7 @@ export function PricingClient() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-lg text-[#6b7280] mb-8"
           >
-            Start your 3-day free trial today — cancel anytime, no questions asked.
+            Start your 10-day free trial today — cancel anytime, no questions asked.
           </motion.p>
           <motion.div
             initial="hidden"

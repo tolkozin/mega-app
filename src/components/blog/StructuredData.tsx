@@ -131,20 +131,26 @@ export function SoftwareApplicationJsonLd() {
     offers: [
       {
         "@type": "Offer",
-        price: "0",
-        priceCurrency: "USD",
-        name: "Free",
-        description: "1 project, 3 scenarios, all charts & reports",
-      },
-      {
-        "@type": "Offer",
         price: "29",
         priceCurrency: "USD",
-        name: "Pro",
-        description: "Unlimited projects, Monte Carlo simulation, public dashboards",
+        name: "Plus",
+        description: "3 projects, 9 scenarios, AI assistant, 10-day free trial",
         priceSpecification: {
           "@type": "UnitPriceSpecification",
           price: "29",
+          priceCurrency: "USD",
+          billingDuration: "P1M",
+        },
+      },
+      {
+        "@type": "Offer",
+        price: "49",
+        priceCurrency: "USD",
+        name: "Pro",
+        description: "Unlimited projects & scenarios, unlimited AI, 10-day free trial",
+        priceSpecification: {
+          "@type": "UnitPriceSpecification",
+          price: "49",
           priceCurrency: "USD",
           billingDuration: "P1M",
         },

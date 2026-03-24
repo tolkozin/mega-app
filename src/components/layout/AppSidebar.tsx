@@ -65,6 +65,7 @@ function SidebarContent({ expanded, onClose }: { expanded: boolean; onClose?: ()
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-[#64748B] active:bg-white/10"
+            aria-label="Close sidebar"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
               <path d="M2 2l12 12M14 2L2 14" />
@@ -162,6 +163,7 @@ export function AppSidebar() {
         onClick={() => setHidden(false)}
         className="fixed top-1/2 -translate-y-1/2 left-0 z-30 w-5 h-12 bg-[#1C1D21] rounded-r-lg flex items-center justify-center text-[#8181A5] hover:text-white hover:w-6 transition-all"
         title="Show sidebar"
+        aria-label="Show sidebar"
       >
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 3l5 5-5 5" />
@@ -185,6 +187,7 @@ export function AppSidebar() {
           onClick={() => setHidden(true)}
           className="w-full h-8 rounded-lg flex items-center justify-center text-[#8181A5] hover:text-white hover:bg-white/10 transition-colors"
           title="Hide sidebar"
+          aria-label="Hide sidebar"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 3L5 8l5 5" />

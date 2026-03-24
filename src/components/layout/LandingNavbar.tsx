@@ -262,6 +262,8 @@ export function LandingNavbar() {
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden ml-auto p-2 text-[#6b7280] hover:text-[#1a1a2e]"
+          aria-label="Toggle navigation menu"
+          aria-expanded={mobileOpen}
         >
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>

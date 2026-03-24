@@ -400,7 +400,7 @@ function PricingToggle({ plans }: { plans: Plan[] }) {
               </p>
             )}
             {plan.monthlyPrice > 0 && (
-              <p className="text-xs text-[#F59E0B] font-bold mb-5">3-day free trial</p>
+              <p className="text-xs text-[#F59E0B] font-bold mb-5">10-day free trial</p>
             )}
             {plan.monthlyPrice === -1 && <div className="mb-5" />}
 
@@ -703,7 +703,7 @@ export function HomepageClient({
               Predictable pricing, designed to scale
             </h2>
             <p className="text-[#6b7280] max-w-xl mx-auto mb-8">
-              3-day free trial. Cancel anytime.
+              10-day free trial. Cancel anytime.
             </p>
 
             <PricingToggle plans={plans} />

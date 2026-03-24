@@ -73,6 +73,7 @@ export function AppShell({
           onClick={toggleAI}
           className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-4 md:right-6 z-40 w-12 h-12 md:w-14 md:h-14 rounded-full bg-[#2163E7] text-white shadow-lg shadow-[#2163E7]/30 hover:bg-[#4A6DE0] hover:shadow-xl hover:shadow-[#2163E7]/40 transition-all flex items-center justify-center"
           title="AI Assistant"
+          aria-label="Open AI Assistant"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2L14.09 8.26L21 9.27L16 13.14L16.18 20.02L12 17.77L7.82 20.02L8 13.14L3 9.27L9.91 8.26L12 2Z" />

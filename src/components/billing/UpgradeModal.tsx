@@ -83,6 +83,7 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
                   <button
                     onClick={onClose}
                     className="w-8 h-8 flex items-center justify-center rounded-lg text-[#8181A5] hover:text-[#1C1D21] hover:bg-black/5 transition-colors"
+                    aria-label="Close modal"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                       <path d="M4 4l8 8M12 4l-8 8" />
@@ -131,7 +132,7 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
                       <StatusRow icon="lock" text="AI assistant is disabled" />
                     </ul>
                     <p className="text-xs text-[#8181A5] mt-3">
-                      Resubscribe to Plus or Pro to instantly restore full access. All plans include a 3-day free trial.
+                      Resubscribe to Plus or Pro to instantly restore full access. All plans include a 10-day free trial.
                     </p>
                   </>
                 ) : (
@@ -159,7 +160,7 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
                         <CompareRow label="Sharing" current="None" next="3 / 10 people" />
                         <CompareRow label="AI messages / month" current="None" next="30 / Unlimited" />
                         <CompareRow label="AI reports / month" current="None" next="3 / Unlimited" />
-                        <li className="text-xs text-[#8181A5] pt-1">All plans include a 3-day free trial.</li>
+                        <li className="text-xs text-[#8181A5] pt-1">All plans include a 10-day free trial.</li>
                       </ul>
                     )}
                   </>

@@ -199,7 +199,7 @@ export function PlansClient() {
           <h1 className="text-2xl font-bold text-[#1C1D21] mb-2">Choose Your Plan</h1>
           <p className="text-sm text-[#8181A5]">
             {isExpiredOrFree ? (
-              <>Subscribe to start using Revenue Map. All plans include a <span className="font-bold text-[#F59E0B]">3-day free trial</span>.</>
+              <>Subscribe to start using Revenue Map. All plans include a <span className="font-bold text-[#F59E0B]">10-day free trial</span>.</>
             ) : (
               <>You&apos;re on the <span className="font-bold text-[#1C1D21]">{(profile?.plan ?? "free").charAt(0).toUpperCase() + (profile?.plan ?? "free").slice(1)}</span> plan.</>
             )}
@@ -289,7 +289,7 @@ export function PlansClient() {
                 )}
 
                 {plan.monthlyPrice > 0 && (
-                  <p className="text-xs text-[#F59E0B] font-bold mb-4">3-day free trial</p>
+                  <p className="text-xs text-[#F59E0B] font-bold mb-4">10-day free trial</p>
                 )}
                 {plan.monthlyPrice === -1 && <div className="mb-4" />}
 

@@ -7,7 +7,7 @@ interface UpgradePromptProps {
   currentPlan?: string;
 }
 
-export function UpgradePrompt({ feature, currentPlan = "Free" }: UpgradePromptProps) {
+export function UpgradePrompt({ feature, currentPlan = "Expired" }: UpgradePromptProps) {
   return (
     <div className="rounded-xl border border-[#F59E0B]/30 bg-[#F59E0B]/5 p-5 space-y-3">
       <div className="flex items-start gap-3">

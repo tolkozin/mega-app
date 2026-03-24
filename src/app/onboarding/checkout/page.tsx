@@ -119,7 +119,7 @@ function CheckoutPage() {
           Almost there!
         </h1>
         <p className="text-sm text-[#8181A5] text-center mb-8">
-          Choose your plan and start your 3-day free trial
+          Choose your plan and start your 10-day free trial
         </p>
 
         {/* Billing toggle */}
@@ -222,7 +222,7 @@ function CheckoutPage() {
             </p>
           )}
           <p className="text-xs text-[#F59E0B] font-bold mt-2">
-            3 days free, then billed {annual ? "annually" : "monthly"}
+            10 days free, then billed {annual ? "annually" : "monthly"}
           </p>
         </div>
 
@@ -236,7 +236,7 @@ function CheckoutPage() {
         </button>
 
         <p className="text-xs text-[#8181A5] text-center mt-3">
-          3 days free, then auto-renews. Cancel anytime.
+          10 days free, then auto-renews. Cancel anytime.
         </p>
       </div>
     </div>
