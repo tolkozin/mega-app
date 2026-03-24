@@ -4,13 +4,13 @@ test.describe("Landing page", () => {
   test("loads and shows hero section", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Revenue Map/);
-    await expect(page.locator("text=Know Your Revenue")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /great startup idea/i })).toBeVisible();
   });
 
   test("pricing section is visible", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("text=Plus")).toBeVisible();
-    await expect(page.locator("text=Pro")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Plus" }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Pro" }).first()).toBeVisible();
   });
 
   test("navigation links work", async ({ page }) => {
@@ -36,8 +36,8 @@ test.describe("Pricing page", () => {
 
   test("FAQ accordion opens", async ({ page }) => {
     await page.goto("/pricing");
-    await page.click("text=Is there a free trial?");
-    await expect(page.locator("text=10-day free trial")).toBeVisible();
+    await page.getByText("Is there a free trial?").click();
+    await expect(page.getByText("Both Plus and Pro plans include a 10-day free trial")).toBeVisible();
   });
 });
 
