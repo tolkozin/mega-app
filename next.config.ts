@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "img-src 'self' data: blob: https:",
           "font-src 'self' https://fonts.gstatic.com",
-          "connect-src 'self' https://*.supabase.co https://*.sentry.io https://api.lemonsqueezy.com https://www.googletagmanager.com https://*.vercel-insights.com https://*.vercel-scripts.com " + (apiUrl ?? ""),
+          `connect-src 'self' https://*.supabase.co https://*.sentry.io https://api.lemonsqueezy.com https://www.googletagmanager.com https://*.vercel-insights.com https://*.vercel-scripts.com${apiUrl ? " " + apiUrl.trim() : ""}`,
           "frame-src 'self' https://*.lemonsqueezy.com",
           "frame-ancestors 'none'",
         ].join("; "),
