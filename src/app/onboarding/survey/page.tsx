@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,6 +8,7 @@ import { useSurveyStore } from "@/stores/survey-store";
 import type { SurveyData } from "@/lib/survey-types";
 import {
   TOTAL_STEPS,
+  INTERSTITIAL_STEPS,
   INDUSTRY_OPTIONS,
   MONETIZATION_OPTIONS,
   ACQUISITION_OPTIONS,
@@ -431,21 +432,122 @@ function Step9() {
   );
 }
 
-const STEPS = [Step1, Step2, Step3, Step4, Step5, Step6, Step7, Step8, Step9];
+/* ─── Project type labels for interstitials ─── */
+
+const PROJECT_TYPE_LABELS: Record<string, string> = {
+  subscription: "mobile app",
+  ecommerce: "e-commerce",
+  saas: "SaaS",
+  marketplace: "marketplace",
+  foodtech: "FoodTech",
+  traveltech: "TravelTech",
+  gametech: "GameTech",
+  fintech: "FinTech",
+  healthtech: "HealthTech",
+  edtech: "EdTech",
+  proptech: "PropTech",
+  "ai-ml": "AI / ML",
+};
+
+const CUSTOMER_LABELS: Record<string, string> = {
+  b2c: "consumers",
+  b2b_smb: "small businesses",
+  b2b_enterprise: "enterprise companies",
+  both: "B2B and B2C customers",
+  not_sure: "your target audience",
+};
+
+/* ─── Interstitial components ─── */
+
+function Interstitial1() {
+  const { data } = useSurveyStore();
+  const stageMessages: Record<string, string> = {
+    idea: "Founders who build a financial model at the idea stage are 3x more likely to launch.",
+    building: "Building something great takes clarity. A financial model keeps your numbers sharp while you build.",
+    launched: "You've launched — now it's time to understand where the revenue is really coming from.",
+    growing: "Growth without a model is flying blind. Let's make sure your numbers scale with you.",
+  };
+  const message = stageMessages[data.stage ?? "idea"] ?? stageMessages.idea;
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-12">
+      <span className="text-4xl mb-6">🚀</span>
+      <p className="text-xl font-bold text-[#1C1D21] mb-3 max-w-md">
+        {message}
+      </p>
+      <p className="text-sm text-[#8181A5]">You&apos;re ahead of the curve.</p>
+    </div>
+  );
+}
+
+function Interstitial2() {
+  const { data } = useSurveyStore();
+  const channels = data.acquisitionChannels.length > 0
+    ? data.acquisitionChannels.filter((c) => c !== "Not sure yet").slice(0, 2).join(" & ")
+    : "your channels";
+  const typeLabel = PROJECT_TYPE_LABELS[data.projectType ?? "saas"] ?? "startup";
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-12">
+      <span className="text-4xl mb-6">📊</span>
+      <p className="text-xl font-bold text-[#1C1D21] mb-3 max-w-md">
+        Nice! We&apos;ll model your CAC for {channels}.
+      </p>
+      <p className="text-sm text-[#8181A5] max-w-sm">
+        Most {typeLabel} founders target $80–$150 CAC — let&apos;s see what&apos;s realistic for you.
+      </p>
+    </div>
+  );
+}
+
+function Interstitial3() {
+  const { data } = useSurveyStore();
+  const typeLabel = PROJECT_TYPE_LABELS[data.projectType ?? "saas"] ?? "startup";
+  const audience = CUSTOMER_LABELS[data.customerType] ?? "your target market";
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-12">
+      <span className="text-4xl mb-6">✨</span>
+      <p className="text-xl font-bold text-[#1C1D21] mb-3 max-w-md">
+        Your model is ready to generate.
+      </p>
+      <p className="text-sm text-[#8181A5] max-w-sm">
+        Based on your answers, we&apos;ll build a 3-year projection for your {typeLabel} business targeting {audience}.
+      </p>
+    </div>
+  );
+}
+
+/* ─── Step array with interstitials ─── */
+
+const STEPS = [
+  Step1,           // 0: What are you building?
+  Step2,           // 1: Industry
+  Step3,           // 2: Business stage
+  Interstitial1,   // 3: Motivational (after stage)
+  Step4,           // 4: Monetization
+  Step5,           // 5: Customer type
+  Step6,           // 6: Price point
+  Step7,           // 7: Acquisition channels
+  Interstitial2,   // 8: Motivational (after channels)
+  Step8,           // 9: Budget
+  Step9,           // 10: Goal
+  Interstitial3,   // 11: Motivational (before finish)
+];
 
 /* ─── Validation: is "Continue" active? ─── */
 
 function canContinue(step: number, data: SurveyData): boolean {
+  // Interstitial steps always allow continue
+  if (INTERSTITIAL_STEPS.has(step)) return true;
+
   switch (step) {
     case 0: return data.projectType !== null;
     case 1: return data.industry !== "" && (data.industry !== "Other" || data.industryCustom.trim() !== "");
     case 2: return data.stage !== null;
-    case 3: return data.monetization.length > 0;
-    case 4: return data.customerType !== "";
-    case 5: return data.pricePoint !== "" && (data.pricePoint !== "Something else" || data.pricePointCustom.trim() !== "");
-    case 6: return data.acquisitionChannels.length > 0;
-    case 7: return data.budget !== "" && (data.budget !== "Something else" || data.budgetCustom.trim() !== "");
-    case 8: return data.goal !== "" && (data.goal !== "other" || data.goalCustom.trim() !== "");
+    case 4: return data.monetization.length > 0;
+    case 5: return data.customerType !== "";
+    case 6: return data.pricePoint !== "" && (data.pricePoint !== "Something else" || data.pricePointCustom.trim() !== "");
+    case 7: return data.acquisitionChannels.length > 0;
+    case 9: return data.budget !== "" && (data.budget !== "Something else" || data.budgetCustom.trim() !== "");
+    case 10: return data.goal !== "" && (data.goal !== "other" || data.goalCustom.trim() !== "");
     default: return false;
   }
 }
@@ -498,7 +600,26 @@ function SurveyPage() {
 
   const StepComponent = STEPS[step];
   const isLast = step === TOTAL_STEPS - 1;
+  const isInterstitial = INTERSTITIAL_STEPS.has(step);
   const progress = ((step + 1) / TOTAL_STEPS) * 100;
+
+  // Auto-advance interstitials after 3 seconds
+  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleAutoAdvance = useCallback(() => {
+    if (isLast) {
+      handleFinish();
+    } else {
+      next();
+    }
+  }, [isLast, next]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!isInterstitial) return;
+    autoAdvanceTimer.current = setTimeout(handleAutoAdvance, 3000);
+    return () => {
+      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    };
+  }, [isInterstitial, handleAutoAdvance]);
 
   async function handleFinish() {
     // If not logged in, save draft to store and redirect to register
@@ -551,7 +672,10 @@ function SurveyPage() {
       </div>
 
       {/* Step content */}
-      <div className="flex-1 flex items-start justify-center px-4 py-6">
+      <div
+        className={`flex-1 flex ${isInterstitial ? "items-center" : "items-start"} justify-center px-4 py-6${isInterstitial ? " cursor-pointer" : ""}`}
+        onClick={isInterstitial ? handleAutoAdvance : undefined}
+      >
         <div className="w-full max-w-lg">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
@@ -566,43 +690,50 @@ function SurveyPage() {
               <StepComponent />
             </motion.div>
           </AnimatePresence>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="sticky bottom-0 bg-white border-t border-[#ECECF2] px-6 py-4">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <button
-            onClick={back}
-            disabled={step === 0}
-            className="h-10 px-4 text-sm font-bold text-[#8181A5] hover:text-[#1C1D21] transition-colors disabled:opacity-0 disabled:pointer-events-none"
-          >
-            &larr; Back
-          </button>
-
-          <span className="text-xs text-[#8181A5]">
-            {step + 1} / {TOTAL_STEPS}
-          </span>
-
-          {isLast ? (
-            <button
-              onClick={handleFinish}
-              disabled={!canContinue(step, data) || saving}
-              className="h-10 px-6 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {saving ? "Saving..." : "See My Financial Projection →"}
-            </button>
-          ) : (
-            <button
-              onClick={next}
-              disabled={!canContinue(step, data)}
-              className="h-10 px-6 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Continue &rarr;
-            </button>
+          {isInterstitial && (
+            <p className="text-xs text-[#8181A5] text-center mt-4 animate-pulse">
+              Tap to continue
+            </p>
           )}
         </div>
       </div>
+
+      {/* Navigation — hidden during interstitials */}
+      {!isInterstitial && (
+        <div className="sticky bottom-0 bg-white border-t border-[#ECECF2] px-6 py-4">
+          <div className="max-w-lg mx-auto flex items-center justify-between">
+            <button
+              onClick={back}
+              disabled={step === 0}
+              className="h-10 px-4 text-sm font-bold text-[#8181A5] hover:text-[#1C1D21] transition-colors disabled:opacity-0 disabled:pointer-events-none"
+            >
+              &larr; Back
+            </button>
+
+            <span className="text-xs text-[#8181A5]">
+              {step + 1} / {TOTAL_STEPS}
+            </span>
+
+            {isLast ? (
+              <button
+                onClick={handleFinish}
+                disabled={!canContinue(step, data) || saving}
+                className="h-10 px-6 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {saving ? "Saving..." : "See My Financial Projection →"}
+              </button>
+            ) : (
+              <button
+                onClick={next}
+                disabled={!canContinue(step, data)}
+                className="h-10 px-6 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Continue &rarr;
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
