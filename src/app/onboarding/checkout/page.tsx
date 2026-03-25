@@ -309,7 +309,7 @@ function CheckoutPage() {
         </div>
 
         <p className="text-xs text-[#8181A5] text-center mt-3">
-          Trusted by 500+ founders building their financial models
+          10 days free, then auto-renews. Cancel anytime.
         </p>
       </div>
     </div>
