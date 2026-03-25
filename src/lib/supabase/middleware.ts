@@ -12,7 +12,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Only run auth check on routes that need it (saves 200-400ms TTFB on public pages)
-  const protectedPaths = ["/dashboard", "/projects", "/onboarding/checkout", "/onboarding/processing", "/billing", "/settings"];
+  const protectedPaths = ["/dashboard", "/projects", "/onboarding/processing", "/billing", "/settings"];
   const authPaths = ["/auth/login", "/auth/register"];
   const pathname = request.nextUrl.pathname;
 
