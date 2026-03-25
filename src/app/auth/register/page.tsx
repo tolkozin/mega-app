@@ -25,15 +25,10 @@ function RegisterForm() {
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan");
 
-  // If already logged in, go back to survey (not dashboard)
-  // so auto-submit can pick up the draft
+  // If already logged in, go to generating page (survey data is in localStorage)
   useEffect(() => {
     if (!authLoading && user) {
-      if (plan) {
-        router.replace(`/onboarding/survey?plan=${plan}`);
-      } else {
-        router.replace("/onboarding/survey");
-      }
+      router.replace(`/onboarding/generating${plan ? `?plan=${plan}` : ""}`);
     }
   }, [authLoading, user, router, plan]);
 

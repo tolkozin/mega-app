@@ -568,7 +568,6 @@ function SurveyPage() {
   const { user, loading: authLoading } = useAuth();
   const store = useSurveyStore();
   const { step, direction, data, plan, next, back, setPlan, reset } = store;
-  const [saving, setSaving] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   // Wait for Zustand persist hydration before reading store values
@@ -586,57 +585,20 @@ function SurveyPage() {
     if (p === "plus" || p === "pro") setPlan(p);
   }, [searchParams, setPlan]);
 
-  // Auto-submit: user came back from registration with a completed survey draft
-  const [autoSubmitted, setAutoSubmitted] = useState(false);
-  useEffect(() => {
-    if (!hydrated || autoSubmitted || authLoading || !user || saving) return;
-    // Survey is filled if user was on the last step and projectType is set
-    const isSurveyFilled = step === TOTAL_STEPS - 1 && data.projectType !== null;
-    if (isSurveyFilled) {
-      setAutoSubmitted(true);
-      handleFinish();
-    }
-  }, [hydrated, authLoading, user, step, data.projectType]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const StepComponent = STEPS[step];
   const isLast = step === TOTAL_STEPS - 1;
   const isInterstitial = INTERSTITIAL_STEPS.has(step);
   const progress = ((step + 1) / TOTAL_STEPS) * 100;
 
 
-  async function handleFinish() {
-    // If not logged in, save draft to store and redirect to register
+  function handleFinish() {
     if (!user) {
+      // Not logged in — go to register, survey data stays in localStorage
       router.push(`/auth/register?plan=${plan}`);
       return;
     }
-
-    setSaving(true);
-    try {
-      const res = await fetch("/api/survey/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers: data, plan }),
-      });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Failed to save");
-      // Redirect to preview screen before checkout
-      router.push(`/onboarding/preview?plan=${plan}&survey_id=${result.id}`);
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to save survey");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  // Show loading while auto-submitting after registration
-  if (autoSubmitted && saving) {
-    return (
-      <div className="min-h-[100dvh] flex flex-col items-center justify-center gap-4">
-        <div className="w-10 h-10 border-3 border-[#ECECF2] border-t-[#2163E7] rounded-full animate-spin" />
-        <p className="text-sm text-[#8181A5]">Saving your answers...</p>
-      </div>
-    );
+    // Logged in — go to generating page which saves survey + shows animation
+    router.push(`/onboarding/generating`);
   }
 
   return (
@@ -693,10 +655,10 @@ function SurveyPage() {
           {isLast ? (
             <button
               onClick={handleFinish}
-              disabled={!canContinue(step, data) || saving}
+              disabled={!canContinue(step, data)}
               className="h-10 px-6 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {saving ? "Saving..." : "See My Financial Projection →"}
+              See My Financial Projection →
             </button>
           ) : (
             <button
