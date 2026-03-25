@@ -126,8 +126,8 @@ function CheckoutPage() {
     return null;
   }
 
-  // Create LS checkout URL — retry until it works
-  async function createCheckout(surveyId: string | null): Promise<string> {
+  // Create LS checkout URL — pass userId/email as fallback for fresh signups
+  async function createCheckout(surveyId: string | null, freshUser?: { id: string; email: string }): Promise<string> {
     const variantId = getVariantId(selectedPlan, annual);
     if (!variantId) throw new Error("Plan variant not configured");
 
@@ -136,7 +136,13 @@ function CheckoutPage() {
         const res = await fetch("/api/lemonsqueezy/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ variantId, plan: selectedPlan, surveyId: surveyId ?? "" }),
+          body: JSON.stringify({
+            variantId,
+            plan: selectedPlan,
+            surveyId: surveyId ?? "",
+            userId: freshUser?.id,
+            userEmail: freshUser?.email,
+          }),
         });
         if (res.status === 401) {
           await new Promise((r) => setTimeout(r, 1500));
@@ -159,6 +165,8 @@ function CheckoutPage() {
     setError("");
     setLoading(true);
 
+    let freshUser: { id: string; email: string } | undefined;
+
     try {
       // Step 1: Register if not logged in
       if (!user) {
@@ -168,18 +176,22 @@ function CheckoutPage() {
           return;
         }
         setStatusText("Creating your account...");
-        await signUp(email, password, displayName);
-        // Wait for session cookie to propagate
-        await new Promise((r) => setTimeout(r, 2000));
+        const signUpData = await signUp(email, password, displayName);
+        // Capture user data from signUp response for immediate use
+        if (signUpData?.user) {
+          freshUser = { id: signUpData.user.id, email: signUpData.user.email ?? email };
+        }
+        // Small wait for cookie propagation
+        await new Promise((r) => setTimeout(r, 1000));
       }
 
-      // Step 2: Save survey
+      // Step 2: Save survey (may fail if auth not settled, that's ok)
       setStatusText("Saving your model...");
       const surveyId = surveyData.projectType ? await saveSurvey() : null;
 
-      // Step 3: Create LS checkout
+      // Step 3: Create LS checkout — pass freshUser as fallback
       setStatusText("Preparing checkout...");
-      const checkoutUrl = await createCheckout(surveyId);
+      const checkoutUrl = await createCheckout(surveyId, freshUser);
 
       // Step 4: Redirect to Lemon Squeezy
       setStatusText("Redirecting to payment...");
