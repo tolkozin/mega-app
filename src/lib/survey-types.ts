@@ -30,7 +30,10 @@ export const INITIAL_SURVEY: SurveyData = {
   goalCustom: "",
 };
 
-export const TOTAL_STEPS = 9;
+export const TOTAL_STEPS = 12;
+
+/* Indices of motivational interstitial screens (not question steps) */
+export const INTERSTITIAL_STEPS = new Set([3, 8, 11]);
 
 /* ─── Step 2: Industry options per business type ─── */
 
