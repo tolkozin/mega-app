@@ -267,7 +267,9 @@ export function PricingClient() {
 
   async function handleCheckout(plan: string) {
     if (!user) {
-      router.push("/onboarding/survey");
+      // Save chosen plan so survey flow knows to auto-checkout
+      localStorage.setItem("pending_plan", plan);
+      router.push(`/onboarding/survey?plan=${plan}`);
       return;
     }
 

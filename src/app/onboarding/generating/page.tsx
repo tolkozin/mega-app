@@ -37,6 +37,8 @@ function GeneratingPage() {
   const [surveyId, setSurveyId] = useState(searchParams.get("survey_id") ?? "");
   const [hydrated, setHydrated] = useState(false);
   const saveCalledRef = useRef(false);
+  // If plan came from pricing page URL, auto-start LS checkout after generating
+  const autoCheckout = searchParams.get("auto") === "1";
 
   // Wait for Zustand hydration
   useEffect(() => {
@@ -55,51 +57,63 @@ function GeneratingPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Save survey to DB once user is authenticated and store is hydrated
+  // Save survey to DB — retry until auth settles (user just registered)
   useEffect(() => {
-    if (!hydrated || authLoading || !user || saveCalledRef.current) return;
+    if (!hydrated || saveCalledRef.current) return;
     if (!data.projectType) {
-      // No survey data — redirect back to survey
       router.replace("/onboarding/survey");
       return;
     }
-    // If we already have a survey_id (from URL), skip saving
     if (surveyId) {
       setSaved(true);
       return;
     }
+    // Wait for auth to settle — user may have just registered
+    if (authLoading) return;
 
     saveCalledRef.current = true;
 
-    async function saveSurvey() {
-      try {
-        const res = await fetch("/api/survey/save", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ answers: data, plan }),
-        });
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.error || "Failed to save");
-        setSurveyId(result.id);
-        setSaved(true);
-      } catch (e) {
-        console.error("Failed to save survey:", e);
-        // Still proceed — user can retry from preview/checkout
-        setSaved(true);
+    async function saveSurvey(retries = 3) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const res = await fetch("/api/survey/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ answers: data, plan }),
+          });
+          const result = await res.json();
+          if (res.status === 401 && i < retries - 1) {
+            // Auth not settled yet — wait and retry
+            await new Promise((r) => setTimeout(r, 1000));
+            continue;
+          }
+          if (!res.ok) throw new Error(result.error || "Failed to save");
+          setSurveyId(result.id);
+          setSaved(true);
+          return;
+        } catch (e) {
+          if (i < retries - 1) {
+            await new Promise((r) => setTimeout(r, 1000));
+            continue;
+          }
+          console.error("Failed to save survey:", e);
+          setSaved(true); // Still proceed
+        }
       }
     }
 
     saveSurvey();
-  }, [hydrated, authLoading, user, data, plan, surveyId, router]);
+  }, [hydrated, authLoading, data, plan, surveyId, router]);
 
-  // When animation is done AND survey is saved, redirect to preview
+  // When animation is done AND survey is saved, redirect to checkout
   useEffect(() => {
     if (saved && activeStep === STEPS.length - 1) {
       const timer = setTimeout(() => {
         const params = new URLSearchParams();
         params.set("plan", plan);
         if (surveyId) params.set("survey_id", surveyId);
-        router.push(`/onboarding/preview?${params.toString()}`);
+        if (autoCheckout) params.set("auto", "1");
+        router.push(`/onboarding/checkout?${params.toString()}`);
       }, 1200); // Small delay after last step completes
       return () => clearTimeout(timer);
     }

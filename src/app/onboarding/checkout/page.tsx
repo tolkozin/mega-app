@@ -90,6 +90,7 @@ function CheckoutPage() {
   const [hydrated, setHydrated] = useState(false);
 
   const surveyId = searchParams.get("survey_id") ?? "";
+  const autoCheckout = searchParams.get("auto") === "1";
 
   useEffect(() => {
     const unsub = useSurveyStore.persist.onFinishHydration(() =>
@@ -102,6 +103,15 @@ function CheckoutPage() {
   useEffect(() => {
     if (!authLoading && !user) router.push("/auth/login");
   }, [authLoading, user, router]);
+
+  // Auto-start checkout if plan was pre-selected from pricing page
+  const [autoStarted, setAutoStarted] = useState(false);
+  useEffect(() => {
+    if (autoCheckout && !autoStarted && user && !authLoading && !loading) {
+      setAutoStarted(true);
+      handleStart();
+    }
+  }, [autoCheckout, autoStarted, user, authLoading, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleStart() {
     setLoading(true);

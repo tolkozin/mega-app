@@ -18,7 +18,6 @@ function RegisterForm() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signUp, user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -40,23 +39,13 @@ function RegisterForm() {
     try {
       await signUp(email, password, displayName);
       // Email confirmation is disabled — user is auto-logged in.
-      // Show spinner while useEffect waits for auth state to settle and redirects.
-      setSuccess(true);
+      // Redirect immediately to generating page (don't wait for auth state).
+      router.push(`/onboarding/generating${plan ? `?plan=${plan}` : ""}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
-    } finally {
       setLoading(false);
     }
   };
-
-  if (success) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-20">
-        <div className="w-10 h-10 border-3 border-[#ECECF2] border-t-[#2163E7] rounded-full animate-spin" />
-        <p className="text-sm text-[#8181A5]">Setting up your account...</p>
-      </div>
-    );
-  }
 
   return (
     <>
