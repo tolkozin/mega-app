@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useEffect, useState, useRef } from "react";
+import { Suspense, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { createClient } from "@/lib/supabase/client";
 import { useSurveyStore } from "@/stores/survey-store";
 
 const STEPS = [
@@ -30,15 +30,14 @@ export default function GeneratingPageWrapper() {
 function GeneratingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, loading: authLoading } = useAuth();
-  const { data, plan, reset } = useSurveyStore();
+  const { data, plan } = useSurveyStore();
   const [activeStep, setActiveStep] = useState(0);
   const [saved, setSaved] = useState(false);
   const [surveyId, setSurveyId] = useState(searchParams.get("survey_id") ?? "");
   const [hydrated, setHydrated] = useState(false);
   const saveCalledRef = useRef(false);
-  // If plan came from pricing page URL, auto-start LS checkout after generating
   const autoCheckout = searchParams.get("auto") === "1";
+  const supabase = useRef(createClient()).current;
 
   // Wait for Zustand hydration
   useEffect(() => {
@@ -49,7 +48,7 @@ function GeneratingPage() {
     return () => unsub();
   }, []);
 
-  // Animate progress steps — each step takes ~1.5s
+  // Animate progress steps
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveStep((prev) => (prev < STEPS.length - 1 ? prev + 1 : prev));
@@ -57,7 +56,47 @@ function GeneratingPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Save survey to DB — retry until auth settles (user just registered)
+  // Save survey — poll for auth session directly (no useAuth dependency)
+  const saveSurvey = useCallback(async () => {
+    // Try up to 8 times over ~12 seconds for auth to settle
+    for (let i = 0; i < 8; i++) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          // Auth not ready yet — wait and retry
+          await new Promise((r) => setTimeout(r, 1500));
+          continue;
+        }
+
+        const res = await fetch("/api/survey/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answers: data, plan }),
+        });
+        const result = await res.json();
+        if (res.status === 401) {
+          // Session exists but server doesn't see it yet — retry
+          await new Promise((r) => setTimeout(r, 1500));
+          continue;
+        }
+        if (!res.ok) throw new Error(result.error || "Failed to save");
+        setSurveyId(result.id);
+        setSaved(true);
+        return;
+      } catch (e) {
+        if (i < 7) {
+          await new Promise((r) => setTimeout(r, 1500));
+          continue;
+        }
+        console.error("Failed to save survey after retries:", e);
+        // Proceed anyway — survey can be saved later
+        setSaved(true);
+      }
+    }
+    // If we exhausted retries without saving, still proceed
+    setSaved(true);
+  }, [data, plan, supabase]);
+
   useEffect(() => {
     if (!hydrated || saveCalledRef.current) return;
     if (!data.projectType) {
@@ -68,42 +107,10 @@ function GeneratingPage() {
       setSaved(true);
       return;
     }
-    // Wait for auth to settle — user may have just registered
-    if (authLoading) return;
 
     saveCalledRef.current = true;
-
-    async function saveSurvey(retries = 3) {
-      for (let i = 0; i < retries; i++) {
-        try {
-          const res = await fetch("/api/survey/save", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ answers: data, plan }),
-          });
-          const result = await res.json();
-          if (res.status === 401 && i < retries - 1) {
-            // Auth not settled yet — wait and retry
-            await new Promise((r) => setTimeout(r, 1000));
-            continue;
-          }
-          if (!res.ok) throw new Error(result.error || "Failed to save");
-          setSurveyId(result.id);
-          setSaved(true);
-          return;
-        } catch (e) {
-          if (i < retries - 1) {
-            await new Promise((r) => setTimeout(r, 1000));
-            continue;
-          }
-          console.error("Failed to save survey:", e);
-          setSaved(true); // Still proceed
-        }
-      }
-    }
-
     saveSurvey();
-  }, [hydrated, authLoading, data, plan, surveyId, router]);
+  }, [hydrated, data.projectType, surveyId, router, saveSurvey]);
 
   // When animation is done AND survey is saved, redirect to checkout
   useEffect(() => {
@@ -114,27 +121,14 @@ function GeneratingPage() {
         if (surveyId) params.set("survey_id", surveyId);
         if (autoCheckout) params.set("auto", "1");
         router.push(`/onboarding/checkout?${params.toString()}`);
-      }, 1200); // Small delay after last step completes
+      }, 1200);
       return () => clearTimeout(timer);
     }
-  }, [saved, activeStep, plan, surveyId, router]);
-
-  // Redirect to login only after a grace period (auth may still be settling after signup)
-  const [authGrace, setAuthGrace] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => setAuthGrace(false), 5000);
-    return () => clearTimeout(timer);
-  }, []);
-  useEffect(() => {
-    if (!authGrace && !authLoading && !user) {
-      router.replace("/auth/login");
-    }
-  }, [authGrace, authLoading, user, router]);
+  }, [saved, activeStep, plan, surveyId, autoCheckout, router]);
 
   return (
     <div className="min-h-[100dvh] flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
-        {/* Logo */}
         <div className="flex justify-center mb-8">
           <img
             src="/logo.svg"
@@ -145,7 +139,6 @@ function GeneratingPage() {
           />
         </div>
 
-        {/* Spinner */}
         <div className="flex justify-center mb-6">
           <div className="w-12 h-12 border-3 border-[#ECECF2] border-t-[#2163E7] rounded-full animate-spin" />
         </div>
@@ -157,7 +150,6 @@ function GeneratingPage() {
           This takes just a few seconds
         </p>
 
-        {/* Progress steps */}
         <div className="space-y-3 text-left max-w-xs mx-auto">
           {STEPS.map((label, i) => (
             <div key={label} className="flex items-center gap-3">

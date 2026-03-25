@@ -100,8 +100,18 @@ function CheckoutPage() {
     return () => unsub();
   }, []);
 
+  // Grace period for auth to settle (user may have just registered)
+  const [authReady, setAuthReady] = useState(false);
   useEffect(() => {
-    if (!authLoading && !user) router.push("/auth/login");
+    if (!authLoading && user) {
+      setAuthReady(true);
+    } else if (!authLoading && !user) {
+      // Wait a bit before redirecting — auth may still be settling
+      const timer = setTimeout(() => {
+        if (!user) router.push("/auth/login");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
   }, [authLoading, user, router]);
 
   // Auto-start checkout if plan was pre-selected from pricing page
