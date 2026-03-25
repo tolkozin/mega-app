@@ -45,13 +45,8 @@ function RegisterForm() {
     try {
       await signUp(email, password, displayName);
       // Email confirmation is disabled — user is auto-logged in.
-      // Redirect to survey so auto-submit picks up the draft.
-      if (plan) {
-        router.replace(`/onboarding/survey?plan=${plan}`);
-      } else {
-        router.replace("/onboarding/survey");
-      }
-      return;
+      // Show spinner while useEffect waits for auth state to settle and redirects.
+      setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
@@ -61,37 +56,10 @@ function RegisterForm() {
 
   if (success) {
     return (
-      <>
-        <div className="mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8" width={32} height={32} />
-            <span className="text-2xl font-bold text-[#1C1D21]">Revenue Map</span>
-          </Link>
-        </div>
-        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
-          <svg className="w-6 h-6 text-[#2163E7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-        </div>
-        <h1 className="text-[28px] font-bold text-[#1C1D21] mb-2 text-center">Check Your Email</h1>
-        <p className="text-[#8181A5] text-sm mb-2 text-center">
-          We sent a verification link to <strong className="text-[#1C1D21]">{email}</strong>.
-        </p>
-        <p className="text-[#8181A5] text-sm mb-8 text-center">
-          Click the link in your email to continue. Your survey answers are saved — you&apos;ll pick up right where you left off.
-        </p>
-        <div className="bg-[#F8F8FC] rounded-lg p-4 mb-6">
-          <p className="text-xs text-[#8181A5] text-center">
-            Didn&apos;t receive the email? Check your spam folder or{" "}
-            <button
-              onClick={handleSubmit}
-              className="text-[#2163E7] hover:underline font-bold"
-            >
-              resend it
-            </button>.
-          </p>
-        </div>
-      </>
+      <div className="flex flex-col items-center justify-center gap-4 py-20">
+        <div className="w-10 h-10 border-3 border-[#ECECF2] border-t-[#2163E7] rounded-full animate-spin" />
+        <p className="text-sm text-[#8181A5]">Setting up your account...</p>
+      </div>
     );
   }
 
