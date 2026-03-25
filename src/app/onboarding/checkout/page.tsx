@@ -55,6 +55,61 @@ const PLANS = [
   },
 ];
 
+/* ─── Generating overlay animation ─── */
+
+const GENERATING_STEPS = [
+  "Creating your account",
+  "Analyzing your business type",
+  "Applying industry benchmarks",
+  "Building revenue projections",
+  "Calculating unit economics",
+  "Preparing checkout",
+];
+
+function GeneratingOverlay({ step }: { step: number }) {
+  return (
+    <div className="fixed inset-0 z-50 bg-white flex items-center justify-center px-4">
+      <div className="w-full max-w-md text-center">
+        <div className="flex justify-center mb-8">
+          <img src="/logo.svg" alt="Revenue Map" className="w-10 h-10" width={40} height={40} />
+        </div>
+
+        <div className="flex justify-center mb-6">
+          <div className="w-12 h-12 border-3 border-[#ECECF2] border-t-[#2163E7] rounded-full animate-spin" />
+        </div>
+
+        <h2 className="text-xl font-bold text-[#1C1D21] mb-2">
+          Building your financial model...
+        </h2>
+        <p className="text-sm text-[#8181A5] mb-8">
+          This takes just a few seconds
+        </p>
+
+        <div className="space-y-3 text-left max-w-xs mx-auto">
+          {GENERATING_STEPS.map((label, i) => (
+            <div key={label} className="flex items-center gap-3">
+              {i < step ? (
+                <div className="w-5 h-5 rounded-full bg-[#14A660] flex items-center justify-center shrink-0">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5L4 7L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              ) : i === step ? (
+                <div className="w-5 h-5 border-2 border-[#2163E7] border-t-transparent rounded-full animate-spin shrink-0" />
+              ) : (
+                <div className="w-5 h-5 rounded-full border-2 border-[#ECECF2] shrink-0" />
+              )}
+              <span className={`text-sm transition-colors ${i <= step ? "text-[#1C1D21] font-bold" : "text-[#8181A5]"}`}>
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function getVariantId(plan: string, annual: boolean): string {
   if (plan === "plus") {
     return annual
@@ -82,7 +137,7 @@ function CheckoutPage() {
   const { user, loading: authLoading, signUp } = useAuth();
   const { data: surveyData } = useSurveyStore();
   const [loading, setLoading] = useState(false);
-  const [statusText, setStatusText] = useState("");
+  const [generatingStep, setGeneratingStep] = useState(-1); // -1 = not showing
   const [annual, setAnnual] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState(
     searchParams.get("plan") === "pro" ? "pro" : "plus"
@@ -164,6 +219,7 @@ function CheckoutPage() {
   async function handleStart() {
     setError("");
     setLoading(true);
+    setGeneratingStep(0); // Show overlay
 
     let freshUser: { id: string; email: string } | undefined;
 
@@ -173,33 +229,39 @@ function CheckoutPage() {
         if (!email || !password) {
           setError("Please fill in your email and password");
           setLoading(false);
+          setGeneratingStep(-1);
           return;
         }
-        setStatusText("Creating your account...");
         const signUpData = await signUp(email, password, displayName);
-        // Capture user data from signUp response for immediate use
         if (signUpData?.user) {
           freshUser = { id: signUpData.user.id, email: signUpData.user.email ?? email };
         }
-        // Small wait for cookie propagation
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise((r) => setTimeout(r, 800));
       }
+      setGeneratingStep(1); // Analyzing business type
 
-      // Step 2: Save survey (may fail if auth not settled, that's ok)
-      setStatusText("Saving your model...");
+      await new Promise((r) => setTimeout(r, 800));
+      setGeneratingStep(2); // Applying benchmarks
+
+      await new Promise((r) => setTimeout(r, 800));
+      setGeneratingStep(3); // Building projections
+
+      // Save survey in background
       const surveyId = surveyData.projectType ? await saveSurvey() : null;
+      setGeneratingStep(4); // Calculating unit economics
 
-      // Step 3: Create LS checkout — pass freshUser as fallback
-      setStatusText("Preparing checkout...");
+      await new Promise((r) => setTimeout(r, 600));
+      setGeneratingStep(5); // Preparing checkout
+
+      // Create LS checkout
       const checkoutUrl = await createCheckout(surveyId, freshUser);
 
-      // Step 4: Redirect to Lemon Squeezy
-      setStatusText("Redirecting to payment...");
+      // Redirect to Lemon Squeezy
       window.location.href = checkoutUrl;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
       setLoading(false);
-      setStatusText("");
+      setGeneratingStep(-1);
     }
   }
 
@@ -211,6 +273,8 @@ function CheckoutPage() {
     : null;
 
   return (
+    <>
+    {generatingStep >= 0 && <GeneratingOverlay step={generatingStep} />}
     <div className="min-h-screen flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-2xl">
         {/* Logo */}
@@ -415,11 +479,7 @@ function CheckoutPage() {
           disabled={loading}
           className="w-full h-12 text-sm font-bold rounded-xl bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
         >
-          {loading
-            ? statusText || "Processing..."
-            : isLoggedIn
-              ? "Start Free Trial →"
-              : "Create Account & Start Free Trial →"}
+          {isLoggedIn ? "Start Free Trial →" : "Create Account & Start Free Trial →"}
         </button>
 
         {/* Social proof + trust */}
@@ -440,5 +500,6 @@ function CheckoutPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }
