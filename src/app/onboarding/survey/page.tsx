@@ -516,8 +516,8 @@ function SurveyPage() {
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || "Failed to save");
-      // Reset store and redirect to checkout
-      router.push(`/onboarding/checkout?plan=${plan}&survey_id=${result.id}`);
+      // Redirect to preview screen before checkout
+      router.push(`/onboarding/preview?plan=${plan}&survey_id=${result.id}`);
     } catch (e) {
       alert(e instanceof Error ? e.message : "Failed to save survey");
     } finally {
