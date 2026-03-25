@@ -3,7 +3,25 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { Check } from "lucide-react";
+import { useSurveyStore } from "@/stores/survey-store";
+import { Check, Shield, Clock, TrendingUp, BarChart3, PieChart } from "lucide-react";
+
+/* ─── Project type display names ─── */
+
+const PROJECT_TYPE_LABELS: Record<string, string> = {
+  subscription: "Mobile App",
+  ecommerce: "E-Commerce",
+  saas: "SaaS B2B",
+  marketplace: "Marketplace",
+  foodtech: "FoodTech",
+  traveltech: "TravelTech",
+  gametech: "GameTech",
+  fintech: "FinTech",
+  healthtech: "HealthTech",
+  edtech: "EdTech",
+  proptech: "PropTech",
+  "ai-ml": "AI / ML",
+};
 
 const PLANS = [
   {
@@ -63,13 +81,23 @@ function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
+  const { data: surveyData } = useSurveyStore();
   const [loading, setLoading] = useState(false);
   const [annual, setAnnual] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState(
     searchParams.get("plan") === "pro" ? "pro" : "plus"
   );
+  const [hydrated, setHydrated] = useState(false);
 
   const surveyId = searchParams.get("survey_id") ?? "";
+
+  useEffect(() => {
+    const unsub = useSurveyStore.persist.onFinishHydration(() =>
+      setHydrated(true)
+    );
+    if (useSurveyStore.persist.hasHydrated()) setHydrated(true);
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/auth/login");
@@ -106,6 +134,9 @@ function CheckoutPage() {
 
   const plan = PLANS.find((p) => p.key === selectedPlan)!;
   const price = annual ? plan.annualPrice : plan.monthlyPrice;
+  const typeLabel = hydrated && surveyData.projectType
+    ? PROJECT_TYPE_LABELS[surveyData.projectType] ?? surveyData.projectType
+    : null;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10">
@@ -118,9 +149,38 @@ function CheckoutPage() {
         <h1 className="text-2xl font-bold text-[#1C1D21] text-center mb-1">
           Almost there!
         </h1>
-        <p className="text-sm text-[#8181A5] text-center mb-8">
+        <p className="text-sm text-[#8181A5] text-center mb-6">
           Choose your plan and start your 10-day free trial
         </p>
+
+        {/* Free trial banner */}
+        <div className="flex items-center justify-center gap-2 bg-[#10B981]/10 border border-[#10B981]/20 rounded-xl px-4 py-3 mb-6">
+          <Clock className="w-4 h-4 text-[#10B981] shrink-0" />
+          <p className="text-sm font-bold text-[#10B981]">
+            10 days free — no charge until day 11
+          </p>
+        </div>
+
+        {/* Personalized context block */}
+        {typeLabel && (
+          <div className="rounded-xl border border-[#ECECF2] bg-[#F8F8FC] p-4 mb-6">
+            <p className="text-sm font-bold text-[#1C1D21] mb-3">
+              Your {typeLabel} model will include:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {[
+                { icon: TrendingUp, label: "Revenue projections" },
+                { icon: BarChart3, label: "Unit economics" },
+                { icon: PieChart, label: "CAC / LTV analysis" },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-2">
+                  <item.icon className="w-4 h-4 text-[#2163E7] shrink-0" />
+                  <span className="text-xs font-bold text-[#4B5563]">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Billing toggle */}
         <div className="flex justify-center mb-6">
@@ -234,6 +294,19 @@ function CheckoutPage() {
         >
           {loading ? "Redirecting..." : "Start Free Trial →"}
         </button>
+
+        {/* Social proof + trust */}
+        <div className="flex items-center justify-center gap-4 mt-4">
+          <div className="flex items-center gap-1.5 text-xs text-[#8181A5]">
+            <Shield className="w-3.5 h-3.5" />
+            <span>Cancel anytime</span>
+          </div>
+          <div className="w-px h-3 bg-[#ECECF2]" />
+          <div className="flex items-center gap-1.5 text-xs text-[#8181A5]">
+            <Clock className="w-3.5 h-3.5" />
+            <span>No charge for 10 days</span>
+          </div>
+        </div>
 
         <p className="text-xs text-[#8181A5] text-center mt-3">
           10 days free, then auto-renews. Cancel anytime.
