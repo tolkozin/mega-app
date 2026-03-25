@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -603,23 +603,6 @@ function SurveyPage() {
   const isInterstitial = INTERSTITIAL_STEPS.has(step);
   const progress = ((step + 1) / TOTAL_STEPS) * 100;
 
-  // Auto-advance interstitials after 3 seconds
-  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const handleAutoAdvance = useCallback(() => {
-    if (isLast) {
-      handleFinish();
-    } else {
-      next();
-    }
-  }, [isLast, next]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (!isInterstitial) return;
-    autoAdvanceTimer.current = setTimeout(handleAutoAdvance, 3000);
-    return () => {
-      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
-    };
-  }, [isInterstitial, handleAutoAdvance]);
 
   async function handleFinish() {
     // If not logged in, save draft to store and redirect to register
@@ -673,8 +656,7 @@ function SurveyPage() {
 
       {/* Step content */}
       <div
-        className={`flex-1 flex ${isInterstitial ? "items-center" : "items-start"} justify-center px-4 py-6${isInterstitial ? " cursor-pointer" : ""}`}
-        onClick={isInterstitial ? handleAutoAdvance : undefined}
+        className={`flex-1 flex ${isInterstitial ? "items-center" : "items-start"} justify-center px-4 py-6`}
       >
         <div className="w-full max-w-lg">
           <AnimatePresence mode="wait" custom={direction}>
@@ -690,50 +672,43 @@ function SurveyPage() {
               <StepComponent />
             </motion.div>
           </AnimatePresence>
-          {isInterstitial && (
-            <p className="text-xs text-[#8181A5] text-center mt-4 animate-pulse">
-              Tap to continue
-            </p>
-          )}
         </div>
       </div>
 
-      {/* Navigation — hidden during interstitials */}
-      {!isInterstitial && (
-        <div className="sticky bottom-0 bg-white border-t border-[#ECECF2] px-6 py-4">
-          <div className="max-w-lg mx-auto flex items-center justify-between">
+      {/* Navigation */}
+      <div className="sticky bottom-0 bg-white border-t border-[#ECECF2] px-6 py-4">
+        <div className="max-w-lg mx-auto flex items-center justify-between">
+          <button
+            onClick={back}
+            disabled={step === 0}
+            className="h-10 px-4 text-sm font-bold text-[#8181A5] hover:text-[#1C1D21] transition-colors disabled:opacity-0 disabled:pointer-events-none"
+          >
+            &larr; Back
+          </button>
+
+          <span className="text-xs text-[#8181A5]">
+            {step + 1} / {TOTAL_STEPS}
+          </span>
+
+          {isLast ? (
             <button
-              onClick={back}
-              disabled={step === 0}
-              className="h-10 px-4 text-sm font-bold text-[#8181A5] hover:text-[#1C1D21] transition-colors disabled:opacity-0 disabled:pointer-events-none"
+              onClick={handleFinish}
+              disabled={!canContinue(step, data) || saving}
+              className="h-10 px-6 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              &larr; Back
+              {saving ? "Saving..." : "See My Financial Projection →"}
             </button>
-
-            <span className="text-xs text-[#8181A5]">
-              {step + 1} / {TOTAL_STEPS}
-            </span>
-
-            {isLast ? (
-              <button
-                onClick={handleFinish}
-                disabled={!canContinue(step, data) || saving}
-                className="h-10 px-6 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {saving ? "Saving..." : "See My Financial Projection →"}
-              </button>
-            ) : (
-              <button
-                onClick={next}
-                disabled={!canContinue(step, data)}
-                className="h-10 px-6 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Continue &rarr;
-              </button>
-            )}
-          </div>
+          ) : (
+            <button
+              onClick={next}
+              disabled={!canContinue(step, data)}
+              className="h-10 px-6 text-sm font-bold rounded-lg bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Continue &rarr;
+            </button>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

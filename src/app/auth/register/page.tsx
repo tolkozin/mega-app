@@ -44,7 +44,14 @@ function RegisterForm() {
 
     try {
       await signUp(email, password, displayName);
-      setSuccess(true);
+      // Email confirmation is disabled — user is auto-logged in.
+      // Redirect to survey so auto-submit picks up the draft.
+      if (plan) {
+        router.replace(`/onboarding/survey?plan=${plan}`);
+      } else {
+        router.replace("/onboarding/survey");
+      }
+      return;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
