@@ -592,9 +592,9 @@ function SurveyPage() {
 
 
   function handleFinish() {
-    // Always go to generating page — it's pure animation, no auth needed.
-    // Checkout page handles registration if user is not logged in.
-    router.push(`/onboarding/generating`);
+    // Go straight to checkout — it has inline registration if needed.
+    // Survey data stays in localStorage for checkout to read.
+    router.push(`/onboarding/checkout?plan=${plan}`);
   }
 
   return (

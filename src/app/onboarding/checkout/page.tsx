@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useSurveyStore } from "@/stores/survey-store";
 import { Check, Shield, Clock, TrendingUp, BarChart3, PieChart } from "lucide-react";
@@ -69,82 +69,6 @@ function getVariantId(plan: string, annual: boolean): string {
   return "";
 }
 
-/* ─── Inline registration form ─── */
-
-function InlineRegisterForm({ onRegistered }: { onRegistered: () => void }) {
-  const { signUp } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      await signUp(email, password, displayName);
-      // Small delay for auth state to propagate
-      setTimeout(onRegistered, 500);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className="rounded-xl border border-[#ECECF2] bg-[#F8F8FC] p-5 mb-6">
-      <h3 className="text-base font-bold text-[#1C1D21] mb-1">Create your account</h3>
-      <p className="text-xs text-[#8181A5] mb-4">Quick signup to start your free trial</p>
-
-      {error && (
-        <div className="bg-red-50 text-red-600 text-xs p-2.5 rounded-lg mb-3">{error}</div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-          placeholder="Your name"
-          className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] transition-colors"
-        />
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          required
-          className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] transition-colors"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password (min 6 characters)"
-          required
-          minLength={6}
-          className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] transition-colors"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full h-10 bg-[#2163E7] hover:bg-[#4B6FE0] text-white font-bold text-sm rounded-lg transition-colors disabled:opacity-50"
-        >
-          {loading ? "Creating account..." : "Create Account & Continue"}
-        </button>
-      </form>
-
-      <p className="text-[10px] text-[#8181A5] text-center mt-3">
-        Already have an account?{" "}
-        <a href="/auth/login" className="text-[#2163E7] hover:underline">Sign in</a>
-      </p>
-    </div>
-  );
-}
-
-/* ─── Main page ─── */
-
 export default function CheckoutPageWrapper() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-sm text-[#8181A5]">Loading...</p></div>}>
@@ -154,20 +78,22 @@ export default function CheckoutPageWrapper() {
 }
 
 function CheckoutPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, loading: authLoading } = useAuth();
-  const { data: surveyData, plan: storePlan } = useSurveyStore();
+  const { user, loading: authLoading, signUp } = useAuth();
+  const { data: surveyData } = useSurveyStore();
   const [loading, setLoading] = useState(false);
+  const [statusText, setStatusText] = useState("");
   const [annual, setAnnual] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState(
     searchParams.get("plan") === "pro" ? "pro" : "plus"
   );
   const [hydrated, setHydrated] = useState(false);
-  const [justRegistered, setJustRegistered] = useState(false);
 
-  const surveyIdFromUrl = searchParams.get("survey_id") ?? "";
-  const [surveyId, setSurveyId] = useState(surveyIdFromUrl);
+  // Registration fields (shown when not logged in)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const unsub = useSurveyStore.persist.onFinishHydration(() =>
@@ -177,63 +103,100 @@ function CheckoutPage() {
     return () => unsub();
   }, []);
 
-  // Save survey to DB when user is available and we don't have a surveyId yet
-  const savingRef = useRef(false);
-  useEffect(() => {
-    if (!user || surveyId || savingRef.current || !hydrated) return;
-    if (!surveyData.projectType) return;
-
-    savingRef.current = true;
-
-    async function save() {
+  // Save survey to DB — retry until it works
+  async function saveSurvey(): Promise<string | null> {
+    for (let i = 0; i < 5; i++) {
       try {
         const res = await fetch("/api/survey/save", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ answers: surveyData, plan: selectedPlan }),
         });
-        const result = await res.json();
-        if (res.ok && result.id) {
-          setSurveyId(result.id);
+        if (res.status === 401) {
+          await new Promise((r) => setTimeout(r, 1500));
+          continue;
         }
+        const result = await res.json();
+        if (res.ok && result.id) return result.id;
       } catch {
-        // Survey will be saved via webhook fallback
+        // retry
+      }
+      await new Promise((r) => setTimeout(r, 1000));
+    }
+    return null;
+  }
+
+  // Create LS checkout URL — retry until it works
+  async function createCheckout(surveyId: string | null): Promise<string> {
+    const variantId = getVariantId(selectedPlan, annual);
+    if (!variantId) throw new Error("Plan variant not configured");
+
+    for (let i = 0; i < 5; i++) {
+      try {
+        const res = await fetch("/api/lemonsqueezy/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ variantId, plan: selectedPlan, surveyId: surveyId ?? "" }),
+        });
+        if (res.status === 401) {
+          await new Promise((r) => setTimeout(r, 1500));
+          continue;
+        }
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Checkout failed");
+        if (!data.url) throw new Error("No checkout URL");
+        return data.url;
+      } catch (e) {
+        if (i === 4) throw e;
+        await new Promise((r) => setTimeout(r, 1000));
       }
     }
+    throw new Error("Failed to create checkout after retries");
+  }
 
-    save();
-  }, [user, surveyId, hydrated, surveyData, selectedPlan]);
-
+  // Single action: register (if needed) → save survey → create checkout → redirect
   async function handleStart() {
-    if (!user) return; // Should not happen — form handles registration first
-
+    setError("");
     setLoading(true);
-    try {
-      const variantId = getVariantId(selectedPlan, annual);
-      if (!variantId) throw new Error("Variant not configured");
 
-      const res = await fetch("/api/lemonsqueezy/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ variantId, plan: selectedPlan, surveyId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Checkout failed");
-      if (!data.url) throw new Error("No checkout URL");
-      window.location.href = data.url;
+    try {
+      // Step 1: Register if not logged in
+      if (!user) {
+        if (!email || !password) {
+          setError("Please fill in your email and password");
+          setLoading(false);
+          return;
+        }
+        setStatusText("Creating your account...");
+        await signUp(email, password, displayName);
+        // Wait for session cookie to propagate
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+
+      // Step 2: Save survey
+      setStatusText("Saving your model...");
+      const surveyId = surveyData.projectType ? await saveSurvey() : null;
+
+      // Step 3: Create LS checkout
+      setStatusText("Preparing checkout...");
+      const checkoutUrl = await createCheckout(surveyId);
+
+      // Step 4: Redirect to Lemon Squeezy
+      setStatusText("Redirecting to payment...");
+      window.location.href = checkoutUrl;
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to start checkout");
+      setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
       setLoading(false);
+      setStatusText("");
     }
   }
 
+  const isLoggedIn = !!user;
   const plan = PLANS.find((p) => p.key === selectedPlan)!;
   const price = annual ? plan.annualPrice : plan.monthlyPrice;
   const typeLabel = hydrated && surveyData.projectType
     ? PROJECT_TYPE_LABELS[surveyData.projectType] ?? surveyData.projectType
     : null;
-
-  const isLoggedIn = !!user;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10">
@@ -260,9 +223,46 @@ function CheckoutPage() {
           </p>
         </div>
 
-        {/* Inline registration if not logged in */}
+        {/* Registration fields (inline, only when not logged in) */}
         {!isLoggedIn && !authLoading && (
-          <InlineRegisterForm onRegistered={() => setJustRegistered(true)} />
+          <div className="rounded-xl border border-[#ECECF2] bg-[#F8F8FC] p-5 mb-6">
+            <h3 className="text-base font-bold text-[#1C1D21] mb-1">Create your account</h3>
+            <p className="text-xs text-[#8181A5] mb-4">Quick signup to start your free trial</p>
+
+            <div className="space-y-3">
+              <input
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Your name"
+                disabled={loading}
+                className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] transition-colors disabled:opacity-50"
+              />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
+                required
+                disabled={loading}
+                className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] transition-colors disabled:opacity-50"
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password (min 6 characters)"
+                required
+                minLength={6}
+                disabled={loading}
+                className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] transition-colors disabled:opacity-50"
+              />
+            </div>
+
+            <p className="text-[10px] text-[#8181A5] text-center mt-3">
+              Already have an account?{" "}
+              <a href="/auth/login" className="text-[#2163E7] hover:underline">Sign in</a>
+            </p>
+          </div>
         )}
 
         {/* Personalized context block */}
@@ -291,6 +291,7 @@ function CheckoutPage() {
           <div className="flex items-center gap-1 bg-white rounded-full border border-[#ECECF2] p-0.5">
             <button
               onClick={() => setAnnual(false)}
+              disabled={loading}
               className={`px-4 py-1.5 text-xs font-bold rounded-full transition-colors ${
                 !annual ? "bg-[#2163E7] text-white" : "text-[#8181A5]"
               }`}
@@ -299,6 +300,7 @@ function CheckoutPage() {
             </button>
             <button
               onClick={() => setAnnual(true)}
+              disabled={loading}
               className={`px-4 py-1.5 text-xs font-bold rounded-full transition-colors ${
                 annual ? "bg-[#2163E7] text-white" : "text-[#8181A5]"
               }`}
@@ -321,7 +323,7 @@ function CheckoutPage() {
             return (
               <button
                 key={p.key}
-                onClick={() => setSelectedPlan(p.key)}
+                onClick={() => !loading && setSelectedPlan(p.key)}
                 className={`relative text-left p-5 rounded-xl border-2 transition-all ${
                   isSelected
                     ? "border-[#2163E7] bg-[#2163E7]/5 shadow-md shadow-[#2163E7]/10"
@@ -390,13 +392,22 @@ function CheckoutPage() {
           </p>
         </div>
 
-        {/* CTA */}
+        {/* Error */}
+        {error && (
+          <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl mb-4">{error}</div>
+        )}
+
+        {/* CTA — single button that does everything */}
         <button
           onClick={handleStart}
-          disabled={loading || !isLoggedIn}
+          disabled={loading}
           className="w-full h-12 text-sm font-bold rounded-xl bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
         >
-          {loading ? "Redirecting..." : !isLoggedIn ? "Create account above to continue" : "Start Free Trial →"}
+          {loading
+            ? statusText || "Processing..."
+            : isLoggedIn
+              ? "Start Free Trial →"
+              : "Create Account & Start Free Trial →"}
         </button>
 
         {/* Social proof + trust */}

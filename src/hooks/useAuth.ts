@@ -30,7 +30,7 @@ export function useAuth() {
 
   const signUp = useCallback(
     async (email: string, password: string, displayName?: string) => {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -39,6 +39,11 @@ export function useAuth() {
         },
       });
       if (error) throw error;
+      // When email confirmation is disabled, user+session are returned immediately
+      if (data.session) {
+        setUser(data.user);
+      }
+      return data;
     },
     [supabase]
   );
