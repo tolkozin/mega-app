@@ -119,12 +119,17 @@ function GeneratingPage() {
     }
   }, [saved, activeStep, plan, surveyId, router]);
 
-  // Redirect to login if not authenticated
+  // Redirect to login only after a grace period (auth may still be settling after signup)
+  const [authGrace, setAuthGrace] = useState(true);
   useEffect(() => {
-    if (!authLoading && !user) {
+    const timer = setTimeout(() => setAuthGrace(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+  useEffect(() => {
+    if (!authGrace && !authLoading && !user) {
       router.replace("/auth/login");
     }
-  }, [authLoading, user, router]);
+  }, [authGrace, authLoading, user, router]);
 
   return (
     <div className="min-h-[100dvh] flex items-center justify-center px-4">
