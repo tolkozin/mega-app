@@ -592,12 +592,8 @@ function SurveyPage() {
 
 
   function handleFinish() {
-    if (!user) {
-      // Not logged in — go to register, survey data stays in localStorage
-      router.push(`/auth/register?plan=${plan}`);
-      return;
-    }
-    // Logged in — go to generating page which saves survey + shows animation
+    // Always go to generating page — it's pure animation, no auth needed.
+    // Checkout page handles registration if user is not logged in.
     router.push(`/onboarding/generating`);
   }
 

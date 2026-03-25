@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useSurveyStore } from "@/stores/survey-store";
@@ -69,6 +69,82 @@ function getVariantId(plan: string, annual: boolean): string {
   return "";
 }
 
+/* ─── Inline registration form ─── */
+
+function InlineRegisterForm({ onRegistered }: { onRegistered: () => void }) {
+  const { signUp } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await signUp(email, password, displayName);
+      // Small delay for auth state to propagate
+      setTimeout(onRegistered, 500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed");
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-[#ECECF2] bg-[#F8F8FC] p-5 mb-6">
+      <h3 className="text-base font-bold text-[#1C1D21] mb-1">Create your account</h3>
+      <p className="text-xs text-[#8181A5] mb-4">Quick signup to start your free trial</p>
+
+      {error && (
+        <div className="bg-red-50 text-red-600 text-xs p-2.5 rounded-lg mb-3">{error}</div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <input
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          placeholder="Your name"
+          className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] transition-colors"
+        />
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+          className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] transition-colors"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password (min 6 characters)"
+          required
+          minLength={6}
+          className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7] transition-colors"
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full h-10 bg-[#2163E7] hover:bg-[#4B6FE0] text-white font-bold text-sm rounded-lg transition-colors disabled:opacity-50"
+        >
+          {loading ? "Creating account..." : "Create Account & Continue"}
+        </button>
+      </form>
+
+      <p className="text-[10px] text-[#8181A5] text-center mt-3">
+        Already have an account?{" "}
+        <a href="/auth/login" className="text-[#2163E7] hover:underline">Sign in</a>
+      </p>
+    </div>
+  );
+}
+
+/* ─── Main page ─── */
+
 export default function CheckoutPageWrapper() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-sm text-[#8181A5]">Loading...</p></div>}>
@@ -81,16 +157,17 @@ function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
-  const { data: surveyData } = useSurveyStore();
+  const { data: surveyData, plan: storePlan } = useSurveyStore();
   const [loading, setLoading] = useState(false);
   const [annual, setAnnual] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState(
     searchParams.get("plan") === "pro" ? "pro" : "plus"
   );
   const [hydrated, setHydrated] = useState(false);
+  const [justRegistered, setJustRegistered] = useState(false);
 
-  const surveyId = searchParams.get("survey_id") ?? "";
-  const autoCheckout = searchParams.get("auto") === "1";
+  const surveyIdFromUrl = searchParams.get("survey_id") ?? "";
+  const [surveyId, setSurveyId] = useState(surveyIdFromUrl);
 
   useEffect(() => {
     const unsub = useSurveyStore.persist.onFinishHydration(() =>
@@ -100,30 +177,36 @@ function CheckoutPage() {
     return () => unsub();
   }, []);
 
-  // Grace period for auth to settle (user may have just registered)
-  const [authReady, setAuthReady] = useState(false);
+  // Save survey to DB when user is available and we don't have a surveyId yet
+  const savingRef = useRef(false);
   useEffect(() => {
-    if (!authLoading && user) {
-      setAuthReady(true);
-    } else if (!authLoading && !user) {
-      // Wait a bit before redirecting — auth may still be settling
-      const timer = setTimeout(() => {
-        if (!user) router.push("/auth/login");
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [authLoading, user, router]);
+    if (!user || surveyId || savingRef.current || !hydrated) return;
+    if (!surveyData.projectType) return;
 
-  // Auto-start checkout if plan was pre-selected from pricing page
-  const [autoStarted, setAutoStarted] = useState(false);
-  useEffect(() => {
-    if (autoCheckout && !autoStarted && user && !authLoading && !loading) {
-      setAutoStarted(true);
-      handleStart();
+    savingRef.current = true;
+
+    async function save() {
+      try {
+        const res = await fetch("/api/survey/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answers: surveyData, plan: selectedPlan }),
+        });
+        const result = await res.json();
+        if (res.ok && result.id) {
+          setSurveyId(result.id);
+        }
+      } catch {
+        // Survey will be saved via webhook fallback
+      }
     }
-  }, [autoCheckout, autoStarted, user, authLoading, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    save();
+  }, [user, surveyId, hydrated, surveyData, selectedPlan]);
 
   async function handleStart() {
+    if (!user) return; // Should not happen — form handles registration first
+
     setLoading(true);
     try {
       const variantId = getVariantId(selectedPlan, annual);
@@ -144,19 +227,13 @@ function CheckoutPage() {
     }
   }
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-sm text-[#8181A5]">Loading...</p>
-      </div>
-    );
-  }
-
   const plan = PLANS.find((p) => p.key === selectedPlan)!;
   const price = annual ? plan.annualPrice : plan.monthlyPrice;
   const typeLabel = hydrated && surveyData.projectType
     ? PROJECT_TYPE_LABELS[surveyData.projectType] ?? surveyData.projectType
     : null;
+
+  const isLoggedIn = !!user;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10">
@@ -167,10 +244,12 @@ function CheckoutPage() {
         </div>
 
         <h1 className="text-2xl font-bold text-[#1C1D21] text-center mb-1">
-          Almost there!
+          {isLoggedIn ? "Almost there!" : "Your model is ready — let's set you up"}
         </h1>
         <p className="text-sm text-[#8181A5] text-center mb-6">
-          Choose your plan and start your 10-day free trial
+          {isLoggedIn
+            ? "Choose your plan and start your 10-day free trial"
+            : "Create an account, pick a plan, and unlock your financial model"}
         </p>
 
         {/* Free trial banner */}
@@ -180,6 +259,11 @@ function CheckoutPage() {
             10 days free — no charge until day 11
           </p>
         </div>
+
+        {/* Inline registration if not logged in */}
+        {!isLoggedIn && !authLoading && (
+          <InlineRegisterForm onRegistered={() => setJustRegistered(true)} />
+        )}
 
         {/* Personalized context block */}
         {typeLabel && (
@@ -309,10 +393,10 @@ function CheckoutPage() {
         {/* CTA */}
         <button
           onClick={handleStart}
-          disabled={loading}
+          disabled={loading || !isLoggedIn}
           className="w-full h-12 text-sm font-bold rounded-xl bg-[#2163E7] hover:bg-[#4B6FE0] text-white transition-colors disabled:opacity-50"
         >
-          {loading ? "Redirecting..." : "Start Free Trial →"}
+          {loading ? "Redirecting..." : !isLoggedIn ? "Create account above to continue" : "Start Free Trial →"}
         </button>
 
         {/* Social proof + trust */}
