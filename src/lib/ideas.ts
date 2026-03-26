@@ -832,3 +832,36 @@ export function getAllIdeaSlugs(): string[] {
 export function getIdeaCollection(type: IdeaCollectionType): IdeaCollection | undefined {
   return IDEA_COLLECTIONS.find((c) => c.type === type);
 }
+
+/** Get the collection a slug belongs to + its position metadata */
+export function getCollectionForSlug(slug: string): { collection: IdeaCollection; listMeta: { slug: string; label: string; icon: string } } | undefined {
+  for (const col of IDEA_COLLECTIONS) {
+    const meta = col.lists.find((l) => l.slug === slug);
+    if (meta) return { collection: col, listMeta: meta };
+  }
+  return undefined;
+}
+
+/** Get related idea lists for cross-linking (same collection + other collections) */
+export function getRelatedIdeas(slug: string, count = 6): { slug: string; label: string; icon: string; collectionLabel: string }[] {
+  const info = getCollectionForSlug(slug);
+  if (!info) return [];
+
+  const results: { slug: string; label: string; icon: string; collectionLabel: string }[] = [];
+
+  // Same collection siblings first (up to 3)
+  const siblings = info.collection.lists.filter((l) => l.slug !== slug).slice(0, 3);
+  for (const s of siblings) {
+    results.push({ ...s, collectionLabel: info.collection.label });
+  }
+
+  // Fill from other collections
+  for (const col of IDEA_COLLECTIONS) {
+    if (col.type === info.collection.type) continue;
+    if (results.length >= count) break;
+    const pick = col.lists.find((l) => l.slug !== slug && !results.some((r) => r.slug === l.slug));
+    if (pick) results.push({ ...pick, collectionLabel: col.label });
+  }
+
+  return results.slice(0, count);
+}

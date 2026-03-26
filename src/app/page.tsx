@@ -68,8 +68,10 @@ const footerLinks = {
     { label: "Mobile App", href: "/ideas/subscription-app" },
     { label: "E-Commerce", href: "/ideas/ecommerce" },
     { label: "SaaS B2B", href: "/ideas/saas-b2b" },
+    { label: "Marketplace", href: "/ideas/marketplace" },
     { label: "Ideas for Women", href: "/ideas/ideas-for-women" },
     { label: "Zero-Cost Ideas", href: "/ideas/zero-cost-business-ideas" },
+    { label: "Under $1,000", href: "/ideas/business-ideas-under-1000" },
     { label: "Passive Income", href: "/ideas/passive-income-business-ideas" },
   ],
   Resources: [

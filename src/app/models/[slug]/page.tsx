@@ -525,6 +525,17 @@ export default async function ModelPage({
   const features = ENGINE_FEATURES[model.baseEngine];
   const faqs = MODEL_FAQS[model.key];
 
+  /* Breadcrumb structured data */
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Business Models", item: `${SITE_URL}/models` },
+      { "@type": "ListItem", position: 3, name: model.label, item: `${SITE_URL}/models/${model.key}` },
+    ],
+  };
+
   /* FAQ structured data */
   const faqSchema = {
     "@context": "https://schema.org",
@@ -545,12 +556,27 @@ export default async function ModelPage({
 
       <script
         type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
       <div className="min-h-screen bg-[#f8f9fc]">
+        {/* Breadcrumb */}
+        <div className="max-w-4xl mx-auto px-4 pt-20 pb-0">
+          <nav className="flex items-center gap-1.5 text-sm text-[#9ca3af]">
+            <Link href="/" className="hover:text-[#2163e7] transition-colors">Home</Link>
+            <span>/</span>
+            <Link href="/models" className="hover:text-[#2163e7] transition-colors">Models</Link>
+            <span>/</span>
+            <span className="text-[#6b7280]">{model.label}</span>
+          </nav>
+        </div>
+
         {/* ── Hero ── */}
-        <section className="relative overflow-hidden pt-24 pb-20 grid-pattern">
+        <section className="relative overflow-hidden pt-6 pb-20 grid-pattern">
           {/* Subtle gradient */}
           <div
             className="pointer-events-none absolute inset-0 opacity-30"
