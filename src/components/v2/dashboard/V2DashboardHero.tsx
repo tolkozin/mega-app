@@ -361,6 +361,9 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
   const chartW = VW - PADDING.left - PADDING.right;
   const chartH = VH - PADDING.top - PADDING.bottom;
 
+  /* Guard: nothing to draw */
+  if (!data.length) return null;
+
   const maxVal = useMemo(() => {
     return Math.max(
       ...data.map((d) => d.segments.reduce((sum, s) => sum + s.value, 0)),
@@ -1001,15 +1004,17 @@ export const V2DashboardHero = memo(function V2DashboardHero({
 
       if (hasBreakdown) {
         // Stack order: Annual (bottom/darkest), Monthly, Weekly (top/lightest)
-        const annual = num(row, columns.mrrAnnual);
-        const monthly = num(row, columns.mrrMonthly);
-        const weekly = num(row, columns.mrrWeekly);
-        if (annual > 0) segments.push({ label: "MRR Annual", value: annual, color: SEGMENT_COLORS.annual });
-        if (monthly > 0) segments.push({ label: "MRR Monthly", value: monthly, color: SEGMENT_COLORS.monthly });
+        const annual = Math.max(0, num(row, columns.mrrAnnual));
+        const monthly = Math.max(0, num(row, columns.mrrMonthly));
+        const weekly = Math.max(0, num(row, columns.mrrWeekly));
+        // Always push all segments so the bar structure is consistent;
+        // zero-height segments are harmless and prevent "empty chart"
+        segments.push({ label: "MRR Annual", value: annual, color: SEGMENT_COLORS.annual });
+        segments.push({ label: "MRR Monthly", value: monthly, color: SEGMENT_COLORS.monthly });
         if (weekly > 0) segments.push({ label: "MRR Weekly", value: weekly, color: SEGMENT_COLORS.weekly });
       } else {
-        const rev = num(row, columns.revenue);
-        if (rev > 0) segments.push({ label: "Revenue", value: rev, color: SEGMENT_COLORS.monthly });
+        const rev = Math.max(0, num(row, columns.revenue));
+        segments.push({ label: "Revenue", value: rev, color: SEGMENT_COLORS.monthly });
       }
 
       return { month, segments };

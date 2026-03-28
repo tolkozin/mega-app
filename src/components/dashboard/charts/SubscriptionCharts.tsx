@@ -72,8 +72,8 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
           formatter={fmtK}
         />
 
-        {/* 3-col row: Donut, Cash Balance, Active Users */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        {/* 2-col row: Donut + Cash Balance */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <V2DonutChart
             title="Revenue Breakdown"
             subtitle="Last month MRR split by plan"
@@ -95,7 +95,10 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
             dataLabel="Cash Balance"
             formatter={fmtK}
           />
+        </div>
 
+        {/* Active Users — full width */}
+        <div className="mt-4">
           <V2GradientAreaChart
             title="Active Users"
             subtitle="Total active subscribers"

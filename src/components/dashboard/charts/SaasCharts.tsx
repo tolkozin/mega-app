@@ -57,7 +57,7 @@ export const SaasCharts = memo(function SaasCharts({ results, p1End, p2End }: Ch
           phaseLines={phases}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <V2DonutChart
             title="Pipeline Funnel"
             subtitle="Last-month lead distribution"
@@ -76,15 +76,15 @@ export const SaasCharts = memo(function SaasCharts({ results, p1End, p2End }: Ch
             color={PALETTE.blue}
             dataLabel="Customers"
           />
-
-          <V2GradientAreaChart
-            title="Active Seats"
-            subtitle="Total active seats across all customers"
-            data={getCol(base, "Active Seats")}
-            months={months}
-            phaseLines={phases}
-          />
         </div>
+
+        <V2GradientAreaChart
+          title="Active Seats"
+          subtitle="Total active seats across all customers"
+          data={getCol(base, "Active Seats")}
+          months={months}
+          phaseLines={phases}
+        />
 
         <V2StackedBarChart
           title="Pipeline: Leads / Demos / Deals"
@@ -148,7 +148,7 @@ export const SaasCharts = memo(function SaasCharts({ results, p1End, p2End }: Ch
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <V2RelativeBarChart
             title="New vs Churned Customers"
             subtitle="Monthly new deals vs churned accounts"

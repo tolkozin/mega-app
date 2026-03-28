@@ -70,7 +70,7 @@ export const EcommerceCharts = memo(function EcommerceCharts({
           formatter={fmtDollar}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <V2DonutChart
             title="Traffic Split"
             subtitle="Paid vs Organic — last month"
@@ -98,17 +98,17 @@ export const EcommerceCharts = memo(function EcommerceCharts({
             color={PALETTE.blue}
             dataLabel="Orders"
           />
-
-          <V2SingleBarChart
-            title="Cash Balance"
-            subtitle="Cash on hand"
-            data={getCol(base, "Cash Balance")}
-            months={months}
-            color={PALETTE.ltBlue}
-            dataLabel="Cash"
-            formatter={fmtDollar}
-          />
         </div>
+
+        <V2SingleBarChart
+          title="Cash Balance"
+          subtitle="Cash on hand"
+          data={getCol(base, "Cash Balance")}
+          months={months}
+          color={PALETTE.ltBlue}
+          dataLabel="Cash"
+          formatter={fmtDollar}
+        />
       </TabsContent>
 
       {/* ── Unit Economics ─────────────────────────────────────── */}

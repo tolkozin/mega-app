@@ -41,9 +41,21 @@ import { SaasReports } from "@/components/dashboard/reports/SaasReports";
 
 import dynamic from "next/dynamic";
 
-const SubscriptionInvestorReport = dynamic(() => import("@/components/dashboard/investor/SubscriptionInvestorReport").then(m => ({ default: m.SubscriptionInvestorReport })), { ssr: false });
-const EcommerceInvestorReport = dynamic(() => import("@/components/dashboard/investor/EcommerceInvestorReport").then(m => ({ default: m.EcommerceInvestorReport })), { ssr: false });
-const SaasInvestorReport = dynamic(() => import("@/components/dashboard/investor/SaasInvestorReport").then(m => ({ default: m.SaasInvestorReport })), { ssr: false });
+function ReportLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center py-12 text-sm text-[#8181A5]">
+      <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+      </svg>
+      Loading report...
+    </div>
+  );
+}
+
+const SubscriptionInvestorReport = dynamic(() => import("@/components/dashboard/investor/SubscriptionInvestorReport").then(m => ({ default: m.SubscriptionInvestorReport })), { ssr: false, loading: ReportLoadingFallback });
+const EcommerceInvestorReport = dynamic(() => import("@/components/dashboard/investor/EcommerceInvestorReport").then(m => ({ default: m.EcommerceInvestorReport })), { ssr: false, loading: ReportLoadingFallback });
+const SaasInvestorReport = dynamic(() => import("@/components/dashboard/investor/SaasInvestorReport").then(m => ({ default: m.SaasInvestorReport })), { ssr: false, loading: ReportLoadingFallback });
 
 // ─── Engine component maps ───
 
@@ -545,7 +557,15 @@ function DashboardPage() {
             {results && (
               <div className="hidden md:flex items-center gap-2 ml-auto">
                 <button
-                  onClick={() => setShowInvestorReport((v) => !v)}
+                  onClick={() => {
+                    setShowInvestorReport((v) => {
+                      if (!v) {
+                        // Scroll to report after it renders
+                        setTimeout(() => reportRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+                      }
+                      return !v;
+                    });
+                  }}
                   className="flex items-center gap-1.5 h-8 px-3 text-[11px] font-bold text-white bg-[#2163E7] rounded-[8px] hover:bg-[#1650b0] transition-colors shadow-v2-sm"
                 >
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
