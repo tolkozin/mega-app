@@ -78,9 +78,9 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
             title="Revenue Breakdown"
             subtitle="Last month MRR split by plan"
             segments={[
-              { label: "Weekly", value: lastMrrWeekly, color: PALETTE.blue },
-              { label: "Monthly", value: lastMrrMonthly, color: PALETTE.green },
-              { label: "Annual", value: lastMrrAnnual, color: PALETTE.amber },
+              { label: "Annual", value: lastMrrAnnual, color: PALETTE.dkBlue },
+              { label: "Monthly", value: lastMrrMonthly, color: PALETTE.ltBlue },
+              { label: "Weekly", value: lastMrrWeekly, color: PALETTE.paleBlue },
             ]}
             centerLabel={fmtK(lastMrrWeekly + lastMrrMonthly + lastMrrAnnual)}
             centerSub="Total MRR"

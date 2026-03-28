@@ -67,10 +67,10 @@ const COLORS = {
 } as const;
 
 const SEGMENT_COLORS: Record<string, string> = {
-  annual: "#3B5998",
-  monthly: "#5B8DEF",
-  weekly: "#93B5F5",
-  projected: "#C8DAF9",
+  annual: "#1650b0",
+  monthly: "#7BA3F0",
+  weekly: "#BDD0F8",
+  projected: "#e8f0fd",
 };
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -418,8 +418,8 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
       <defs>
         {/* Projected stripe pattern */}
         <pattern id="pat-projected" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <rect width="6" height="6" fill={SEGMENT_COLORS.projected} />
-          <line x1="0" y1="0" x2="0" y2="6" stroke="#94B3E0" strokeWidth="2" opacity="0.5" />
+          <rect width="6" height="6" fill="#e8f0fd" />
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#BDD0F8" strokeWidth="2.6" />
         </pattern>
         {/* Clip paths for bar rounded corners — must be in root <defs> */}
         {data.map((d, i) => {
@@ -960,9 +960,9 @@ export const V2DashboardHero = memo(function V2DashboardHero({
 
   /* ── Dynamic color palette for extra plan segments ── */
   const DYNAMIC_PALETTE = [
-    "#4A6FA5", "#6B8FCC", "#94B3E0", "#C5D7F0", // blues (muted)
-    "#7BA88E", "#A3C4B5", "#5B8F9E", "#B0A3C8", // green/teal/purple (muted)
-    "#C9A96E", "#D4A5A5", "#8FA3BF", "#A8B5A0", // warm neutrals
+    "#1650b0", "#2163E7", "#7BA3F0", "#BDD0F8", // Figma blue family
+    "#0D3F8A", "#4B82D9", "#A5C2F3", "#D6E5FA", // extended blues
+    "#0891B2", "#10B981", "#7C3AED", "#F59E0B", // accent fallback
   ];
 
   /* ── Build chart data with segments ── */
@@ -1224,11 +1224,8 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     return segments;
   }, [data, columns]);
 
-  /* ── MRR / Revenue big number — sum for entire period ── */
-  const heroValue = useMemo(() => {
-    if (!data.length || !columns.revenue) return 0;
-    return data.reduce((sum, row) => sum + num(row, columns.revenue), 0);
-  }, [data, columns.revenue]);
+  /* ── MRR / Revenue big number — last month value ── */
+  const heroValue = data.length > 0 ? num(data[data.length - 1], columns.revenue) : 0;
   const heroLabel = engine === "subscription" ? "Monthly Recurring Revenue" : "Total Revenue";
 
   /* ── Break-even description ── */

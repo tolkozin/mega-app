@@ -481,15 +481,6 @@ function DashboardPage() {
 
           {/* Logo + Model type selector + Engine selector + Date filter */}
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Logo */}
-            <button
-              onClick={() => dashboardRouter.push("/dashboard")}
-              className="flex items-center gap-1.5 shrink-0 mr-1"
-              title="Revenue Map"
-            >
-              <img src="/logo.svg" alt="Revenue Map" className="w-7 h-7 rounded-[6px] shrink-0" />
-            </button>
-
             {/* Model selector */}
             <div className="relative inline-block">
               <button
