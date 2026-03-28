@@ -47,9 +47,9 @@ function InfoIcon({ tooltip }: { tooltip: string }) {
   );
 }
 
-function NumberField({ label, value, onChange, min, max, step, help }: {
+function NumberField({ label, value, onChange, min, max, step, help, slider }: {
   label: string; value: number; onChange: (v: number) => void;
-  min?: number; max?: number; step?: number; help?: string;
+  min?: number; max?: number; step?: number; help?: string; slider?: boolean;
 }) {
   const [display, setDisplay] = useState(value === 0 ? "" : String(value));
   const [focused, setFocused] = useState(false);
@@ -57,6 +57,10 @@ function NumberField({ label, value, onChange, min, max, step, help }: {
   React.useEffect(() => {
     if (!focused) setDisplay(value === 0 ? "" : String(value));
   }, [value, focused]);
+
+  const sliderMin = min ?? 0;
+  const sliderMax = max ?? 100;
+  const pct = Math.max(0, Math.min(100, ((value - sliderMin) / (sliderMax - sliderMin)) * 100));
 
   return (
     <div className="space-y-1">
@@ -80,6 +84,33 @@ function NumberField({ label, value, onChange, min, max, step, help }: {
         min={min} max={max} step={step || 1}
         className="h-8 text-sm placeholder:text-[#C4C4D4]"
       />
+      {slider && min != null && max != null && (
+        <div className="pt-1">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10.5px] text-[#c4c9d8] tabular-nums">{min}</span>
+            <span className="text-[10.5px] text-[#c4c9d8] tabular-nums">{max}</span>
+          </div>
+          <div className="relative h-[4px] rounded-full bg-[#eef0f6]">
+            <div
+              className="absolute left-0 top-0 h-full rounded-full"
+              style={{ width: `${pct}%`, background: "linear-gradient(90deg, #7BA3F0, #2163E7)" }}
+            />
+            <input
+              type="range"
+              min={sliderMin}
+              max={sliderMax}
+              step={step || 1}
+              value={value}
+              onChange={(e) => onChange(Number(e.target.value))}
+              className="absolute top-1/2 left-0 w-full -translate-y-1/2 opacity-0 cursor-pointer h-5 m-0"
+            />
+            <div
+              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[14px] h-[14px] rounded-full bg-[#2163E7] border-[2.5px] border-white pointer-events-none"
+              style={{ left: `${pct}%`, boxShadow: "0 2px 6px rgba(33,99,231,0.35)" }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -106,8 +137,8 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
       <NumberField label="Misc Costs ($/mo)" value={phase.misc_total} onChange={(v) => update({ misc_total: v })} min={0} step={100} help="Office rent, tools, SaaS subscriptions, legal fees, etc." />
       <NumberField label="Ad Budget ($/mo)" value={phase.ad_budget} onChange={(v) => update({ ad_budget: v })} min={0} step={500} help="Monthly paid advertising spend (Facebook, Google, etc.)" />
       <NumberField label="CPI ($)" value={phase.cpi} onChange={(v) => update({ cpi: v })} min={0.01} step={0.5} help="Cost Per Install — how much you pay per app install from ads" />
-      <NumberField label="Conv Trial (%)" value={phase.conv_trial} onChange={(v) => update({ conv_trial: v })} min={0} max={100} step={1} help="% of paid installs that start a free trial" />
-      <NumberField label="Conv Paid (%)" value={phase.conv_paid} onChange={(v) => update({ conv_paid: v })} min={0} max={100} step={1} help="% of trial users that convert to a paid subscription" />
+      <NumberField label="Conv Trial (%)" value={phase.conv_trial} onChange={(v) => update({ conv_trial: v })} min={0} max={100} step={1} help="% of paid installs that start a free trial" slider />
+      <NumberField label="Conv Paid (%)" value={phase.conv_paid} onChange={(v) => update({ conv_paid: v })} min={0} max={100} step={1} help="% of trial users that convert to a paid subscription" slider />
       <NumberField label="Churn Mult" value={phase.churn_mult} onChange={(v) => update({ churn_mult: v })} min={0} step={0.1} help="Multiplier applied to base churn rates. 1.0 = default, 0.5 = halved churn, 2.0 = doubled" />
 
       <div className="pt-2 text-xs font-medium text-muted-foreground">Ad Growth</div>
@@ -142,8 +173,8 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
       ) : (
         <NumberField label="Organic Growth (abs/mo)" value={phase.organic_growth_abs} onChange={(v) => update({ organic_growth_abs: v })} step={10} help="Fixed number of additional organic installs each month" />
       )}
-      <NumberField label="Organic Conv Trial (%)" value={phase.organic_conv_trial} onChange={(v) => update({ organic_conv_trial: v })} min={0} max={100} step={1} help="% of organic installs that start a free trial" />
-      <NumberField label="Organic Conv Paid (%)" value={phase.organic_conv_paid} onChange={(v) => update({ organic_conv_paid: v })} min={0} max={100} step={1} help="% of organic trial users that convert to paid" />
+      <NumberField label="Organic Conv Trial (%)" value={phase.organic_conv_trial} onChange={(v) => update({ organic_conv_trial: v })} min={0} max={100} step={1} help="% of organic installs that start a free trial" slider />
+      <NumberField label="Organic Conv Paid (%)" value={phase.organic_conv_paid} onChange={(v) => update({ organic_conv_paid: v })} min={0} max={100} step={1} help="% of organic trial users that convert to paid" slider />
       <NumberField label="Organic Spend ($/mo)" value={phase.organic_spend} onChange={(v) => update({ organic_spend: v })} min={0} step={100} help="Monthly spend on SEO, content marketing, social media" />
 
       <div className="pt-2 text-xs font-medium text-muted-foreground">Pricing</div>
@@ -152,9 +183,9 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
       <NumberField label="Annual ($)" value={phase.price_annual} onChange={(v) => update({ price_annual: v })} min={0} step={0.99} help="Price for annual subscription plan" />
 
       <div className="pt-2 text-xs font-medium text-muted-foreground">Plan Mix</div>
-      <NumberField label="Weekly (%)" value={phase.mix_weekly * 100} onChange={(v) => update({ mix_weekly: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing weekly plan. All mixes should sum to 100%" />
-      <NumberField label="Monthly (%)" value={phase.mix_monthly * 100} onChange={(v) => update({ mix_monthly: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing monthly plan" />
-      <NumberField label="Annual (%)" value={phase.mix_annual * 100} onChange={(v) => update({ mix_annual: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing annual plan" />
+      <NumberField label="Weekly (%)" value={phase.mix_weekly * 100} onChange={(v) => update({ mix_weekly: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing weekly plan. All mixes should sum to 100%" slider />
+      <NumberField label="Monthly (%)" value={phase.mix_monthly * 100} onChange={(v) => update({ mix_monthly: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing monthly plan" slider />
+      <NumberField label="Annual (%)" value={phase.mix_annual * 100} onChange={(v) => update({ mix_annual: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing annual plan" slider />
 
       <NumberField label="COGS (%)" value={phase.cogs * 100} onChange={(v) => update({ cogs: v / 100 })} min={0} max={100} step={1} help="Cost of Goods Sold as % of revenue (hosting, CDN, support)" />
     </Accordion>
@@ -183,18 +214,18 @@ export function Sidebar({ projectId, onProjectCreated }: { projectId: string | n
       <ScenarioPanel projectId={projectId} modelType="subscription" onProjectCreated={onProjectCreated} />
 
       <Accordion title="General" defaultOpen>
-        <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} help="Total forecast horizon in months" />
-        <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch / MVP). Phase 3 = total - P1 - P2" />
-        <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = total - P1 - P2" />
+        <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} help="Total forecast horizon in months" slider />
+        <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch / MVP). Phase 3 = total - P1 - P2" slider />
+        <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = total - P1 - P2" slider />
         <NumberField label="Starting Organic" value={config.starting_organic} onChange={(v) => setConfig({ starting_organic: v })} min={0} help="Initial organic installs per month at model start" />
       </Accordion>
 
       <Accordion title="Sensitivity">
-        <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust conversion rates by this %. Positive = better conversion" />
-        <NumberField label="Churn (%)" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Adjust churn rates by this %. Positive = more churn (worse)" />
-        <NumberField label="CPI (%)" value={config.sens_cpi} onChange={(v) => setConfig({ sens_cpi: v })} min={-100} max={100} help="Adjust CPI by this %. Positive = higher cost per install" />
-        <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic growth by this %. Positive = more organic" />
-        <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios around base case" />
+        <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust conversion rates by this %. Positive = better conversion" slider />
+        <NumberField label="Churn (%)" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Adjust churn rates by this %. Positive = more churn (worse)" slider />
+        <NumberField label="CPI (%)" value={config.sens_cpi} onChange={(v) => setConfig({ sens_cpi: v })} min={-100} max={100} help="Adjust CPI by this %. Positive = higher cost per install" slider />
+        <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic growth by this %. Positive = more organic" slider />
+        <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios around base case" slider />
       </Accordion>
 
       <Accordion title="Monte Carlo">
@@ -219,7 +250,7 @@ export function Sidebar({ projectId, onProjectCreated }: { projectId: string | n
 
       <Accordion title="Taxes & Fees">
         <NumberField label="Corporate Tax (%)" value={config.corporate_tax} onChange={(v) => setConfig({ corporate_tax: v })} min={0} max={100} step={0.5} help="Tax rate applied to gross revenue" />
-        <NumberField label="Store Split (%)" value={config.store_split} onChange={(v) => setConfig({ store_split: v })} min={0} max={100} help="% of revenue from app stores (vs. web). Affects commission calculation" />
+        <NumberField label="Store Split (%)" value={config.store_split} onChange={(v) => setConfig({ store_split: v })} min={0} max={100} help="% of revenue from app stores (vs. web). Affects commission calculation" slider />
         <NumberField label="App Store Commission (%)" value={config.app_store_comm} onChange={(v) => setConfig({ app_store_comm: v })} min={0} max={50} step={0.5} help="Apple/Google commission on in-app purchases (typically 15-30%)" />
         <NumberField label="Web Commission (%)" value={config.web_comm_pct} onChange={(v) => setConfig({ web_comm_pct: v })} min={0} max={20} step={0.1} help="Payment processor fee on web purchases (e.g., Stripe 2.9%)" />
         <NumberField label="Web Fixed Fee ($)" value={config.web_comm_fixed} onChange={(v) => setConfig({ web_comm_fixed: v })} min={0} step={0.1} help="Fixed fee per web transaction (e.g., Stripe $0.30)" />

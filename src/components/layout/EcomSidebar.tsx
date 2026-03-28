@@ -46,9 +46,9 @@ function InfoIcon({ tooltip }: { tooltip: string }) {
   );
 }
 
-function NumberField({ label, value, onChange, min, max, step, help }: {
+function NumberField({ label, value, onChange, min, max, step, help, slider }: {
   label: string; value: number; onChange: (v: number) => void;
-  min?: number; max?: number; step?: number; help?: string;
+  min?: number; max?: number; step?: number; help?: string; slider?: boolean;
 }) {
   const [display, setDisplay] = useState(value === 0 ? "" : String(value));
   const [focused, setFocused] = useState(false);
@@ -56,6 +56,10 @@ function NumberField({ label, value, onChange, min, max, step, help }: {
   React.useEffect(() => {
     if (!focused) setDisplay(value === 0 ? "" : String(value));
   }, [value, focused]);
+
+  const sliderMin = min ?? 0;
+  const sliderMax = max ?? 100;
+  const pct = Math.max(0, Math.min(100, ((value - sliderMin) / (sliderMax - sliderMin)) * 100));
 
   return (
     <div className="space-y-1">
@@ -79,6 +83,33 @@ function NumberField({ label, value, onChange, min, max, step, help }: {
         min={min} max={max} step={step || 1}
         className="h-8 text-sm placeholder:text-[#C4C4D4]"
       />
+      {slider && min != null && max != null && (
+        <div className="pt-1">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10.5px] text-[#c4c9d8] tabular-nums">{min}</span>
+            <span className="text-[10.5px] text-[#c4c9d8] tabular-nums">{max}</span>
+          </div>
+          <div className="relative h-[4px] rounded-full bg-[#eef0f6]">
+            <div
+              className="absolute left-0 top-0 h-full rounded-full"
+              style={{ width: `${pct}%`, background: "linear-gradient(90deg, #7BA3F0, #2163E7)" }}
+            />
+            <input
+              type="range"
+              min={sliderMin}
+              max={sliderMax}
+              step={step || 1}
+              value={value}
+              onChange={(e) => onChange(Number(e.target.value))}
+              className="absolute top-1/2 left-0 w-full -translate-y-1/2 opacity-0 cursor-pointer h-5 m-0"
+            />
+            <div
+              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[14px] h-[14px] rounded-full bg-[#2163E7] border-[2.5px] border-white pointer-events-none"
+              style={{ left: `${pct}%`, boxShadow: "0 2px 6px rgba(33,99,231,0.35)" }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -108,8 +139,8 @@ function EcomPhaseSection({ phase, phaseNum }: { phase: EcomPhaseConfig; phaseNu
       <NumberField label="Return Rate (%)" value={phase.return_rate} onChange={(v) => update({ return_rate: v })} min={0} max={100} step={0.5} help="% of orders returned/refunded. Reduces net revenue" />
       <NumberField label="Ad Budget ($/mo)" value={phase.ad_budget} onChange={(v) => update({ ad_budget: v })} min={0} step={500} help="Monthly paid advertising spend (Facebook, Google, TikTok, etc.)" />
       <NumberField label="CPC ($)" value={phase.cpc} onChange={(v) => update({ cpc: v })} min={0.01} step={0.1} help="Cost Per Click — average price per ad click" />
-      <NumberField label="Click-to-Purchase (%)" value={phase.click_to_purchase} onChange={(v) => update({ click_to_purchase: v })} min={0} max={100} step={0.5} help="% of ad clicks that result in a purchase (conversion rate)" />
-      <NumberField label="Organic (%)" value={phase.organic_pct} onChange={(v) => update({ organic_pct: v })} min={0} max={100} step={1} help="% of total traffic that is organic (non-paid). Higher = better unit economics" />
+      <NumberField label="Click-to-Purchase (%)" value={phase.click_to_purchase} onChange={(v) => update({ click_to_purchase: v })} min={0} max={100} step={0.5} help="% of ad clicks that result in a purchase (conversion rate)" slider />
+      <NumberField label="Organic (%)" value={phase.organic_pct} onChange={(v) => update({ organic_pct: v })} min={0} max={100} step={1} help="% of total traffic that is organic (non-paid). Higher = better unit economics" slider />
       <NumberField label="Discount Rate (%)" value={phase.discount_rate} onChange={(v) => update({ discount_rate: v })} min={0} max={100} step={1} help="Average discount applied to orders. Reduces effective AOV" />
       <NumberField label="Monthly Salary ($)" value={phase.monthly_salary} onChange={(v) => update({ monthly_salary: v })} min={0} step={500} help="Total team salary per month during this phase" />
     </Accordion>
@@ -138,9 +169,9 @@ export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string
       <ScenarioPanel projectId={projectId} modelType="ecommerce" onProjectCreated={onProjectCreated} />
 
       <Accordion title="General" defaultOpen>
-        <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} help="Total forecast horizon in months" />
-        <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch). Phase 3 = total - P1 - P2" />
-        <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = total - P1 - P2" />
+        <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} help="Total forecast horizon in months" slider />
+        <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch). Phase 3 = total - P1 - P2" slider />
+        <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = total - P1 - P2" slider />
       </Accordion>
 
       <Accordion title="OpEx">
@@ -149,11 +180,11 @@ export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string
       </Accordion>
 
       <Accordion title="Sensitivity">
-        <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust click-to-purchase rate. Positive = better conversion" />
-        <NumberField label="CPC (%)" value={config.sens_cpc} onChange={(v) => setConfig({ sens_cpc: v })} min={-100} max={100} help="Adjust CPC. Positive = higher cost per click (worse)" />
-        <NumberField label="AOV (%)" value={config.sens_aov} onChange={(v) => setConfig({ sens_aov: v })} min={-100} max={100} help="Adjust average order value. Positive = higher AOV" />
-        <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic traffic share. Positive = more organic" />
-        <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios around base case" />
+        <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust click-to-purchase rate. Positive = better conversion" slider />
+        <NumberField label="CPC (%)" value={config.sens_cpc} onChange={(v) => setConfig({ sens_cpc: v })} min={-100} max={100} help="Adjust CPC. Positive = higher cost per click (worse)" slider />
+        <NumberField label="AOV (%)" value={config.sens_aov} onChange={(v) => setConfig({ sens_aov: v })} min={-100} max={100} help="Adjust average order value. Positive = higher AOV" slider />
+        <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic traffic share. Positive = more organic" slider />
+        <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios around base case" slider />
       </Accordion>
 
       <Accordion title="Monte Carlo">
