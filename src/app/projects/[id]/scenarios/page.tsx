@@ -8,7 +8,7 @@ import { useScenarios, UpgradeRequiredError } from "@/hooks/useProject";
 import { useUpgradeStore } from "@/stores/upgrade-store";
 import type { Project } from "@/lib/types";
 import { useConfigStore } from "@/stores/config-store";
-import { AppShell } from "@/components/layout/AppShell";
+import { V2Shell as AppShell } from "@/components/v2/layout/V2Shell";
 import { getBaseEngine } from "@/lib/model-registry";
 
 export default function ScenariosPage() {

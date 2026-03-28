@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AppShell } from "@/components/layout/AppShell";
+import { V2Shell as AppShell } from "@/components/v2/layout/V2Shell";
 import { useProfile } from "@/hooks/useProfile";
 import { isActivePlan, formatLimit } from "@/lib/plan-limits";
 import { useUpgradeStore } from "@/stores/upgrade-store";

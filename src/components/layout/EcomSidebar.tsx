@@ -30,16 +30,16 @@ function InfoIcon({ tooltip }: { tooltip: string }) {
   return (
     <span
       ref={ref}
-      className="relative inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#ECECF2] text-[#8181A5] text-[9px] font-bold cursor-help ml-1"
+      className="relative inline-flex items-center justify-center w-[13px] h-[13px] rounded-full border border-[#e0e3ed] bg-[#f8f9fc] text-[#9ca3af] text-[7px] font-bold cursor-help ml-1 hover:text-[#2163E7] hover:border-[#2163E7]/30 transition-colors"
       onMouseEnter={() => handleToggle()}
       onMouseLeave={() => setShow(false)}
       onClick={(e) => { e.stopPropagation(); handleToggle(); }}
     >
-      ?
+      i
       {show && (
-        <span className={`absolute z-[100] ${above ? "bottom-full mb-2" : "top-full mt-2"} ${alignRight ? "right-0" : "left-0"} px-2.5 py-1.5 bg-[#1C1D21] text-white text-[10px] leading-relaxed rounded-lg shadow-lg w-[200px] max-w-[calc(100vw-3rem)] whitespace-normal pointer-events-none`}>
+        <span className={`absolute z-[100] ${above ? "bottom-full mb-2" : "top-full mt-2"} ${alignRight ? "right-0" : "left-0"} px-3 py-2 bg-[#1a1a2e] text-white text-[10px] leading-relaxed rounded-[10px] shadow-lg w-[220px] max-w-[calc(100vw-3rem)] whitespace-normal pointer-events-none font-medium`}>
           {tooltip}
-          <span className={`absolute ${above ? "top-full" : "bottom-full"} ${alignRight ? "right-4" : "left-4"} w-0 h-0 border-l-4 border-r-4 ${above ? "border-t-4 border-t-[#1C1D21]" : "border-b-4 border-b-[#1C1D21]"} border-l-transparent border-r-transparent`} />
+          <span className={`absolute ${above ? "top-full" : "bottom-full"} ${alignRight ? "right-4" : "left-4"} w-0 h-0 border-l-4 border-r-4 ${above ? "border-t-4 border-t-[#1a1a2e]" : "border-b-4 border-b-[#1a1a2e]"} border-l-transparent border-r-transparent`} />
         </span>
       )}
     </span>

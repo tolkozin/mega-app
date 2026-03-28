@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useProjects, useSharedProjects, UpgradeRequiredError } from "@/hooks/useProject";
 import { useAuth } from "@/hooks/useAuth";
 import { useUpgradeStore } from "@/stores/upgrade-store";
-import { AppShell } from "@/components/layout/AppShell";
+import { V2Shell as AppShell } from "@/components/v2/layout/V2Shell";
 import { getAllModels, getModelDef } from "@/lib/model-registry";
 import type { Project } from "@/lib/types";
 import type { SharedProject } from "@/hooks/useProject";

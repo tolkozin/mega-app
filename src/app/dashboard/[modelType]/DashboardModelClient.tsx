@@ -5,7 +5,7 @@ import { useParams, useSearchParams, useRouter, notFound } from "next/navigation
 import { useConfigStore } from "@/stores/config-store";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useCurrentProject } from "@/hooks/useCurrentProject";
-import { AppShell } from "@/components/layout/AppShell";
+import { V2Shell as AppShell } from "@/components/v2/layout/V2Shell";
 import { generateInvestorPDF } from "@/lib/pdf-report";
 import { startKeepAlive, stopKeepAlive } from "@/lib/api";
 import { useChatStore } from "@/stores/chat-store";
@@ -16,7 +16,8 @@ import { useUpgradeStore } from "@/stores/upgrade-store";
 import { getPresetConfig, getModelEngineDefaults } from "@/lib/industry-presets";
 import { getModelDef, isValidProductType, getAllModels, getAvailableEngines, getEngineLabel } from "@/lib/model-registry";
 import type { BaseEngine } from "@/lib/model-registry";
-import { DateRangeBar } from "@/components/layout/AppHeader";
+import { V2DateRangeBar as DateRangeBar } from "@/components/v2/layout/V2Header";
+import { FadeIn } from "@/components/v2/ui/FadeIn";
 import type { ModelConfig, EcomConfig, SaasConfig } from "@/lib/types";
 
 // ─── Engine-specific component imports ───
@@ -124,10 +125,10 @@ const SCENARIO_BUILDERS: Record<BaseEngine, (config: Record<string, unknown>) =>
 function SubscriptionContent({ results, p1End, p2End }: { results: Record<string, import("@/lib/api").RunResult>; p1End: number; p2End: number }) {
   return (
     <>
-      <Milestones milestones={results.base.milestones} />
-      <KeyMetrics results={results.base} milestones={results.base.milestones} />
-      <SubscriptionCharts results={results} p1End={p1End} p2End={p2End} />
-      <SubscriptionReports results={results.base} />
+      <FadeIn delay={0}><Milestones milestones={results.base.milestones} /></FadeIn>
+      <FadeIn delay={0.05}><KeyMetrics results={results.base} milestones={results.base.milestones} /></FadeIn>
+      <FadeIn delay={0.1}><SubscriptionCharts results={results} p1End={p1End} p2End={p2End} /></FadeIn>
+      <FadeIn delay={0.15}><SubscriptionReports results={results.base} /></FadeIn>
     </>
   );
 }
@@ -135,10 +136,10 @@ function SubscriptionContent({ results, p1End, p2End }: { results: Record<string
 function EcommerceContent({ results, p1End, p2End }: { results: Record<string, import("@/lib/api").RunResult>; p1End: number; p2End: number }) {
   return (
     <>
-      <Milestones milestones={results.base.milestones} />
-      <EcomKeyMetrics results={results.base} milestones={results.base.milestones} />
-      <EcommerceCharts results={results} p1End={p1End} p2End={p2End} />
-      <EcommerceReports results={results.base} />
+      <FadeIn delay={0}><Milestones milestones={results.base.milestones} /></FadeIn>
+      <FadeIn delay={0.05}><EcomKeyMetrics results={results.base} milestones={results.base.milestones} /></FadeIn>
+      <FadeIn delay={0.1}><EcommerceCharts results={results} p1End={p1End} p2End={p2End} /></FadeIn>
+      <FadeIn delay={0.15}><EcommerceReports results={results.base} /></FadeIn>
     </>
   );
 }
@@ -146,10 +147,10 @@ function EcommerceContent({ results, p1End, p2End }: { results: Record<string, i
 function SaasContent({ results, p1End, p2End }: { results: Record<string, import("@/lib/api").RunResult>; p1End: number; p2End: number }) {
   return (
     <>
-      <SaasMilestones milestones={results.base.milestones} />
-      <SaasKeyMetrics results={results.base} milestones={results.base.milestones} />
-      <SaasCharts results={results} p1End={p1End} p2End={p2End} />
-      <SaasReports results={results.base} />
+      <FadeIn delay={0}><SaasMilestones milestones={results.base.milestones} /></FadeIn>
+      <FadeIn delay={0.05}><SaasKeyMetrics results={results.base} milestones={results.base.milestones} /></FadeIn>
+      <FadeIn delay={0.1}><SaasCharts results={results} p1End={p1End} p2End={p2End} /></FadeIn>
+      <FadeIn delay={0.15}><SaasReports results={results.base} /></FadeIn>
     </>
   );
 }
@@ -404,7 +405,6 @@ function DashboardPage() {
                 monthRange={monthRange}
                 onMonthRangeChange={setMonthRange}
                 totalMonths={totalMonths}
-                variant="light"
               />
             </div>
           </div>

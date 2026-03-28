@@ -18,9 +18,9 @@ function fmtMilestone(val: unknown): string {
 }
 
 const borderColorMap = {
-  green: "border-l-4 border-l-[#14A660]",
-  yellow: "border-l-4 border-l-[#F4A93E]",
-  red: "border-l-4 border-l-[#E54545]",
+  green: "border-l-4 border-l-[#10B981]",
+  yellow: "border-l-4 border-l-[#F59E0B]",
+  red: "border-l-4 border-l-[#EF4444]",
 };
 
 function Tooltip({ text }: { text: string }) {
@@ -35,17 +35,17 @@ function Tooltip({ text }: { text: string }) {
 
   if (pos === "below") {
     return (
-      <div ref={ref} className="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 bg-[#1C1D21] text-white text-[11px] leading-relaxed rounded-lg shadow-lg w-[240px] whitespace-pre-line pointer-events-none">
+      <div ref={ref} className="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2.5 bg-[#1a1a2e] text-white text-[11px] leading-relaxed rounded-[10px] shadow-lg w-[240px] whitespace-pre-line pointer-events-none">
         {text}
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[5px] border-l-transparent border-r-transparent border-b-[#1C1D21]" />
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[5px] border-l-transparent border-r-transparent border-b-[#1a1a2e]" />
       </div>
     );
   }
 
   return (
-    <div ref={ref} className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-[#1C1D21] text-white text-[11px] leading-relaxed rounded-lg shadow-lg w-[240px] whitespace-pre-line pointer-events-none">
+    <div ref={ref} className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2.5 bg-[#1a1a2e] text-white text-[11px] leading-relaxed rounded-[10px] shadow-lg w-[240px] whitespace-pre-line pointer-events-none">
       {text}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#1C1D21]" />
+      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#1a1a2e]" />
     </div>
   );
 }
@@ -67,15 +67,15 @@ function MetricCard({ label, value, help, metricKey, metricValue }: {
       onMouseLeave={() => setHover(false)}
     >
       {hover && tooltipText && <Tooltip text={tooltipText} />}
-      <Card className={`cursor-default ${color ? borderColorMap[color] : ""}`}>
+      <Card className={`cursor-default bg-white rounded-[12px] shadow-v2-card hover:shadow-v2-md hover:-translate-y-0.5 transition-all duration-200 ${color ? borderColorMap[color] : ""}`}>
         <CardContent className="p-4">
-          <div className="flex items-center gap-1">
-            <p className="text-xs text-muted-foreground">{label}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-[#9ca3af]">{label}</p>
             {tooltipText && (
-              <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#ECECF2] text-[#8181A5] text-[8px] font-bold shrink-0">?</span>
+              <span className="inline-flex items-center justify-center w-[13px] h-[13px] rounded-full border border-[#e0e3ed] bg-[#f8f9fc] text-[#9ca3af] text-[7px] font-bold shrink-0">i</span>
             )}
           </div>
-          <p className="text-lg font-bold">{value}</p>
+          <p className="text-[17px] font-extrabold text-[#1a1a2e] tabular-nums">{value}</p>
         </CardContent>
       </Card>
     </div>
@@ -85,7 +85,7 @@ function MetricCard({ label, value, help, metricKey, metricValue }: {
 export function SaasMilestones({ milestones }: { milestones: Record<string, unknown> }) {
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-3">Key Milestones</h2>
+      <h2 className="text-[15px] font-extrabold text-[#1a1a2e] mb-3">Key Milestones</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <MetricCard label="Break-Even (P&L)" value={fmtMilestone(milestones.break_even_month)} help="First month when monthly Net Profit turns positive. Indicates product-market fit." />
         <MetricCard label="Cumulative BE" value={fmtMilestone(milestones.cumulative_break_even)} help="Month when total accumulated profit covers all past losses." />
@@ -124,7 +124,7 @@ export function SaasKeyMetrics({ results }: KPICardsProps) {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-3">Key Metrics</h2>
+      <h2 className="text-[15px] font-extrabold text-[#1a1a2e] mb-3">Secondary Metrics</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <MetricCard label="Total Revenue" value={formatCurrency(totalRevenue)} help="Sum of all gross revenue across the entire forecast." metricKey="Gross Revenue" />
         <MetricCard label="Net Profit" value={formatCurrency(totalProfit)} help="Sum of all monthly net profits." metricKey="Net Profit" />

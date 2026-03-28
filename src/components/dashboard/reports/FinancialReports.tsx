@@ -47,17 +47,17 @@ function BenchmarkLegend({ metrics }: { metrics: string[] }) {
   if (!items.length) return null;
 
   return (
-    <div className="mt-3 p-3 rounded-lg bg-[#F8F8FC] border border-[#ECECF2] space-y-1.5">
-      <p className="text-[11px] font-semibold text-[#1C1D21] mb-1">Benchmark Color Guide</p>
+    <div className="mt-3 p-3 rounded-[10px] bg-[#f8f9fc] border border-[#eef0f6] space-y-1.5">
+      <p className="text-[11px] font-bold text-[#1a1a2e] mb-1">Benchmark Color Guide</p>
       {items.map(({ key, b }) => (
-        <div key={key} className="flex items-center gap-2 text-[10px] text-[#8181A5]">
-          <span className="font-medium text-[#1C1D21] min-w-[80px]">{key}</span>
+        <div key={key} className="flex items-center gap-2 text-[10px] text-[#9ca3af]">
+          <span className="font-semibold text-[#1a1a2e] min-w-[80px]">{key}</span>
           <span className="inline-flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#22C55E] inline-block" />
+            <span className="w-2 h-2 rounded-full bg-[#10B981] inline-block" />
             {b.direction === "higher_better" ? `>${b.good}` : `<${b.good}`}
           </span>
           <span className="inline-flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#EAB308] inline-block" />
+            <span className="w-2 h-2 rounded-full bg-[#F59E0B] inline-block" />
             {b.direction === "higher_better" ? `>${b.warning}` : `<${b.warning}`}
           </span>
           <span className="inline-flex items-center gap-1">
@@ -76,7 +76,7 @@ export function SubscriptionReports({ results }: ReportsProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Financial Reports</h2>
+        <h2 className="text-[15px] font-extrabold text-[#1a1a2e]">Financial Reports</h2>
       </div>
 
       <Tabs defaultValue="pnl">
@@ -84,7 +84,7 @@ export function SubscriptionReports({ results }: ReportsProps) {
           <TabsTrigger value="pnl">P&L</TabsTrigger>
           <TabsTrigger value="revenue">Revenue</TabsTrigger>
           <TabsTrigger value="costs">Costs</TabsTrigger>
-          <TabsTrigger value="metrics">Key Metrics</TabsTrigger>
+          <TabsTrigger value="metrics">Secondary Metrics</TabsTrigger>
           <TabsTrigger value="summary">Summary</TabsTrigger>
         </TabsList>
 
@@ -185,14 +185,14 @@ export function EcommerceReports({ results }: ReportsProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Financial Reports</h2>
+        <h2 className="text-[15px] font-extrabold text-[#1a1a2e]">Financial Reports</h2>
       </div>
 
       <Tabs defaultValue="pnl">
         <TabsList>
           <TabsTrigger value="pnl">P&L</TabsTrigger>
           <TabsTrigger value="cashflow">Cash Flow</TabsTrigger>
-          <TabsTrigger value="metrics">Key Metrics</TabsTrigger>
+          <TabsTrigger value="metrics">Secondary Metrics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pnl">

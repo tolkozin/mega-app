@@ -25,7 +25,7 @@ function Tabs({ defaultValue, children, className }: {
 
 function TabsList({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground", className)}>
+    <div className={cn("inline-flex h-10 items-center rounded-[10px] bg-[#f0f1f7] p-1 text-[#6b7280] overflow-x-auto scrollbar-hide max-w-full", className)}>
       {children}
     </div>
   );
@@ -40,8 +40,8 @@ function TabsTrigger({ value, children, className }: {
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none",
-        activeTab === value && "bg-background text-foreground shadow-sm",
+        "inline-flex items-center justify-center whitespace-nowrap rounded-[8px] px-3 py-1.5 text-[12px] font-bold ring-offset-background transition-all focus-visible:outline-none",
+        activeTab === value && "bg-white text-[#1a1a2e] shadow-v2-sm",
         className
       )}
       onClick={() => setActiveTab(value)}

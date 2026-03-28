@@ -10,7 +10,7 @@ import {
   gradientArea,
   CHART_COLORS,
   DONUT_COLORS,
-} from "@/components/dashboard/charts/PlotlyChart";
+} from "@/components/v2/charts/PlotlyChart";
 
 export { ReportChart, gradientArea, CHART_COLORS, DONUT_COLORS };
 
@@ -51,8 +51,8 @@ function fmtMoney(v: unknown) {
 export function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
     <h2
-      className="text-sm font-bold uppercase tracking-widest mb-3"
-      style={{ color: "#1C1D21", letterSpacing: "0.08em" }}
+      className="text-sm font-extrabold uppercase tracking-widest mb-3"
+      style={{ color: "#1a1a2e", letterSpacing: "0.08em", fontFamily: "Lato, system-ui, sans-serif" }}
     >
       {children}
     </h2>
@@ -60,7 +60,7 @@ export function SectionHeader({ children }: { children: React.ReactNode }) {
 }
 
 export function Divider() {
-  return <div className="border-t my-5" style={{ borderColor: "#ECECF2" }} />;
+  return <div className="border-t my-5" style={{ borderColor: "#eef0f6" }} />;
 }
 
 export function KPIGrid({ children }: { children: React.ReactNode }) {
@@ -80,17 +80,17 @@ export function KPICard({
 }) {
   return (
     <div
-      className="rounded-lg p-3"
-      style={{ border: "1px solid #ECECF2", backgroundColor: "#FAFAFA" }}
+      className="rounded-[12px] p-3"
+      style={{ border: "1px solid #eef0f6", backgroundColor: "#f8f9fc" }}
     >
-      <p className="text-xs font-medium" style={{ color: "#8181A5" }}>
+      <p className="text-[10px] font-bold uppercase tracking-[0.06em]" style={{ color: "#9ca3af" }}>
         {label}
       </p>
-      <p className="text-base font-bold mt-0.5" style={{ color: "#1C1D21" }}>
+      <p className="text-base font-extrabold mt-0.5" style={{ color: "#1a1a2e" }}>
         {value}
       </p>
       {sub && (
-        <p className="text-xs mt-0.5" style={{ color: "#8181A5" }}>
+        <p className="text-[11px] mt-0.5" style={{ color: "#c4c9d8" }}>
           {sub}
         </p>
       )}
@@ -143,12 +143,12 @@ export function CompactTable({
     <div className="overflow-x-auto">
       <table className="w-full text-xs border-collapse">
         <thead>
-          <tr style={{ borderBottom: "1px solid #ECECF2" }}>
+          <tr style={{ borderBottom: "1px solid #eef0f6" }}>
             {headers.map((h) => (
               <th
                 key={h}
-                className="text-left py-1.5 pr-4 font-semibold"
-                style={{ color: "#8181A5" }}
+                className="text-left py-2 pr-4 font-bold text-[10px] uppercase tracking-[0.06em]"
+                style={{ color: "#9ca3af" }}
               >
                 {h}
               </th>
@@ -159,13 +159,14 @@ export function CompactTable({
           {rows.map((row, i) => (
             <tr
               key={i}
-              style={{ borderBottom: "1px solid #ECECF2" }}
+              style={{ borderBottom: "1px solid #f0f1f7" }}
+              className="hover:bg-[#f8f9fc] transition-colors"
             >
               {row.map((cell, j) => (
                 <td
                   key={j}
-                  className="py-1.5 pr-4"
-                  style={{ color: "#1C1D21" }}
+                  className="py-2 pr-4 font-medium"
+                  style={{ color: "#1a1a2e" }}
                 >
                   {cell}
                 </td>

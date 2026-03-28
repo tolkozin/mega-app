@@ -81,7 +81,7 @@ export function SaasReports({ results }: ReportsProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Financial Reports</h2>
+        <h2 className="text-[15px] font-extrabold text-[#1a1a2e]">Financial Reports</h2>
       </div>
 
       <Tabs defaultValue="pnl">

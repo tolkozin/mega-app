@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/layout/AppShell";
+import { V2Shell as AppShell } from "@/components/v2/layout/V2Shell";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { formatLimit, isActivePlan, PLAN_LIMITS } from "@/lib/plan-limits";

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { PlotlyChart, phaseLines, gradientArea, scenarioLines, CHART_COLORS, DONUT_COLORS } from "./PlotlyChart";
+import { PlotlyChart, phaseLines, gradientArea, scenarioLines, CHART_COLORS, DONUT_COLORS } from "@/components/v2/charts/PlotlyChart";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { RunResult } from "@/lib/api";
 
@@ -49,7 +49,7 @@ export const SaasCharts = memo(function SaasCharts({ results, p1End, p2End }: Ch
           layout={{ shapes }}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <PlotlyChart
             title="Pipeline Funnel"
             description="Last-month lead distribution"
@@ -128,7 +128,7 @@ export const SaasCharts = memo(function SaasCharts({ results, p1End, p2End }: Ch
       </TabsContent>
 
       <TabsContent value="unit" className="space-y-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <PlotlyChart
             title="CAC"
             description="Customer Acquisition Cost"
@@ -146,7 +146,7 @@ export const SaasCharts = memo(function SaasCharts({ results, p1End, p2End }: Ch
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <PlotlyChart
             title="ARPA"
             description="Average Revenue Per Account"
@@ -187,7 +187,7 @@ export const SaasCharts = memo(function SaasCharts({ results, p1End, p2End }: Ch
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <PlotlyChart
             title="New vs Churned Customers"
             description="Monthly new deals vs churned accounts"
@@ -253,7 +253,7 @@ export const SaasCharts = memo(function SaasCharts({ results, p1End, p2End }: Ch
       </TabsContent>
 
       <TabsContent value="pnl" className="space-y-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <PlotlyChart
             title="Net Profit"
             description="Monthly net profit across scenarios"
@@ -283,7 +283,7 @@ export const SaasCharts = memo(function SaasCharts({ results, p1End, p2End }: Ch
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <PlotlyChart
             title="Rule of 40"
             description="Revenue Growth% + EBITDA Margin% (40% baseline)"

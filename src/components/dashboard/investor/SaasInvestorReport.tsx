@@ -167,7 +167,7 @@ function RetentionTable({ data }: { data: RunResult }) {
   return (
     <div>
       <SectionHeader>NRR / GRR Retention</SectionHeader>
-      <div className="grid grid-cols-4 gap-2 mb-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
         <KPICard
           label="Avg NRR"
           value={avgNrr ? formatPercent(avgNrr) : "—"}
@@ -248,7 +248,7 @@ function PipelineSummary({ data }: { data: RunResult }) {
   return (
     <div>
       <SectionHeader>Pipeline Summary</SectionHeader>
-      <div className="grid grid-cols-4 gap-2 mb-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
         <KPICard
           label="Total Leads"
           value={formatNumber(totalLeads)}
@@ -346,7 +346,7 @@ function SaasEfficiencyMetrics({ data }: { data: RunResult }) {
   return (
     <div>
       <SectionHeader>SaaS Efficiency Metrics</SectionHeader>
-      <div className="grid grid-cols-4 gap-2 mb-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
         <KPICard
           label="Rule of 40"
           value={isNaN(rule40) ? "—" : `${rule40.toFixed(1)}%`}

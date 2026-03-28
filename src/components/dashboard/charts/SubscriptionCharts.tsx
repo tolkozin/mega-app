@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { PlotlyChart, phaseLines, gradientArea, scenarioLines, CHART_COLORS, DONUT_COLORS } from "./PlotlyChart";
+import { PlotlyChart, phaseLines, gradientArea, scenarioLines, CHART_COLORS, DONUT_COLORS } from "@/components/v2/charts/PlotlyChart";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { RunResult } from "@/lib/api";
 
