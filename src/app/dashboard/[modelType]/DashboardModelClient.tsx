@@ -18,6 +18,7 @@ import { getModelDef, isValidProductType, getAllModels, getAvailableEngines, get
 import type { BaseEngine } from "@/lib/model-registry";
 import { V2DateRangeBar as DateRangeBar } from "@/components/v2/layout/V2Header";
 import { FadeIn } from "@/components/v2/ui/FadeIn";
+import { V2DashboardHero } from "@/components/v2/dashboard/V2DashboardHero";
 import type { ModelConfig, EcomConfig, SaasConfig } from "@/lib/types";
 
 // ─── Engine-specific component imports ───
@@ -421,6 +422,15 @@ function DashboardPage() {
 
           {results && (
             <>
+              {/* v2 Hero Dashboard — MRR chart, metrics, cost donut, break-even */}
+              <FadeIn delay={0}>
+                <V2DashboardHero
+                  data={(results.base.dataframe || []) as { Month: number; [key: string]: number | string | undefined }[]}
+                  milestones={results.base.milestones}
+                  engine={engine}
+                />
+              </FadeIn>
+
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowInvestorReport((v) => !v)}

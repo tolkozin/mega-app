@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, MoreHorizontal, ExternalLink, GitBranch, Settings, Trash2, TrendingUp, TrendingDown } from "lucide-react";
 import { useProjects, useSharedProjects, UpgradeRequiredError } from "@/hooks/useProject";
 import { useAuth } from "@/hooks/useAuth";
 import { useUpgradeStore } from "@/stores/upgrade-store";
@@ -10,7 +12,61 @@ import { getAllModels, getModelDef } from "@/lib/model-registry";
 import type { Project } from "@/lib/types";
 import type { SharedProject } from "@/hooks/useProject";
 
-const productTypeOptions = getAllModels().map((m) => ({ value: m.key, label: m.label }));
+/* ─── Helpers ─── */
+
+const allModels = getAllModels();
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  return `${months}mo ago`;
+}
+
+function generateSparkline(seed: string): number[] {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash << 5) - hash + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  const points: number[] = [];
+  let value = 30 + (Math.abs(hash) % 30);
+  for (let i = 0; i < 12; i++) {
+    hash = (hash * 16807 + 7) % 2147483647;
+    const delta = ((hash % 20) - 7);
+    value = Math.max(5, Math.min(55, value + delta));
+    points.push(value);
+  }
+  return points;
+}
+
+function SparklineSVG({ data, color }: { data: number[]; color: string }) {
+  const w = 160;
+  const h = 40;
+  const stepX = w / (data.length - 1);
+  const path = data.map((y, i) => `${i === 0 ? "M" : "L"} ${i * stepX} ${h - y * (h / 60)}`).join(" ");
+  const areaPath = `${path} L ${w} ${h} L 0 ${h} Z`;
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} fill="none" className="block">
+      <defs>
+        <linearGradient id={`spark-${color.replace("#", "")}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.15" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={areaPath} fill={`url(#spark-${color.replace("#", "")})`} />
+      <path d={path} stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* ─── ProjectCard ─── */
 
 function ProjectCard({
   project,
@@ -25,74 +81,330 @@ function ProjectCard({
   ownerEmail?: string;
   onDelete?: () => void;
 }) {
-  const def = getModelDef(project.product_type);
-  const typeColorStyle = { backgroundColor: def.color + "1A", color: def.color };
-  const ModelIcon = def.icon;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const roleColors: Record<string, string> = {
-    owner: "bg-[#2163E7] text-white",
-    editor: "bg-[#F4BE5E]/10 text-[#F4BE5E]",
-    viewer: "bg-[#ECECF2] text-[#8181A5]",
-  };
+  const def = getModelDef(project.product_type);
+  const ModelIcon = def.icon;
+  const sparkData = generateSparkline(project.id + project.created_at);
+  const trend = sparkData[sparkData.length - 1] > sparkData[0];
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [menuOpen]);
 
   return (
-    <div className="bg-white rounded-xl border border-[#ECECF2] p-5 hover:shadow-md transition-shadow">
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8, scale: 0.97 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      whileHover={{ y: -4 }}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      style={{
+        boxShadow: hovered
+          ? "0 4px 8px rgba(0,0,0,0.04), 0 20px 48px rgba(33,99,231,0.12)"
+          : "0 1px 3px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.06)",
+        fontFamily: "'Lato', sans-serif",
+      }}
+      className="bg-white rounded-[16px] p-[22px] relative cursor-default transition-shadow"
+    >
+      {/* Top row: badge + menu */}
       <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold px-2.5 py-1 rounded-md inline-flex items-center gap-1" style={typeColorStyle}>
-            <ModelIcon className="w-3.5 h-3.5" />
-            {def.label}
-          </span>
-          {role && (
-            <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${roleColors[role] || ""}`}>
-              {role}
-            </span>
-          )}
-        </div>
-        {isOwner && onDelete && (
+        <span
+          className="text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5"
+          style={{ backgroundColor: def.color + "18", color: def.color }}
+        >
+          <ModelIcon className="w-3.5 h-3.5" />
+          {def.label}
+        </span>
+
+        <div className="relative" ref={menuRef}>
           <button
-            onClick={onDelete}
-            className="text-[#8181A5] hover:text-red-500 transition-colors"
-            title="Delete project"
+            onClick={(e) => { e.preventDefault(); setMenuOpen(!menuOpen); }}
+            className="w-7 h-7 flex items-center justify-center rounded-lg transition-all"
+            style={{
+              opacity: hovered || menuOpen ? 1 : 0,
+              background: menuOpen ? "#f0f1f7" : "transparent",
+            }}
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M2 4h12M5.33 4V2.67a1.33 1.33 0 011.34-1.34h2.66a1.33 1.33 0 011.34 1.34V4M12.67 4v9.33a1.33 1.33 0 01-1.34 1.34H4.67a1.33 1.33 0 01-1.34-1.34V4" />
-            </svg>
+            <MoreHorizontal className="w-4 h-4 text-[#6b7280]" />
           </button>
-        )}
+
+          <AnimatePresence>
+            {menuOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92, y: -4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.92, y: -4 }}
+                transition={{ duration: 0.15 }}
+                className="absolute right-0 top-9 z-50 w-44 bg-white rounded-xl border border-[#eef0f6] py-1.5"
+                style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}
+              >
+                <Link
+                  href={`/dashboard/${project.product_type}`}
+                  className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-[#1a1a2e] hover:bg-[#f8f9fc] transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <ExternalLink className="w-4 h-4 text-[#9ca3af]" />
+                  Open
+                </Link>
+                <Link
+                  href={`/projects/${project.id}/scenarios`}
+                  className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-[#1a1a2e] hover:bg-[#f8f9fc] transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <GitBranch className="w-4 h-4 text-[#9ca3af]" />
+                  Scenarios
+                </Link>
+                {isOwner && (
+                  <Link
+                    href={`/projects/${project.id}`}
+                    className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-[#1a1a2e] hover:bg-[#f8f9fc] transition-colors"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <Settings className="w-4 h-4 text-[#9ca3af]" />
+                    Manage
+                  </Link>
+                )}
+                {isOwner && onDelete && (
+                  <>
+                    <div className="mx-3 my-1 border-t border-[#eef0f6]" />
+                    <button
+                      onClick={() => { setMenuOpen(false); onDelete(); }}
+                      className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors w-full text-left"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete
+                    </button>
+                  </>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
-      <h3 className="text-[15px] font-bold text-[#1C1D21] mb-1">{project.name}</h3>
-      <p className="text-sm text-[#8181A5] mb-1">{project.description || "No description"}</p>
-      {ownerEmail && (
-        <p className="text-xs text-[#8181A5] mb-1">Owner: {ownerEmail}</p>
-      )}
-      <p className="text-xs text-[#8181A5] mb-4">
-        {new Date(project.created_at).toLocaleDateString()}
-      </p>
-
-      <div className="flex gap-2">
-        <Link href={`/dashboard/${project.product_type}`}>
-          <button className="h-8 px-3 bg-[#2163E7] text-white text-xs font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors">
-            Dashboard
-          </button>
-        </Link>
-        <Link href={`/projects/${project.id}/scenarios`}>
-          <button className="h-8 px-3 border border-[#ECECF2] text-[#1C1D21] text-xs font-bold rounded-lg hover:bg-[#F8F8FC] transition-colors">
-            Scenarios
-          </button>
-        </Link>
-        {isOwner && (
-          <Link href={`/projects/${project.id}`}>
-            <button className="h-8 px-3 border border-[#ECECF2] text-[#1C1D21] text-xs font-bold rounded-lg hover:bg-[#F8F8FC] transition-colors">
-              Manage
-            </button>
-          </Link>
+      {/* Project info */}
+      <Link href={`/dashboard/${project.product_type}`} className="block">
+        <h3 className="text-[15px] font-bold text-[#1a1a2e] mb-1 truncate">{project.name}</h3>
+        <p className="text-sm text-[#9ca3af] mb-0.5 truncate">{project.description || "No description"}</p>
+        {ownerEmail && (
+          <p className="text-xs text-[#c4c9d8] mb-0.5">Shared by {ownerEmail}</p>
         )}
+        {role && role !== "owner" && (
+          <span
+            className="inline-block text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded mt-1"
+            style={{
+              backgroundColor: role === "editor" ? "#F4BE5E18" : "#eef0f6",
+              color: role === "editor" ? "#F4BE5E" : "#9ca3af",
+            }}
+          >
+            {role}
+          </span>
+        )}
+      </Link>
+
+      {/* Sparkline */}
+      <div className="mt-4 mb-3">
+        <SparklineSVG data={sparkData} color={def.color} />
       </div>
-    </div>
+
+      {/* Bottom row */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-[#c4c9d8]">
+          Edited {timeAgo(project.created_at)}
+        </span>
+        <span
+          className="text-[11px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+          style={{
+            backgroundColor: trend ? "#10b98118" : "#ef444418",
+            color: trend ? "#10b981" : "#ef4444",
+          }}
+        >
+          {trend ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+          {trend ? "Up" : "Down"}
+        </span>
+      </div>
+    </motion.div>
   );
 }
+
+/* ─── NewProjectPlaceholder ─── */
+
+function NewProjectPlaceholder({ onClick }: { onClick: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <motion.button
+      whileHover={{ scale: 1.01 }}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      onClick={onClick}
+      className="rounded-[16px] p-[22px] flex flex-col items-center justify-center gap-3 min-h-[200px] transition-all cursor-pointer"
+      style={{
+        border: `2px dashed ${hovered ? "#2163E7" : "#eef0f6"}`,
+        background: hovered ? "#2163E708" : "transparent",
+        fontFamily: "'Lato', sans-serif",
+      }}
+    >
+      <motion.div
+        animate={{ scale: hovered ? 1.15 : 1 }}
+        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+        className="w-10 h-10 rounded-full flex items-center justify-center"
+        style={{ backgroundColor: hovered ? "#2163E715" : "#f0f1f7" }}
+      >
+        <Plus className="w-5 h-5" style={{ color: hovered ? "#2163E7" : "#9ca3af" }} />
+      </motion.div>
+      <span className="text-sm font-semibold" style={{ color: hovered ? "#2163E7" : "#9ca3af" }}>
+        Create new project
+      </span>
+    </motion.button>
+  );
+}
+
+/* ─── NewProjectModal ─── */
+
+function NewProjectModal({
+  open,
+  onClose,
+  name,
+  setName,
+  description,
+  setDescription,
+  productType,
+  setProductType,
+  creating,
+  onCreate,
+}: {
+  open: boolean;
+  onClose: () => void;
+  name: string;
+  setName: (v: string) => void;
+  description: string;
+  setDescription: (v: string) => void;
+  productType: string;
+  setProductType: (v: string) => void;
+  creating: boolean;
+  onCreate: () => void;
+}) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          style={{ backdropFilter: "blur(6px)", background: "rgba(0,0,0,0.4)" }}
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.92 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-[20px] w-full max-w-[520px] p-7"
+            style={{
+              boxShadow: "0 24px 80px rgba(0,0,0,0.18)",
+              fontFamily: "'Lato', sans-serif",
+            }}
+          >
+            <h2 className="text-lg font-bold text-[#1a1a2e] mb-5">Create new project</h2>
+
+            {/* Name */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-[#1a1a2e] mb-1.5">Project name</label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="My Startup"
+                autoFocus
+                className="w-full h-11 px-3.5 rounded-xl border border-[#eef0f6] bg-white text-sm text-[#1a1a2e] placeholder:text-[#c4c9d8] focus:outline-none focus:border-[#2163E7] focus:ring-2 focus:ring-[#2163E7]/20 transition-all"
+              />
+            </div>
+
+            {/* Description */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-[#1a1a2e] mb-1.5">Description <span className="text-[#c4c9d8] font-normal">(optional)</span></label>
+              <input
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Brief description of your business"
+                className="w-full h-11 px-3.5 rounded-xl border border-[#eef0f6] bg-white text-sm text-[#1a1a2e] placeholder:text-[#c4c9d8] focus:outline-none focus:border-[#2163E7] focus:ring-2 focus:ring-[#2163E7]/20 transition-all"
+              />
+            </div>
+
+            {/* Business model grid */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-[#1a1a2e] mb-2.5">Business model</label>
+              <div className="grid grid-cols-2 gap-2.5 max-h-[280px] overflow-y-auto pr-1">
+                {allModels.map((m) => {
+                  const Icon = m.icon;
+                  const selected = productType === m.key;
+                  return (
+                    <button
+                      key={m.key}
+                      onClick={() => setProductType(m.key)}
+                      className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border text-left transition-all text-sm"
+                      style={{
+                        borderColor: selected ? m.color : "#eef0f6",
+                        backgroundColor: selected ? m.color + "10" : "transparent",
+                        boxShadow: selected ? `0 0 0 1px ${m.color}40` : "none",
+                      }}
+                    >
+                      <span
+                        className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: m.color + "18" }}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                      </span>
+                      <span className="font-semibold text-[#1a1a2e] truncate">{m.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={onClose}
+                className="h-10 px-5 text-sm font-semibold text-[#6b7280] bg-[#f0f1f7] rounded-xl hover:bg-[#e8e9ef] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onCreate}
+                disabled={creating || !name.trim()}
+                className="h-10 px-5 text-sm font-bold text-white rounded-xl transition-all disabled:opacity-50"
+                style={{ background: "#2163E7" }}
+                onMouseEnter={(e) => { if (!creating && name.trim()) e.currentTarget.style.background = "#1a52c9"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "#2163E7"; }}
+              >
+                {creating ? "Creating..." : "Create Project"}
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ─── Main Page ─── */
 
 export function ProjectsClient() {
   const { user } = useAuth();
@@ -139,75 +451,41 @@ export function ProjectsClient() {
   if (loading && sharedLoading) {
     return (
       <AppShell title="Projects">
-        <div className="p-6">
-          <p className="text-[#8181A5]">Loading projects...</p>
+        <div className="p-6 flex items-center justify-center min-h-[40vh]">
+          <p className="text-[#9ca3af] text-sm" style={{ fontFamily: "'Lato', sans-serif" }}>Loading projects...</p>
         </div>
       </AppShell>
     );
   }
 
+  const totalCount = projects.length + sharedProjects.length;
+
   return (
     <AppShell title="Projects">
-      <div className="p-6 max-w-[1200px]">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-[#1C1D21]">My Projects</h2>
+      <div className="p-6 max-w-[1200px]" style={{ fontFamily: "'Lato', sans-serif" }}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-[#1a1a2e] mb-1">Projects</h1>
+            <p className="text-sm text-[#9ca3af]">
+              {totalCount} project{totalCount !== 1 ? "s" : ""} &middot; Financial models
+            </p>
+          </div>
           <button
-            onClick={() => setShowCreate(!showCreate)}
-            className="h-9 px-4 bg-[#2163E7] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors"
+            onClick={() => setShowCreate(true)}
+            className="h-10 px-5 text-sm font-bold text-white rounded-xl inline-flex items-center gap-2 transition-all"
+            style={{ background: "#2163E7" }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "#1a52c9"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "#2163E7"; }}
           >
-            {showCreate ? "Cancel" : "+ New Project"}
+            <Plus className="w-4 h-4" />
+            New Project
           </button>
         </div>
 
-        {showCreate && (
-          <div className="bg-white rounded-xl border border-[#ECECF2] p-5 mb-6">
-            <h3 className="text-[15px] font-bold text-[#1C1D21] mb-4">Create Project</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-[#1C1D21] mb-2">Name</label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="My Project"
-                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-[#1C1D21] mb-2">Description</label>
-                <input
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Optional description"
-                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] placeholder:text-[#8181A5] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-[#1C1D21] mb-2">Product Type</label>
-                <select
-                  value={productType}
-                  onChange={(e) => setProductType(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-[#ECECF2] bg-white text-sm text-[#1C1D21] focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]"
-                >
-                  {productTypeOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-              <button
-                onClick={handleCreate}
-                disabled={creating || !name.trim()}
-                className="h-9 px-4 bg-[#2163E7] text-white text-sm font-bold rounded-lg hover:bg-[#4B6FE0] transition-colors disabled:opacity-50"
-              >
-                {creating ? "Creating..." : "Create"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {projects.length === 0 ? (
-          <p className="text-[#8181A5] mb-8">No projects yet. Create your first one!</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {/* My Projects Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+          <AnimatePresence mode="popLayout">
             {projects.map((project) => (
               <ProjectCard
                 key={project.id}
@@ -217,27 +495,55 @@ export function ProjectsClient() {
                 onDelete={() => handleDelete(project.id, project.name)}
               />
             ))}
-          </div>
-        )}
+          </AnimatePresence>
+          <NewProjectPlaceholder onClick={() => setShowCreate(true)} />
+        </div>
 
         {/* Shared with me */}
-        <h2 className="text-xl font-bold text-[#1C1D21] mb-3">Shared with Me</h2>
-        {sharedProjects.length === 0 ? (
-          <p className="text-[#8181A5]">No projects shared with you yet.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sharedProjects.map((sp) => (
-              <ProjectCard
-                key={sp.id}
-                project={sp}
-                isOwner={false}
-                role={sp.role}
-                ownerEmail={sp.owner_email}
-              />
-            ))}
+        {(sharedProjects.length > 0 || !sharedLoading) && (
+          <div>
+            <div className="flex items-center gap-3 mb-5">
+              <h2 className="text-lg font-bold text-[#1a1a2e]">Shared with me</h2>
+              {sharedProjects.length > 0 && (
+                <span className="text-xs font-bold text-[#9ca3af] bg-[#f0f1f7] px-2 py-0.5 rounded-full">
+                  {sharedProjects.length}
+                </span>
+              )}
+            </div>
+            {sharedProjects.length === 0 ? (
+              <p className="text-sm text-[#c4c9d8]">No projects shared with you yet.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <AnimatePresence mode="popLayout">
+                  {sharedProjects.map((sp) => (
+                    <ProjectCard
+                      key={sp.id}
+                      project={sp}
+                      isOwner={false}
+                      role={sp.role}
+                      ownerEmail={sp.owner_email}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* Create Modal */}
+      <NewProjectModal
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        name={name}
+        setName={setName}
+        description={description}
+        setDescription={setDescription}
+        productType={productType}
+        setProductType={setProductType}
+        creating={creating}
+        onCreate={handleCreate}
+      />
     </AppShell>
   );
 }

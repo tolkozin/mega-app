@@ -12,6 +12,16 @@ export type { V2ChartSize } from "./charts/tokens";
 
 // Dashboard
 export { KPICard, MilestoneCard } from "./dashboard/KPICard";
+export {
+  V2DashboardHero,
+  RevenueHeroChart,
+  MiniSpark,
+  MiniDonut,
+  MetricStripCard,
+  ActivityFeed,
+  BreakEvenCallout,
+} from "./dashboard/V2DashboardHero";
+export type { RevenueBarData } from "./dashboard/V2DashboardHero";
 
 // Layout
 export { V2Sidebar } from "./layout/V2Sidebar";
