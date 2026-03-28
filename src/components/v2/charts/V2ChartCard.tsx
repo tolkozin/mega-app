@@ -25,7 +25,7 @@ function LegendDot({ item }: { item: LegendItem }) {
       ) : (
         <span className="inline-block w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ background: item.color }} />
       )}
-      <span className="text-[10.5px] text-[#9ca3af]" style={{ fontFamily: FONT }}>{item.label}</span>
+      <span className="text-[10.5px] text-[#9ca3af] truncate max-w-[100px]" style={{ fontFamily: FONT }}>{item.label}</span>
     </div>
   );
 }
@@ -109,7 +109,7 @@ export function V2ChartCard({ title, subtitle, legend, badge, badgeColor = '#216
           )}
         </div>
         {legend && legend.length > 0 && (
-          <div className="flex gap-3.5 flex-wrap justify-end flex-shrink-0">
+          <div className="flex gap-x-3.5 gap-y-1 flex-wrap justify-end shrink min-w-0 max-w-[55%]">
             {legend.map(l => <LegendDot key={l.label} item={l} />)}
           </div>
         )}

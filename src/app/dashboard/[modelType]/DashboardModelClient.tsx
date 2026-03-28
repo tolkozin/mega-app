@@ -16,7 +16,7 @@ import { useUpgradeStore } from "@/stores/upgrade-store";
 import { getPresetConfig, getModelEngineDefaults } from "@/lib/industry-presets";
 import { getModelDef, isValidProductType, getAllModels, getAvailableEngines, getEngineLabel } from "@/lib/model-registry";
 import type { BaseEngine } from "@/lib/model-registry";
-// DateRangeBar removed from content — date range is in header via V2Header
+import { V2DateRangeBar } from "@/components/v2/layout/V2Header";
 import { FadeIn } from "@/components/v2/ui/FadeIn";
 import { V2DashboardHero } from "@/components/v2/dashboard/V2DashboardHero";
 import { V2KPIMetricGrid } from "@/components/v2/charts/V2KPIMetricCard";
@@ -458,7 +458,7 @@ function DashboardPage() {
   const currentEngineLabel = getEngineLabel(modelType, engine);
 
   return (
-    <AppShell monthRange={monthRange} onMonthRangeChange={setMonthRange} totalMonths={totalMonths}>
+    <AppShell>
       <div className="flex flex-col md:flex-row h-[calc(100dvh-3.5rem)]">
         {!configHidden && <SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} />}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 relative">
@@ -472,8 +472,23 @@ function DashboardPage() {
             </svg>
           </button>
 
-          {/* Model type selector + Engine selector + Date filter */}
+          {/* Logo + Model type selector + Engine selector + Date filter */}
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Logo */}
+            <button
+              onClick={() => dashboardRouter.push("/dashboard")}
+              className="flex items-center gap-1.5 shrink-0 mr-1"
+              title="Revenue Map"
+            >
+              <div className="w-7 h-7 rounded-[6px] bg-gradient-to-br from-[#2163E7] to-[#1650b0] flex items-center justify-center shrink-0">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                  <rect x="1.5" y="8" width="2.5" height="6" rx="1" fill="white" fillOpacity="0.8" />
+                  <rect x="6.5" y="4.5" width="2.5" height="9.5" rx="1" fill="white" />
+                  <rect x="11.5" y="1.5" width="2.5" height="12.5" rx="1" fill="white" fillOpacity="0.6" />
+                </svg>
+              </div>
+            </button>
+
             {/* Model selector */}
             <div className="relative inline-block">
               <button
@@ -553,6 +568,13 @@ function DashboardPage() {
               </div>
             )}
 
+            {/* Date range — next to engine selector */}
+            <V2DateRangeBar
+              monthRange={monthRange}
+              onMonthRangeChange={setMonthRange}
+              totalMonths={totalMonths}
+            />
+
             {/* Investor Report + PDF (desktop only) */}
             {results && (
               <div className="hidden md:flex items-center gap-2 ml-auto">
@@ -611,6 +633,16 @@ function DashboardPage() {
 
           {results && (
             <>
+              {/* Investor Report — right below button bar */}
+              {showInvestorReport && (
+                <div ref={reportRef}>
+                  <InvestorReportComponent
+                    projectName={project?.name ?? `${modelDef.label} Model`}
+                    data={results.base}
+                  />
+                </div>
+              )}
+
               {/* v2 Hero Dashboard — MRR chart, metrics, cost donut, break-even */}
               <FadeIn delay={0}>
                 <V2DashboardHero
@@ -631,15 +663,6 @@ function DashboardPage() {
                   initialCount={6}
                 />
               </FadeIn>
-
-              {showInvestorReport && (
-                <div ref={reportRef}>
-                  <InvestorReportComponent
-                    projectName={project?.name ?? `${modelDef.label} Model`}
-                    data={results.base}
-                  />
-                </div>
-              )}
 
               <ContentComponent results={results} p1End={p1End} p2End={p2End} />
             </>

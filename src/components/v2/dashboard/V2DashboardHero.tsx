@@ -66,12 +66,12 @@ const COLORS = {
   yellow: "#F59E0B",
 } as const;
 
-const SEGMENT_COLORS = {
-  annual: "#1650b0",
-  monthly: "#2163E7",
-  weekly: "#7BA3F0",
-  projected: "#BDD0F8",
-} as const;
+const SEGMENT_COLORS: Record<string, string> = {
+  annual: "#4A6FA5",
+  monthly: "#6B8FCC",
+  weekly: "#94B3E0",
+  projected: "#C5D7F0",
+};
 
 /* ═══════════════════════════════════════════════════════════════════
    Shared Helpers
@@ -419,7 +419,7 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
         {/* Projected stripe pattern */}
         <pattern id="pat-projected" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
           <rect width="6" height="6" fill={SEGMENT_COLORS.projected} />
-          <line x1="0" y1="0" x2="0" y2="6" stroke={COLORS.lightBlue} strokeWidth="2" opacity="0.5" />
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#94B3E0" strokeWidth="2" opacity="0.5" />
         </pattern>
         {/* Clip paths for bar rounded corners — must be in root <defs> */}
         {data.map((d, i) => {
@@ -556,36 +556,7 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
         );
       })()}
 
-      {/* Legend (top-right) */}
-      {legendItems && legendItems.length > 0 && (() => {
-        const lx = VW - PADDING.right - 8;
-        let ly = PADDING.top + 4;
-        return (
-          <g>
-            {legendItems.map((item, idx) => {
-              const y = ly + idx * 16;
-              return (
-                <g key={idx}>
-                  {item.striped ? (
-                    <rect x={lx - 100} y={y} width={10} height={10} rx={2} fill="url(#pat-projected)" />
-                  ) : (
-                    <rect x={lx - 100} y={y} width={10} height={10} rx={2} fill={item.color} />
-                  )}
-                  <text
-                    x={lx - 84}
-                    y={y + 8}
-                    fill={COLORS.textSecondary}
-                    fontSize="9"
-                    fontFamily="Lato, system-ui, sans-serif"
-                  >
-                    {item.label}
-                  </text>
-                </g>
-              );
-            })}
-          </g>
-        );
-      })()}
+      {/* Legend moved to card header — no longer rendered inside SVG */}
 
       {/* Tooltip */}
       <AnimatePresence>
@@ -987,20 +958,58 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     };
   }, [data]);
 
+  /* ── Dynamic color palette for extra plan segments ── */
+  const DYNAMIC_PALETTE = [
+    "#4A6FA5", "#6B8FCC", "#94B3E0", "#C5D7F0", // blues (muted)
+    "#7BA88E", "#A3C4B5", "#5B8F9E", "#B0A3C8", // green/teal/purple (muted)
+    "#C9A96E", "#D4A5A5", "#8FA3BF", "#A8B5A0", // warm neutrals
+  ];
+
   /* ── Build chart data with segments ── */
   const { chartData, legendItems } = useMemo(() => {
     const hasBreakdown = engine === "subscription" && columns.mrrWeekly && columns.mrrMonthly && columns.mrrAnnual;
 
-    const legend: { label: string; color: string; striped?: boolean }[] = [];
+    // Detect all MRR-related columns dynamically (for extra plans)
+    const mrrCols: { key: string; label: string }[] = [];
+    if (hasBreakdown && data.length > 0) {
+      const sample = data[0];
+      const knownMrr = new Set([
+        columns.mrrAnnual?.toLowerCase(),
+        columns.mrrMonthly?.toLowerCase(),
+        columns.mrrWeekly?.toLowerCase(),
+      ].filter(Boolean));
+      // Find additional MRR columns (e.g., "MRR Enterprise", "MRR Pro")
+      for (const key of Object.keys(sample)) {
+        const lk = key.toLowerCase();
+        if (lk.startsWith("mrr") && !knownMrr.has(lk) && lk !== "mrr" && isNumeric(sample[key])) {
+          mrrCols.push({ key, label: key });
+        }
+      }
+    }
 
+    // Build color map for all segments
+    const colorMap: Record<string, string> = {
+      "MRR Annual": SEGMENT_COLORS.annual,
+      "MRR Monthly": SEGMENT_COLORS.monthly,
+      "MRR Weekly": SEGMENT_COLORS.weekly,
+      Revenue: SEGMENT_COLORS.monthly,
+    };
+    mrrCols.forEach((col, i) => {
+      colorMap[col.label] = DYNAMIC_PALETTE[(i + 4) % DYNAMIC_PALETTE.length];
+    });
+
+    const legend: { label: string; color: string; striped?: boolean }[] = [];
     if (hasBreakdown) {
       legend.push(
-        { label: "MRR Annual", color: SEGMENT_COLORS.annual },
-        { label: "MRR Monthly", color: SEGMENT_COLORS.monthly },
-        { label: "MRR Weekly", color: SEGMENT_COLORS.weekly },
+        { label: "MRR Annual", color: colorMap["MRR Annual"] },
+        { label: "MRR Monthly", color: colorMap["MRR Monthly"] },
+        { label: "MRR Weekly", color: colorMap["MRR Weekly"] },
       );
+      mrrCols.forEach((col) => {
+        legend.push({ label: col.label, color: colorMap[col.label] });
+      });
     } else {
-      legend.push({ label: "Revenue", color: SEGMENT_COLORS.monthly });
+      legend.push({ label: "Revenue", color: colorMap.Revenue });
     }
 
     const bars: RevenueBarData[] = data.map((row) => {
@@ -1008,27 +1017,24 @@ export const V2DashboardHero = memo(function V2DashboardHero({
       const segments: RevenueBarData["segments"] = [];
 
       if (hasBreakdown) {
-        // Stack order: Annual (bottom/darkest), Monthly, Weekly (top/lightest)
         const annual = Math.max(0, num(row, columns.mrrAnnual));
         const monthly = Math.max(0, num(row, columns.mrrMonthly));
         const weekly = Math.max(0, num(row, columns.mrrWeekly));
-        // Always push all segments so the bar structure is consistent;
-        // zero-height segments are harmless and prevent "empty chart"
-        segments.push({ label: "MRR Annual", value: annual, color: SEGMENT_COLORS.annual });
-        segments.push({ label: "MRR Monthly", value: monthly, color: SEGMENT_COLORS.monthly });
-        if (weekly > 0) segments.push({ label: "MRR Weekly", value: weekly, color: SEGMENT_COLORS.weekly });
+        segments.push({ label: "MRR Annual", value: annual, color: colorMap["MRR Annual"] });
+        segments.push({ label: "MRR Monthly", value: monthly, color: colorMap["MRR Monthly"] });
+        if (weekly > 0) segments.push({ label: "MRR Weekly", value: weekly, color: colorMap["MRR Weekly"] });
+        // Dynamic extra MRR columns
+        for (const col of mrrCols) {
+          const val = Math.max(0, num(row, col.key));
+          if (val > 0) segments.push({ label: col.label, value: val, color: colorMap[col.label] });
+        }
       } else {
         const rev = Math.max(0, num(row, columns.revenue));
-        segments.push({ label: "Revenue", value: rev, color: SEGMENT_COLORS.monthly });
+        segments.push({ label: "Revenue", value: rev, color: colorMap.Revenue });
       }
 
       return { month, segments };
     });
-
-    if (process.env.NODE_ENV === "development") {
-      const nonEmpty = bars.filter((b) => b.segments.some((s) => s.value > 0));
-      console.log("[V2DashboardHero] chartData:", { total: bars.length, withData: nonEmpty.length, hasBreakdown, columns: { revenue: columns.revenue, mrrW: columns.mrrWeekly, mrrM: columns.mrrMonthly, mrrA: columns.mrrAnnual }, sample: bars[bars.length - 1] });
-    }
 
     return { chartData: bars, legendItems: legend };
   }, [data, columns, engine]);
@@ -1208,9 +1214,12 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     return segments;
   }, [data, columns]);
 
-  /* ── MRR / Revenue big number ── */
-  const heroValue = data.length > 0 ? num(data[data.length - 1], columns.revenue) : 0;
-  const heroLabel = engine === "subscription" ? "Monthly Recurring Revenue" : "Total Revenue";
+  /* ── MRR / Revenue big number — sum for entire period ── */
+  const heroValue = useMemo(() => {
+    if (!data.length || !columns.revenue) return 0;
+    return data.reduce((sum, row) => sum + num(row, columns.revenue), 0);
+  }, [data, columns.revenue]);
+  const heroLabel = engine === "subscription" ? "Total Recurring Revenue" : "Total Revenue";
 
   /* ── Break-even description ── */
   const breakEvenDescription = breakEvenMonth
@@ -1225,44 +1234,63 @@ export const V2DashboardHero = memo(function V2DashboardHero({
         style={{ borderRadius: CARD_RADIUS, boxShadow: CARD_SHADOW }}
       >
         <div className="px-6 pt-6 pb-2">
-          <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-1">
-            {heroLabel}
-          </div>
-          <div className="text-[44px] font-black text-[#1a1a2e] leading-none tabular-nums">
-            {formatCurrency(heroValue)}
-          </div>
-          {data.length >= 2 && columns.revenue && (
-            <div className="flex items-center gap-2 mt-2">
-              {(() => {
-                const prev = num(data[data.length - 2], columns.revenue);
-                const pct = prev ? ((heroValue - prev) / prev) * 100 : 0;
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-1">
+                {heroLabel}
+              </div>
+              <div className="text-[44px] font-black text-[#1a1a2e] leading-none tabular-nums">
+                {formatCurrency(heroValue)}
+              </div>
+              {data.length >= 2 && columns.revenue && (() => {
+                const lastVal = num(data[data.length - 1], columns.revenue);
+                const prevVal = num(data[data.length - 2], columns.revenue);
+                const pct = prevVal ? ((lastVal - prevVal) / prevVal) * 100 : 0;
                 const good = pct >= 0;
                 return (
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-extrabold ${
-                      good
-                        ? "bg-[#ecfdf5] text-[#10B981]"
-                        : "bg-[#fef2f2] text-[#EF4444]"
-                    }`}
-                  >
-                    {good ? (
-                      <TrendingUp size={12} strokeWidth={2.5} />
-                    ) : (
-                      <TrendingDown size={12} strokeWidth={2.5} />
-                    )}
-                    {formatPercent(pct)}
-                  </span>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-extrabold ${
+                        good
+                          ? "bg-[#ecfdf5] text-[#10B981]"
+                          : "bg-[#fef2f2] text-[#EF4444]"
+                      }`}
+                    >
+                      {good ? (
+                        <TrendingUp size={12} strokeWidth={2.5} />
+                      ) : (
+                        <TrendingDown size={12} strokeWidth={2.5} />
+                      )}
+                      {formatPercent(pct)}
+                    </span>
+                    <span className="text-[11px] text-[#c4c9d8]">last month vs prior</span>
+                  </div>
                 );
               })()}
-              <span className="text-[11px] text-[#c4c9d8]">vs previous month</span>
             </div>
-          )}
+
+            {/* Legend — rendered in card header, not inside SVG */}
+            {legendItems.length > 0 && (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 shrink-0 pt-1">
+                {legendItems.map((item) => (
+                  <div key={item.label} className="flex items-center gap-1.5">
+                    <span
+                      className="block w-2.5 h-2.5 rounded-[3px] shrink-0"
+                      style={{ background: item.striped ? `repeating-linear-gradient(45deg, ${item.color}, ${item.color} 2px, #fff 2px, #fff 4px)` : item.color }}
+                    />
+                    <span className="text-[10px] text-[#6b7280] font-medium whitespace-nowrap">
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <div className="px-2 pb-4">
           <RevenueHeroChart
             data={chartData}
             breakEvenMonth={breakEvenMonth}
-            legendItems={legendItems}
           />
         </div>
       </div>
