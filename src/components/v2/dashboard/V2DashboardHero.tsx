@@ -94,16 +94,30 @@ function formatPercent(n: number): string {
 }
 
 /** Column resolution helpers — pick the best matching column from the dataframe */
+function isNumeric(v: unknown): boolean {
+  if (typeof v === "number") return true;
+  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v))) return true;
+  return false;
+}
+
 function findCol(row: DataRow, ...candidates: string[]): string | null {
+  // Pass 1: exact case-insensitive match with any row (even first row may have 0)
   for (const c of candidates) {
     const lc = c.toLowerCase();
     const match = Object.keys(row).find((k) => k.toLowerCase() === lc);
-    if (match && typeof row[match] === "number") return match;
+    if (match && isNumeric(row[match])) return match;
   }
+  // Pass 2: exact match ignoring value type (column exists but value might be null/string in row 0)
+  for (const c of candidates) {
+    const lc = c.toLowerCase();
+    const match = Object.keys(row).find((k) => k.toLowerCase() === lc);
+    if (match) return match;
+  }
+  // Pass 3: includes-based fuzzy match
   for (const c of candidates) {
     const lc = c.toLowerCase();
     const match = Object.keys(row).find(
-      (k) => k.toLowerCase().includes(lc) && typeof row[k] === "number"
+      (k) => k.toLowerCase().includes(lc) && isNumeric(row[k])
     );
     if (match) return match;
   }
@@ -113,7 +127,9 @@ function findCol(row: DataRow, ...candidates: string[]): string | null {
 function num(row: DataRow, col: string | null): number {
   if (!col) return 0;
   const v = row[col];
-  return typeof v === "number" ? v : 0;
+  if (typeof v === "number") return v;
+  if (typeof v === "string") { const n = Number(v); return isNaN(n) ? 0 : n; }
+  return 0;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -340,8 +356,8 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
   const svgRef = useRef<SVGSVGElement>(null);
 
   const VW = 780;
-  const VH = 240;
-  const PADDING = { top: 24, right: 16, bottom: 32, left: 52 };
+  const VH = 190;
+  const PADDING = { top: 20, right: 16, bottom: 28, left: 52 };
   const chartW = VW - PADDING.left - PADDING.right;
   const chartH = VH - PADDING.top - PADDING.bottom;
 
@@ -636,6 +652,7 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
 
 interface MetricStripItem {
   label: string;
+  description: string;
   value: string;
   trend: string;
   good: boolean;
@@ -684,7 +701,7 @@ export const MetricStripCard = memo(function MetricStripCard({ metrics }: Metric
                 {m.icon}
               </div>
 
-              {/* Label + value */}
+              {/* Label + value + description */}
               <div className="min-w-0 flex-1">
                 <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af]">
                   {m.label}
@@ -692,6 +709,11 @@ export const MetricStripCard = memo(function MetricStripCard({ metrics }: Metric
                 <div className="text-[20px] font-black text-[#1a1a2e] leading-none tabular-nums mt-0.5">
                   {m.value}
                 </div>
+                {m.description && (
+                  <div className="text-[9px] text-[#9ca3af] mt-0.5 leading-tight">
+                    {m.description}
+                  </div>
+                )}
               </div>
 
               {/* Trend badge */}
@@ -748,6 +770,7 @@ export const MetricStripCard = memo(function MetricStripCard({ metrics }: Metric
 interface MilestoneItem {
   key: string;
   label: string;
+  description: string;
   value: number | null | undefined;
   icon: React.ReactNode;
 }
@@ -776,18 +799,21 @@ export const BreakEvenCallout = memo(function BreakEvenCallout({
     {
       key: "break_even_month",
       label: "Break-even (P&L)",
+      description: "When monthly revenue first exceeds monthly expenses",
       value: milestones?.break_even_month as number | null | undefined,
       icon: <Zap size={14} />,
     },
     {
       key: "cf_positive_month",
       label: "Cash Flow Positive",
+      description: "When net cash inflow turns positive for the first time",
       value: milestones?.cf_positive_month as number | null | undefined,
       icon: <DollarSign size={14} />,
     },
     {
       key: "investment_payback_month",
       label: "Investment Payback",
+      description: "When cumulative profit repays the initial investment",
       value: milestones?.investment_payback_month as number | null | undefined,
       icon: <Clock size={14} />,
     },
@@ -796,12 +822,12 @@ export const BreakEvenCallout = memo(function BreakEvenCallout({
   const extraMilestones: MilestoneItem[] = useMemo(() => {
     if (!milestones) return [];
     const extras: MilestoneItem[] = [
-      { key: "cumulative_break_even", label: "Cumulative Break-even", value: milestones.cumulative_break_even as number | null | undefined, icon: <BarChart3 size={14} /> },
-      { key: "runway_out_month", label: "Runway Exhausted", value: milestones.runway_out_month as number | null | undefined, icon: <Activity size={14} /> },
-      { key: "users_1000", label: "1,000 Users", value: milestones.users_1000 as number | null | undefined, icon: <Users size={14} /> },
-      { key: "users_10000", label: "10,000 Users", value: milestones.users_10000 as number | null | undefined, icon: <Users size={14} /> },
-      { key: "mrr_10000", label: "$10K MRR", value: milestones.mrr_10000 as number | null | undefined, icon: <Target size={14} /> },
-      { key: "mrr_100000", label: "$100K MRR", value: milestones.mrr_100000 as number | null | undefined, icon: <Target size={14} /> },
+      { key: "cumulative_break_even", label: "Cumulative Break-even", description: "When total revenue exceeds total expenses since launch", value: milestones.cumulative_break_even as number | null | undefined, icon: <BarChart3 size={14} /> },
+      { key: "runway_out_month", label: "Runway Exhausted", description: "When cash reserves run out at the current burn rate", value: milestones.runway_out_month as number | null | undefined, icon: <Activity size={14} /> },
+      { key: "users_1000", label: "1,000 Users", description: "When total active users reach 1,000", value: milestones.users_1000 as number | null | undefined, icon: <Users size={14} /> },
+      { key: "users_10000", label: "10,000 Users", description: "When total active users reach 10,000", value: milestones.users_10000 as number | null | undefined, icon: <Users size={14} /> },
+      { key: "mrr_10000", label: "$10K MRR", description: "When monthly recurring revenue hits $10,000", value: milestones.mrr_10000 as number | null | undefined, icon: <Target size={14} /> },
+      { key: "mrr_100000", label: "$100K MRR", description: "When monthly recurring revenue hits $100,000", value: milestones.mrr_100000 as number | null | undefined, icon: <Target size={14} /> },
     ];
     return extras;
   }, [milestones]);
@@ -851,8 +877,11 @@ export const BreakEvenCallout = memo(function BreakEvenCallout({
               <div className="w-8 h-8 rounded-full bg-[#EBF0FD] text-[#2163E7] flex items-center justify-center flex-shrink-0">
                 {m.icon}
               </div>
-              <div className="flex-1 text-[12px] text-[#1a1a2e] font-medium">{m.label}</div>
-              <div className="text-[13px] font-bold text-[#1a1a2e] tabular-nums">
+              <div className="flex-1 min-w-0">
+                <div className="text-[12px] text-[#1a1a2e] font-medium">{m.label}</div>
+                <div className="text-[9px] text-[#9ca3af] leading-tight">{m.description}</div>
+              </div>
+              <div className="text-[13px] font-bold text-[#1a1a2e] tabular-nums flex-shrink-0">
                 {formatMilestoneValue(m.value)}
               </div>
             </div>
@@ -875,8 +904,11 @@ export const BreakEvenCallout = memo(function BreakEvenCallout({
                     <div className="w-8 h-8 rounded-full bg-[#f8f9fc] text-[#9ca3af] flex items-center justify-center flex-shrink-0">
                       {m.icon}
                     </div>
-                    <div className="flex-1 text-[12px] text-[#6b7280]">{m.label}</div>
-                    <div className="text-[13px] font-bold text-[#1a1a2e] tabular-nums">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[12px] text-[#6b7280]">{m.label}</div>
+                      <div className="text-[9px] text-[#9ca3af] leading-tight">{m.description}</div>
+                    </div>
+                    <div className="text-[13px] font-bold text-[#1a1a2e] tabular-nums flex-shrink-0">
                       {formatMilestoneValue(m.value)}
                     </div>
                   </div>
@@ -1004,6 +1036,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
 
     const addMetric = (
       label: string,
+      description: string,
       col: string | null,
       format: (v: number) => string,
       goodWhen: "up" | "down",
@@ -1020,6 +1053,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
       const good = goodWhen === "up" ? pct >= 0 : pct <= 0;
       items.push({
         label,
+        description,
         value: format(curr),
         trend: formatPercent(pct),
         good,
@@ -1037,6 +1071,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     // Revenue
     addMetric(
       engine === "subscription" ? "MRR" : "Revenue",
+      engine === "subscription" ? "Monthly recurring revenue. % shows change vs prior month." : "Total revenue generated. % shows month-over-month change.",
       columns.revenue,
       formatCurrency,
       "up",
@@ -1048,6 +1083,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     // Customers
     addMetric(
       "Customers",
+      "Total active paying customers. % shows growth vs prior month.",
       columns.customers,
       (v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}K` : `${Math.round(v)}`),
       "up",
@@ -1060,6 +1096,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     if (engine !== "ecommerce" && columns.churn) {
       addMetric(
         "Churn",
+        "Blended customer churn rate. Lower is better — % shows rate change.",
         columns.churn,
         (v) => `${v.toFixed(1)}%`,
         "down",
@@ -1071,15 +1108,16 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     }
 
     // CAC
-    addMetric("CAC", columns.cac, formatCurrency, "down", <Target size={14} />, "#FFF7ED", "#F59E0B");
+    addMetric("CAC", "Cost to acquire one customer. Lower is better — % shows change.", columns.cac, formatCurrency, "down", <Target size={14} />, "#FFF7ED", "#F59E0B");
 
     // LTV
-    addMetric("LTV", columns.ltv, formatCurrency, "up", <BarChart3 size={14} />, "#EBF0FD", "#2163E7");
+    addMetric("LTV", "Predicted lifetime value of a customer. % shows change vs prior month.", columns.ltv, formatCurrency, "up", <BarChart3 size={14} />, "#EBF0FD", "#2163E7");
 
     // LTV/CAC
     if (columns.ltvCac) {
       addMetric(
         "LTV/CAC",
+        "Return on acquisition spend. Above 3x is healthy — % shows change.",
         columns.ltvCac,
         (v) => `${v.toFixed(1)}x`,
         "up",
@@ -1093,6 +1131,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     if (columns.margin) {
       addMetric(
         "Margin",
+        "Gross profit margin after direct costs. % shows change vs prior month.",
         columns.margin,
         (v) => `${(v < 1 ? v * 100 : v).toFixed(1)}%`,
         "up",
@@ -1104,7 +1143,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     }
 
     // ARPU
-    addMetric("ARPU", columns.arpu, formatCurrency, "up", <DollarSign size={14} />, "#EBF0FD", "#2163E7");
+    addMetric("ARPU", "Average revenue per user per month. % shows change vs prior month.", columns.arpu, formatCurrency, "up", <DollarSign size={14} />, "#EBF0FD", "#2163E7");
 
     return items;
   }, [data, columns, engine]);
@@ -1213,22 +1252,22 @@ export const V2DashboardHero = memo(function V2DashboardHero({
         </div>
       </div>
 
-      {/* ── Row 2: Metrics (flex-1) + Cost Structure donut (w-[320px]) ── */}
+      {/* ── Row 2: Cost Structure donut (wider) + Metrics (narrower) ── */}
       <div className="flex flex-col lg:flex-row gap-5">
-        {metrics.length > 0 && (
-          <div className="flex-1 min-w-0">
-            <MetricStripCard metrics={metrics} />
-          </div>
-        )}
         {donutSegments.length > 0 && (
           <div
-            className="bg-white p-5 w-full lg:w-[320px] lg:flex-shrink-0"
+            className="bg-white p-5 w-full lg:w-[420px] lg:flex-shrink-0"
             style={{ borderRadius: CARD_RADIUS, boxShadow: CARD_SHADOW }}
           >
             <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-3">
               Cost Structure
             </div>
             <MiniDonut segments={donutSegments} totalLabel="monthly" />
+          </div>
+        )}
+        {metrics.length > 0 && (
+          <div className="flex-1 min-w-0">
+            <MetricStripCard metrics={metrics} />
           </div>
         )}
       </div>

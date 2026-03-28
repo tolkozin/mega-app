@@ -16,9 +16,12 @@ import { useUpgradeStore } from "@/stores/upgrade-store";
 import { getPresetConfig, getModelEngineDefaults } from "@/lib/industry-presets";
 import { getModelDef, isValidProductType, getAllModels, getAvailableEngines, getEngineLabel } from "@/lib/model-registry";
 import type { BaseEngine } from "@/lib/model-registry";
-import { V2DateRangeBar as DateRangeBar } from "@/components/v2/layout/V2Header";
+// DateRangeBar removed from content — date range is in header via V2Header
 import { FadeIn } from "@/components/v2/ui/FadeIn";
 import { V2DashboardHero } from "@/components/v2/dashboard/V2DashboardHero";
+import { V2KPIMetricGrid } from "@/components/v2/charts/V2KPIMetricCard";
+import type { KPICardProps, HealthStatus } from "@/components/v2/charts/V2KPIMetricCard";
+import { fmtK } from "@/components/v2/charts/v2-chart-utils";
 import type { ModelConfig, EcomConfig, SaasConfig } from "@/lib/types";
 
 // ─── Engine-specific component imports ───
@@ -30,8 +33,7 @@ import { SubscriptionCharts } from "@/components/dashboard/charts/SubscriptionCh
 import { EcommerceCharts } from "@/components/dashboard/charts/EcommerceCharts";
 import { SaasCharts } from "@/components/dashboard/charts/SaasCharts";
 
-import { Milestones, KeyMetrics, EcomKeyMetrics } from "@/components/dashboard/executive/KPICards";
-import { SaasMilestones, SaasKeyMetrics } from "@/components/dashboard/executive/SaasKPICards";
+// Old KPI components removed — milestones & metrics now in V2DashboardHero
 
 import { SubscriptionReports } from "@/components/dashboard/reports/FinancialReports";
 import { EcommerceReports } from "@/components/dashboard/reports/FinancialReports";
@@ -121,15 +123,158 @@ const SCENARIO_BUILDERS: Record<BaseEngine, (config: Record<string, unknown>) =>
   saas: buildSaasScenario,
 };
 
+// ─── KPI builder helpers ───
+
+type DataRow = Record<string, number | string | undefined>;
+
+function isNumeric(v: unknown): boolean {
+  if (typeof v === "number") return true;
+  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v))) return true;
+  return false;
+}
+
+function findCol(row: DataRow, ...candidates: string[]): string | null {
+  for (const c of candidates) {
+    const lc = c.toLowerCase();
+    const match = Object.keys(row).find((k) => k.toLowerCase() === lc);
+    if (match && isNumeric(row[match])) return match;
+  }
+  for (const c of candidates) {
+    const lc = c.toLowerCase();
+    const match = Object.keys(row).find((k) => k.toLowerCase() === lc);
+    if (match) return match;
+  }
+  for (const c of candidates) {
+    const lc = c.toLowerCase();
+    const match = Object.keys(row).find((k) => k.toLowerCase().includes(lc) && isNumeric(row[k]));
+    if (match) return match;
+  }
+  return null;
+}
+
+function numVal(row: DataRow, col: string | null): number {
+  if (!col) return 0;
+  const v = row[col];
+  if (typeof v === "number") return v;
+  if (typeof v === "string") { const n = Number(v); return isNaN(n) ? 0 : n; }
+  return 0;
+}
+
+interface KPIDef {
+  label: string;
+  columns: string[];
+  format: "currency" | "pct" | "number" | "ratio" | "months";
+  healthGood?: (v: number) => boolean;
+  healthBad?: (v: number) => boolean;
+  description?: string;
+}
+
+const SUB_KPIS: KPIDef[] = [
+  { label: "Total Revenue", columns: ["Total Gross Revenue", "Gross Revenue"], format: "currency", description: "Cumulative gross revenue across all plans" },
+  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Revenue minus all costs, taxes, and fees" },
+  { label: "End MRR", columns: ["Total MRR", "MRR"], format: "currency", healthGood: (v) => v > 0, description: "Monthly recurring revenue at end of period" },
+  { label: "LTV/CAC", columns: ["LTV/CAC"], format: "ratio", healthGood: (v) => v >= 3, healthBad: (v) => v < 1, description: "Customer lifetime value to acquisition cost ratio (3x+ is healthy)" },
+  { label: "ROI", columns: ["ROI %", "ROI"], format: "pct", healthGood: (v) => v > 0, healthBad: (v) => v < -20, description: "Return on total investment" },
+  { label: "ROAS", columns: ["Cumulative ROAS", "ROAS"], format: "ratio", healthGood: (v) => v >= 2, healthBad: (v) => v < 1, description: "Return on ad spend" },
+  { label: "ARPU", columns: ["ARPU"], format: "currency", description: "Average revenue per user per month" },
+  { label: "Gross Margin", columns: ["Gross Margin %", "Gross Margin"], format: "pct", healthGood: (v) => v >= 60, healthBad: (v) => v < 30, description: "Revenue retained after COGS" },
+  { label: "Burn Rate", columns: ["Burn Rate"], format: "currency", healthGood: (v) => v <= 0, healthBad: (v) => v > 20000, description: "Monthly cash consumption rate" },
+  { label: "Runway", columns: ["Runway (Months)", "Runway"], format: "months", healthGood: (v) => v >= 12, healthBad: (v) => v < 6, description: "Months of cash remaining at current burn" },
+];
+
+const ECOM_KPIS: KPIDef[] = [
+  { label: "Gross Revenue", columns: ["Gross Revenue"], format: "currency", description: "Total revenue before returns and discounts" },
+  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Revenue minus all costs, taxes, and fees" },
+  { label: "AOV", columns: ["AOV", "Avg Order Value"], format: "currency", description: "Average order value" },
+  { label: "CAC", columns: ["CAC"], format: "currency", healthBad: (v) => v > 100, description: "Cost to acquire one customer" },
+  { label: "LTV", columns: ["LTV"], format: "currency", healthGood: (v) => v > 0, description: "Customer lifetime value" },
+  { label: "LTV/CAC", columns: ["LTV/CAC"], format: "ratio", healthGood: (v) => v >= 3, healthBad: (v) => v < 1, description: "Lifetime value to acquisition cost ratio" },
+  { label: "Total Orders", columns: ["Total Orders"], format: "number", description: "Number of orders in the period" },
+  { label: "Gross Margin", columns: ["Gross Margin %", "Gross Margin"], format: "pct", healthGood: (v) => v >= 40, healthBad: (v) => v < 15, description: "Revenue retained after COGS, returns, and discounts" },
+  { label: "ROI", columns: ["ROI %", "ROI"], format: "pct", healthGood: (v) => v > 0, healthBad: (v) => v < -20, description: "Return on total investment" },
+  { label: "ROAS", columns: ["ROAS"], format: "ratio", healthGood: (v) => v >= 2, healthBad: (v) => v < 1, description: "Return on ad spend" },
+];
+
+const SAAS_KPIS: KPIDef[] = [
+  { label: "ARR", columns: ["ARR"], format: "currency", description: "Annualized recurring revenue" },
+  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Revenue minus all costs" },
+  { label: "NRR", columns: ["NRR %", "NRR"], format: "pct", healthGood: (v) => v >= 110, healthBad: (v) => v < 90, description: "Net revenue retention — expansion vs churn" },
+  { label: "Quick Ratio", columns: ["Quick Ratio"], format: "ratio", healthGood: (v) => v >= 4, healthBad: (v) => v < 1, description: "New + expansion MRR / churned + contraction MRR" },
+  { label: "Rule of 40", columns: ["Rule of 40"], format: "pct", healthGood: (v) => v >= 40, healthBad: (v) => v < 20, description: "Revenue growth % + profit margin %" },
+  { label: "Magic Number", columns: ["Magic Number"], format: "ratio", healthGood: (v) => v >= 0.75, healthBad: (v) => v < 0.5, description: "New ARR / sales & marketing spend" },
+  { label: "CAC", columns: ["CAC"], format: "currency", description: "Cost to acquire one customer" },
+  { label: "LTV/CAC", columns: ["LTV/CAC"], format: "ratio", healthGood: (v) => v >= 3, healthBad: (v) => v < 1, description: "Lifetime value to acquisition cost" },
+  { label: "Gross Margin", columns: ["Gross Margin %", "Gross Margin"], format: "pct", healthGood: (v) => v >= 60, healthBad: (v) => v < 30, description: "Revenue retained after COGS" },
+  { label: "Logo Churn", columns: ["Logo Churn %", "Logo Churn"], format: "pct", healthGood: (v) => v <= 3, healthBad: (v) => v >= 8, description: "Percentage of customers lost per period" },
+];
+
+const ENGINE_KPI_DEFS: Record<BaseEngine, KPIDef[]> = {
+  subscription: SUB_KPIS,
+  ecommerce: ECOM_KPIS,
+  saas: SAAS_KPIS,
+};
+
+function buildKPICards(df: DataRow[], engine: BaseEngine): KPICardProps[] {
+  if (!df || df.length < 2) return [];
+  const defs = ENGINE_KPI_DEFS[engine];
+  const lastRow = df[df.length - 1];
+  const prevRow = df[df.length - 2];
+  const cards: KPICardProps[] = [];
+
+  for (const def of defs) {
+    const col = findCol(lastRow, ...def.columns);
+    if (!col) continue;
+
+    const val = numVal(lastRow, col);
+    const prev = numVal(prevRow, col);
+    const pctChange = prev !== 0 ? ((val - prev) / Math.abs(prev)) * 100 : 0;
+
+    // Format value
+    let formatted: string;
+    switch (def.format) {
+      case "currency": formatted = fmtK(val); break;
+      case "pct": formatted = `${val.toFixed(1)}%`; break;
+      case "ratio": formatted = `${val.toFixed(2)}x`; break;
+      case "months": formatted = `${val.toFixed(1)}mo`; break;
+      case "number": formatted = val.toLocaleString("en-US", { maximumFractionDigits: 0 }); break;
+    }
+
+    // Health status
+    let health: HealthStatus = "neutral";
+    if (def.healthGood && def.healthGood(val)) health = "good";
+    else if (def.healthBad && def.healthBad(val)) health = "bad";
+    else if (def.healthGood || def.healthBad) health = "caution";
+
+    // Trend
+    const trendStr = pctChange !== 0 ? `${pctChange > 0 ? "+" : ""}${pctChange.toFixed(1)}%` : undefined;
+    const trendUp = pctChange > 0;
+    const trendNeutral = pctChange === 0;
+
+    // Sparkline from all months
+    const sparkline = df.map((r) => numVal(r, col));
+
+    cards.push({
+      label: def.label,
+      value: formatted,
+      trend: trendStr,
+      trendUp,
+      trendNeutral,
+      health,
+      sparkline,
+      description: def.description,
+    });
+  }
+
+  return cards;
+}
+
 // ─── Render functions per engine ───
 
 function SubscriptionContent({ results, p1End, p2End }: { results: Record<string, import("@/lib/api").RunResult>; p1End: number; p2End: number }) {
   return (
     <>
-      <FadeIn delay={0}><Milestones milestones={results.base.milestones} /></FadeIn>
-      <FadeIn delay={0.05}><KeyMetrics results={results.base} milestones={results.base.milestones} /></FadeIn>
-      <FadeIn delay={0.1}><SubscriptionCharts results={results} p1End={p1End} p2End={p2End} /></FadeIn>
-      <FadeIn delay={0.15}><SubscriptionReports results={results.base} /></FadeIn>
+      <FadeIn delay={0}><SubscriptionCharts results={results} p1End={p1End} p2End={p2End} /></FadeIn>
+      <FadeIn delay={0.05}><SubscriptionReports results={results.base} /></FadeIn>
     </>
   );
 }
@@ -137,10 +282,8 @@ function SubscriptionContent({ results, p1End, p2End }: { results: Record<string
 function EcommerceContent({ results, p1End, p2End }: { results: Record<string, import("@/lib/api").RunResult>; p1End: number; p2End: number }) {
   return (
     <>
-      <FadeIn delay={0}><Milestones milestones={results.base.milestones} /></FadeIn>
-      <FadeIn delay={0.05}><EcomKeyMetrics results={results.base} milestones={results.base.milestones} /></FadeIn>
-      <FadeIn delay={0.1}><EcommerceCharts results={results} p1End={p1End} p2End={p2End} /></FadeIn>
-      <FadeIn delay={0.15}><EcommerceReports results={results.base} /></FadeIn>
+      <FadeIn delay={0}><EcommerceCharts results={results} p1End={p1End} p2End={p2End} /></FadeIn>
+      <FadeIn delay={0.05}><EcommerceReports results={results.base} /></FadeIn>
     </>
   );
 }
@@ -148,10 +291,8 @@ function EcommerceContent({ results, p1End, p2End }: { results: Record<string, i
 function SaasContent({ results, p1End, p2End }: { results: Record<string, import("@/lib/api").RunResult>; p1End: number; p2End: number }) {
   return (
     <>
-      <FadeIn delay={0}><SaasMilestones milestones={results.base.milestones} /></FadeIn>
-      <FadeIn delay={0.05}><SaasKeyMetrics results={results.base} milestones={results.base.milestones} /></FadeIn>
-      <FadeIn delay={0.1}><SaasCharts results={results} p1End={p1End} p2End={p2End} /></FadeIn>
-      <FadeIn delay={0.15}><SaasReports results={results.base} /></FadeIn>
+      <FadeIn delay={0}><SaasCharts results={results} p1End={p1End} p2End={p2End} /></FadeIn>
+      <FadeIn delay={0.05}><SaasReports results={results.base} /></FadeIn>
     </>
   );
 }
@@ -400,14 +541,42 @@ function DashboardPage() {
               </div>
             )}
 
-            {/* Date range (desktop only) */}
-            <div className="hidden md:block">
-              <DateRangeBar
-                monthRange={monthRange}
-                onMonthRangeChange={setMonthRange}
-                totalMonths={totalMonths}
-              />
-            </div>
+            {/* Investor Report + PDF (desktop only) */}
+            {results && (
+              <div className="hidden md:flex items-center gap-2 ml-auto">
+                <button
+                  onClick={() => setShowInvestorReport((v) => !v)}
+                  className="flex items-center gap-1.5 h-8 px-3 text-[11px] font-bold text-white bg-[#2163E7] rounded-[8px] hover:bg-[#1650b0] transition-colors shadow-v2-sm"
+                >
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <rect x="2" y="1" width="12" height="14" rx="1.5" />
+                    <path d="M5 5h6M5 8h6M5 11h3" />
+                  </svg>
+                  {showInvestorReport ? "Hide Report" : "Investor Report"}
+                </button>
+                <button
+                  onClick={() => {
+                    if (planReadOnly) {
+                      useUpgradeStore.getState().showExpiredModal();
+                      return;
+                    }
+                    generateInvestorPDF(
+                      project?.name ?? `${modelDef.label} Model`,
+                      modelType,
+                      engine,
+                      results.base,
+                    );
+                  }}
+                  className="flex items-center gap-1.5 h-8 px-3 text-[11px] font-bold text-[#1a1a2e] bg-white border border-[#eef0f6] rounded-[8px] hover:border-[#2163E7] transition-colors shadow-v2-sm"
+                >
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <path d="M8 2v8M5 7l3 3 3-3" />
+                    <path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" />
+                  </svg>
+                  PDF
+                </button>
+              </div>
+            )}
           </div>
 
           {loading && !results && (
@@ -431,31 +600,17 @@ function DashboardPage() {
                 />
               </FadeIn>
 
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setShowInvestorReport((v) => !v)}
-                  className="text-sm px-4 py-2 bg-[#2163E7] text-white rounded-md hover:bg-[#4B6FE0]"
-                >
-                  {showInvestorReport ? "Hide Investor Report" : "Investor Report"}
-                </button>
-                <button
-                  onClick={() => {
-                    if (planReadOnly) {
-                      useUpgradeStore.getState().showExpiredModal();
-                      return;
-                    }
-                    generateInvestorPDF(
-                      project?.name ?? `${modelDef.label} Model`,
-                      modelType,
-                      engine,
-                      results.base,
-                    );
-                  }}
-                  className="text-sm px-4 py-2 border rounded-md hover:bg-muted"
-                >
-                  Download PDF
-                </button>
-              </div>
+              {/* KPI Metric Grid — secondary metrics per engine */}
+              <FadeIn delay={0.03}>
+                <V2KPIMetricGrid
+                  kpis={buildKPICards(
+                    (results.base.dataframe || []) as DataRow[],
+                    engine,
+                  )}
+                  columns={3}
+                  initialCount={6}
+                />
+              </FadeIn>
 
               {showInvestorReport && (
                 <div ref={reportRef}>

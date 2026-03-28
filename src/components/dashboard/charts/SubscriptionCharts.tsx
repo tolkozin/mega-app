@@ -1,9 +1,18 @@
 "use client";
 
 import { memo } from "react";
-import { PlotlyChart, phaseLines, gradientArea, scenarioLines, CHART_COLORS, DONUT_COLORS } from "@/components/v2/charts/PlotlyChart";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { RunResult } from "@/lib/api";
+
+import { V2GradientAreaChart } from "@/components/v2/charts/V2GradientAreaChart";
+import { V2MultiLineChart } from "@/components/v2/charts/V2MultiLineChart";
+import { V2StackedBarChart } from "@/components/v2/charts/V2StackedBarChart";
+import { V2SingleBarChart } from "@/components/v2/charts/V2SingleBarChart";
+import { V2RelativeBarChart } from "@/components/v2/charts/V2RelativeBarChart";
+import { V2DonutChart } from "@/components/v2/charts/V2DonutChart";
+import { V2DualAxisChart } from "@/components/v2/charts/V2DualAxisChart";
+import { V2LineReferenceChart } from "@/components/v2/charts/V2LineReferenceChart";
+import { PALETTE, fmtK } from "@/components/v2/charts/v2-chart-utils";
 
 interface ChartsProps {
   results: Record<string, RunResult>;
@@ -23,13 +32,23 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
   const pess = results.pessimistic.dataframe;
   const opt = results.optimistic.dataframe;
   const months = getMonths(base);
-  const shapes = phaseLines(p1End, p2End);
+  const phases = [p1End, p2End];
+
+  /* Total MRR = Weekly + Monthly + Annual */
+  const totalMrrBase = getCol(base, "MRR Weekly").map((v, i) => v + getCol(base, "MRR Monthly")[i] + getCol(base, "MRR Annual")[i]);
+  const totalMrrPess = getCol(pess, "MRR Weekly").map((v, i) => v + getCol(pess, "MRR Monthly")[i] + getCol(pess, "MRR Annual")[i]);
+  const totalMrrOpt = getCol(opt, "MRR Weekly").map((v, i) => v + getCol(opt, "MRR Monthly")[i] + getCol(opt, "MRR Annual")[i]);
 
   /* Last-month MRR values for donut */
   const lastIdx = base.length - 1;
   const lastMrrWeekly = (base[lastIdx]?.["MRR Weekly"] as number) ?? 0;
   const lastMrrMonthly = (base[lastIdx]?.["MRR Monthly"] as number) ?? 0;
   const lastMrrAnnual = (base[lastIdx]?.["MRR Annual"] as number) ?? 0;
+
+  /* Churned users (negative values) */
+  const churnedUsers = getCol(base, "Total Active Users").map(
+    (v, i) => -(Math.abs(v * (getCol(base, "Blended Churn")[i] ?? 0)))
+  );
 
   return (
     <Tabs defaultValue="revenue">
@@ -42,79 +61,49 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
       {/* ── Revenue Overview ─────────────────────────────────── */}
       <TabsContent value="revenue">
         {/* Hero MRR chart — full width */}
-        <PlotlyChart
+        <V2GradientAreaChart
           title="MRR by Subscription Plan"
-          description="Monthly Recurring Revenue with scenario comparison"
-          size="hero"
-          data={[
-            gradientArea(months, getCol(base, "MRR Weekly"), "Weekly", CHART_COLORS.primary, CHART_COLORS.primaryLight) as Plotly.Data,
-            gradientArea(months, getCol(base, "MRR Monthly"), "Monthly", CHART_COLORS.green, CHART_COLORS.greenLight) as Plotly.Data,
-            gradientArea(months, getCol(base, "MRR Annual"), "Annual", CHART_COLORS.amber, CHART_COLORS.amberLight) as Plotly.Data,
-            ...scenarioLines(months, getCol(base, "MRR Weekly").map((v, i) => v + getCol(base, "MRR Monthly")[i] + getCol(base, "MRR Annual")[i]), getCol(pess, "MRR Weekly").map((v, i) => v + getCol(pess, "MRR Monthly")[i] + getCol(pess, "MRR Annual")[i]), getCol(opt, "MRR Weekly").map((v, i) => v + getCol(opt, "MRR Monthly")[i] + getCol(opt, "MRR Annual")[i]), "Total MRR (Base)") as Plotly.Data[],
-          ]}
-          layout={{ shapes }}
+          subtitle="Monthly Recurring Revenue with scenario comparison"
+          data={totalMrrBase}
+          pessimistic={totalMrrPess}
+          optimistic={totalMrrOpt}
+          months={months}
+          phaseLines={phases}
+          formatter={fmtK}
         />
 
         {/* 3-col row: Donut, Cash Balance, Active Users */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <PlotlyChart
+          <V2DonutChart
             title="Revenue Breakdown"
-            description="Last month MRR split by plan"
-            size="medium"
-            data={[
-              {
-                values: [lastMrrWeekly, lastMrrMonthly, lastMrrAnnual],
-                labels: ["Weekly", "Monthly", "Annual"],
-                type: "pie",
-                hole: 0.65,
-                marker: { colors: DONUT_COLORS },
-                textinfo: "percent",
-                textfont: { size: 11, color: "#1C1D21" },
-                hoverinfo: "label+value+percent",
-              } as Plotly.Data,
+            subtitle="Last month MRR split by plan"
+            segments={[
+              { label: "Weekly", value: lastMrrWeekly, color: PALETTE.blue },
+              { label: "Monthly", value: lastMrrMonthly, color: PALETTE.green },
+              { label: "Annual", value: lastMrrAnnual, color: PALETTE.amber },
             ]}
-            layout={{ showlegend: true }}
+            centerLabel={fmtK(lastMrrWeekly + lastMrrMonthly + lastMrrAnnual)}
+            centerSub="Total MRR"
           />
 
-          <PlotlyChart
+          <V2SingleBarChart
             title="Cash Balance"
-            description="Cash on hand across 3 scenarios"
-            size="medium"
-            data={[
-              {
-                x: months,
-                y: getCol(base, "Cash Balance"),
-                type: "bar",
-                name: "Base",
-                marker: { color: CHART_COLORS.primaryLight },
-              } as Plotly.Data,
-              ...scenarioLines(months, getCol(base, "Cash Balance"), getCol(pess, "Cash Balance"), getCol(opt, "Cash Balance"), "Base (line)") as Plotly.Data[],
-            ]}
-            layout={{ shapes }}
+            subtitle="Cash on hand across 3 scenarios"
+            data={getCol(base, "Cash Balance")}
+            months={months}
+            color={PALETTE.blue}
+            dataLabel="Cash Balance"
+            formatter={fmtK}
           />
 
-          <PlotlyChart
+          <V2GradientAreaChart
             title="Active Users"
-            description="Total active subscribers"
-            size="medium"
-            data={[
-              gradientArea(months, getCol(base, "Total Active Users"), "Base", CHART_COLORS.teal, CHART_COLORS.tealLight) as Plotly.Data,
-              {
-                x: months,
-                y: getCol(pess, "Total Active Users"),
-                mode: "lines",
-                name: "Pessimistic",
-                line: { dash: "dot", color: CHART_COLORS.red, width: 1.5 },
-              } as Plotly.Data,
-              {
-                x: months,
-                y: getCol(opt, "Total Active Users"),
-                mode: "lines",
-                name: "Optimistic",
-                line: { dash: "dash", color: CHART_COLORS.green, width: 1.5 },
-              } as Plotly.Data,
-            ]}
-            layout={{ shapes }}
+            subtitle="Total active subscribers"
+            data={getCol(base, "Total Active Users")}
+            pessimistic={getCol(pess, "Total Active Users")}
+            optimistic={getCol(opt, "Total Active Users")}
+            months={months}
+            phaseLines={phases}
           />
         </div>
       </TabsContent>
@@ -122,76 +111,71 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
       {/* ── Unit Economics ────────────────────────────────────── */}
       <TabsContent value="unit">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <PlotlyChart
+          <V2MultiLineChart
             title="LTV / CAC Ratio"
-            description="Lifetime Value to Customer Acquisition Cost ratio"
-            size="medium"
-            data={scenarioLines(months, getCol(base, "LTV/CAC"), getCol(pess, "LTV/CAC"), getCol(opt, "LTV/CAC")) as Plotly.Data[]}
-            layout={{ shapes }}
+            subtitle="Lifetime Value to Customer Acquisition Cost ratio"
+            data={getCol(base, "LTV/CAC")}
+            pessimistic={getCol(pess, "LTV/CAC")}
+            optimistic={getCol(opt, "LTV/CAC")}
+            months={months}
+            phaseLines={phases}
+            formatter={(v: number) => v.toFixed(1) + "x"}
+            metricName="LTV/CAC"
           />
 
-          <PlotlyChart
+          <V2MultiLineChart
             title="ARPU"
-            description="Average Revenue Per User"
-            size="medium"
-            data={scenarioLines(months, getCol(base, "ARPU"), getCol(pess, "ARPU"), getCol(opt, "ARPU")) as Plotly.Data[]}
-            layout={{ shapes }}
+            subtitle="Average Revenue Per User"
+            data={getCol(base, "ARPU")}
+            pessimistic={getCol(pess, "ARPU")}
+            optimistic={getCol(opt, "ARPU")}
+            months={months}
+            phaseLines={phases}
+            formatter={fmtK}
+            metricName="ARPU"
           />
 
-          <PlotlyChart
+          <V2MultiLineChart
             title="CAC"
-            description="Customer Acquisition Cost"
-            size="medium"
-            data={scenarioLines(months, getCol(base, "Blended CAC"), getCol(pess, "Blended CAC"), getCol(opt, "Blended CAC")) as Plotly.Data[]}
-            layout={{ shapes }}
+            subtitle="Customer Acquisition Cost"
+            data={getCol(base, "Blended CAC")}
+            pessimistic={getCol(pess, "Blended CAC")}
+            optimistic={getCol(opt, "Blended CAC")}
+            months={months}
+            phaseLines={phases}
+            formatter={fmtK}
+            metricName="CAC"
           />
 
-          <PlotlyChart
+          <V2MultiLineChart
             title="Gross Margin %"
-            description="Gross Margin percentage over time"
-            size="medium"
-            data={scenarioLines(
-              months,
-              getCol(base, "Gross Margin %").map((v) => v * 100),
-              getCol(pess, "Gross Margin %").map((v) => v * 100),
-              getCol(opt, "Gross Margin %").map((v) => v * 100),
-            ) as Plotly.Data[]}
-            layout={{ shapes, yaxis: { title: "%" } }}
+            subtitle="Gross Margin percentage over time"
+            data={getCol(base, "Gross Margin %").map((v) => v * 100)}
+            pessimistic={getCol(pess, "Gross Margin %").map((v) => v * 100)}
+            optimistic={getCol(opt, "Gross Margin %").map((v) => v * 100)}
+            months={months}
+            phaseLines={phases}
+            formatter={(v: number) => v.toFixed(1) + "%"}
+            metricName="Gross Margin"
           />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-          <PlotlyChart
+          <V2RelativeBarChart
             title="New vs Churned Users"
-            description="Monthly new acquisitions vs churned users"
-            size="medium"
-            data={[
-              {
-                x: months,
-                y: getCol(base, "New Paid Users"),
-                type: "bar",
-                name: "New Paid",
-                marker: { color: CHART_COLORS.green },
-              } as Plotly.Data,
-              {
-                x: months,
-                y: getCol(base, "Total Active Users").map((v, i) => -(v * (getCol(base, "Blended Churn")[i] ?? 0))),
-                type: "bar",
-                name: "Churned",
-                marker: { color: CHART_COLORS.red },
-              } as Plotly.Data,
-            ]}
-            layout={{ barmode: "relative", shapes }}
+            subtitle="Monthly new acquisitions vs churned users"
+            positive={{ data: getCol(base, "New Paid Users"), label: "New Paid" }}
+            negative={{ data: churnedUsers, label: "Churned" }}
+            months={months}
           />
 
-          <PlotlyChart
+          <V2GradientAreaChart
             title="Cumulative ROAS"
-            description="Return on Ad Spend over time"
-            size="medium"
-            data={[
-              gradientArea(months, getCol(base, "Cumulative ROAS"), "ROAS", CHART_COLORS.amber, CHART_COLORS.amberLight) as Plotly.Data,
-            ]}
-            layout={{ shapes }}
+            subtitle="Return on Ad Spend over time"
+            data={getCol(base, "Cumulative ROAS")}
+            months={months}
+            phaseLines={phases}
+            formatter={(v: number) => v.toFixed(2) + "x"}
           />
         </div>
       </TabsContent>
@@ -199,123 +183,81 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
       {/* ── Profit & Loss ────────────────────────────────────── */}
       <TabsContent value="pnl">
         {/* Full-width Net Profit */}
-        <PlotlyChart
+        <V2MultiLineChart
           title="Net Profit"
-          description="Monthly net profit across scenarios"
-          size="medium"
-          data={scenarioLines(months, getCol(base, "Net Profit"), getCol(pess, "Net Profit"), getCol(opt, "Net Profit")) as Plotly.Data[]}
-          layout={{ shapes }}
+          subtitle="Monthly net profit across scenarios"
+          data={getCol(base, "Net Profit")}
+          pessimistic={getCol(pess, "Net Profit")}
+          optimistic={getCol(opt, "Net Profit")}
+          months={months}
+          phaseLines={phases}
+          formatter={fmtK}
+          metricName="Net Profit"
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-          <PlotlyChart
+          <V2GradientAreaChart
             title="Cumulative Profit"
-            description="Running total profit/loss"
-            size="medium"
-            data={[
-              gradientArea(months, getCol(base, "Cumulative Net Profit"), "Base", CHART_COLORS.primary, CHART_COLORS.primaryLight) as Plotly.Data,
-              {
-                x: months,
-                y: getCol(pess, "Cumulative Net Profit"),
-                mode: "lines",
-                name: "Pessimistic",
-                line: { dash: "dot", color: CHART_COLORS.red, width: 1.5 },
-              } as Plotly.Data,
-              {
-                x: months,
-                y: getCol(opt, "Cumulative Net Profit"),
-                mode: "lines",
-                name: "Optimistic",
-                line: { dash: "dash", color: CHART_COLORS.green, width: 1.5 },
-              } as Plotly.Data,
-            ]}
-            layout={{ shapes }}
+            subtitle="Running total profit/loss"
+            data={getCol(base, "Cumulative Net Profit")}
+            pessimistic={getCol(pess, "Cumulative Net Profit")}
+            optimistic={getCol(opt, "Cumulative Net Profit")}
+            months={months}
+            phaseLines={phases}
+            formatter={fmtK}
           />
 
-          <PlotlyChart
+          <V2StackedBarChart
             title="Revenue vs Costs"
-            description="Total revenue vs total costs breakdown"
-            size="medium"
-            data={[
-              {
-                x: months,
-                y: getCol(base, "Total Gross Revenue"),
-                type: "bar",
-                name: "Revenue",
-                marker: { color: CHART_COLORS.green },
-              } as Plotly.Data,
-              {
-                x: months,
-                y: getCol(base, "Total Expenses"),
-                type: "bar",
-                name: "OpEx",
-                marker: { color: CHART_COLORS.red },
-              } as Plotly.Data,
-              {
-                x: months,
-                y: getCol(base, "Ad Budget"),
-                type: "bar",
-                name: "Ad Spend",
-                marker: { color: CHART_COLORS.amber },
-              } as Plotly.Data,
+            subtitle="Total revenue vs total costs breakdown"
+            segments={[
+              { label: "Revenue", data: getCol(base, "Total Gross Revenue"), color: PALETTE.green },
+              { label: "OpEx", data: getCol(base, "Total Expenses"), color: PALETTE.red },
+              { label: "Ad Spend", data: getCol(base, "Ad Budget"), color: PALETTE.amber },
             ]}
-            layout={{ barmode: "stack", shapes }}
+            months={months}
           />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-          <PlotlyChart
+          <V2LineReferenceChart
             title="ROI %"
-            description="Cumulative Return on Investment"
-            size="small"
-            data={[
-              {
-                x: months,
-                y: getCol(base, "ROI %"),
-                mode: "lines",
-                name: "ROI %",
-                line: { color: CHART_COLORS.purple, width: 2.5, shape: "spline" as const },
-              } as Plotly.Data,
-            ]}
-            layout={{ shapes, yaxis: { title: "%" } }}
+            subtitle="Cumulative Return on Investment"
+            data={getCol(base, "ROI %")}
+            reference={0}
+            referenceLabel="Break-even"
+            months={months}
+            color={PALETTE.purple}
+            unit="%"
+            metricLabel="ROI"
+            goodAbove={true}
+            formatter={(v: number) => v.toFixed(1) + "%"}
           />
 
-          <PlotlyChart
+          <V2DualAxisChart
             title="Burn Rate & Runway"
-            description="Monthly burn rate and remaining runway in months"
-            size="small"
-            data={[
-              {
-                x: months,
-                y: getCol(base, "Burn Rate"),
-                mode: "lines",
-                name: "Burn Rate ($)",
-                line: { color: CHART_COLORS.red, width: 2 },
-              } as Plotly.Data,
-              {
-                x: months,
-                y: getCol(base, "Runway (Months)"),
-                mode: "lines",
-                name: "Runway (months)",
-                yaxis: "y2",
-                line: { color: CHART_COLORS.teal, width: 2, dash: "dash" },
-              } as Plotly.Data,
-            ]}
-            layout={{
-              shapes,
-              yaxis: { title: "Burn Rate ($)" },
-              yaxis2: { title: "Months", overlaying: "y", side: "right" },
-            }}
+            subtitle="Monthly burn rate and remaining runway in months"
+            leftData={getCol(base, "Burn Rate")}
+            rightData={getCol(base, "Runway (Months)")}
+            months={months}
+            leftLabel="Burn Rate ($)"
+            rightLabel="Runway (months)"
+            leftColor={PALETTE.red}
+            rightColor={PALETTE.teal}
           />
         </div>
 
         <div className="grid grid-cols-1 gap-4 mt-4 max-w-lg">
-          <PlotlyChart
+          <V2MultiLineChart
             title="LTV"
-            description="Customer Lifetime Value"
-            size="small"
-            data={scenarioLines(months, getCol(base, "LTV"), getCol(pess, "LTV"), getCol(opt, "LTV")) as Plotly.Data[]}
-            layout={{ shapes }}
+            subtitle="Customer Lifetime Value"
+            data={getCol(base, "LTV")}
+            pessimistic={getCol(pess, "LTV")}
+            optimistic={getCol(opt, "LTV")}
+            months={months}
+            phaseLines={phases}
+            formatter={fmtK}
+            metricName="LTV"
           />
         </div>
       </TabsContent>
