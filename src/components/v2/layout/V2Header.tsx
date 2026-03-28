@@ -362,8 +362,8 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: V2
         </div>
       </header>
 
-      {/* Row 2 — Context bar (dashboard only) */}
-      {isDashboard && (
+      {/* Row 2 — Context bar removed on mobile — Config button is in Row 1 */}
+      {false && isDashboard && (
         <div className="h-10 bg-[#f8f9fc] border-b border-[#eef0f6] flex items-center justify-between px-4 gap-3 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <button

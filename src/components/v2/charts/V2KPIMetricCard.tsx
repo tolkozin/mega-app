@@ -69,8 +69,8 @@ function V2KPICard({ label, value, trend, trendUp, trendNeutral, health, sparkli
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
     >
-      <div className="px-3.5 py-3 flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
+      <div className="px-3.5 py-3 flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0 overflow-hidden">
           {/* label row */}
           <div className="flex items-center gap-1.5 mb-1">
             <span
@@ -81,13 +81,13 @@ function V2KPICard({ label, value, trend, trendUp, trendNeutral, health, sparkli
           </div>
 
           {/* value + trend */}
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline gap-1.5 flex-wrap">
             <span className="text-[18px] font-extrabold text-[#1a1a2e] leading-none tabular-nums">
               {value}
             </span>
             {trend && (
               <span
-                className="text-[9.5px] font-bold rounded-full px-1.5 py-0.5 leading-none"
+                className="text-[9.5px] font-bold rounded-full px-1.5 py-0.5 leading-none whitespace-nowrap"
                 style={{ color: trendColor, background: trendBg }}
               >
                 {trend}
