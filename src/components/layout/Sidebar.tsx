@@ -25,7 +25,7 @@ import {
 import type { CostItem } from "@/stores/cost-items-store";
 import type { PhaseConfig } from "@/lib/types";
 
-const PHASE_COLORS: [string, string, string] = ["#2163E7", "#10B981", "#7C3AED"];
+const PHASE_COLORS: [string, string, string] = ["#2275ed", "#85abf2", "#e8f0ff"];
 
 const GROWTH_MODE_OPTIONS = [
   { value: "Percentage (%)", label: "% Growth" },
@@ -104,8 +104,8 @@ function NumberField({ label, value, onChange, min, max, step, help, slider }: {
         className="h-8 text-sm placeholder:text-[#C4C4D4]"
       />
       {slider && min != null && max != null && (
-        <div className="pt-1">
-          <div className="flex items-center justify-between mb-1">
+        <div className="pt-1 px-[7px]">
+          <div className="flex items-center justify-between mb-1 -mx-[7px]">
             <span className="text-[10.5px] text-[#c4c9d8] tabular-nums">{min}</span>
             <span className="text-[10.5px] text-[#c4c9d8] tabular-nums">{max}</span>
           </div>
@@ -121,7 +121,7 @@ function NumberField({ label, value, onChange, min, max, step, help, slider }: {
               step={step || 1}
               value={value}
               onChange={(e) => onChange(Number(e.target.value))}
-              className="absolute top-1/2 left-0 w-full -translate-y-1/2 opacity-0 cursor-pointer h-5 m-0"
+              className="absolute top-1/2 -left-[7px] w-[calc(100%+14px)] -translate-y-1/2 opacity-0 cursor-pointer h-5 m-0"
             />
             <div
               className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[14px] h-[14px] rounded-full bg-[#2163E7] border-[2.5px] border-white pointer-events-none"
@@ -224,7 +224,7 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
         ) : (
           <NumberField label="Growth ($/mo)" value={phase.ad_growth_abs} onChange={(v) => update({ ad_growth_abs: v })} step={100} help="Fixed dollar increase in ad budget each month" />
         )}
-        <NumberField label="CPI Degradation (%/mo)" value={phase.cpi_degradation} onChange={(v) => update({ cpi_degradation: v })} min={0} step={0.5} help="Monthly % increase in CPI as audience saturates (higher = worse)" />
+        <NumberField label="CPI Degradation (%/mo)" value={phase.cpi_degradation} onChange={(v) => update({ cpi_degradation: v })} min={0} max={10} step={0.5} help="Monthly % increase in CPI as audience saturates (higher = worse)" slider />
 
         <div className="pt-2 text-xs font-medium text-muted-foreground">Organic</div>
         <SegmentedControl
@@ -298,7 +298,7 @@ export function Sidebar({ projectId, onProjectCreated }: { projectId: string | n
       <div className="px-3 space-y-3 py-2">
         <AnimatedAccordion title="General" defaultOpen>
           <div className="space-y-3">
-            <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} help="Total forecast horizon in months" slider />
+            <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={6} max={120} help="Total forecast horizon in months" slider />
             <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch / MVP). Phase 3 = total - P1 - P2" slider />
             <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = total - P1 - P2" slider />
             {config.total_months - config.phase1_dur - config.phase2_dur < 1 && (

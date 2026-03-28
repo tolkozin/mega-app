@@ -289,9 +289,9 @@ export function AdvancedTable<T extends Record<string, unknown>>({
   return (
     <div className="flex flex-col gap-0 w-full">
       {/* Table scroll container */}
-      <div className="overflow-x-auto overflow-y-auto border border-[#ECECF2] rounded-lg">
+      <div className="overflow-x-auto overflow-y-auto rounded-xl border border-[#eef0f6]">
         <table
-          className="border-collapse text-xs text-[#1C1D21]"
+          className="border-collapse text-[11px] text-[#1a1a2e] font-[Lato,sans-serif]"
           style={{ width: table.getTotalSize(), minWidth: "100%" }}
         >
           {/* THEAD */}
@@ -299,7 +299,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
             {table.getHeaderGroups().map((headerGroup) => (
               <React.Fragment key={headerGroup.id}>
                 {/* Header row */}
-                <tr className="bg-[#F8F8FC] border-b border-[#ECECF2]">
+                <tr className="bg-[#f8f9fc] border-b border-[#eef0f6]">
                   {headerGroup.headers.map((header) => {
                     const colId = header.column.id;
                     const isPinned = pinnedColumns.includes(colId);
@@ -312,9 +312,9 @@ export function AdvancedTable<T extends Record<string, unknown>>({
                       <th
                         key={header.id}
                         className={cn(
-                          "relative text-left font-semibold text-[#8181A5] whitespace-nowrap select-none",
-                          "border-r border-[#ECECF2] last:border-r-0",
-                          isPinned && "z-10 bg-[#F8F8FC]"
+                          "relative text-left font-bold text-[10px] uppercase tracking-[0.06em] text-[#9ca3af] whitespace-nowrap select-none",
+                          "border-r border-[#eef0f6] last:border-r-0",
+                          isPinned && "z-10 bg-[#f8f9fc]"
                         )}
                         style={{
                           width: header.getSize(),
@@ -327,8 +327,8 @@ export function AdvancedTable<T extends Record<string, unknown>>({
                         {/* Header label + sort + filter controls */}
                         <div
                           className={cn(
-                            "flex items-center gap-1 px-3 py-2 cursor-pointer group/header",
-                            "hover:text-[#1C1D21] transition-colors"
+                            "flex items-center gap-1 px-2.5 py-2 cursor-pointer group/header",
+                            "hover:text-[#6b7280] transition-colors"
                           )}
                           onClick={() => header.column.toggleSorting()}
                         >
@@ -337,7 +337,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
                           </span>
 
                           {/* Sort indicator */}
-                          <span className="shrink-0 text-[#8181A5] group-hover/header:text-[#1C1D21]">
+                          <span className="shrink-0 text-[#9ca3af] group-hover/header:text-[#1a1a2e]">
                             {sortDir === "asc" ? (
                               <IconChevronUp />
                             ) : sortDir === "desc" ? (
@@ -357,7 +357,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
                               "shrink-0 p-0.5 rounded transition-colors",
                               isFilterVisible || isFiltered
                                 ? "text-[#2163E7]"
-                                : "text-[#8181A5] opacity-0 group-hover/header:opacity-100"
+                                : "text-[#9ca3af] opacity-0 group-hover/header:opacity-100"
                             )}
                             title={isFilterVisible ? "Hide filter" : "Show filter"}
                           >
@@ -377,7 +377,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
 
                 {/* Filter row — only rendered when any filter is visible */}
                 {headerGroup.headers.some((h) => visibleFilters[h.column.id]) && (
-                  <tr className="bg-white border-b border-[#ECECF2]">
+                  <tr className="bg-white border-b border-[#eef0f6]">
                     {headerGroup.headers.map((header) => {
                       const colId = header.column.id;
                       const isPinned = pinnedColumns.includes(colId);
@@ -387,7 +387,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
                         <td
                           key={header.id}
                           className={cn(
-                            "border-r border-[#ECECF2] last:border-r-0 px-2 py-1.5",
+                            "border-r border-[#eef0f6] last:border-r-0 px-2 py-1.5",
                             isPinned && "z-10 bg-white"
                           )}
                           style={{
@@ -404,8 +404,8 @@ export function AdvancedTable<T extends Record<string, unknown>>({
                               onChange={(e) => header.column.setFilterValue(e.target.value)}
                               placeholder="Filter…"
                               className={cn(
-                                "w-full rounded border border-[#ECECF2] bg-[#F8F8FC] px-2 py-1",
-                                "text-xs text-[#1C1D21] placeholder:text-[#8181A5]",
+                                "w-full rounded border border-[#eef0f6] bg-[#f8f9fc] px-2 py-1",
+                                "text-xs text-[#1a1a2e] placeholder:text-[#9ca3af]",
                                 "focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]/30",
                                 "transition-colors"
                               )}
@@ -428,7 +428,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
               <tr>
                 <td
                   colSpan={columnDefs.length}
-                  className="text-center py-12 text-sm text-[#8181A5]"
+                  className="text-center py-12 text-sm text-[#9ca3af]"
                 >
                   No rows match the current filters.
                 </td>
@@ -438,9 +438,9 @@ export function AdvancedTable<T extends Record<string, unknown>>({
                 <tr
                   key={row.id}
                   className={cn(
-                    "border-b border-[#ECECF2] last:border-b-0",
-                    "hover:bg-[#EEF2FF] transition-colors",
-                    rowIndex % 2 === 1 && "bg-[#F8F8FC]"
+                    "border-b border-[#eef0f6] last:border-b-0",
+                    "hover:bg-[#EBF1FD] transition-colors",
+                    rowIndex % 2 === 1 && "bg-[#fafbfd]"
                   )}
                 >
                   {row.getVisibleCells().map((cell) => {
@@ -451,11 +451,10 @@ export function AdvancedTable<T extends Record<string, unknown>>({
                       <td
                         key={cell.id}
                         className={cn(
-                          "px-3 py-2 whitespace-nowrap border-r border-[#ECECF2] last:border-r-0",
+                          "px-2.5 py-1.5 whitespace-nowrap tabular-nums border-r border-[#eef0f6] last:border-r-0",
                           isPinned && "z-10",
-                          // Pinned cells need explicit bg to cover scrolled content
-                          isPinned && (rowIndex % 2 === 1 ? "bg-[#F8F8FC]" : "bg-white"),
-                          isPinned && "hover:bg-[#EEF2FF]"
+                          isPinned && (rowIndex % 2 === 1 ? "bg-[#fafbfd]" : "bg-white"),
+                          isPinned && "hover:bg-[#EBF1FD]"
                         )}
                         style={
                           isPinned
@@ -478,8 +477,8 @@ export function AdvancedTable<T extends Record<string, unknown>>({
       <div
         className={cn(
           "flex items-center justify-between gap-4 px-3 py-2",
-          "border border-t-0 border-[#ECECF2] rounded-b-lg bg-[#F8F8FC]",
-          "text-sm text-[#8181A5]"
+          "border border-t-0 border-[#eef0f6] rounded-b-xl bg-[#f8f9fc]",
+          "text-sm text-[#9ca3af]"
         )}
       >
         {/* Row count info */}
@@ -506,7 +505,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
                 });
               }}
               className={cn(
-                "rounded border border-[#ECECF2] bg-white px-2 py-1 text-xs text-[#1C1D21]",
+                "rounded border border-[#eef0f6] bg-white px-2 py-1 text-xs text-[#1a1a2e]",
                 "focus:outline-none focus:border-[#2163E7] focus:ring-1 focus:ring-[#2163E7]/30",
                 "cursor-pointer"
               )}
@@ -540,7 +539,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
               {/* Page number pills */}
               {buildPageNumbers(pageIndex, pageCount).map((item, idx) =>
                 item === "…" ? (
-                  <span key={`ellipsis-${idx}`} className="px-1 text-xs text-[#8181A5]">
+                  <span key={`ellipsis-${idx}`} className="px-1 text-xs text-[#9ca3af]">
                     …
                   </span>
                 ) : (
@@ -603,7 +602,7 @@ function PaginationButton({
         "focus:outline-none focus:ring-1 focus:ring-[#2163E7]/40",
         active
           ? "bg-[#2163E7] text-white"
-          : "bg-white border border-[#ECECF2] text-[#1C1D21] hover:border-[#2163E7] hover:text-[#2163E7]",
+          : "bg-white border border-[#eef0f6] text-[#1a1a2e] hover:border-[#2163E7] hover:text-[#2163E7]",
         disabled && "opacity-40 pointer-events-none"
       )}
     >

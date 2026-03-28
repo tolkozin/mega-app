@@ -113,7 +113,8 @@ export function V2LineReferenceChart({
         className="w-full"
         style={{ fontFamily: FONT }}
         onPointerMove={onPointerMove}
-        onPointerLeave={() => { setHover(null); setTip(null); }}
+        onPointerDown={onPointerMove}
+        onPointerLeave={(e) => { if (e.pointerType === "mouse") { setHover(null); setTip(null); } }}
       >
         <defs>
           {/* clip above reference */}

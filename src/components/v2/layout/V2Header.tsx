@@ -324,7 +324,6 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: V2
   const { profile } = useProfile();
   const router = useRouter();
   const pathname = usePathname();
-  const setNavMobileOpen = useLayoutStore((s) => s.setNavSidebarMobileOpen);
   const setConfigDrawerOpen = useLayoutStore((s) => s.setConfigDrawerOpen);
 
   const [dateSheetOpen, setDateSheetOpen] = useState(false);
@@ -341,12 +340,13 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: V2
       <header className="h-12 bg-white border-b border-[#eef0f6] flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setNavMobileOpen(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-lg text-[#9ca3af] active:bg-[#f0f1f7]"
+            onClick={() => setConfigDrawerOpen(true)}
+            className="h-7 px-2.5 flex items-center gap-1.5 bg-[#2163E7] text-white rounded-[6px] text-[11px] font-bold shrink-0"
           >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-              <path d="M3 4.5h12M3 9h12M3 13.5h12" />
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 3l5 5-5 5" />
             </svg>
+            Config
           </button>
         </div>
 

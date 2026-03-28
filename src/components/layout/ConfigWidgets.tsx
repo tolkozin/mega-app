@@ -76,7 +76,7 @@ export function SegmentedControl({
   onChange,
 }: SegmentedControlProps) {
   return (
-    <div className="flex rounded-full bg-[#eef0f6] p-0.5">
+    <div className="flex w-full rounded-full bg-[#eef0f6] p-0.5">
       {options.map((opt) => {
         const selected = opt.value === value;
         return (
@@ -84,7 +84,7 @@ export function SegmentedControl({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`rounded-full px-3 py-1 text-[11px] font-bold transition-all duration-200 cursor-pointer ${
+            className={`flex-1 rounded-full px-3 py-1 text-[11px] font-bold transition-all duration-200 cursor-pointer ${
               selected
                 ? "bg-white text-[#2163E7] shadow-sm"
                 : "text-[#9ca3af] hover:text-[#6b7280]"
@@ -206,7 +206,7 @@ export function PhaseTimeline({
   totalMonths,
   activePhase,
   onPhaseClick,
-  colors = ["#2163E7", "#10B981", "#7C3AED"],
+  colors = ["#2275ed", "#85abf2", "#e8f0ff"],
 }: PhaseTimelineProps) {
   const phase3Dur = totalMonths - phase1Dur - phase2Dur;
   const phases: { label: string; dur: number; color: string; id: 1 | 2 | 3 }[] = [
@@ -233,7 +233,7 @@ export function PhaseTimeline({
               opacity: isActive ? 1 : 0.5,
             }}
           >
-            <span className="text-[9px] text-white font-bold whitespace-nowrap">
+            <span className={`text-[9px] font-bold whitespace-nowrap ${isLightColor(p.color) ? "text-[#1a1a2e]" : "text-white"}`}>
               {p.label}: {p.dur}mo
             </span>
           </button>

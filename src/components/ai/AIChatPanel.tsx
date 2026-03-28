@@ -697,7 +697,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
               onBlur={(e) => { (e.currentTarget.parentElement as HTMLDivElement).style.borderColor = "#eef0f6"; }}
               placeholder="Ask about your revenue model..."
               rows={1}
-              className="flex-1 resize-none bg-transparent outline-none text-[13px] text-[#1a1a2e] placeholder:text-[#9ca3af]"
+              className="flex-1 resize-none bg-transparent outline-none text-[16px] sm:text-[13px] text-[#1a1a2e] placeholder:text-[#9ca3af]"
               style={{ fontFamily: "Lato, sans-serif", lineHeight: 1.5 }}
             />
           </div>

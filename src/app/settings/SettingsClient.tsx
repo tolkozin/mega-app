@@ -9,6 +9,7 @@ import { getPlanLimits } from "@/lib/plan-limits";
 import { useUpgradeStore } from "@/stores/upgrade-store";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, ChevronDown, Check, AlertTriangle } from "lucide-react";
+import { useCurrencyStore } from "@/stores/currency-store";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -187,11 +188,8 @@ function ProfileTab({
   const [pwSuccess, setPwSuccess] = useState("");
 
   // Preferences state
-  const [currency, setCurrency] = useState("USD");
-  const [language, setLanguage] = useState("en");
-  const [appearance, setAppearance] = useState<"light" | "dark" | "system">(
-    "light"
-  );
+  const globalCurrencyStore = useCurrencyStore();
+  const [currency, setCurrency] = useState(globalCurrencyStore.currency);
   const [notifyEmail, setNotifyEmail] = useState(true);
   const [notifyUpdates, setNotifyUpdates] = useState(false);
 
@@ -332,7 +330,11 @@ function ProfileTab({
               <select
                 className={`${inputClass} appearance-none pr-9`}
                 value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value as import("@/stores/currency-store").CurrencyCode;
+                  setCurrency(val);
+                  globalCurrencyStore.setCurrency(val);
+                }}
               >
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (&euro;)</option>
@@ -342,43 +344,6 @@ function ProfileTab({
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af] pointer-events-none" />
             </div>
           </Field>
-          <Field label="Language">
-            <div className="relative">
-              <select
-                className={`${inputClass} appearance-none pr-9`}
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-              >
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af] pointer-events-none" />
-            </div>
-          </Field>
-        </div>
-
-        {/* Appearance toggle */}
-        <div className="mb-6">
-          <label className="block text-sm font-semibold text-[#1a1a2e] mb-2 font-[Lato]">
-            Appearance
-          </label>
-          <div className="inline-flex rounded-[10px] bg-[#f8f9fc] border-[1.5px] border-[#eef0f6] p-1 gap-1">
-            {(["light", "dark", "system"] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setAppearance(mode)}
-                className={`px-4 h-8 text-sm rounded-[8px] font-medium transition-all font-[Lato] capitalize ${
-                  appearance === mode
-                    ? "bg-white text-[#1a1a2e] shadow-sm"
-                    : "text-[#6b7280] hover:text-[#1a1a2e]"
-                }`}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Notification toggles */}

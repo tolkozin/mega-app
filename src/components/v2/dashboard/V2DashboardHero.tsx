@@ -26,6 +26,7 @@ import {
   Milestone,
 } from "lucide-react";
 import { V2_CHART_COLORS, V2_CARD_CLASS } from "@/components/v2/charts/tokens";
+import { useCurrencyStore } from "@/stores/currency-store";
 
 /* ═══════════════════════════════════════════════════════════════════
    Types
@@ -77,10 +78,10 @@ const SEGMENT_COLORS: Record<string, string> = {
    Shared Helpers
    ═══════════════════════════════════════════════════════════════════ */
 
-function formatCurrency(n: number): string {
-  if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (Math.abs(n) >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(0)}`;
+function formatCurrency(n: number, sym = "$"): string {
+  if (Math.abs(n) >= 1_000_000) return `${sym}${(n / 1_000_000).toFixed(1)}M`;
+  if (Math.abs(n) >= 1_000) return `${sym}${(n / 1_000).toFixed(1)}K`;
+  return `${sym}${n.toFixed(0)}`;
 }
 
 function formatK(n: number): string {
@@ -746,8 +747,8 @@ export const MetricStripCard = memo(function MetricStripCard({ metrics }: Metric
                 {m.trend}
               </span>
 
-              {/* Sparkline with label */}
-              <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+              {/* Sparkline with label — hidden on mobile */}
+              <div className="hidden sm:flex flex-col items-center gap-0.5 flex-shrink-0">
                 <MiniSpark
                   data={m.spark}
                   color={m.good ? COLORS.green : COLORS.red}
@@ -871,10 +872,10 @@ export const BreakEvenCallout = memo(function BreakEvenCallout({
               Break-Even Projection
             </div>
           </div>
-          <div className="text-[28px] font-black text-white leading-none tabular-nums mb-1">
+          <div className="text-[22px] sm:text-[28px] font-black text-white leading-none tabular-nums mb-1">
             {month != null ? `Month ${month}` : "Not yet"}
           </div>
-          <div className="text-[12px] text-white/70 leading-snug">
+          <div className="text-[11px] sm:text-[12px] text-white/70 leading-snug hidden sm:block">
             {description}
           </div>
         </div>
@@ -968,6 +969,8 @@ export const V2DashboardHero = memo(function V2DashboardHero({
   milestones,
   engine = "subscription",
 }: V2DashboardHeroProps) {
+  const currencySymbol = useCurrencyStore((s) => s.symbol());
+  const fmtCurrency = useCallback((n: number) => formatCurrency(n, currencySymbol), [currencySymbol]);
   /* ── Resolve columns from the dataframe ── */
   const columns = useMemo(() => {
     if (!data.length) return {
@@ -1141,7 +1144,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
       engine === "subscription" ? "MRR" : "Revenue",
       engine === "subscription" ? "Monthly recurring revenue. % shows change vs prior month." : "Total revenue generated. % shows month-over-month change.",
       columns.revenue,
-      formatCurrency,
+      fmtCurrency,
       "up",
       <DollarSign size={14} />,
       "#EBF0FD",
@@ -1176,10 +1179,10 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     }
 
     // CAC
-    addMetric("CAC", "Cost to acquire one customer. Lower is better — % shows change.", columns.cac, formatCurrency, "down", <Target size={14} />, "#FFF7ED", "#F59E0B");
+    addMetric("CAC", "Cost to acquire one customer. Lower is better — % shows change.", columns.cac, fmtCurrency, "down", <Target size={14} />, "#FFF7ED", "#F59E0B");
 
     // LTV
-    addMetric("LTV", "Predicted lifetime value of a customer. % shows change vs prior month.", columns.ltv, formatCurrency, "up", <BarChart3 size={14} />, "#EBF0FD", "#2163E7");
+    addMetric("LTV", "Predicted lifetime value of a customer. % shows change vs prior month.", columns.ltv, fmtCurrency, "up", <BarChart3 size={14} />, "#EBF0FD", "#2163E7");
 
     // LTV/CAC
     if (columns.ltvCac) {
@@ -1211,10 +1214,10 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     }
 
     // ARPU
-    addMetric("ARPU", "Average revenue per user per month. % shows change vs prior month.", columns.arpu, formatCurrency, "up", <DollarSign size={14} />, "#EBF0FD", "#2163E7");
+    addMetric("ARPU", "Average revenue per user per month. % shows change vs prior month.", columns.arpu, fmtCurrency, "up", <DollarSign size={14} />, "#EBF0FD", "#2163E7");
 
     return items;
-  }, [data, columns, engine]);
+  }, [data, columns, engine, fmtCurrency]);
 
   /* ── Cost donut segments ── */
   const donutSegments: DonutSegment[] = useMemo(() => {
@@ -1277,14 +1280,14 @@ export const V2DashboardHero = memo(function V2DashboardHero({
         className="bg-white overflow-hidden"
         style={{ borderRadius: CARD_RADIUS, boxShadow: CARD_SHADOW }}
       >
-        <div className="px-6 pt-6 pb-2">
-          <div className="flex items-start justify-between gap-4">
+        <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
             <div className="min-w-0">
-              <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-1">
+              <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-1 truncate">
                 {heroLabel}
               </div>
-              <div className="text-[44px] font-black text-[#1a1a2e] leading-none tabular-nums">
-                {formatCurrency(heroValue)}
+              <div className="text-[28px] sm:text-[44px] font-black text-[#1a1a2e] leading-none tabular-nums">
+                {fmtCurrency(heroValue)}
               </div>
               {data.length >= 2 && columns.revenue && (() => {
                 const lastVal = num(data[data.length - 1], columns.revenue);
@@ -1315,7 +1318,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
 
             {/* Legend — rendered in card header, not inside SVG */}
             {legendItems.length > 0 && (
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 shrink-0 pt-1">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 shrink-0 pt-1">
                 {legendItems.map((item) => (
                   <div key={item.label} className="flex items-center gap-1.5">
                     <span
@@ -1331,7 +1334,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
             )}
           </div>
         </div>
-        <div className="px-2 pb-4">
+        <div className="px-2 pb-4 min-h-[140px] sm:min-h-0">
           <RevenueHeroChart
             data={chartData}
             breakEvenMonth={breakEvenMonth}

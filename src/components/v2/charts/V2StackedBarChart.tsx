@@ -91,7 +91,8 @@ export function V2StackedBarChart({
         className="w-full"
         style={{ fontFamily: FONT }}
         onPointerMove={onPointerMove}
-        onPointerLeave={() => { setHover(null); setTip(null); }}
+        onPointerDown={onPointerMove}
+        onPointerLeave={(e) => { if (e.pointerType === "mouse") { setHover(null); setTip(null); } }}
       >
         {/* grid */}
         {yTicks.map((t) => (
