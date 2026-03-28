@@ -18,7 +18,6 @@ export {
   MiniSpark,
   MiniDonut,
   MetricStripCard,
-  ActivityFeed,
   BreakEvenCallout,
 } from "./dashboard/V2DashboardHero";
 export type { RevenueBarData } from "./dashboard/V2DashboardHero";

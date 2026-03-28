@@ -2,8 +2,8 @@
 
 /**
  * v2 Dashboard Hero Components
- * Ported from Figma Make design — stacked bar chart, sparklines,
- * donut chart, metric strip, activity feed, break-even callout.
+ * Stacked bar chart with revenue breakdown, sparklines,
+ * donut chart, metric strip, milestones, break-even callout.
  *
  * All components accept real data and are composable independently.
  */
@@ -13,11 +13,35 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   TrendingUp,
   TrendingDown,
-  ArrowUpRight,
   Zap,
-  AlertCircle,
+  ChevronDown,
+  ChevronRight,
+  DollarSign,
+  Users,
+  BarChart3,
+  Target,
+  Activity,
+  Percent,
+  Clock,
+  Milestone,
 } from "lucide-react";
 import { V2_CHART_COLORS, V2_CARD_CLASS } from "@/components/v2/charts/tokens";
+
+/* ═══════════════════════════════════════════════════════════════════
+   Types
+   ═══════════════════════════════════════════════════════════════════ */
+
+export interface RevenueBarData {
+  month: number;
+  segments: { label: string; value: number; color: string }[];
+}
+
+interface DataRow {
+  Month: number;
+  [key: string]: number | string | undefined;
+}
+
+type EngineType = "subscription" | "ecommerce" | "saas";
 
 /* ═══════════════════════════════════════════════════════════════════
    Design Tokens (local)
@@ -32,8 +56,6 @@ const COLORS = {
   darkBlue: "#1650b0",
   lightBlue: "#7BA3F0",
   veryLightBlue: "#BDD0F8",
-  gradientBarSub: ["#1650b0", "#2980ff"],
-  gradientBarOneTime: ["#7BA3F0", "#92b6f5"],
   darkBg: "#1a1a2e",
   textPrimary: "#1a1a2e",
   textSecondary: "#6b7280",
@@ -42,6 +64,13 @@ const COLORS = {
   green: "#10B981",
   red: "#EF4444",
   yellow: "#F59E0B",
+} as const;
+
+const SEGMENT_COLORS = {
+  annual: "#1650b0",
+  monthly: "#2163E7",
+  weekly: "#7BA3F0",
+  projected: "#BDD0F8",
 } as const;
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -54,12 +83,41 @@ function formatCurrency(n: number): string {
   return `$${n.toFixed(0)}`;
 }
 
+function formatK(n: number): string {
+  if (Math.abs(n) >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (Math.abs(n) >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
+  return `${n.toFixed(0)}`;
+}
+
 function formatPercent(n: number): string {
   return `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
 }
 
+/** Column resolution helpers — pick the best matching column from the dataframe */
+function findCol(row: DataRow, ...candidates: string[]): string | null {
+  for (const c of candidates) {
+    const lc = c.toLowerCase();
+    const match = Object.keys(row).find((k) => k.toLowerCase() === lc);
+    if (match && typeof row[match] === "number") return match;
+  }
+  for (const c of candidates) {
+    const lc = c.toLowerCase();
+    const match = Object.keys(row).find(
+      (k) => k.toLowerCase().includes(lc) && typeof row[k] === "number"
+    );
+    if (match) return match;
+  }
+  return null;
+}
+
+function num(row: DataRow, col: string | null): number {
+  if (!col) return 0;
+  const v = row[col];
+  return typeof v === "number" ? v : 0;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
-   1. MiniSpark — 56×28 sparkline
+   1. MiniSpark — 56x28 sparkline
    ═══════════════════════════════════════════════════════════════════ */
 
 interface MiniSparkProps {
@@ -81,7 +139,6 @@ export const MiniSpark = memo(function MiniSpark({ data, color }: MiniSparkProps
     H - ((v - min) / range) * H * 0.75 - H * 0.1,
   ]);
 
-  // Build smooth bezier path
   let d = `M${points[0][0].toFixed(1)},${points[0][1].toFixed(1)}`;
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[Math.max(i - 1, 0)];
@@ -122,7 +179,7 @@ export const MiniSpark = memo(function MiniSpark({ data, color }: MiniSparkProps
 });
 
 /* ═══════════════════════════════════════════════════════════════════
-   2. MiniDonut — Cost structure donut chart
+   2. MiniDonut — Cost structure donut chart (Figma Make design)
    ═══════════════════════════════════════════════════════════════════ */
 
 interface DonutSegment {
@@ -141,49 +198,62 @@ export const MiniDonut = memo(function MiniDonut({ segments, totalLabel }: MiniD
   const total = segments.reduce((s, seg) => s + seg.value, 0);
   if (total === 0) return null;
 
-  const SIZE = 120;
+  const SIZE = 140;
   const CX = SIZE / 2;
   const CY = SIZE / 2;
-  const R = 44;
-  const STROKE = 14;
+  const outerR = 58;
+  const innerR = 38;
+  const GAP_DEGREES = 2;
 
-  // Build arcs
-  let cumAngle = -90; // start at top
+  function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number): [number, number] {
+    const rad = (Math.PI / 180) * angleDeg;
+    return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+  }
+
+  function arcSectorPath(
+    cx: number,
+    cy: number,
+    outerRadius: number,
+    innerRadius: number,
+    startAngle: number,
+    endAngle: number
+  ): string {
+    const sweep = endAngle - startAngle;
+    const largeArc = sweep > 180 ? 1 : 0;
+    const [osx, osy] = polarToCartesian(cx, cy, outerRadius, startAngle);
+    const [oex, oey] = polarToCartesian(cx, cy, outerRadius, endAngle);
+    const [isx, isy] = polarToCartesian(cx, cy, innerRadius, endAngle);
+    const [iex, iey] = polarToCartesian(cx, cy, innerRadius, startAngle);
+    return [
+      `M${osx},${osy}`,
+      `A${outerRadius},${outerRadius} 0 ${largeArc} 1 ${oex},${oey}`,
+      `L${isx},${isy}`,
+      `A${innerRadius},${innerRadius} 0 ${largeArc} 0 ${iex},${iey}`,
+      "Z",
+    ].join(" ");
+  }
+
+  let cumAngle = -90;
   const arcs = segments.map((seg, i) => {
-    const angle = (seg.value / total) * 360;
-    const startAngle = cumAngle;
-    cumAngle += angle;
-    return { ...seg, startAngle, angle, index: i };
+    const angle = (seg.value / total) * (360 - GAP_DEGREES * segments.length);
+    const startAngle = cumAngle + GAP_DEGREES / 2;
+    cumAngle += angle + GAP_DEGREES;
+    return { ...seg, startAngle, endAngle: startAngle + angle, index: i };
   });
-
-  function polarToCartesian(angle: number, r: number): [number, number] {
-    const rad = (Math.PI / 180) * angle;
-    return [CX + r * Math.cos(rad), CY + r * Math.sin(rad)];
-  }
-
-  function arcPath(startAngle: number, sweepAngle: number, r: number): string {
-    const end = startAngle + sweepAngle;
-    const [sx, sy] = polarToCartesian(startAngle, r);
-    const [ex, ey] = polarToCartesian(end, r);
-    const large = sweepAngle > 180 ? 1 : 0;
-    return `M${sx},${sy} A${r},${r} 0 ${large} 1 ${ex},${ey}`;
-  }
 
   return (
     <div className="flex items-center gap-4">
-      {/* Donut SVG */}
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width={SIZE} height={SIZE} className="flex-shrink-0">
         {arcs.map((arc) => {
-          const expand = hovered === arc.index ? 3 : 0;
+          const isHovered = hovered === arc.index;
+          const expand = isHovered ? 3 : 0;
+          const opacity = hovered !== null && !isHovered ? 0.35 : 1;
           return (
             <path
               key={arc.index}
-              d={arcPath(arc.startAngle + 0.8, arc.angle - 1.6, R + expand)}
-              fill="none"
-              stroke={arc.color}
-              strokeWidth={STROKE + (hovered === arc.index ? 3 : 0)}
-              strokeLinecap="round"
-              style={{ transition: "all 0.2s ease", cursor: "pointer" }}
+              d={arcSectorPath(CX, CY, outerR + expand, innerR - expand / 2, arc.startAngle, arc.endAngle)}
+              fill={arc.color}
+              style={{ transition: "all 0.2s ease", cursor: "pointer", opacity }}
               onMouseEnter={() => setHovered(arc.index)}
               onMouseLeave={() => setHovered(null)}
             />
@@ -217,48 +287,50 @@ export const MiniDonut = memo(function MiniDonut({ segments, totalLabel }: MiniD
 
       {/* Legend */}
       <div className="flex flex-col gap-1.5 min-w-0">
-        {segments.map((seg, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-2 text-[11px] font-lato"
-            onMouseEnter={() => setHovered(i)}
-            onMouseLeave={() => setHovered(null)}
-            style={{ cursor: "pointer", opacity: hovered !== null && hovered !== i ? 0.5 : 1, transition: "opacity 0.15s" }}
-          >
-            <span
-              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-              style={{ backgroundColor: seg.color }}
-            />
-            <span className="text-[#6b7280] truncate">{seg.label}</span>
-            <span className="font-bold text-[#1a1a2e] ml-auto tabular-nums">
-              {formatCurrency(seg.value)}
-            </span>
-          </div>
-        ))}
+        {segments.map((seg, i) => {
+          const pct = ((seg.value / total) * 100).toFixed(1);
+          return (
+            <div
+              key={i}
+              className="flex items-center gap-2 text-[11px] font-lato"
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              style={{
+                cursor: "pointer",
+                opacity: hovered !== null && hovered !== i ? 0.5 : 1,
+                transition: "opacity 0.15s",
+              }}
+            >
+              <span
+                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                style={{ backgroundColor: seg.color }}
+              />
+              <span className="text-[#6b7280] truncate">{seg.label}</span>
+              <span className="font-bold text-[#1a1a2e] ml-auto tabular-nums whitespace-nowrap">
+                {pct}%
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 });
 
 /* ═══════════════════════════════════════════════════════════════════
-   3. RevenueHeroChart — Stacked SVG bar chart with animation
+   3. RevenueHeroChart — Stacked SVG bar chart (780x240)
    ═══════════════════════════════════════════════════════════════════ */
-
-export interface RevenueBarData {
-  month: number;
-  revenue: number;
-  oneTime?: number;
-  projected?: number;
-}
 
 interface RevenueHeroChartProps {
   data: RevenueBarData[];
   breakEvenMonth?: number | null;
+  legendItems?: { label: string; color: string; striped?: boolean }[];
 }
 
 export const RevenueHeroChart = memo(function RevenueHeroChart({
   data,
   breakEvenMonth,
+  legendItems,
 }: RevenueHeroChartProps) {
   const [tooltip, setTooltip] = useState<{
     x: number;
@@ -267,22 +339,19 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
   } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  // Chart dimensions within viewBox
-  const VW = 640;
-  const VH = 320;
-  const PADDING = { top: 24, right: 16, bottom: 36, left: 52 };
+  const VW = 780;
+  const VH = 240;
+  const PADDING = { top: 24, right: 16, bottom: 32, left: 52 };
   const chartW = VW - PADDING.left - PADDING.right;
   const chartH = VH - PADDING.top - PADDING.bottom;
 
-  // Compute max stack height
   const maxVal = useMemo(() => {
     return Math.max(
-      ...data.map((d) => (d.revenue || 0) + (d.oneTime || 0) + (d.projected || 0)),
+      ...data.map((d) => d.segments.reduce((sum, s) => sum + s.value, 0)),
       1
     );
   }, [data]);
 
-  // Y-axis grid
   const yTicks = useMemo(() => {
     const step = Math.pow(10, Math.floor(Math.log10(maxVal)));
     const nice = maxVal <= step * 2 ? step / 2 : maxVal <= step * 5 ? step : step * 2;
@@ -295,8 +364,8 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
 
   const yMax = yTicks[yTicks.length - 1] || maxVal * 1.15;
 
-  const barWidth = Math.min((chartW / data.length) * 0.6, 32);
-  const barGap = chartW / data.length;
+  const barGroupW = chartW / data.length;
+  const barWidth = barGroupW * 0.56;
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<SVGSVGElement>) => {
@@ -307,15 +376,14 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
       const mouseX = (e.clientX - rect.left) * scaleX;
       const mouseY = (e.clientY - rect.top) * (VH / rect.height);
 
-      // Find which bar
-      const idx = Math.floor((mouseX - PADDING.left) / barGap);
+      const idx = Math.floor((mouseX - PADDING.left) / barGroupW);
       if (idx >= 0 && idx < data.length) {
         setTooltip({ x: mouseX, y: mouseY, item: data[idx] });
       } else {
         setTooltip(null);
       }
     },
-    [data, barGap]
+    [data, barGroupW]
   );
 
   return (
@@ -329,25 +397,11 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
       onMouseLeave={() => setTooltip(null)}
     >
       <defs>
-        {/* Subscription gradient */}
-        <linearGradient id="grad-sub" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor={COLORS.gradientBarSub[0]} />
-          <stop offset="100%" stopColor={COLORS.gradientBarSub[1]} />
-        </linearGradient>
-        {/* One-time gradient */}
-        <linearGradient id="grad-onetime" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor={COLORS.gradientBarOneTime[0]} />
-          <stop offset="100%" stopColor={COLORS.gradientBarOneTime[1]} />
-        </linearGradient>
-        {/* Projected pattern */}
+        {/* Projected stripe pattern */}
         <pattern id="pat-projected" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <rect width="6" height="6" fill={COLORS.veryLightBlue} />
+          <rect width="6" height="6" fill={SEGMENT_COLORS.projected} />
           <line x1="0" y1="0" x2="0" y2="6" stroke={COLORS.lightBlue} strokeWidth="2" opacity="0.5" />
         </pattern>
-        {/* Rounded top clip for each bar */}
-        <clipPath id="bar-clip">
-          <rect x="-1" y="-6" width={barWidth + 2} height={chartH + 6} rx="5" ry="5" />
-        </clipPath>
       </defs>
 
       {/* Y-axis grid lines */}
@@ -371,7 +425,7 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
               fontSize="9.5"
               fontFamily="Lato, system-ui, sans-serif"
             >
-              {formatCurrency(tick)}
+              {formatK(tick)}
             </text>
           </g>
         );
@@ -379,81 +433,54 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
 
       {/* Bars */}
       {data.map((d, i) => {
-        const cx = PADDING.left + i * barGap + barGap / 2;
+        const cx = PADDING.left + i * barGroupW + barGroupW / 2;
         const bx = cx - barWidth / 2;
         const baseY = PADDING.top + chartH;
 
-        const subH = ((d.revenue || 0) / yMax) * chartH;
-        const oneTimeH = ((d.oneTime || 0) / yMax) * chartH;
-        const projH = ((d.projected || 0) / yMax) * chartH;
-        const totalH = subH + oneTimeH + projH;
+        const totalH = d.segments.reduce((sum, s) => sum + s.value, 0);
+        const totalBarH = (totalH / yMax) * chartH;
 
-        // Stack from bottom: subscription → one-time → projected
-        const subY = baseY - subH;
-        const oneTimeY = subY - oneTimeH;
-        const projY = oneTimeY - projH;
+        let currentY = baseY;
+        const segmentRects = d.segments.map((seg, si) => {
+          const segH = (seg.value / yMax) * chartH;
+          currentY -= segH;
+          return { ...seg, y: currentY, h: segH, si };
+        });
 
         return (
           <g key={i}>
-            {/* Bar group with rounded top clip */}
+            {/* Clip for rounded top corners */}
+            <defs>
+              <clipPath id={`bar-clip-${i}`}>
+                <rect
+                  x={bx}
+                  y={baseY - totalBarH - 1}
+                  width={barWidth}
+                  height={totalBarH + 1}
+                  rx="5"
+                  ry="5"
+                />
+              </clipPath>
+            </defs>
             <g clipPath={`url(#bar-clip-${i})`}>
-              <defs>
-                <clipPath id={`bar-clip-${i}`}>
-                  <rect
-                    x={bx}
-                    y={baseY - totalH - 1}
-                    width={barWidth}
-                    height={totalH + 1}
-                    rx="5"
-                    ry="5"
-                  />
-                </clipPath>
-              </defs>
-
-              {/* Subscription (bottom) */}
-              {subH > 0 && (
+              {segmentRects.map((sr) => (
                 <motion.rect
+                  key={sr.si}
                   x={bx}
                   width={barWidth}
                   y={baseY}
                   height={0}
-                  fill="url(#grad-sub)"
-                  animate={{ y: subY, height: subH }}
-                  transition={{ duration: 0.5, delay: i * 0.03, ease: "easeOut" }}
+                  fill={sr.label === "Projected" ? "url(#pat-projected)" : sr.color}
+                  animate={{ y: sr.y, height: sr.h }}
+                  transition={{ duration: 0.5, delay: i * 0.03 + sr.si * 0.04, ease: "easeOut" }}
                 />
-              )}
-
-              {/* One-time (middle) */}
-              {oneTimeH > 0 && (
-                <motion.rect
-                  x={bx}
-                  width={barWidth}
-                  y={baseY}
-                  height={0}
-                  fill="url(#grad-onetime)"
-                  animate={{ y: oneTimeY, height: oneTimeH }}
-                  transition={{ duration: 0.5, delay: i * 0.03 + 0.05, ease: "easeOut" }}
-                />
-              )}
-
-              {/* Projected (top) */}
-              {projH > 0 && (
-                <motion.rect
-                  x={bx}
-                  width={barWidth}
-                  y={baseY}
-                  height={0}
-                  fill="url(#pat-projected)"
-                  animate={{ y: projY, height: projH }}
-                  transition={{ duration: 0.5, delay: i * 0.03 + 0.1, ease: "easeOut" }}
-                />
-              )}
+              ))}
             </g>
 
             {/* X-axis month label */}
             <text
               x={cx}
-              y={baseY + 18}
+              y={baseY + 16}
               textAnchor="middle"
               fill={COLORS.textMuted}
               fontSize="10"
@@ -465,47 +492,76 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
         );
       })}
 
-      {/* Break-even annotation line */}
-      {breakEvenMonth != null && breakEvenMonth > 0 && (
-        (() => {
-          const idx = data.findIndex((d) => d.month === breakEvenMonth);
-          if (idx < 0) return null;
-          const cx = PADDING.left + idx * barGap + barGap / 2;
-          return (
-            <g>
-              <line
-                x1={cx}
-                y1={PADDING.top}
-                x2={cx}
-                y2={PADDING.top + chartH}
-                stroke={COLORS.green}
-                strokeWidth={1.5}
-                strokeDasharray="6 4"
-              />
-              <rect
-                x={cx - 42}
-                y={PADDING.top - 2}
-                width={84}
-                height={18}
-                rx={9}
-                fill={COLORS.green}
-                opacity={0.12}
-              />
-              <text
-                x={cx}
-                y={PADDING.top + 10}
-                textAnchor="middle"
-                fill={COLORS.green}
-                fontSize="9.5"
-                fontWeight="700"
-                fontFamily="Lato, system-ui, sans-serif"
-              >
-                Break-even
-              </text>
-            </g>
-          );
-        })()
-      )}
+      {/* Break-even dashed line */}
+      {breakEvenMonth != null && breakEvenMonth > 0 && (() => {
+        const idx = data.findIndex((d) => d.month === breakEvenMonth);
+        if (idx < 0) return null;
+        const cx = PADDING.left + idx * barGroupW + barGroupW / 2;
+        return (
+          <g>
+            <line
+              x1={cx}
+              y1={PADDING.top}
+              x2={cx}
+              y2={PADDING.top + chartH}
+              stroke={COLORS.green}
+              strokeWidth={1.5}
+              strokeDasharray="6 4"
+            />
+            <rect
+              x={cx - 42}
+              y={PADDING.top - 2}
+              width={84}
+              height={18}
+              rx={9}
+              fill={COLORS.green}
+              opacity={0.12}
+            />
+            <text
+              x={cx}
+              y={PADDING.top + 10}
+              textAnchor="middle"
+              fill={COLORS.green}
+              fontSize="9.5"
+              fontWeight="700"
+              fontFamily="Lato, system-ui, sans-serif"
+            >
+              Break-even
+            </text>
+          </g>
+        );
+      })()}
+
+      {/* Legend (top-right) */}
+      {legendItems && legendItems.length > 0 && (() => {
+        const lx = VW - PADDING.right - 8;
+        let ly = PADDING.top + 4;
+        return (
+          <g>
+            {legendItems.map((item, idx) => {
+              const y = ly + idx * 16;
+              return (
+                <g key={idx}>
+                  {item.striped ? (
+                    <rect x={lx - 100} y={y} width={10} height={10} rx={2} fill="url(#pat-projected)" />
+                  ) : (
+                    <rect x={lx - 100} y={y} width={10} height={10} rx={2} fill={item.color} />
+                  )}
+                  <text
+                    x={lx - 84}
+                    y={y + 8}
+                    fill={COLORS.textSecondary}
+                    fontSize="9"
+                    fontFamily="Lato, system-ui, sans-serif"
+                  >
+                    {item.label}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        );
+      })()}
 
       {/* Tooltip */}
       <AnimatePresence>
@@ -516,57 +572,57 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.12 }}
           >
-            <rect
-              x={Math.min(tooltip.x + 12, VW - 150)}
-              y={Math.max(tooltip.y - 70, 4)}
-              width={136}
-              height={64}
-              rx={8}
-              fill={COLORS.darkBg}
-              opacity={0.95}
-            />
-            <text
-              x={Math.min(tooltip.x + 20, VW - 142)}
-              y={Math.max(tooltip.y - 70, 4) + 18}
-              fill="#fff"
-              fontSize="11"
-              fontWeight="700"
-              fontFamily="Lato, system-ui, sans-serif"
-            >
-              Month {tooltip.item.month}
-            </text>
-            <text
-              x={Math.min(tooltip.x + 20, VW - 142)}
-              y={Math.max(tooltip.y - 70, 4) + 34}
-              fill="#cbd5e1"
-              fontSize="10"
-              fontFamily="Lato, system-ui, sans-serif"
-            >
-              Revenue: {formatCurrency(tooltip.item.revenue)}
-            </text>
-            {(tooltip.item.oneTime ?? 0) > 0 && (
-              <text
-                x={Math.min(tooltip.x + 20, VW - 142)}
-                y={Math.max(tooltip.y - 70, 4) + 48}
-                fill="#cbd5e1"
-                fontSize="10"
-                fontFamily="Lato, system-ui, sans-serif"
-              >
-                One-time: {formatCurrency(tooltip.item.oneTime!)}
-              </text>
-            )}
-            {(tooltip.item.projected ?? 0) > 0 && (
-              <text
-                x={Math.min(tooltip.x + 20, VW - 142)}
-                y={Math.max(tooltip.y - 70, 4) + ((tooltip.item.oneTime ?? 0) > 0 ? 56 : 48)}
-                fill="#94a3b8"
-                fontSize="10"
-                fontFamily="Lato, system-ui, sans-serif"
-                fontStyle="italic"
-              >
-                Projected: {formatCurrency(tooltip.item.projected!)}
-              </text>
-            )}
+            {(() => {
+              const lineCount = 1 + tooltip.item.segments.length;
+              const tooltipH = 20 + lineCount * 16;
+              const tooltipW = 160;
+              const tx = Math.min(tooltip.x + 12, VW - tooltipW - 8);
+              const ty = Math.max(tooltip.y - tooltipH - 8, 4);
+              return (
+                <>
+                  <rect
+                    x={tx}
+                    y={ty}
+                    width={tooltipW}
+                    height={tooltipH}
+                    rx={8}
+                    fill={COLORS.darkBg}
+                    opacity={0.95}
+                  />
+                  <text
+                    x={tx + 10}
+                    y={ty + 18}
+                    fill="#fff"
+                    fontSize="11"
+                    fontWeight="700"
+                    fontFamily="Lato, system-ui, sans-serif"
+                  >
+                    Month {tooltip.item.month}
+                  </text>
+                  {tooltip.item.segments.map((seg, si) => (
+                    <g key={si}>
+                      <rect
+                        x={tx + 10}
+                        y={ty + 26 + si * 16}
+                        width={6}
+                        height={6}
+                        rx={1}
+                        fill={seg.color}
+                      />
+                      <text
+                        x={tx + 22}
+                        y={ty + 32 + si * 16}
+                        fill="#cbd5e1"
+                        fontSize="10"
+                        fontFamily="Lato, system-ui, sans-serif"
+                      >
+                        {seg.label}: {formatCurrency(seg.value)}
+                      </text>
+                    </g>
+                  ))}
+                </>
+              );
+            })()}
           </motion.g>
         )}
       </AnimatePresence>
@@ -575,7 +631,7 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
 });
 
 /* ═══════════════════════════════════════════════════════════════════
-   4. MetricStripCard — Secondary metrics with sparklines
+   4. MetricStripCard — Metrics with sparklines, expandable
    ═══════════════════════════════════════════════════════════════════ */
 
 interface MetricStripItem {
@@ -584,6 +640,9 @@ interface MetricStripItem {
   trend: string;
   good: boolean;
   spark: number[];
+  icon: React.ReactNode;
+  iconBg: string;
+  iconColor: string;
 }
 
 interface MetricStripCardProps {
@@ -591,240 +650,343 @@ interface MetricStripCardProps {
 }
 
 export const MetricStripCard = memo(function MetricStripCard({ metrics }: MetricStripCardProps) {
+  const [expanded, setExpanded] = useState(false);
+  const visibleCount = 3;
+  const shown = expanded ? metrics : metrics.slice(0, visibleCount);
+  const hasMore = metrics.length > visibleCount;
+
   return (
     <div
-      className="bg-white font-lato"
+      className="bg-white font-lato overflow-hidden"
       style={{ borderRadius: CARD_RADIUS, boxShadow: CARD_SHADOW }}
     >
+      <div className="px-5 pt-4 pb-2">
+        <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af]">
+          Metrics
+        </div>
+      </div>
       <div className="divide-y divide-[#f0f1f7]">
-        {metrics.map((m, i) => (
-          <div key={i} className="flex items-center justify-between px-5 py-3.5 gap-3">
-            {/* Left: label + value */}
-            <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af]">
-                {m.label}
-              </div>
-              <div className="text-[20px] font-black text-[#1a1a2e] leading-none tabular-nums mt-0.5">
-                {m.value}
-              </div>
-            </div>
-
-            {/* Trend badge */}
-            <span
-              className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-extrabold flex-shrink-0 ${
-                m.good
-                  ? "bg-[#ecfdf5] text-[#10B981]"
-                  : "bg-[#fef2f2] text-[#EF4444]"
-              }`}
+        <AnimatePresence initial={false}>
+          {shown.map((m, i) => (
+            <motion.div
+              key={m.label}
+              className="flex items-center justify-between px-5 py-3.5 gap-3"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
             >
-              {m.good ? (
-                <TrendingUp size={10} strokeWidth={2.5} />
-              ) : (
-                <TrendingDown size={10} strokeWidth={2.5} />
-              )}
-              {m.trend}
-            </span>
+              {/* Icon circle */}
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: m.iconBg, color: m.iconColor }}
+              >
+                {m.icon}
+              </div>
 
-            {/* Sparkline */}
-            <MiniSpark
-              data={m.spark}
-              color={m.good ? COLORS.green : COLORS.red}
-            />
-          </div>
-        ))}
+              {/* Label + value */}
+              <div className="min-w-0 flex-1">
+                <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af]">
+                  {m.label}
+                </div>
+                <div className="text-[20px] font-black text-[#1a1a2e] leading-none tabular-nums mt-0.5">
+                  {m.value}
+                </div>
+              </div>
+
+              {/* Trend badge */}
+              <span
+                className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-extrabold flex-shrink-0 ${
+                  m.good
+                    ? "bg-[#ecfdf5] text-[#10B981]"
+                    : "bg-[#fef2f2] text-[#EF4444]"
+                }`}
+              >
+                {m.good ? (
+                  <TrendingUp size={10} strokeWidth={2.5} />
+                ) : (
+                  <TrendingDown size={10} strokeWidth={2.5} />
+                )}
+                {m.trend}
+              </span>
+
+              {/* Sparkline with label */}
+              <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+                <MiniSpark
+                  data={m.spark}
+                  color={m.good ? COLORS.green : COLORS.red}
+                />
+                <span className="text-[8px] text-[#c4c9d8]">
+                  {m.spark.length}-month trend
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
+
+      {hasMore && (
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="w-full flex items-center justify-center gap-1 py-2.5 text-[11px] font-bold text-[#2163E7] hover:bg-[#f8f9fc] transition-colors"
+        >
+          {expanded ? "Show less" : `Show more (${metrics.length - visibleCount})`}
+          <ChevronDown
+            size={14}
+            className={`transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+      )}
     </div>
   );
 });
 
 /* ═══════════════════════════════════════════════════════════════════
-   5. ActivityFeed — Recent activity list
+   5. BreakEvenCallout — Break-even + Key Milestones combined card
    ═══════════════════════════════════════════════════════════════════ */
 
-interface ActivityFeedItem {
+interface MilestoneItem {
+  key: string;
+  label: string;
+  value: number | null | undefined;
   icon: React.ReactNode;
-  color: string;
-  bg: string;
-  text: string;
-  time: string;
 }
-
-interface ActivityFeedProps {
-  items: ActivityFeedItem[];
-}
-
-export const ActivityFeed = memo(function ActivityFeed({ items }: ActivityFeedProps) {
-  return (
-    <div
-      className="bg-white font-lato p-5"
-      style={{ borderRadius: CARD_RADIUS, boxShadow: CARD_SHADOW }}
-    >
-      <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-3">
-        Recent Activity
-      </div>
-      <div className="flex flex-col gap-3">
-        {items.map((item, i) => (
-          <motion.div
-            key={i}
-            className="flex items-start gap-3"
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.05 }}
-          >
-            <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: item.bg, color: item.color }}
-            >
-              {item.icon}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-[12px] text-[#1a1a2e] leading-snug">{item.text}</div>
-              <div className="text-[10px] text-[#c4c9d8] mt-0.5">{item.time}</div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-});
-
-/* ═══════════════════════════════════════════════════════════════════
-   6. BreakEvenCallout — Break-even projected card
-   ═══════════════════════════════════════════════════════════════════ */
 
 interface BreakEvenCalloutProps {
   month: number | null;
   description: string;
-  onModelScenarios?: () => void;
+  milestones?: Record<string, unknown>;
+}
+
+function formatMilestoneValue(val: unknown): string {
+  if (val === null || val === undefined) return "\u2014";
+  const n = typeof val === "string" ? Number(val) : val;
+  if (typeof n === "number" && !isNaN(n) && n > 0) return `Month ${n}`;
+  return "\u2014";
 }
 
 export const BreakEvenCallout = memo(function BreakEvenCallout({
   month,
   description,
-  onModelScenarios,
+  milestones,
 }: BreakEvenCalloutProps) {
+  const [showAll, setShowAll] = useState(false);
+
+  const keyMilestones: MilestoneItem[] = useMemo(() => [
+    {
+      key: "break_even_month",
+      label: "Break-even (P&L)",
+      value: milestones?.break_even_month as number | null | undefined,
+      icon: <Zap size={14} />,
+    },
+    {
+      key: "cf_positive_month",
+      label: "Cash Flow Positive",
+      value: milestones?.cf_positive_month as number | null | undefined,
+      icon: <DollarSign size={14} />,
+    },
+    {
+      key: "investment_payback_month",
+      label: "Investment Payback",
+      value: milestones?.investment_payback_month as number | null | undefined,
+      icon: <Clock size={14} />,
+    },
+  ], [milestones]);
+
+  const extraMilestones: MilestoneItem[] = useMemo(() => {
+    if (!milestones) return [];
+    const extras: MilestoneItem[] = [
+      { key: "cumulative_break_even", label: "Cumulative Break-even", value: milestones.cumulative_break_even as number | null | undefined, icon: <BarChart3 size={14} /> },
+      { key: "runway_out_month", label: "Runway Exhausted", value: milestones.runway_out_month as number | null | undefined, icon: <Activity size={14} /> },
+      { key: "users_1000", label: "1,000 Users", value: milestones.users_1000 as number | null | undefined, icon: <Users size={14} /> },
+      { key: "users_10000", label: "10,000 Users", value: milestones.users_10000 as number | null | undefined, icon: <Users size={14} /> },
+      { key: "mrr_10000", label: "$10K MRR", value: milestones.mrr_10000 as number | null | undefined, icon: <Target size={14} /> },
+      { key: "mrr_100000", label: "$100K MRR", value: milestones.mrr_100000 as number | null | undefined, icon: <Target size={14} /> },
+    ];
+    return extras;
+  }, [milestones]);
+
   return (
     <div
-      className="font-lato relative overflow-hidden p-5"
-      style={{
-        borderRadius: CARD_RADIUS,
-        background: "linear-gradient(135deg, #2163E7 0%, #1650b0 100%)",
-        boxShadow: CARD_SHADOW,
-      }}
+      className="font-lato overflow-hidden"
+      style={{ borderRadius: CARD_RADIUS, boxShadow: CARD_SHADOW }}
     >
-      {/* Decorative glow */}
+      {/* Blue gradient break-even header */}
       <div
-        className="absolute -top-12 -right-12 w-40 h-40 rounded-full opacity-20"
-        style={{ background: "radial-gradient(circle, #7BA3F0 0%, transparent 70%)" }}
-      />
-
-      <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
-            <Zap size={16} className="text-white" />
+        className="relative overflow-hidden p-5"
+        style={{
+          background: "linear-gradient(135deg, #2163E7 0%, #1650b0 100%)",
+        }}
+      >
+        <div
+          className="absolute -top-12 -right-12 w-40 h-40 rounded-full opacity-20"
+          style={{ background: "radial-gradient(circle, #7BA3F0 0%, transparent 70%)" }}
+        />
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
+              <Zap size={16} className="text-white" />
+            </div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-white/70">
+              Break-Even Projection
+            </div>
           </div>
-          <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-white/70">
-            Break-Even Projection
+          <div className="text-[28px] font-black text-white leading-none tabular-nums mb-1">
+            {month != null ? `Month ${month}` : "Not yet"}
+          </div>
+          <div className="text-[12px] text-white/70 leading-snug">
+            {description}
           </div>
         </div>
+      </div>
 
-        <div className="text-[28px] font-black text-white leading-none tabular-nums mb-1">
-          {month != null ? `Month ${month}` : "Not yet"}
+      {/* Key Milestones section */}
+      <div className="bg-white p-5">
+        <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-3">
+          Key Milestones
+        </div>
+        <div className="flex flex-col gap-3">
+          {keyMilestones.map((m) => (
+            <div key={m.key} className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#EBF0FD] text-[#2163E7] flex items-center justify-center flex-shrink-0">
+                {m.icon}
+              </div>
+              <div className="flex-1 text-[12px] text-[#1a1a2e] font-medium">{m.label}</div>
+              <div className="text-[13px] font-bold text-[#1a1a2e] tabular-nums">
+                {formatMilestoneValue(m.value)}
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="text-[12px] text-white/70 leading-snug mb-4">
-          {description}
-        </div>
+        {/* Expandable extra milestones */}
+        <AnimatePresence initial={false}>
+          {showAll && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="border-t border-[#f0f1f7] mt-3 pt-3 flex flex-col gap-3">
+                {extraMilestones.map((m) => (
+                  <div key={m.key} className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#f8f9fc] text-[#9ca3af] flex items-center justify-center flex-shrink-0">
+                      {m.icon}
+                    </div>
+                    <div className="flex-1 text-[12px] text-[#6b7280]">{m.label}</div>
+                    <div className="text-[13px] font-bold text-[#1a1a2e] tabular-nums">
+                      {formatMilestoneValue(m.value)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {onModelScenarios && (
-          <button
-            onClick={onModelScenarios}
-            className="inline-flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-[11px] font-bold px-4 py-1.5 transition-colors"
-          >
-            <AlertCircle size={12} />
-            Model scenarios
-            <ArrowUpRight size={11} />
-          </button>
-        )}
+        <button
+          onClick={() => setShowAll((v) => !v)}
+          className="mt-3 flex items-center gap-1 text-[11px] font-bold text-[#2163E7] hover:text-[#1650b0] transition-colors"
+        >
+          {showAll ? (
+            <>
+              <ChevronDown size={14} className="rotate-180 transition-transform" />
+              Hide milestones
+            </>
+          ) : (
+            <>
+              <ChevronRight size={14} />
+              Show all milestones
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
 });
 
 /* ═══════════════════════════════════════════════════════════════════
-   7. V2DashboardHero — Main wrapper / composer
+   6. V2DashboardHero — Main wrapper / composer
    ═══════════════════════════════════════════════════════════════════ */
-
-interface DataRow {
-  Month: number;
-  [key: string]: number | string | undefined;
-}
-
-type EngineType = "subscription" | "ecommerce" | "saas";
 
 interface V2DashboardHeroProps {
   data: DataRow[];
   milestones?: Record<string, unknown>;
   engine?: EngineType;
-  onModelScenarios?: () => void;
-}
-
-/** Column resolution helpers — pick the best matching column from the dataframe */
-function findCol(row: DataRow, ...candidates: string[]): string | null {
-  for (const c of candidates) {
-    const lc = c.toLowerCase();
-    const match = Object.keys(row).find((k) => k.toLowerCase() === lc);
-    if (match && typeof row[match] === "number") return match;
-  }
-  // Fuzzy: find first column whose name includes the keyword
-  for (const c of candidates) {
-    const lc = c.toLowerCase();
-    const match = Object.keys(row).find(
-      (k) => k.toLowerCase().includes(lc) && typeof row[k] === "number"
-    );
-    if (match) return match;
-  }
-  return null;
-}
-
-function num(row: DataRow, col: string | null): number {
-  if (!col) return 0;
-  const v = row[col];
-  return typeof v === "number" ? v : 0;
 }
 
 export const V2DashboardHero = memo(function V2DashboardHero({
   data,
   milestones,
   engine = "subscription",
-  onModelScenarios,
 }: V2DashboardHeroProps) {
-  // ── Resolve columns from the dataframe ──
+  /* ── Resolve columns from the dataframe ── */
   const columns = useMemo(() => {
-    if (!data.length) return { revenue: null, oneTime: null, cost: null, profit: null, customers: null, churn: null, arpu: null, cac: null };
+    if (!data.length) return {
+      revenue: null, mrrWeekly: null, mrrMonthly: null, mrrAnnual: null,
+      cost: null, profit: null, customers: null, churn: null,
+      arpu: null, cac: null, ltv: null, ltvCac: null, margin: null,
+    };
     const sample = data[0];
-    const revenueCol = findCol(sample, "Total Revenue", "Revenue", "MRR", "Monthly Revenue", "Gross Revenue");
-    const oneTimeCol = findCol(sample, "One-Time Revenue", "Setup Fees", "One Time");
-    const costCol = findCol(sample, "Total Costs", "Costs", "Total Expenses", "Expenses", "COGS");
-    const profitCol = findCol(sample, "Net Profit", "Profit", "Net Income", "EBITDA");
-    const customersCol = findCol(sample, "Total Customers", "Customers", "Active Subscribers", "Users", "Subscribers");
-    const churnCol = findCol(sample, "Churn Rate", "Churn", "Monthly Churn");
-    const arpuCol = findCol(sample, "ARPU", "Average Revenue Per User", "Avg Revenue");
-    const cacCol = findCol(sample, "CAC", "Customer Acquisition Cost");
-    return { revenue: revenueCol, oneTime: oneTimeCol, cost: costCol, profit: profitCol, customers: customersCol, churn: churnCol, arpu: arpuCol, cac: cacCol };
+    return {
+      revenue: findCol(sample, "Total MRR", "Total Gross Revenue", "Total Revenue", "Revenue", "MRR", "Monthly Revenue", "Gross Revenue"),
+      mrrWeekly: findCol(sample, "MRR Weekly"),
+      mrrMonthly: findCol(sample, "MRR Monthly"),
+      mrrAnnual: findCol(sample, "MRR Annual"),
+      cost: findCol(sample, "Total Costs", "Costs", "Total Expenses", "Expenses", "COGS"),
+      profit: findCol(sample, "Net Profit", "Profit", "Net Income", "EBITDA"),
+      customers: findCol(sample, "Total Active Users", "Total Customers", "Customers", "Active Subscribers", "Users", "Subscribers"),
+      churn: findCol(sample, "Blended Churn", "Logo Churn %", "Churn Rate", "Churn", "Monthly Churn"),
+      arpu: findCol(sample, "ARPU", "Average Revenue Per User", "Avg Revenue"),
+      cac: findCol(sample, "Blended CAC", "CAC", "Customer Acquisition Cost"),
+      ltv: findCol(sample, "LTV", "Lifetime Value", "Customer Lifetime Value"),
+      ltvCac: findCol(sample, "LTV/CAC", "LTV CAC Ratio"),
+      margin: findCol(sample, "Gross Margin %", "Gross Margin", "Margin"),
+    };
   }, [data]);
 
-  // ── Build chart data ──
-  const chartData: RevenueBarData[] = useMemo(() => {
-    return data.map((row) => ({
-      month: typeof row.Month === "number" ? row.Month : 0,
-      revenue: num(row, columns.revenue),
-      oneTime: num(row, columns.oneTime),
-      projected: 0,
-    }));
-  }, [data, columns]);
+  /* ── Build chart data with segments ── */
+  const { chartData, legendItems } = useMemo(() => {
+    const hasBreakdown = engine === "subscription" && columns.mrrWeekly && columns.mrrMonthly && columns.mrrAnnual;
 
-  // ── Break-even ──
+    const legend: { label: string; color: string; striped?: boolean }[] = [];
+
+    if (hasBreakdown) {
+      legend.push(
+        { label: "MRR Annual", color: SEGMENT_COLORS.annual },
+        { label: "MRR Monthly", color: SEGMENT_COLORS.monthly },
+        { label: "MRR Weekly", color: SEGMENT_COLORS.weekly },
+      );
+    } else {
+      legend.push({ label: "Revenue", color: SEGMENT_COLORS.monthly });
+    }
+
+    const bars: RevenueBarData[] = data.map((row) => {
+      const month = typeof row.Month === "number" ? row.Month : 0;
+      const segments: RevenueBarData["segments"] = [];
+
+      if (hasBreakdown) {
+        // Stack order: Annual (bottom/darkest), Monthly, Weekly (top/lightest)
+        const annual = num(row, columns.mrrAnnual);
+        const monthly = num(row, columns.mrrMonthly);
+        const weekly = num(row, columns.mrrWeekly);
+        if (annual > 0) segments.push({ label: "MRR Annual", value: annual, color: SEGMENT_COLORS.annual });
+        if (monthly > 0) segments.push({ label: "MRR Monthly", value: monthly, color: SEGMENT_COLORS.monthly });
+        if (weekly > 0) segments.push({ label: "MRR Weekly", value: weekly, color: SEGMENT_COLORS.weekly });
+      } else {
+        const rev = num(row, columns.revenue);
+        if (rev > 0) segments.push({ label: "Revenue", value: rev, color: SEGMENT_COLORS.monthly });
+      }
+
+      return { month, segments };
+    });
+
+    return { chartData: bars, legendItems: legend };
+  }, [data, columns, engine]);
+
+  /* ── Break-even ── */
   const breakEvenMonth = useMemo(() => {
     if (!milestones) return null;
     const raw = milestones.break_even_month;
@@ -833,81 +995,127 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     return null;
   }, [milestones]);
 
-  // ── Metrics from last vs penultimate row ──
+  /* ── Metrics from last vs penultimate row ── */
   const metrics: MetricStripItem[] = useMemo(() => {
     if (data.length < 2) return [];
     const last = data[data.length - 1];
     const prev = data[data.length - 2];
     const items: MetricStripItem[] = [];
 
-    // Revenue metric
-    if (columns.revenue) {
-      const curr = num(last, columns.revenue);
-      const prv = num(prev, columns.revenue);
-      const pct = prv ? ((curr - prv) / prv) * 100 : 0;
+    const addMetric = (
+      label: string,
+      col: string | null,
+      format: (v: number) => string,
+      goodWhen: "up" | "down",
+      icon: React.ReactNode,
+      iconBg: string,
+      iconColor: string,
+      transform?: (v: number) => number
+    ) => {
+      if (!col) return;
+      let curr = num(last, col);
+      let prv = num(prev, col);
+      if (transform) { curr = transform(curr); prv = transform(prv); }
+      const pct = prv ? ((curr - prv) / Math.abs(prv)) * 100 : 0;
+      const good = goodWhen === "up" ? pct >= 0 : pct <= 0;
       items.push({
-        label: engine === "subscription" ? "MRR" : "Revenue",
-        value: formatCurrency(curr),
+        label,
+        value: format(curr),
         trend: formatPercent(pct),
-        good: pct >= 0,
-        spark: data.map((r) => num(r, columns.revenue)),
+        good,
+        spark: data.map((r) => {
+          let v = num(r, col);
+          if (transform) v = transform(v);
+          return v;
+        }),
+        icon,
+        iconBg,
+        iconColor,
       });
-    }
+    };
+
+    // Revenue
+    addMetric(
+      engine === "subscription" ? "MRR" : "Revenue",
+      columns.revenue,
+      formatCurrency,
+      "up",
+      <DollarSign size={14} />,
+      "#EBF0FD",
+      "#2163E7"
+    );
 
     // Customers
-    if (columns.customers) {
-      const curr = num(last, columns.customers);
-      const prv = num(prev, columns.customers);
-      const pct = prv ? ((curr - prv) / prv) * 100 : 0;
-      items.push({
-        label: "Customers",
-        value: curr >= 1000 ? `${(curr / 1000).toFixed(1)}K` : `${Math.round(curr)}`,
-        trend: formatPercent(pct),
-        good: pct >= 0,
-        spark: data.map((r) => num(r, columns.customers)),
-      });
+    addMetric(
+      "Customers",
+      columns.customers,
+      (v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}K` : `${Math.round(v)}`),
+      "up",
+      <Users size={14} />,
+      "#ecfdf5",
+      "#10B981"
+    );
+
+    // Churn
+    if (engine !== "ecommerce" && columns.churn) {
+      addMetric(
+        "Churn",
+        columns.churn,
+        (v) => `${v.toFixed(1)}%`,
+        "down",
+        <Activity size={14} />,
+        "#fef2f2",
+        "#EF4444",
+        (v) => (v < 1 ? v * 100 : v)
+      );
     }
 
-    // Profit
-    if (columns.profit) {
-      const curr = num(last, columns.profit);
-      const prv = num(prev, columns.profit);
-      const pct = prv ? ((curr - prv) / Math.abs(prv)) * 100 : 0;
-      items.push({
-        label: "Net Profit",
-        value: formatCurrency(curr),
-        trend: formatPercent(pct),
-        good: curr >= 0,
-        spark: data.map((r) => num(r, columns.profit)),
-      });
+    // CAC
+    addMetric("CAC", columns.cac, formatCurrency, "down", <Target size={14} />, "#FFF7ED", "#F59E0B");
+
+    // LTV
+    addMetric("LTV", columns.ltv, formatCurrency, "up", <BarChart3 size={14} />, "#EBF0FD", "#2163E7");
+
+    // LTV/CAC
+    if (columns.ltvCac) {
+      addMetric(
+        "LTV/CAC",
+        columns.ltvCac,
+        (v) => `${v.toFixed(1)}x`,
+        "up",
+        <Milestone size={14} />,
+        "#ecfdf5",
+        "#10B981"
+      );
     }
 
-    // Churn (only for subscription / saas)
-    if (columns.churn && engine !== "ecommerce") {
-      const curr = num(last, columns.churn);
-      const prv = num(prev, columns.churn);
-      const pct = prv ? ((curr - prv) / prv) * 100 : 0;
-      items.push({
-        label: "Churn Rate",
-        value: `${(curr * (curr < 1 ? 100 : 1)).toFixed(1)}%`,
-        trend: formatPercent(pct),
-        good: pct <= 0, // lower churn is good
-        spark: data.map((r) => num(r, columns.churn)),
-      });
+    // Margin
+    if (columns.margin) {
+      addMetric(
+        "Margin",
+        columns.margin,
+        (v) => `${(v < 1 ? v * 100 : v).toFixed(1)}%`,
+        "up",
+        <Percent size={14} />,
+        "#ecfdf5",
+        "#10B981",
+        (v) => (v < 1 ? v * 100 : v)
+      );
     }
+
+    // ARPU
+    addMetric("ARPU", columns.arpu, formatCurrency, "up", <DollarSign size={14} />, "#EBF0FD", "#2163E7");
 
     return items;
   }, [data, columns, engine]);
 
-  // ── Cost donut segments ──
+  /* ── Cost donut segments ── */
   const donutSegments: DonutSegment[] = useMemo(() => {
     if (!data.length) return [];
     const last = data[data.length - 1];
     const segments: DonutSegment[] = [];
 
-    // Collect numeric cost-like columns
-    const costKeywords = ["cost", "expense", "salary", "marketing", "server", "hosting", "infrastructure", "support", "cogs", "opex"];
-    const usedKeys = new Set<string>();
+    const costKeywords = ["cost", "expense", "salary", "marketing", "server", "infrastructure", "cogs", "opex", "ad budget"];
 
     Object.keys(last).forEach((key) => {
       const lk = key.toLowerCase();
@@ -922,9 +1130,10 @@ export const V2DashboardHero = memo(function V2DashboardHero({
         !lk.includes("churn") &&
         !lk.includes("arpu") &&
         !lk.includes("cac") &&
+        !lk.includes("ltv") &&
+        !lk.includes("margin") &&
         costKeywords.some((ck) => lk.includes(ck))
       ) {
-        usedKeys.add(key);
         segments.push({
           label: key,
           value: last[key] as number,
@@ -935,7 +1144,6 @@ export const V2DashboardHero = memo(function V2DashboardHero({
       }
     });
 
-    // Fallback: if no cost breakdown found but total cost exists, show single segment
     if (segments.length === 0 && columns.cost) {
       const v = num(last, columns.cost);
       if (v > 0) {
@@ -946,18 +1154,18 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     return segments;
   }, [data, columns]);
 
-  // ── MRR / Revenue big number ──
+  /* ── MRR / Revenue big number ── */
   const heroValue = data.length > 0 ? num(data[data.length - 1], columns.revenue) : 0;
   const heroLabel = engine === "subscription" ? "Monthly Recurring Revenue" : "Total Revenue";
 
-  // ── Break-even description ──
+  /* ── Break-even description ── */
   const breakEvenDescription = breakEvenMonth
     ? `Your model projects break-even at month ${breakEvenMonth}. Adjust inputs to explore different scenarios.`
     : "Break-even has not been reached within the modeled timeframe.";
 
   return (
     <div className="flex flex-col gap-5 font-lato">
-      {/* ── Hero MRR Card + Chart ── */}
+      {/* ── Row 1: Hero MRR Card + Chart (full width) ── */}
       <div
         className="bg-white overflow-hidden"
         style={{ borderRadius: CARD_RADIUS, boxShadow: CARD_SHADOW }}
@@ -996,127 +1204,41 @@ export const V2DashboardHero = memo(function V2DashboardHero({
             </div>
           )}
         </div>
-
-        {/* Chart */}
         <div className="px-2 pb-4">
-          <RevenueHeroChart data={chartData} breakEvenMonth={breakEvenMonth} />
+          <RevenueHeroChart
+            data={chartData}
+            breakEvenMonth={breakEvenMonth}
+            legendItems={legendItems}
+          />
         </div>
       </div>
 
-      {/* ── Secondary Row: Metrics + Donut ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {metrics.length > 0 && <MetricStripCard metrics={metrics} />}
+      {/* ── Row 2: Metrics (flex-1) + Cost Structure donut (w-[320px]) ── */}
+      <div className="flex flex-col lg:flex-row gap-5">
+        {metrics.length > 0 && (
+          <div className="flex-1 min-w-0">
+            <MetricStripCard metrics={metrics} />
+          </div>
+        )}
         {donutSegments.length > 0 && (
           <div
-            className="bg-white p-5"
+            className="bg-white p-5 w-full lg:w-[320px] lg:flex-shrink-0"
             style={{ borderRadius: CARD_RADIUS, boxShadow: CARD_SHADOW }}
           >
             <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-3">
               Cost Structure
             </div>
-            <MiniDonut segments={donutSegments} totalLabel="Total / mo" />
+            <MiniDonut segments={donutSegments} totalLabel="monthly" />
           </div>
         )}
       </div>
 
-      {/* ── Bottom Row: Break-Even + Activity ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <BreakEvenCallout
-          month={breakEvenMonth}
-          description={breakEvenDescription}
-          onModelScenarios={onModelScenarios}
-        />
-        <ActivityFeed
-          items={buildActivityItems(data, columns, engine)}
-        />
-      </div>
+      {/* ── Row 3: Break-Even + Milestones (full width) ── */}
+      <BreakEvenCallout
+        month={breakEvenMonth}
+        description={breakEvenDescription}
+        milestones={milestones}
+      />
     </div>
   );
 });
-
-/* ── Activity feed auto-generation from data ── */
-
-function buildActivityItems(
-  data: DataRow[],
-  columns: { revenue: string | null; customers: string | null; profit: string | null },
-  engine: EngineType
-): ActivityFeedItem[] {
-  if (data.length < 2) return [];
-  const items: ActivityFeedItem[] = [];
-  const last = data[data.length - 1];
-  const prev = data[data.length - 2];
-
-  // Revenue milestone
-  if (columns.revenue) {
-    const curr = num(last, columns.revenue);
-    const prv = num(prev, columns.revenue);
-    if (curr > prv) {
-      items.push({
-        icon: <TrendingUp size={14} />,
-        color: COLORS.green,
-        bg: "#ecfdf5",
-        text: `Revenue grew ${formatPercent(((curr - prv) / (prv || 1)) * 100)} to ${formatCurrency(curr)}`,
-        time: `Month ${last.Month}`,
-      });
-    }
-  }
-
-  // Customer growth
-  if (columns.customers) {
-    const curr = num(last, columns.customers);
-    const prv = num(prev, columns.customers);
-    const diff = Math.round(curr - prv);
-    if (diff > 0) {
-      items.push({
-        icon: <ArrowUpRight size={14} />,
-        color: COLORS.primaryBlue,
-        bg: "#EBF0FD",
-        text: `${diff} new ${engine === "ecommerce" ? "customers" : "subscribers"} added`,
-        time: `Month ${last.Month}`,
-      });
-    }
-  }
-
-  // Profitability check
-  if (columns.profit) {
-    const curr = num(last, columns.profit);
-    const prv = num(prev, columns.profit);
-    if (curr >= 0 && prv < 0) {
-      items.push({
-        icon: <Zap size={14} />,
-        color: COLORS.yellow,
-        bg: "#fffbeb",
-        text: "Reached profitability this month!",
-        time: `Month ${last.Month}`,
-      });
-    } else if (curr < 0) {
-      items.push({
-        icon: <AlertCircle size={14} />,
-        color: COLORS.red,
-        bg: "#fef2f2",
-        text: `Net loss of ${formatCurrency(Math.abs(curr))}`,
-        time: `Month ${last.Month}`,
-      });
-    }
-  }
-
-  // Pad with earlier data if we have few items
-  if (items.length < 3 && data.length >= 3) {
-    const m2 = data[data.length - 3];
-    if (columns.revenue) {
-      const r2 = num(prev, columns.revenue);
-      const r3 = num(m2, columns.revenue);
-      if (r2 > r3) {
-        items.push({
-          icon: <TrendingUp size={14} />,
-          color: COLORS.green,
-          bg: "#ecfdf5",
-          text: `Revenue was ${formatCurrency(r2)} in month ${prev.Month}`,
-          time: `Month ${prev.Month}`,
-        });
-      }
-    }
-  }
-
-  return items.slice(0, 5);
-}
