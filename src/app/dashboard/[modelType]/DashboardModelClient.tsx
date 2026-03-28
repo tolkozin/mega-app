@@ -469,15 +469,18 @@ function DashboardPage() {
       <div className="flex flex-col md:flex-row h-[calc(100dvh-3.5rem)]">
         {!configHidden && <SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} />}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 relative">
-          <button
-            onClick={() => setConfigHidden(!configHidden)}
-            className="hidden md:flex absolute top-3 left-0 z-10 w-6 h-10 bg-[#ECECF2] hover:bg-[#DDE0E9] rounded-r-lg items-center justify-center text-[#8181A5] hover:text-[#1C1D21] transition-colors"
-            title={configHidden ? "Show config panel" : "Hide config panel"}
-          >
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d={configHidden ? "M6 3l5 5-5 5" : "M10 3L5 8l5 5"} />
-            </svg>
-          </button>
+          {/* Sticky toggle button — stays visible during scroll */}
+          <div className="hidden md:block sticky top-1/2 z-10 h-0" style={{ marginLeft: "-1.5rem" }}>
+            <button
+              onClick={() => setConfigHidden(!configHidden)}
+              className="w-6 h-10 bg-[#ECECF2] hover:bg-[#DDE0E9] rounded-r-lg flex items-center justify-center text-[#8181A5] hover:text-[#1C1D21] transition-colors -translate-y-1/2"
+              title={configHidden ? "Show config panel" : "Hide config panel"}
+            >
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d={configHidden ? "M6 3l5 5-5 5" : "M10 3L5 8l5 5"} />
+              </svg>
+            </button>
+          </div>
 
           {/* Logo + Model type selector + Engine selector + Date filter */}
           <div className="flex items-center gap-2 flex-wrap">
