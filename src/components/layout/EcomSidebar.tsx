@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,8 @@ import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useProfile } from "@/hooks/useProfile";
 import { isActivePlan } from "@/lib/plan-limits";
 import { useUpgradeStore } from "@/stores/upgrade-store";
+import { PhaseCostItems, ECOM_CATEGORIES } from "./PhaseCostItems";
+import type { CostItem } from "@/stores/cost-items-store";
 import type { EcomPhaseConfig } from "@/lib/types";
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
@@ -129,20 +131,39 @@ function EcomPhaseSection({ phase, phaseNum }: { phase: EcomPhaseConfig; phaseNu
   const setPhase = useConfigStore((s) => s.setEcommercePhase);
   const update = (partial: Partial<EcomPhaseConfig>) => setPhase(phaseNum, partial);
 
+  const costDefaults: CostItem[] = [
+    { id: `inv-${phaseNum}`, label: "Investment", amount: phase.investment, category: "Investment" },
+    { id: `sal-${phaseNum}`, label: "Team Salary", amount: phase.monthly_salary, category: "Personnel" },
+    { id: `ads-${phaseNum}`, label: "Ad Budget", amount: phase.ad_budget, category: "Marketing" },
+  ];
+
+  const handleCostSync = useCallback((totals: Record<string, number>) => {
+    update({
+      investment: totals.Investment ?? 0,
+      monthly_salary: totals.Personnel ?? 0,
+      ad_budget: totals.Marketing ?? 0,
+    });
+  }, [phaseNum]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <Accordion title={`Phase ${phaseNum}`}>
-      <NumberField label="Investment ($)" value={phase.investment} onChange={(v) => update({ investment: v })} min={0} step={1000} />
+      <div className="pt-1 pb-1 text-xs font-medium text-muted-foreground">Cost Items</div>
+      <PhaseCostItems
+        storeKey={`ecom-${phaseNum}`}
+        defaults={costDefaults}
+        categories={ECOM_CATEGORIES}
+        onSync={handleCostSync}
+      />
+
       <NumberField label="AOV ($)" value={phase.avg_order_value} onChange={(v) => update({ avg_order_value: v })} min={0} step={1} help="Average Order Value — mean revenue per order" />
       <NumberField label="Repeat Purchase Rate (%)" value={phase.repeat_purchase_rate} onChange={(v) => update({ repeat_purchase_rate: v })} min={0} max={100} step={1} help="% of customers who make a repeat purchase within 30 days" />
       <NumberField label="Orders/Returning Customer" value={phase.orders_per_returning} onChange={(v) => update({ orders_per_returning: v })} min={1} step={0.1} help="Average orders per returning customer per month" />
       <NumberField label="COGS (%)" value={phase.cogs_pct} onChange={(v) => update({ cogs_pct: v })} min={0} max={100} step={1} help="Cost of Goods Sold as % of revenue (manufacturing, shipping, packaging)" />
       <NumberField label="Return Rate (%)" value={phase.return_rate} onChange={(v) => update({ return_rate: v })} min={0} max={100} step={0.5} help="% of orders returned/refunded. Reduces net revenue" />
-      <NumberField label="Ad Budget ($/mo)" value={phase.ad_budget} onChange={(v) => update({ ad_budget: v })} min={0} step={500} help="Monthly paid advertising spend (Facebook, Google, TikTok, etc.)" />
       <NumberField label="CPC ($)" value={phase.cpc} onChange={(v) => update({ cpc: v })} min={0.01} step={0.1} help="Cost Per Click — average price per ad click" />
       <NumberField label="Click-to-Purchase (%)" value={phase.click_to_purchase} onChange={(v) => update({ click_to_purchase: v })} min={0} max={100} step={0.5} help="% of ad clicks that result in a purchase (conversion rate)" slider />
       <NumberField label="Organic (%)" value={phase.organic_pct} onChange={(v) => update({ organic_pct: v })} min={0} max={100} step={1} help="% of total traffic that is organic (non-paid). Higher = better unit economics" slider />
       <NumberField label="Discount Rate (%)" value={phase.discount_rate} onChange={(v) => update({ discount_rate: v })} min={0} max={100} step={1} help="Average discount applied to orders. Reduces effective AOV" />
-      <NumberField label="Monthly Salary ($)" value={phase.monthly_salary} onChange={(v) => update({ monthly_salary: v })} min={0} step={500} help="Total team salary per month during this phase" />
     </Accordion>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,8 @@ import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useProfile } from "@/hooks/useProfile";
 import { isActivePlan } from "@/lib/plan-limits";
 import { useUpgradeStore } from "@/stores/upgrade-store";
+import { PhaseCostItems, SUB_CATEGORIES } from "./PhaseCostItems";
+import type { CostItem } from "@/stores/cost-items-store";
 import type { PhaseConfig } from "@/lib/types";
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
@@ -130,12 +132,34 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
   const setPhase = useConfigStore((s) => s.setSubscriptionPhase);
   const update = (partial: Partial<PhaseConfig>) => setPhase(phaseNum, partial);
 
+  const costDefaults: CostItem[] = [
+    { id: `inv-${phaseNum}`, label: "Investment", amount: phase.investment, category: "Investment" },
+    { id: `sal-${phaseNum}`, label: "Team Salary", amount: phase.monthly_salary, category: "Personnel" },
+    { id: `misc-${phaseNum}`, label: "Misc Costs", amount: phase.misc_total, category: "Operations" },
+    { id: `ads-${phaseNum}`, label: "Ad Budget", amount: phase.ad_budget, category: "Marketing" },
+    { id: `org-${phaseNum}`, label: "Organic Spend", amount: phase.organic_spend, category: "Organic" },
+  ];
+
+  const handleCostSync = useCallback((totals: Record<string, number>) => {
+    update({
+      investment: totals.Investment ?? 0,
+      monthly_salary: totals.Personnel ?? 0,
+      misc_total: totals.Operations ?? 0,
+      ad_budget: totals.Marketing ?? 0,
+      organic_spend: totals.Organic ?? 0,
+    });
+  }, [phaseNum]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <Accordion title={`Phase ${phaseNum}`}>
-      <NumberField label="Investment ($)" value={phase.investment} onChange={(v) => update({ investment: v })} min={0} step={1000} help="One-time capital investment for this phase" />
-      <NumberField label="Monthly Salary ($)" value={phase.monthly_salary} onChange={(v) => update({ monthly_salary: v })} min={0} step={500} help="Total team salary per month during this phase" />
-      <NumberField label="Misc Costs ($/mo)" value={phase.misc_total} onChange={(v) => update({ misc_total: v })} min={0} step={100} help="Office rent, tools, SaaS subscriptions, legal fees, etc." />
-      <NumberField label="Ad Budget ($/mo)" value={phase.ad_budget} onChange={(v) => update({ ad_budget: v })} min={0} step={500} help="Monthly paid advertising spend (Facebook, Google, etc.)" />
+      <div className="pt-1 pb-1 text-xs font-medium text-muted-foreground">Cost Items</div>
+      <PhaseCostItems
+        storeKey={`sub-${phaseNum}`}
+        defaults={costDefaults}
+        categories={SUB_CATEGORIES}
+        onSync={handleCostSync}
+      />
+
       <NumberField label="CPI ($)" value={phase.cpi} onChange={(v) => update({ cpi: v })} min={0.01} step={0.5} help="Cost Per Install — how much you pay per app install from ads" />
       <NumberField label="Conv Trial (%)" value={phase.conv_trial} onChange={(v) => update({ conv_trial: v })} min={0} max={100} step={1} help="% of paid installs that start a free trial" slider />
       <NumberField label="Conv Paid (%)" value={phase.conv_paid} onChange={(v) => update({ conv_paid: v })} min={0} max={100} step={1} help="% of trial users that convert to a paid subscription" slider />
@@ -175,7 +199,7 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
       )}
       <NumberField label="Organic Conv Trial (%)" value={phase.organic_conv_trial} onChange={(v) => update({ organic_conv_trial: v })} min={0} max={100} step={1} help="% of organic installs that start a free trial" slider />
       <NumberField label="Organic Conv Paid (%)" value={phase.organic_conv_paid} onChange={(v) => update({ organic_conv_paid: v })} min={0} max={100} step={1} help="% of organic trial users that convert to paid" slider />
-      <NumberField label="Organic Spend ($/mo)" value={phase.organic_spend} onChange={(v) => update({ organic_spend: v })} min={0} step={100} help="Monthly spend on SEO, content marketing, social media" />
+
 
       <div className="pt-2 text-xs font-medium text-muted-foreground">Pricing</div>
       <NumberField label="Weekly ($)" value={phase.price_weekly} onChange={(v) => update({ price_weekly: v })} min={0} step={0.99} help="Price for weekly subscription plan" />

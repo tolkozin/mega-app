@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,8 @@ import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useProfile } from "@/hooks/useProfile";
 import { isActivePlan } from "@/lib/plan-limits";
 import { useUpgradeStore } from "@/stores/upgrade-store";
+import { PhaseCostItems, SAAS_CATEGORIES } from "./PhaseCostItems";
+import type { CostItem } from "@/stores/cost-items-store";
 import type { SaasPhaseConfig } from "@/lib/types";
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
@@ -129,14 +131,34 @@ function SaasPhaseSection({ phase, phaseNum }: { phase: SaasPhaseConfig; phaseNu
   const setPhase = useConfigStore((s) => s.setSaasPhase);
   const update = (partial: Partial<SaasPhaseConfig>) => setPhase(phaseNum, partial);
 
+  const costDefaults: CostItem[] = [
+    { id: `inv-${phaseNum}`, label: "Investment", amount: phase.investment, category: "Investment" },
+    { id: `sal-${phaseNum}`, label: "Team Salary", amount: phase.monthly_salary, category: "Personnel" },
+    { id: `ads-${phaseNum}`, label: "Ad Budget", amount: phase.ad_budget, category: "Marketing" },
+  ];
+
+  const handleCostSync = useCallback((totals: Record<string, number>) => {
+    update({
+      investment: totals.Investment ?? 0,
+      monthly_salary: totals.Personnel ?? 0,
+      ad_budget: totals.Marketing ?? 0,
+    });
+  }, [phaseNum]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <Accordion title={`Phase ${phaseNum}`}>
-      <NumberField label="Investment ($)" value={phase.investment} onChange={(v) => update({ investment: v })} min={0} step={10000} help="Capital invested during this phase" />
+      <div className="pt-1 pb-1 text-xs font-medium text-muted-foreground">Cost Items</div>
+      <PhaseCostItems
+        storeKey={`saas-${phaseNum}`}
+        defaults={costDefaults}
+        categories={SAAS_CATEGORIES}
+        onSync={handleCostSync}
+      />
+
       <NumberField label="Seats per Account" value={phase.seats_per_account} onChange={(v) => update({ seats_per_account: v })} min={1} step={1} help="Average number of seats (users) per customer account" />
       <NumberField label="Price per Seat ($/mo)" value={phase.price_per_seat} onChange={(v) => update({ price_per_seat: v })} min={0} step={1} help="Monthly price charged per seat/user" />
       <NumberField label="Annual Contract (%)" value={phase.annual_contract_pct} onChange={(v) => update({ annual_contract_pct: v })} min={0} max={100} step={5} help="% of new deals signed as annual contracts (vs monthly)" />
       <NumberField label="Annual Discount (%)" value={phase.annual_discount} onChange={(v) => update({ annual_discount: v })} min={0} max={50} step={1} help="Discount offered on annual plans vs monthly pricing" />
-      <NumberField label="Ad Budget ($/mo)" value={phase.ad_budget} onChange={(v) => update({ ad_budget: v })} min={0} step={500} help="Monthly spend on paid advertising (LinkedIn, Google, etc.)" />
       <NumberField label="Cost per Lead ($)" value={phase.cpl} onChange={(v) => update({ cpl: v })} min={1} step={10} help="Average cost to acquire one marketing-qualified lead" />
       <NumberField label="Lead-to-Demo (%)" value={phase.lead_to_demo} onChange={(v) => update({ lead_to_demo: v })} min={0} max={100} step={1} help="% of leads that book a product demo" />
       <NumberField label="Demo-to-Close (%)" value={phase.demo_to_close} onChange={(v) => update({ demo_to_close: v })} min={0} max={100} step={1} help="% of demos that convert to paying customers" />
@@ -146,7 +168,6 @@ function SaasPhaseSection({ phase, phaseNum }: { phase: SaasPhaseConfig; phaseNu
       <NumberField label="Logo Churn Rate (%/mo)" value={phase.logo_churn_rate} onChange={(v) => update({ logo_churn_rate: v })} min={0} max={50} step={0.5} help="Monthly % of customers that fully cancel. Removes all their MRR" />
       <NumberField label="COGS per Seat ($/mo)" value={phase.cogs_per_seat} onChange={(v) => update({ cogs_per_seat: v })} min={0} step={1} help="Hosting, support, and infrastructure cost per active seat" />
       <NumberField label="Organic Leads (%)" value={phase.organic_leads_pct} onChange={(v) => update({ organic_leads_pct: v })} min={0} max={100} step={1} help="% of total leads from organic sources (SEO, referrals, word-of-mouth)" slider />
-      <NumberField label="Monthly Salary ($)" value={phase.monthly_salary} onChange={(v) => update({ monthly_salary: v })} min={0} step={500} help="Total team salary per month during this phase" />
     </Accordion>
   );
 }
