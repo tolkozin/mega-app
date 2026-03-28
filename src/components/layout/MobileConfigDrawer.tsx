@@ -21,7 +21,7 @@ export function MobileConfigDrawer({ children }: { children: React.ReactNode }) 
           />
           {/* Drawer */}
           <motion.aside
-            className="fixed top-0 left-0 z-50 h-full w-80 max-w-[85vw] bg-background shadow-xl overflow-y-auto"
+            className="fixed top-0 left-0 z-50 h-full w-[360px] max-w-[85vw] bg-background shadow-xl overflow-y-auto"
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}

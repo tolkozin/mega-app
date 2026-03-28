@@ -103,61 +103,59 @@ export function PhaseCostItems({ storeKey, defaults, categories, onSync }: Phase
       {items.map((item) => (
         <div
           key={item.id}
-          className="flex gap-1.5 items-center rounded-[11px] p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]"
+          className="flex flex-col gap-1.5 rounded-[11px] p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]"
         >
-          {/* Category dot */}
-          <span
-            className="w-2 h-2 rounded-full shrink-0"
-            style={{ backgroundColor: catColor(item.category) }}
-          />
-
-          {/* Label */}
-          <input
-            value={item.label}
-            onChange={(e) => handleUpdate(item.id, "label", e.target.value)}
-            className="flex-1 min-w-0 bg-transparent border-none outline-none text-[12.5px] font-semibold text-[#1a1a2e] font-[Lato,sans-serif]"
-          />
-
-          {/* Amount */}
-          <div className="flex items-center bg-white border-[1.5px] border-[#e8eaf0] rounded-[7px] px-2 py-1 w-[76px] shrink-0">
-            <span className="text-[11px] text-[#9ca3af] mr-0.5">$</span>
+          {/* Row 1: dot + label + amount */}
+          <div className="flex items-center gap-1.5">
+            <span
+              className="w-2 h-2 rounded-full shrink-0"
+              style={{ backgroundColor: catColor(item.category) }}
+            />
             <input
-              type="number"
-              value={item.amount || ""}
-              onChange={(e) =>
-                handleUpdate(item.id, "amount", e.target.value === "" ? 0 : Number(e.target.value))
-              }
-              className="w-full bg-transparent border-none outline-none text-[12.5px] font-bold text-[#1a1a2e] font-[Lato,sans-serif] tabular-nums"
-              placeholder="0"
+              value={item.label}
+              onChange={(e) => handleUpdate(item.id, "label", e.target.value)}
+              className="flex-1 min-w-0 bg-transparent border-none outline-none text-[12px] font-semibold text-[#1a1a2e] font-[Lato,sans-serif]"
             />
+            <div className="flex items-center bg-white border-[1.5px] border-[#e8eaf0] rounded-[7px] px-2 py-1 w-[90px] shrink-0">
+              <span className="text-[11px] text-[#9ca3af] mr-0.5">$</span>
+              <input
+                type="number"
+                value={item.amount || ""}
+                onChange={(e) =>
+                  handleUpdate(item.id, "amount", e.target.value === "" ? 0 : Number(e.target.value))
+                }
+                className="w-full bg-transparent border-none outline-none text-[12px] font-bold text-[#1a1a2e] font-[Lato,sans-serif] tabular-nums"
+                placeholder="0"
+              />
+            </div>
           </div>
 
-          {/* Category select */}
-          <div className="relative shrink-0">
-            <select
-              value={item.category}
-              onChange={(e) => handleUpdate(item.id, "category", e.target.value)}
-              className="appearance-none bg-white border-[1.5px] border-[#e8eaf0] rounded-[7px] pl-2 pr-6 py-1 text-[10.5px] text-[#6b7280] font-[Lato,sans-serif] cursor-pointer outline-none"
+          {/* Row 2: category + delete */}
+          <div className="flex items-center gap-1.5 pl-3.5">
+            <div className="relative flex-1 min-w-0">
+              <select
+                value={item.category}
+                onChange={(e) => handleUpdate(item.id, "category", e.target.value)}
+                className="w-full appearance-none bg-white border-[1.5px] border-[#e8eaf0] rounded-[7px] pl-2 pr-6 py-1 text-[10.5px] text-[#6b7280] font-[Lato,sans-serif] cursor-pointer outline-none"
+              >
+                {categories.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                size={11}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#9ca3af]"
+              />
+            </div>
+            <button
+              onClick={() => handleRemove(item.id)}
+              className="shrink-0 p-1 text-[#d1d5db] hover:text-[#EF4444] transition-colors"
             >
-              {categories.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              size={11}
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#9ca3af]"
-            />
+              <Trash2 size={13} strokeWidth={2} />
+            </button>
           </div>
-
-          {/* Delete */}
-          <button
-            onClick={() => handleRemove(item.id)}
-            className="shrink-0 p-1 text-[#d1d5db] hover:text-[#EF4444] transition-colors"
-          >
-            <Trash2 size={13} strokeWidth={2} />
-          </button>
         </div>
       ))}
 

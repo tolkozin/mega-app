@@ -11,8 +11,18 @@ import { useProfile } from "@/hooks/useProfile";
 import { isActivePlan } from "@/lib/plan-limits";
 import { useUpgradeStore } from "@/stores/upgrade-store";
 import { PhaseCostItems, ECOM_CATEGORIES } from "./PhaseCostItems";
+import {
+  AnimatedAccordion,
+  ToggleSwitch,
+  PhaseTimeline,
+  PhaseSummaryCard,
+  PhasePresets,
+  InlineWarning,
+} from "./ConfigWidgets";
 import type { CostItem } from "@/stores/cost-items-store";
 import type { EcomPhaseConfig } from "@/lib/types";
+
+const PHASE_COLORS: [string, string, string] = ["#2163E7", "#10B981", "#7C3AED"];
 
 function InfoIcon({ tooltip }: { tooltip: string }) {
   const [show, setShow] = useState(false);
@@ -116,16 +126,18 @@ function NumberField({ label, value, onChange, min, max, step, help, slider }: {
   );
 }
 
-function Accordion({ title, children, defaultOpen }: {
-  title: string; children: React.ReactNode; defaultOpen?: boolean;
-}) {
-  return (
-    <details open={defaultOpen} className="border-b">
-      <summary className="cursor-pointer py-2 px-3 text-sm font-medium hover:bg-muted/50">{title}</summary>
-      <div className="px-3 pb-3 space-y-3">{children}</div>
-    </details>
-  );
-}
+const ECOM_CONSERVATIVE: Partial<EcomPhaseConfig> = {
+  avg_order_value: 35, repeat_purchase_rate: 10, cpc: 1.5,
+  click_to_purchase: 1.5, cogs_pct: 50, return_rate: 8, discount_rate: 5,
+};
+const ECOM_MODERATE: Partial<EcomPhaseConfig> = {
+  avg_order_value: 55, repeat_purchase_rate: 20, cpc: 1.0,
+  click_to_purchase: 3, cogs_pct: 40, return_rate: 5, discount_rate: 10,
+};
+const ECOM_AGGRESSIVE: Partial<EcomPhaseConfig> = {
+  avg_order_value: 80, repeat_purchase_rate: 35, cpc: 0.6,
+  click_to_purchase: 5, cogs_pct: 30, return_rate: 3, discount_rate: 15,
+};
 
 function EcomPhaseSection({ phase, phaseNum }: { phase: EcomPhaseConfig; phaseNum: 1 | 2 | 3 }) {
   const setPhase = useConfigStore((s) => s.setEcommercePhase);
@@ -145,26 +157,52 @@ function EcomPhaseSection({ phase, phaseNum }: { phase: EcomPhaseConfig; phaseNu
     });
   }, [phaseNum]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return (
-    <Accordion title={`Phase ${phaseNum}`}>
-      <div className="pt-1 pb-1 text-xs font-medium text-muted-foreground">Cost Items</div>
-      <PhaseCostItems
-        storeKey={`ecom-${phaseNum}`}
-        defaults={costDefaults}
-        categories={ECOM_CATEGORIES}
-        onSync={handleCostSync}
-      />
+  const totalCosts = phase.investment + phase.monthly_salary + phase.ad_budget;
 
-      <NumberField label="AOV ($)" value={phase.avg_order_value} onChange={(v) => update({ avg_order_value: v })} min={0} step={1} help="Average Order Value — mean revenue per order" />
-      <NumberField label="Repeat Purchase Rate (%)" value={phase.repeat_purchase_rate} onChange={(v) => update({ repeat_purchase_rate: v })} min={0} max={100} step={1} help="% of customers who make a repeat purchase within 30 days" />
-      <NumberField label="Orders/Returning Customer" value={phase.orders_per_returning} onChange={(v) => update({ orders_per_returning: v })} min={1} step={0.1} help="Average orders per returning customer per month" />
-      <NumberField label="COGS (%)" value={phase.cogs_pct} onChange={(v) => update({ cogs_pct: v })} min={0} max={100} step={1} help="Cost of Goods Sold as % of revenue (manufacturing, shipping, packaging)" />
-      <NumberField label="Return Rate (%)" value={phase.return_rate} onChange={(v) => update({ return_rate: v })} min={0} max={100} step={0.5} help="% of orders returned/refunded. Reduces net revenue" />
-      <NumberField label="CPC ($)" value={phase.cpc} onChange={(v) => update({ cpc: v })} min={0.01} step={0.1} help="Cost Per Click — average price per ad click" />
-      <NumberField label="Click-to-Purchase (%)" value={phase.click_to_purchase} onChange={(v) => update({ click_to_purchase: v })} min={0} max={100} step={0.5} help="% of ad clicks that result in a purchase (conversion rate)" slider />
-      <NumberField label="Organic (%)" value={phase.organic_pct} onChange={(v) => update({ organic_pct: v })} min={0} max={100} step={1} help="% of total traffic that is organic (non-paid). Higher = better unit economics" slider />
-      <NumberField label="Discount Rate (%)" value={phase.discount_rate} onChange={(v) => update({ discount_rate: v })} min={0} max={100} step={1} help="Average discount applied to orders. Reduces effective AOV" />
-    </Accordion>
+  const handlePreset = (preset: "conservative" | "moderate" | "aggressive") => {
+    const values = preset === "conservative" ? ECOM_CONSERVATIVE
+      : preset === "moderate" ? ECOM_MODERATE
+      : ECOM_AGGRESSIVE;
+    update(values);
+  };
+
+  return (
+    <AnimatedAccordion title={`Phase ${phaseNum}`} color={PHASE_COLORS[phaseNum - 1]}>
+      <div className="px-3 pb-3 space-y-3">
+        <PhaseSummaryCard items={[
+          { label: "Monthly Costs", value: `$${totalCosts.toLocaleString()}` },
+          { label: "AOV", value: `$${phase.avg_order_value}` },
+          { label: "Conv Rate", value: `${phase.click_to_purchase}%`, color: phase.click_to_purchase > 3 ? "#10B981" : "#F59E0B" },
+          { label: "COGS", value: `${phase.cogs_pct}%` },
+        ]} />
+
+        <div>
+          <p className="text-[10px] text-[#8181A5] mb-1.5">Quick Presets</p>
+          <PhasePresets onApply={handlePreset} />
+        </div>
+
+        <div className="pt-1 pb-1 text-xs font-medium text-muted-foreground">Cost Items</div>
+        <PhaseCostItems
+          storeKey={`ecom-${phaseNum}`}
+          defaults={costDefaults}
+          categories={ECOM_CATEGORIES}
+          onSync={handleCostSync}
+        />
+
+        <NumberField label="AOV ($)" value={phase.avg_order_value} onChange={(v) => update({ avg_order_value: v })} min={0} step={1} help="Average Order Value — mean revenue per order" />
+        <NumberField label="Repeat Purchase Rate (%)" value={phase.repeat_purchase_rate} onChange={(v) => update({ repeat_purchase_rate: v })} min={0} max={100} step={1} help="% of customers who make a repeat purchase within 30 days" />
+        <NumberField label="Orders/Returning Customer" value={phase.orders_per_returning} onChange={(v) => update({ orders_per_returning: v })} min={1} step={0.1} help="Average orders per returning customer per month" />
+        <NumberField label="COGS (%)" value={phase.cogs_pct} onChange={(v) => update({ cogs_pct: v })} min={0} max={100} step={1} help="Cost of Goods Sold as % of revenue (manufacturing, shipping, packaging)" />
+        <NumberField label="Return Rate (%)" value={phase.return_rate} onChange={(v) => update({ return_rate: v })} min={0} max={100} step={0.5} help="% of orders returned/refunded. Reduces net revenue" />
+        {phase.return_rate > 15 && (
+          <InlineWarning message="Return rate above 15% — check product quality or sizing" />
+        )}
+        <NumberField label="CPC ($)" value={phase.cpc} onChange={(v) => update({ cpc: v })} min={0.01} step={0.1} help="Cost Per Click — average price per ad click" />
+        <NumberField label="Click-to-Purchase (%)" value={phase.click_to_purchase} onChange={(v) => update({ click_to_purchase: v })} min={0} max={100} step={0.5} help="% of ad clicks that result in a purchase (conversion rate)" slider />
+        <NumberField label="Organic (%)" value={phase.organic_pct} onChange={(v) => update({ organic_pct: v })} min={0} max={100} step={1} help="% of total traffic that is organic (non-paid). Higher = better unit economics" slider />
+        <NumberField label="Discount Rate (%)" value={phase.discount_rate} onChange={(v) => update({ discount_rate: v })} min={0} max={100} step={1} help="Average discount applied to orders. Reduces effective AOV" />
+      </div>
+    </AnimatedAccordion>
   );
 }
 
@@ -189,48 +227,67 @@ export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string
 
       <ScenarioPanel projectId={projectId} modelType="ecommerce" onProjectCreated={onProjectCreated} />
 
-      <Accordion title="General" defaultOpen>
-        <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} help="Total forecast horizon in months" slider />
-        <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch). Phase 3 = total - P1 - P2" slider />
-        <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = total - P1 - P2" slider />
-      </Accordion>
+      <div className="px-3 py-2">
+        <PhaseTimeline
+          phase1Dur={config.phase1_dur}
+          phase2Dur={config.phase2_dur}
+          totalMonths={config.total_months}
+          colors={PHASE_COLORS}
+        />
+      </div>
 
-      <Accordion title="OpEx">
-        <NumberField label="Misc Costs ($/mo)" value={config.misc_costs} onChange={(v) => setConfig({ misc_costs: v })} min={0} step={100} help="Office, tools, SaaS subscriptions, legal, and other overhead" />
-        <NumberField label="Corporate Tax (%)" value={config.corporate_tax} onChange={(v) => setConfig({ corporate_tax: v })} min={0} max={100} step={0.5} help="Tax rate applied to gross revenue" />
-      </Accordion>
+      <div className="px-3 space-y-3 py-2">
+        <AnimatedAccordion title="General" defaultOpen>
+          <div className="space-y-3">
+            <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={12} max={120} help="Total forecast horizon in months" slider />
+            <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch). Phase 3 = total - P1 - P2" slider />
+            <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = total - P1 - P2" slider />
+            {config.total_months - config.phase1_dur - config.phase2_dur < 1 && (
+              <InlineWarning message="Phase 3 has no months — increase total or reduce P1/P2" type="error" />
+            )}
+          </div>
+        </AnimatedAccordion>
 
-      <Accordion title="Sensitivity">
-        <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust click-to-purchase rate. Positive = better conversion" slider />
-        <NumberField label="CPC (%)" value={config.sens_cpc} onChange={(v) => setConfig({ sens_cpc: v })} min={-100} max={100} help="Adjust CPC. Positive = higher cost per click (worse)" slider />
-        <NumberField label="AOV (%)" value={config.sens_aov} onChange={(v) => setConfig({ sens_aov: v })} min={-100} max={100} help="Adjust average order value. Positive = higher AOV" slider />
-        <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic traffic share. Positive = more organic" slider />
-        <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios around base case" slider />
-      </Accordion>
+        <AnimatedAccordion title="OpEx">
+          <div className="space-y-3">
+            <NumberField label="Misc Costs ($/mo)" value={config.misc_costs} onChange={(v) => setConfig({ misc_costs: v })} min={0} step={100} help="Office, tools, SaaS subscriptions, legal, and other overhead" />
+            <NumberField label="Corporate Tax (%)" value={config.corporate_tax} onChange={(v) => setConfig({ corporate_tax: v })} min={0} max={100} step={0.5} help="Tax rate applied to gross revenue" />
+          </div>
+        </AnimatedAccordion>
 
-      <Accordion title="Monte Carlo">
-        <p className="text-[10px] text-[#8181A5] leading-relaxed mb-2">
-          Monte Carlo simulation runs hundreds of randomized iterations of your model, varying key inputs within a defined range, to produce a probability distribution of outcomes instead of a single forecast.
-        </p>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={config.mc_enabled}
-            onChange={(e) => setConfig({ mc_enabled: e.target.checked })}
-          />
-          Enable Monte Carlo
-        </label>
-        {config.mc_enabled && (
-          <>
-            <NumberField label="Iterations" value={config.mc_iterations} onChange={(v) => setConfig({ mc_iterations: v })} min={50} max={1000} step={50} help="Number of random simulations. More = smoother distribution" />
-            <NumberField label="Variance (%)" value={config.mc_variance} onChange={(v) => setConfig({ mc_variance: v })} min={1} max={100} help="Max random deviation from base parameters per iteration" />
-          </>
-        )}
-      </Accordion>
+        <AnimatedAccordion title="Sensitivity">
+          <div className="space-y-3">
+            <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust click-to-purchase rate. Positive = better conversion" slider />
+            <NumberField label="CPC (%)" value={config.sens_cpc} onChange={(v) => setConfig({ sens_cpc: v })} min={-100} max={100} help="Adjust CPC. Positive = higher cost per click (worse)" slider />
+            <NumberField label="AOV (%)" value={config.sens_aov} onChange={(v) => setConfig({ sens_aov: v })} min={-100} max={100} help="Adjust average order value. Positive = higher AOV" slider />
+            <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic traffic share. Positive = more organic" slider />
+            <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios around base case" slider />
+          </div>
+        </AnimatedAccordion>
 
-      <EcomPhaseSection phase={config.phase1} phaseNum={1} />
-      <EcomPhaseSection phase={config.phase2} phaseNum={2} />
-      <EcomPhaseSection phase={config.phase3} phaseNum={3} />
+        <AnimatedAccordion title="Monte Carlo">
+          <div className="space-y-3">
+            <p className="text-[10px] text-[#8181A5] leading-relaxed">
+              Monte Carlo simulation runs hundreds of randomized iterations of your model, varying key inputs within a defined range, to produce a probability distribution of outcomes instead of a single forecast.
+            </p>
+            <ToggleSwitch
+              checked={config.mc_enabled}
+              onChange={(v) => setConfig({ mc_enabled: v })}
+              label="Enable Monte Carlo"
+            />
+            {config.mc_enabled && (
+              <>
+                <NumberField label="Iterations" value={config.mc_iterations} onChange={(v) => setConfig({ mc_iterations: v })} min={50} max={1000} step={50} help="Number of random simulations. More = smoother distribution" />
+                <NumberField label="Variance (%)" value={config.mc_variance} onChange={(v) => setConfig({ mc_variance: v })} min={1} max={100} help="Max random deviation from base parameters per iteration" />
+              </>
+            )}
+          </div>
+        </AnimatedAccordion>
+
+        <EcomPhaseSection phase={config.phase1} phaseNum={1} />
+        <EcomPhaseSection phase={config.phase2} phaseNum={2} />
+        <EcomPhaseSection phase={config.phase3} phaseNum={3} />
+      </div>
     </div>
   );
 
@@ -239,7 +296,7 @@ export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string
   }
 
   return (
-    <aside className="w-80 border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0">
+    <aside className="w-[360px] border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0">
       {content}
     </aside>
   );

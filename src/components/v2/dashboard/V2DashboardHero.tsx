@@ -352,6 +352,7 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
     x: number;
     y: number;
     item: RevenueBarData;
+    idx: number;
   } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -397,7 +398,7 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
 
       const idx = Math.floor((mouseX - PADDING.left) / barGroupW);
       if (idx >= 0 && idx < data.length) {
-        setTooltip({ x: mouseX, y: mouseY, item: data[idx] });
+        setTooltip({ x: mouseX, y: mouseY, item: data[idx], idx });
       } else {
         setTooltip(null);
       }
@@ -576,11 +577,25 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
             transition={{ duration: 0.12 }}
           >
             {(() => {
-              const lineCount = 1 + tooltip.item.segments.length;
+              const currentTotal = tooltip.item.segments.reduce((s, seg) => s + seg.value, 0);
+              const prevItem = tooltip.idx > 0 ? data[tooltip.idx - 1] : null;
+              const prevTotal = prevItem ? prevItem.segments.reduce((s, seg) => s + seg.value, 0) : 0;
+              const hasMom = prevItem && prevTotal !== 0;
+              const momPct = hasMom ? ((currentTotal - prevTotal) / Math.abs(prevTotal)) * 100 : 0;
+              const momColor = momPct >= 0 ? "#10B981" : "#EF4444";
+              const momText = hasMom ? `${momPct >= 0 ? "+" : ""}${momPct.toFixed(1)}%` : "";
+
+              const lineCount = 1 + tooltip.item.segments.length + (hasMom ? 1 : 0);
               const tooltipH = 20 + lineCount * 16;
               const tooltipW = 160;
-              const tx = Math.min(tooltip.x + 12, VW - tooltipW - 8);
-              const ty = Math.max(tooltip.y - tooltipH - 8, 4);
+              /* Clamp X: prefer right of cursor, but stay within viewBox */
+              let tx = tooltip.x + 12;
+              if (tx + tooltipW + 8 > VW) tx = tooltip.x - tooltipW - 12;
+              tx = Math.max(4, Math.min(tx, VW - tooltipW - 4));
+              /* Clamp Y: prefer above cursor, flip below if needed */
+              let ty = tooltip.y - tooltipH - 8;
+              if (ty < 4) ty = tooltip.y + 12;
+              ty = Math.max(4, Math.min(ty, VH - tooltipH - 4));
               return (
                 <>
                   <rect
@@ -623,6 +638,18 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
                       </text>
                     </g>
                   ))}
+                  {hasMom && (
+                    <text
+                      x={tx + 10}
+                      y={ty + 32 + tooltip.item.segments.length * 16}
+                      fill={momColor}
+                      fontSize="10"
+                      fontWeight="700"
+                      fontFamily="Lato, system-ui, sans-serif"
+                    >
+                      MoM Growth: {momText}
+                    </text>
+                  )}
                 </>
               );
             })()}

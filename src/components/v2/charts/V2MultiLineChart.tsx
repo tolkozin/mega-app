@@ -168,6 +168,10 @@ export function V2MultiLineChart({
           <TipRow label={metricName ?? "Base"} value={formatter(data[hover])} color={PALETTE.ltBlue} />
           {optimistic && <TipRow label="Optimistic" value={formatter(optimistic[hover])} color={PALETTE.green} />}
           {pessimistic && <TipRow label="Pessimistic" value={formatter(pessimistic[hover])} color={PALETTE.red} />}
+          {hover > 0 && data[hover - 1] !== 0 && (() => {
+            const g = ((data[hover] - data[hover - 1]) / Math.abs(data[hover - 1])) * 100;
+            return <TipRow label="MoM" value={`${g >= 0 ? "+" : ""}${g.toFixed(1)}%`} color={g >= 0 ? "#10B981" : "#EF4444"} />;
+          })()}
         </FloatingTooltip>
       )}
     </V2ChartCard>

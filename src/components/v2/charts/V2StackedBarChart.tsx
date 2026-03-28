@@ -164,6 +164,10 @@ export function V2StackedBarChart({
             <TipRow key={seg.label} label={seg.label} value={fmtK(seg.data[hover] ?? 0)} color={seg.color} />
           ))}
           <TipRow label="Total" value={fmtK(totals[hover])} color="#fff" />
+          {hover > 0 && totals[hover - 1] !== 0 && (() => {
+            const g = ((totals[hover] - totals[hover - 1]) / Math.abs(totals[hover - 1])) * 100;
+            return <TipRow label="MoM" value={`${g >= 0 ? "+" : ""}${g.toFixed(1)}%`} color={g >= 0 ? "#10B981" : "#EF4444"} />;
+          })()}
         </FloatingTooltip>
       )}
     </V2ChartCard>

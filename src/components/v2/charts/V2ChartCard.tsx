@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useRef, useLayoutEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CARD_SHADOW, FONT, PALETTE } from './v2-chart-utils';
 
@@ -32,16 +32,46 @@ function LegendDot({ item }: { item: LegendItem }) {
 
 /* Floating Tooltip */
 export function FloatingTooltip({ x, y, children }: { x: number; y: number; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ left: number; top: number; flipped: boolean }>({ left: x, top: y - 12, flipped: false });
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const halfW = rect.width / 2;
+
+    /* X: keep tooltip within viewport */
+    let left = x;
+    if (left - halfW < 8) left = halfW + 8;
+    if (left + halfW > vw - 8) left = vw - halfW - 8;
+
+    /* Y: prefer above cursor; flip below if it would go off-screen */
+    let top = y - 12;
+    let flipped = false;
+    if (top - rect.height < 8) {
+      top = y + 16;
+      flipped = true;
+    }
+    if (top + rect.height > vh - 8) {
+      top = vh - rect.height - 8;
+    }
+    setPos({ left, top, flipped });
+  }, [x, y]);
+
   return (
     <AnimatePresence>
       <motion.div
+        ref={ref}
         initial={{ opacity: 0, y: 5, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.14 }}
         style={{
-          position: 'fixed', left: x, top: y - 12,
-          transform: 'translate(-50%, -100%)',
+          position: 'fixed', left: pos.left, top: pos.top,
+          transform: pos.flipped ? 'translate(-50%, 0%)' : 'translate(-50%, -100%)',
           background: 'linear-gradient(155deg, #0f2951, #0a1f3d)',
           borderRadius: 10, padding: '9px 13px',
           border: '1px solid rgba(123,163,240,0.2)',
@@ -51,9 +81,11 @@ export function FloatingTooltip({ x, y, children }: { x: number; y: number; chil
       >
         {children}
         <div style={{
-          position: 'absolute', bottom: -5, left: '50%', transform: 'translateX(-50%)',
-          borderLeft: '5px solid transparent', borderRight: '5px solid transparent',
-          borderTop: '6px solid #0a1f3d',
+          position: 'absolute',
+          ...(pos.flipped
+            ? { top: -5, left: '50%', transform: 'translateX(-50%)', borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderBottom: '6px solid #0a1f3d' }
+            : { bottom: -5, left: '50%', transform: 'translateX(-50%)', borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '6px solid #0a1f3d' }
+          ),
         }} />
       </motion.div>
     </AnimatePresence>
