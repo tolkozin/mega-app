@@ -67,9 +67,9 @@ const COLORS = {
 } as const;
 
 const SEGMENT_COLORS: Record<string, string> = {
-  annual: "#2163E7",
-  monthly: "#2163E7",
-  weekly: "#2163E7",
+  annual: "#2275ed",
+  monthly: "#85abf2",
+  weekly: "#e8f0ff",
   projected: "#e8f0fd",
 };
 
@@ -538,6 +538,14 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
               width={84}
               height={18}
               rx={9}
+              fill="#fff"
+            />
+            <rect
+              x={cx - 42}
+              y={PADDING.top - 2}
+              width={84}
+              height={18}
+              rx={9}
               fill={COLORS.green}
               opacity={0.12}
             />
@@ -960,7 +968,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
 
   /* ── Dynamic color palette for extra plan segments ── */
   const DYNAMIC_PALETTE = [
-    "#1650b0", "#2163E7", "#7BA3F0", "#BDD0F8", // Figma blue family
+    "#2275ed", "#85abf2", "#e8f0ff", "#BDD0F8", // Figma blue family
     "#0D3F8A", "#4B82D9", "#A5C2F3", "#D6E5FA", // extended blues
     "#0891B2", "#10B981", "#7C3AED", "#F59E0B", // accent fallback
   ];
@@ -979,9 +987,11 @@ export const V2DashboardHero = memo(function V2DashboardHero({
         columns.mrrWeekly?.toLowerCase(),
       ].filter(Boolean));
       // Find additional MRR columns (e.g., "MRR Enterprise", "MRR Pro")
+      // Skip channel-level breakdowns (Web, Store, etc.) — only show plan-level
+      const mrrBlacklist = ["web", "store", "app", "ios", "android"];
       for (const key of Object.keys(sample)) {
         const lk = key.toLowerCase();
-        if (lk.startsWith("mrr") && !knownMrr.has(lk) && lk !== "mrr" && isNumeric(sample[key])) {
+        if (lk.startsWith("mrr") && !knownMrr.has(lk) && lk !== "mrr" && isNumeric(sample[key]) && !mrrBlacklist.some((b) => lk.includes(b))) {
           mrrCols.push({ key, label: key });
         }
       }
