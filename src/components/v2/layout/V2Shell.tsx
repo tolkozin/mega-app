@@ -73,7 +73,7 @@ export function V2Shell({
           totalMonths={totalMonths}
         />
 
-        <div className="flex-1 flex min-h-0 overflow-hidden">
+        <div className="flex-1 flex min-h-0 overflow-hidden relative">
           {/* Main content */}
           <div
             className="flex-1 min-w-0 overflow-y-auto"
@@ -86,9 +86,9 @@ export function V2Shell({
             {children}
           </div>
 
-          {/* Desktop AI panel */}
+          {/* Desktop AI panel — overlay so it doesn't squeeze dashboard */}
           {!isMobile && aiOpen && (
-            <div className="h-full shrink-0">
+            <div className="absolute right-0 top-0 bottom-0 z-30">
               <AIChatPanel />
             </div>
           )}
