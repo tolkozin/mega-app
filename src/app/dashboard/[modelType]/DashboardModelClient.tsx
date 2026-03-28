@@ -179,44 +179,46 @@ interface KPIDef {
   healthGood?: (v: number) => boolean;
   healthBad?: (v: number) => boolean;
   description?: string;
+  /** If true, value is the sum across all rows instead of last row */
+  sumPeriod?: boolean;
 }
 
 const SUB_KPIS: KPIDef[] = [
-  { label: "Total Revenue", columns: ["Total Gross Revenue", "Gross Revenue"], format: "currency", description: "Cumulative gross revenue across all plans" },
-  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Revenue minus all costs, taxes, and fees" },
+  { label: "Total Revenue", columns: ["Total Gross Revenue", "Gross Revenue"], format: "currency", description: "Cumulative gross revenue for the selected period", sumPeriod: true },
+  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Total net profit for the selected period", sumPeriod: true },
   { label: "End MRR", columns: ["Total MRR", "MRR"], format: "currency", healthGood: (v) => v > 0, description: "Monthly recurring revenue at end of period" },
   { label: "LTV/CAC", columns: ["LTV/CAC"], format: "ratio", healthGood: (v) => v >= 3, healthBad: (v) => v < 1, description: "Customer lifetime value to acquisition cost ratio (3x+ is healthy)" },
   { label: "ROI", columns: ["ROI %", "ROI"], format: "pct", healthGood: (v) => v > 0, healthBad: (v) => v < -20, description: "Return on total investment" },
   { label: "ROAS", columns: ["Cumulative ROAS", "ROAS"], format: "ratio", healthGood: (v) => v >= 2, healthBad: (v) => v < 1, description: "Return on ad spend" },
   { label: "ARPU", columns: ["ARPU"], format: "currency", description: "Average revenue per user per month" },
-  { label: "Gross Margin", columns: ["Gross Margin %", "Gross Margin"], format: "pct", healthGood: (v) => v >= 60, healthBad: (v) => v < 30, description: "Revenue retained after COGS" },
+  { label: "Gross Margin", columns: ["Gross Margin", "Gross Profit"], format: "currency", description: "Total gross margin for the selected period", sumPeriod: true },
   { label: "Burn Rate", columns: ["Burn Rate"], format: "currency", healthGood: (v) => v <= 0, healthBad: (v) => v > 20000, description: "Monthly cash consumption rate" },
   { label: "Runway", columns: ["Runway (Months)", "Runway"], format: "months", healthGood: (v) => v >= 12, healthBad: (v) => v < 6, description: "Months of cash remaining at current burn" },
 ];
 
 const ECOM_KPIS: KPIDef[] = [
-  { label: "Gross Revenue", columns: ["Gross Revenue"], format: "currency", description: "Total revenue before returns and discounts" },
-  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Revenue minus all costs, taxes, and fees" },
+  { label: "Gross Revenue", columns: ["Gross Revenue"], format: "currency", description: "Total gross revenue for the selected period", sumPeriod: true },
+  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Total net profit for the selected period", sumPeriod: true },
   { label: "AOV", columns: ["AOV", "Avg Order Value"], format: "currency", description: "Average order value" },
   { label: "CAC", columns: ["CAC"], format: "currency", healthBad: (v) => v > 100, description: "Cost to acquire one customer" },
   { label: "LTV", columns: ["LTV"], format: "currency", healthGood: (v) => v > 0, description: "Customer lifetime value" },
   { label: "LTV/CAC", columns: ["LTV/CAC"], format: "ratio", healthGood: (v) => v >= 3, healthBad: (v) => v < 1, description: "Lifetime value to acquisition cost ratio" },
   { label: "Total Orders", columns: ["Total Orders"], format: "number", description: "Number of orders in the period" },
-  { label: "Gross Margin", columns: ["Gross Margin %", "Gross Margin"], format: "pct", healthGood: (v) => v >= 40, healthBad: (v) => v < 15, description: "Revenue retained after COGS, returns, and discounts" },
+  { label: "Gross Margin", columns: ["Gross Margin", "Gross Profit"], format: "currency", description: "Total gross margin for the selected period", sumPeriod: true },
   { label: "ROI", columns: ["ROI %", "ROI"], format: "pct", healthGood: (v) => v > 0, healthBad: (v) => v < -20, description: "Return on total investment" },
   { label: "ROAS", columns: ["ROAS"], format: "ratio", healthGood: (v) => v >= 2, healthBad: (v) => v < 1, description: "Return on ad spend" },
 ];
 
 const SAAS_KPIS: KPIDef[] = [
   { label: "ARR", columns: ["ARR"], format: "currency", description: "Annualized recurring revenue" },
-  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Revenue minus all costs" },
+  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Total net profit for the selected period", sumPeriod: true },
   { label: "NRR", columns: ["NRR %", "NRR"], format: "pct", healthGood: (v) => v >= 110, healthBad: (v) => v < 90, description: "Net revenue retention — expansion vs churn" },
   { label: "Quick Ratio", columns: ["Quick Ratio"], format: "ratio", healthGood: (v) => v >= 4, healthBad: (v) => v < 1, description: "New + expansion MRR / churned + contraction MRR" },
   { label: "Rule of 40", columns: ["Rule of 40"], format: "pct", healthGood: (v) => v >= 40, healthBad: (v) => v < 20, description: "Revenue growth % + profit margin %" },
   { label: "Magic Number", columns: ["Magic Number"], format: "ratio", healthGood: (v) => v >= 0.75, healthBad: (v) => v < 0.5, description: "New ARR / sales & marketing spend" },
   { label: "CAC", columns: ["CAC"], format: "currency", description: "Cost to acquire one customer" },
   { label: "LTV/CAC", columns: ["LTV/CAC"], format: "ratio", healthGood: (v) => v >= 3, healthBad: (v) => v < 1, description: "Lifetime value to acquisition cost" },
-  { label: "Gross Margin", columns: ["Gross Margin %", "Gross Margin"], format: "pct", healthGood: (v) => v >= 60, healthBad: (v) => v < 30, description: "Revenue retained after COGS" },
+  { label: "Gross Margin", columns: ["Gross Margin", "Gross Profit"], format: "currency", description: "Total gross margin for the selected period", sumPeriod: true },
   { label: "Logo Churn", columns: ["Logo Churn %", "Logo Churn"], format: "pct", healthGood: (v) => v <= 3, healthBad: (v) => v >= 8, description: "Percentage of customers lost per period" },
 ];
 
@@ -237,8 +239,13 @@ function buildKPICards(df: DataRow[], engine: BaseEngine): KPICardProps[] {
     const col = findCol(lastRow, ...def.columns);
     if (!col) continue;
 
-    const val = numVal(lastRow, col);
-    const prev = numVal(prevRow, col);
+    // Sum across entire period for marked KPIs, otherwise use last row
+    const val = def.sumPeriod
+      ? df.reduce((sum, r) => sum + numVal(r, col), 0)
+      : numVal(lastRow, col);
+    const prev = def.sumPeriod
+      ? df.slice(0, -1).reduce((sum, r) => sum + numVal(r, col), 0)
+      : numVal(prevRow, col);
     const pctChange = prev !== 0 ? ((val - prev) / Math.abs(prev)) * 100 : 0;
 
     // Format value

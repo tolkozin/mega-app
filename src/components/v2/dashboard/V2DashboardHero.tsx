@@ -67,10 +67,10 @@ const COLORS = {
 } as const;
 
 const SEGMENT_COLORS: Record<string, string> = {
-  annual: "#4A6FA5",
-  monthly: "#6B8FCC",
-  weekly: "#94B3E0",
-  projected: "#C5D7F0",
+  annual: "#3B5998",
+  monthly: "#5B8DEF",
+  weekly: "#93B5F5",
+  projected: "#C8DAF9",
 };
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -987,26 +987,35 @@ export const V2DashboardHero = memo(function V2DashboardHero({
       }
     }
 
+    // Friendly display names for segment labels
+    const DISPLAY_NAMES: Record<string, string> = {
+      "MRR Annual": "Annual Plans",
+      "MRR Monthly": "Monthly Plans",
+      "MRR Weekly": "Weekly Plans",
+    };
+    const displayName = (col: string) => DISPLAY_NAMES[col] ?? col.replace(/^MRR\s*/i, "");
+
     // Build color map for all segments
     const colorMap: Record<string, string> = {
-      "MRR Annual": SEGMENT_COLORS.annual,
-      "MRR Monthly": SEGMENT_COLORS.monthly,
-      "MRR Weekly": SEGMENT_COLORS.weekly,
+      "Annual Plans": SEGMENT_COLORS.annual,
+      "Monthly Plans": SEGMENT_COLORS.monthly,
+      "Weekly Plans": SEGMENT_COLORS.weekly,
       Revenue: SEGMENT_COLORS.monthly,
     };
     mrrCols.forEach((col, i) => {
-      colorMap[col.label] = DYNAMIC_PALETTE[(i + 4) % DYNAMIC_PALETTE.length];
+      colorMap[displayName(col.label)] = DYNAMIC_PALETTE[(i + 4) % DYNAMIC_PALETTE.length];
     });
 
     const legend: { label: string; color: string; striped?: boolean }[] = [];
     if (hasBreakdown) {
       legend.push(
-        { label: "MRR Annual", color: colorMap["MRR Annual"] },
-        { label: "MRR Monthly", color: colorMap["MRR Monthly"] },
-        { label: "MRR Weekly", color: colorMap["MRR Weekly"] },
+        { label: "Annual Plans", color: colorMap["Annual Plans"] },
+        { label: "Monthly Plans", color: colorMap["Monthly Plans"] },
+        { label: "Weekly Plans", color: colorMap["Weekly Plans"] },
       );
       mrrCols.forEach((col) => {
-        legend.push({ label: col.label, color: colorMap[col.label] });
+        const name = displayName(col.label);
+        legend.push({ label: name, color: colorMap[name] });
       });
     } else {
       legend.push({ label: "Revenue", color: colorMap.Revenue });
@@ -1020,13 +1029,14 @@ export const V2DashboardHero = memo(function V2DashboardHero({
         const annual = Math.max(0, num(row, columns.mrrAnnual));
         const monthly = Math.max(0, num(row, columns.mrrMonthly));
         const weekly = Math.max(0, num(row, columns.mrrWeekly));
-        segments.push({ label: "MRR Annual", value: annual, color: colorMap["MRR Annual"] });
-        segments.push({ label: "MRR Monthly", value: monthly, color: colorMap["MRR Monthly"] });
-        if (weekly > 0) segments.push({ label: "MRR Weekly", value: weekly, color: colorMap["MRR Weekly"] });
+        segments.push({ label: "Annual Plans", value: annual, color: colorMap["Annual Plans"] });
+        segments.push({ label: "Monthly Plans", value: monthly, color: colorMap["Monthly Plans"] });
+        if (weekly > 0) segments.push({ label: "Weekly Plans", value: weekly, color: colorMap["Weekly Plans"] });
         // Dynamic extra MRR columns
         for (const col of mrrCols) {
+          const name = displayName(col.label);
           const val = Math.max(0, num(row, col.key));
-          if (val > 0) segments.push({ label: col.label, value: val, color: colorMap[col.label] });
+          if (val > 0) segments.push({ label: name, value: val, color: colorMap[name] });
         }
       } else {
         const rev = Math.max(0, num(row, columns.revenue));
@@ -1219,7 +1229,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     if (!data.length || !columns.revenue) return 0;
     return data.reduce((sum, row) => sum + num(row, columns.revenue), 0);
   }, [data, columns.revenue]);
-  const heroLabel = engine === "subscription" ? "Total Recurring Revenue" : "Total Revenue";
+  const heroLabel = engine === "subscription" ? "Monthly Recurring Revenue" : "Total Revenue";
 
   /* ── Break-even description ── */
   const breakEvenDescription = breakEvenMonth

@@ -16,7 +16,8 @@ export function useDashboard(modelType: string, engineOverride?: BaseEngine) {
     loading: false,
     error: null,
   });
-  const [monthRange, setMonthRange] = useState<[number, number] | null>(null);
+  // Default to 12 months (1 year)
+  const [monthRange, setMonthRange] = useState<[number, number] | null>([1, 12]);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const runModel = useCallback(

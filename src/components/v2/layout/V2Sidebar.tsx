@@ -325,17 +325,6 @@ export function V2Sidebar() {
             <path d="M10 3L5 8l5 5" />
           </motion.svg>
         </button>
-        {expanded && (
-          <button
-            onClick={() => setHidden(true)}
-            className="h-8 px-2 rounded-lg flex items-center justify-center text-white/30 hover:text-white/60 hover:bg-white/[0.06] transition-colors"
-            title="Hide sidebar"
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M2 2l12 12M14 2L2 14" />
-            </svg>
-          </button>
-        )}
       </div>
     </motion.aside>
   );
