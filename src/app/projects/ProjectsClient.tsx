@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, MoreHorizontal, ExternalLink, GitBranch, Settings, Trash2, TrendingUp, TrendingDown } from "lucide-react";
+import { Plus, MoreHorizontal, ExternalLink, GitBranch, Settings, Trash2 } from "lucide-react";
 import { useProjects, useSharedProjects, UpgradeRequiredError } from "@/hooks/useProject";
 import { useAuth } from "@/hooks/useAuth";
 import { useUpgradeStore } from "@/stores/upgrade-store";
@@ -29,42 +29,6 @@ function timeAgo(dateStr: string): string {
   return `${months}mo ago`;
 }
 
-function generateSparkline(seed: string): number[] {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = (hash << 5) - hash + seed.charCodeAt(i);
-    hash |= 0;
-  }
-  const points: number[] = [];
-  let value = 30 + (Math.abs(hash) % 30);
-  for (let i = 0; i < 12; i++) {
-    hash = (hash * 16807 + 7) % 2147483647;
-    const delta = ((hash % 20) - 7);
-    value = Math.max(5, Math.min(55, value + delta));
-    points.push(value);
-  }
-  return points;
-}
-
-function SparklineSVG({ data, color }: { data: number[]; color: string }) {
-  const w = 160;
-  const h = 40;
-  const stepX = w / (data.length - 1);
-  const path = data.map((y, i) => `${i === 0 ? "M" : "L"} ${i * stepX} ${h - y * (h / 60)}`).join(" ");
-  const areaPath = `${path} L ${w} ${h} L 0 ${h} Z`;
-  return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} fill="none" className="block">
-      <defs>
-        <linearGradient id={`spark-${color.replace("#", "")}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.15" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={areaPath} fill={`url(#spark-${color.replace("#", "")})`} />
-      <path d={path} stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 /* ─── ProjectCard ─── */
 
@@ -87,8 +51,6 @@ function ProjectCard({
 
   const def = getModelDef(project.product_type);
   const ModelIcon = def.icon;
-  const sparkData = generateSparkline(project.id + project.created_at);
-  const trend = sparkData[sparkData.length - 1] > sparkData[0];
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -216,25 +178,10 @@ function ProjectCard({
         )}
       </Link>
 
-      {/* Sparkline */}
-      <div className="mt-4 mb-3">
-        <SparklineSVG data={sparkData} color={def.color} />
-      </div>
-
       {/* Bottom row */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mt-4">
         <span className="text-xs text-[#c4c9d8]">
           Edited {timeAgo(project.created_at)}
-        </span>
-        <span
-          className="text-[11px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"
-          style={{
-            backgroundColor: trend ? "#10b98118" : "#ef444418",
-            color: trend ? "#10b981" : "#ef4444",
-          }}
-        >
-          {trend ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-          {trend ? "Up" : "Down"}
         </span>
       </div>
     </motion.div>
