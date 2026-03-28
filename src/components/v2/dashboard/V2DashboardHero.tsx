@@ -421,6 +421,26 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
           <rect width="6" height="6" fill={SEGMENT_COLORS.projected} />
           <line x1="0" y1="0" x2="0" y2="6" stroke={COLORS.lightBlue} strokeWidth="2" opacity="0.5" />
         </pattern>
+        {/* Clip paths for bar rounded corners — must be in root <defs> */}
+        {data.map((d, i) => {
+          const cx = PADDING.left + i * barGroupW + barGroupW / 2;
+          const bx = cx - barWidth / 2;
+          const baseY = PADDING.top + chartH;
+          const totalH = d.segments.reduce((sum, s) => sum + s.value, 0);
+          const totalBarH = (totalH / yMax) * chartH;
+          return (
+            <clipPath key={`clip-${i}`} id={`bar-clip-${i}`}>
+              <rect
+                x={bx}
+                y={baseY - totalBarH - 1}
+                width={barWidth}
+                height={totalBarH + 1}
+                rx={5}
+                ry={5}
+              />
+            </clipPath>
+          );
+        })}
       </defs>
 
       {/* Y-axis grid lines */}
@@ -450,14 +470,11 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
         );
       })}
 
-      {/* Bars */}
+      {/* Bars — using CSS transitions instead of framer-motion for SVG compat */}
       {data.map((d, i) => {
         const cx = PADDING.left + i * barGroupW + barGroupW / 2;
         const bx = cx - barWidth / 2;
         const baseY = PADDING.top + chartH;
-
-        const totalH = d.segments.reduce((sum, s) => sum + s.value, 0);
-        const totalBarH = (totalH / yMax) * chartH;
 
         let currentY = baseY;
         const segmentRects = d.segments.map((seg, si) => {
@@ -468,30 +485,18 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
 
         return (
           <g key={i}>
-            {/* Clip for rounded top corners */}
-            <defs>
-              <clipPath id={`bar-clip-${i}`}>
-                <rect
-                  x={bx}
-                  y={baseY - totalBarH - 1}
-                  width={barWidth}
-                  height={totalBarH + 1}
-                  rx="5"
-                  ry="5"
-                />
-              </clipPath>
-            </defs>
             <g clipPath={`url(#bar-clip-${i})`}>
               {segmentRects.map((sr) => (
-                <motion.rect
+                <rect
                   key={sr.si}
                   x={bx}
                   width={barWidth}
-                  y={baseY}
-                  height={0}
+                  y={sr.y}
+                  height={sr.h}
                   fill={sr.label === "Projected" ? "url(#pat-projected)" : sr.color}
-                  animate={{ y: sr.y, height: sr.h }}
-                  transition={{ duration: 0.5, delay: i * 0.03 + sr.si * 0.04, ease: "easeOut" }}
+                  style={{
+                    transition: `y 0.5s ease-out ${i * 0.03 + sr.si * 0.04}s, height 0.5s ease-out ${i * 0.03 + sr.si * 0.04}s`,
+                  }}
                 />
               ))}
             </g>
@@ -1019,6 +1024,11 @@ export const V2DashboardHero = memo(function V2DashboardHero({
 
       return { month, segments };
     });
+
+    if (process.env.NODE_ENV === "development") {
+      const nonEmpty = bars.filter((b) => b.segments.some((s) => s.value > 0));
+      console.log("[V2DashboardHero] chartData:", { total: bars.length, withData: nonEmpty.length, hasBreakdown, columns: { revenue: columns.revenue, mrrW: columns.mrrWeekly, mrrM: columns.mrrMonthly, mrrA: columns.mrrAnnual }, sample: bars[bars.length - 1] });
+    }
 
     return { chartData: bars, legendItems: legend };
   }, [data, columns, engine]);
