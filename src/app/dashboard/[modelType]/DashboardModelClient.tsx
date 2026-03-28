@@ -487,13 +487,7 @@ function DashboardPage() {
               className="flex items-center gap-1.5 shrink-0 mr-1"
               title="Revenue Map"
             >
-              <div className="w-7 h-7 rounded-[6px] bg-gradient-to-br from-[#2163E7] to-[#1650b0] flex items-center justify-center shrink-0">
-                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                  <rect x="1.5" y="8" width="2.5" height="6" rx="1" fill="white" fillOpacity="0.8" />
-                  <rect x="6.5" y="4.5" width="2.5" height="9.5" rx="1" fill="white" />
-                  <rect x="11.5" y="1.5" width="2.5" height="12.5" rx="1" fill="white" fillOpacity="0.6" />
-                </svg>
-              </div>
+              <img src="/logo.svg" alt="Revenue Map" className="w-7 h-7 rounded-[6px] shrink-0" />
             </button>
 
             {/* Model selector */}

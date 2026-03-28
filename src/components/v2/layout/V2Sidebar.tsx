@@ -102,13 +102,7 @@ function SidebarContent({
       {/* Logo */}
       <div className="px-5 pt-6 pb-5 border-b border-white/[0.06]">
         <Link href="/dashboard" className="flex items-center gap-2.5" onClick={onClose}>
-          <div className="w-8 h-8 rounded-[9px] bg-gradient-to-br from-[#2163E7] to-[#1650b0] flex items-center justify-center shadow-[0_4px_14px_rgba(33,99,231,0.45)] shrink-0">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <rect x="1.5" y="8" width="2.5" height="6" rx="1" fill="white" fillOpacity="0.8" />
-              <rect x="6.5" y="4.5" width="2.5" height="9.5" rx="1" fill="white" />
-              <rect x="11.5" y="1.5" width="2.5" height="12.5" rx="1" fill="white" fillOpacity="0.6" />
-            </svg>
-          </div>
+          <img src="/logo.svg" alt="Revenue Map" className="w-8 h-8 rounded-[9px] shadow-[0_4px_14px_rgba(33,99,231,0.45)] shrink-0" />
           {expanded && (
             <div className="min-w-0">
               <div className="text-[13.5px] font-extrabold text-white leading-tight tracking-[-0.01em]">
