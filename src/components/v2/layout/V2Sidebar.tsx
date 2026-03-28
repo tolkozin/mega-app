@@ -14,7 +14,6 @@ import { usePathname } from "next/navigation";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { AnimatePresence, motion } from "framer-motion";
-import { useChatStore } from "@/stores/chat-store";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 
@@ -82,11 +81,9 @@ const BOTTOM_ITEMS = [
 function SidebarContent({
   expanded,
   onClose,
-  onOpenAI,
 }: {
   expanded: boolean;
   onClose?: () => void;
-  onOpenAI?: () => void;
 }) {
   const pathname = usePathname();
   const { user } = useAuth();
@@ -160,26 +157,6 @@ function SidebarContent({
         {/* Divider */}
         <div className="h-px bg-white/[0.06] mx-3 my-4" />
 
-        {/* AI Assistant */}
-        <button
-          onClick={() => { onOpenAI?.(); onClose?.(); }}
-          className={`w-full flex items-center gap-2.5 rounded-[10px] text-white/40 hover:text-white hover:bg-white/[0.06] transition-colors duration-200 ${
-            expanded ? "px-3 py-2.5" : "px-2.5 py-2.5 justify-center"
-          }`}
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-            <path d="M12 2L13.6 7.4L18 8.2L14.5 11.5L15.3 16L12 14.2L8.7 16L9.5 11.5L6 8.2L10.4 7.4Z" transform="translate(-3,-1)" />
-          </svg>
-          {expanded && (
-            <>
-              <span className="text-[13px] font-medium flex-1 text-left">AI Assistant</span>
-              <span className="bg-[#2163E7]/35 text-[#7BA3F0] rounded-full px-[7px] py-px text-[9.5px] font-extrabold">
-                NEW
-              </span>
-            </>
-          )}
-        </button>
-
         {/* Settings */}
         {BOTTOM_ITEMS.map((item) => {
           const active = isActive(item.href);
@@ -244,7 +221,6 @@ export function V2Sidebar() {
   const setHidden = useLayoutStore((s) => s.setNavSidebarHidden);
   const mobileOpen = useLayoutStore((s) => s.navSidebarMobileOpen);
   const setMobileOpen = useLayoutStore((s) => s.setNavSidebarMobileOpen);
-  const toggleAI = useChatStore((s) => s.togglePanel);
 
   /* Mobile: bottom tabs handle navigation — sidebar is overlay only */
   if (isMobile) {
@@ -267,7 +243,7 @@ export function V2Sidebar() {
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
               style={{ paddingTop: "max(20px, env(safe-area-inset-top))" }}
             >
-              <SidebarContent expanded onClose={() => setMobileOpen(false)} onOpenAI={toggleAI} />
+              <SidebarContent expanded onClose={() => setMobileOpen(false)} />
             </motion.aside>
           </>
         )}
@@ -302,7 +278,7 @@ export function V2Sidebar() {
       animate={{ width }}
       transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
     >
-      <SidebarContent expanded={expanded} onOpenAI={toggleAI} />
+      <SidebarContent expanded={expanded} />
 
       {/* Collapse / Hide button */}
       <div className="px-3 pb-3 flex gap-1.5">

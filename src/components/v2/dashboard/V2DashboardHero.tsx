@@ -67,9 +67,9 @@ const COLORS = {
 } as const;
 
 const SEGMENT_COLORS: Record<string, string> = {
-  annual: "#1650b0",
-  monthly: "#7BA3F0",
-  weekly: "#BDD0F8",
+  annual: "#2163E7",
+  monthly: "#2163E7",
+  weekly: "#2163E7",
   projected: "#e8f0fd",
 };
 
