@@ -21,7 +21,6 @@ export interface ModelSchema {
 
 // ── Subscription ──────────────────────────────────────────────
 const subscriptionTop: ModelSchemaSection = {
-  total_months: { type: "number", min: 12, max: 120, default: 60, desc: "Total simulation length in months" },
   phase1_dur: { type: "number", min: 1, max: 24, default: 3, desc: "Phase 1 duration (months)" },
   phase2_dur: { type: "number", min: 1, max: 24, default: 3, desc: "Phase 2 duration (months)" },
   corporate_tax: { type: "number", min: 0, max: 50, default: 1, desc: "Corporate tax rate (%)", unit: "%" },
@@ -66,7 +65,6 @@ const subscriptionPhase: ModelSchemaSection = {
 
 // ── Ecommerce ─────────────────────────────────────────────────
 const ecommerceTop: ModelSchemaSection = {
-  total_months: { type: "number", min: 12, max: 120, default: 36, desc: "Total simulation length (months)" },
   phase1_dur: { type: "number", min: 1, max: 24, default: 3, desc: "Phase 1 duration (months)" },
   phase2_dur: { type: "number", min: 1, max: 24, default: 6, desc: "Phase 2 duration (months)" },
   misc_costs: { type: "number", min: 0, max: 1000000, default: 2000, desc: "Monthly miscellaneous costs ($)", unit: "$" },
@@ -90,7 +88,6 @@ const ecommercePhase: ModelSchemaSection = {
 
 // ── SaaS ──────────────────────────────────────────────────────
 const saasTop: ModelSchemaSection = {
-  total_months: { type: "number", min: 12, max: 120, default: 36, desc: "Total simulation length (months)" },
   phase1_dur: { type: "number", min: 1, max: 24, default: 3, desc: "Phase 1 duration (months)" },
   phase2_dur: { type: "number", min: 1, max: 24, default: 9, desc: "Phase 2 duration (months)" },
   misc_costs: { type: "number", min: 0, max: 1000000, default: 3000, desc: "Monthly miscellaneous costs ($)", unit: "$" },

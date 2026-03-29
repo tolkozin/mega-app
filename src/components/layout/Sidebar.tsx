@@ -258,9 +258,9 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
         <NumberField label="Annual ($)" value={phase.price_annual} onChange={(v) => update({ price_annual: v })} min={0} step={0.99} help="Price for annual subscription plan" />
 
         <div className="pt-2 text-xs font-medium text-muted-foreground">Plan Mix</div>
-        <NumberField label="Weekly (%)" value={phase.mix_weekly * 100} onChange={(v) => update({ mix_weekly: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing weekly plan. All mixes should sum to 100%" slider />
-        <NumberField label="Monthly (%)" value={phase.mix_monthly * 100} onChange={(v) => update({ mix_monthly: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing monthly plan" slider />
-        <NumberField label="Annual (%)" value={phase.mix_annual * 100} onChange={(v) => update({ mix_annual: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing annual plan" slider />
+        <NumberField label="Weekly (%)" value={Math.round(phase.mix_weekly * 100)} onChange={(v) => update({ mix_weekly: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing weekly plan. All mixes should sum to 100%" slider />
+        <NumberField label="Monthly (%)" value={Math.round(phase.mix_monthly * 100)} onChange={(v) => update({ mix_monthly: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing monthly plan" slider />
+        <NumberField label="Annual (%)" value={Math.round(phase.mix_annual * 100)} onChange={(v) => update({ mix_annual: v / 100 })} min={0} max={100} step={1} help="% of new subscribers choosing annual plan" slider />
         <PlanMixBar
           weekly={Math.round(phase.mix_weekly * 100)}
           monthly={Math.round(phase.mix_monthly * 100)}
@@ -270,7 +270,7 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
           <InlineWarning message={`Plan mix sums to ${mixSum}% — should be 100%`} type="error" />
         )}
 
-        <NumberField label="COGS (%)" value={phase.cogs * 100} onChange={(v) => update({ cogs: v / 100 })} min={0} max={100} step={1} help="Cost of Goods Sold as percentage of revenue. Includes hosting, CDN, customer support, and direct delivery costs. SaaS/app typical: 15–30%." />
+        <NumberField label="COGS (%)" value={Math.round(phase.cogs * 100)} onChange={(v) => update({ cogs: v / 100 })} min={0} max={100} step={1} help="Cost of Goods Sold as percentage of revenue. Includes hosting, CDN, customer support, and direct delivery costs. SaaS/app typical: 15–30%." />
       </div>
     </AnimatedAccordion>
   );
@@ -310,12 +310,8 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
       <div className="px-3 space-y-3 py-2">
         <AnimatedAccordion title="General" defaultOpen>
           <div className="space-y-3">
-            <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={6} max={120} help="Total forecast horizon in months" slider />
             <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Number of months for Phase 1 (launch / MVP stage). This is your initial period with early adopters. Phase 3 duration is automatically calculated: total months minus Phase 1 minus Phase 2." slider />
             <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Number of months for Phase 2 (growth stage). This is your scaling period with increasing traction. Phase 3 duration is automatically calculated from the remainder." slider />
-            {config.total_months - config.phase1_dur - config.phase2_dur < 1 && (
-              <InlineWarning message="Phase 3 has no months — increase total or reduce P1/P2" type="error" />
-            )}
             <NumberField label="Starting Organic" value={config.starting_organic} onChange={(v) => setConfig({ starting_organic: v })} min={0} help="Number of organic (non-paid) installs per month at the start of your model. These come from SEO, word-of-mouth, App Store search, social media, etc." />
           </div>
         </AnimatedAccordion>

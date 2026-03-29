@@ -264,12 +264,8 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
       <div className="px-3 space-y-3 py-2">
         <AnimatedAccordion title="General" defaultOpen>
           <div className="space-y-3">
-            <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={6} max={120} help="Total forecast horizon in months" slider />
             <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (MVP / first customers). Phase 3 = total - P1 - P2" slider />
             <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (scaling). Phase 3 = total - P1 - P2" slider />
-            {config.total_months - config.phase1_dur - config.phase2_dur < 1 && (
-              <InlineWarning message="Phase 3 has no months — increase total or reduce P1/P2" type="error" />
-            )}
             <NumberField label="Initial Customers" value={config.initial_customers} onChange={(v) => setConfig({ initial_customers: v })} min={0} step={1} help="Number of paying customers at model start (month 0)" />
             <NumberField label="Initial Seats" value={config.initial_seats} onChange={(v) => setConfig({ initial_seats: v })} min={0} step={1} help="Total active seats at model start (across all initial customers)" />
           </div>

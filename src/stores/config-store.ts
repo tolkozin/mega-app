@@ -34,7 +34,7 @@ const defaultPhase3: PhaseConfig = {
 };
 
 export const defaultModelConfig: ModelConfig = {
-  total_months: 12, phase1_dur: 3, phase2_dur: 3,
+  total_months: 60, phase1_dur: 3, phase2_dur: 3,
   sens_conv: 0, sens_churn: 0, sens_cpi: 0, sens_organic: 0, scenario_bound: 20,
   mc_enabled: false, mc_iterations: 200, mc_variance: 20,
   corporate_tax: 1, store_split: 50, app_store_comm: 15,
@@ -65,7 +65,7 @@ const defaultEcomPhase3: EcomPhaseConfig = {
 
 export const defaultEcomConfig: EcomConfig = {
   product_type: "ecommerce",
-  total_months: 12, phase1_dur: 3, phase2_dur: 6,
+  total_months: 60, phase1_dur: 3, phase2_dur: 6,
   phase1: defaultEcomPhase1, phase2: defaultEcomPhase2, phase3: defaultEcomPhase3,
   misc_costs: 2000,
   corporate_tax: 1,
@@ -96,7 +96,7 @@ const defaultSaasPhase3: SaasPhaseConfig = {
 
 export const defaultSaasConfig: SaasConfig = {
   product_type: "saas",
-  total_months: 12, phase1_dur: 3, phase2_dur: 9,
+  total_months: 60, phase1_dur: 3, phase2_dur: 9,
   phase1: defaultSaasPhase1, phase2: defaultSaasPhase2, phase3: defaultSaasPhase3,
   misc_costs: 3000,
   corporate_tax: 1,
