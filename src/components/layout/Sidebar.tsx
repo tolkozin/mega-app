@@ -116,17 +116,18 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const content = (
-    <div className="relative">
+    <div className="relative p-2 space-y-2">
       {readOnly && (
         <div
           className="absolute inset-0 z-10 cursor-not-allowed"
           onClick={() => useUpgradeStore.getState().showExpiredModal()}
         />
       )}
-      <div className="mx-3 mt-3 mb-2 rounded-2xl bg-white border border-[#eef0f6] px-4 py-3 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+      <div className="rounded-2xl bg-white border border-[#eef0f6] px-4 py-3 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
         <h2 className="font-extrabold text-sm text-[#1a1a2e] font-[Lato,sans-serif]">Subscription Model Config</h2>
       </div>
 
+      <div className="rounded-2xl bg-white border border-[#eef0f6] shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden">
       <ScenarioPanel projectId={projectId} modelType={productType ?? "subscription"} onProjectCreated={onProjectCreated} />
 
       <div className="px-3 py-2">
@@ -320,6 +321,7 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
             </AnimatedAccordion>
           </>
         )}
+      </div>
       </div>
     </div>
   );

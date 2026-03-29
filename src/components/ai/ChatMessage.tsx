@@ -32,7 +32,7 @@ export function ChatMessage({ message }: { message: ChatMessageType }) {
         style={{
           background: isUser ? "#2163E7" : "#fff",
           color: isUser ? "#fff" : "#1a1a2e",
-          borderRadius: isUser ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+          borderRadius: isUser ? "16px 16px 4px 16px" : "16px 16px 16px 16px",
           padding: "10px 14px",
           border: isUser ? "none" : "1.5px solid #eef0f6",
           boxShadow: isUser
