@@ -123,8 +123,8 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
           onClick={() => useUpgradeStore.getState().showExpiredModal()}
         />
       )}
-      <div className="p-3 border-b">
-        <h2 className="font-semibold text-sm">Subscription Model Config</h2>
+      <div className="mx-3 mt-3 mb-2 rounded-2xl bg-white border border-[#eef0f6] px-4 py-3 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+        <h2 className="font-extrabold text-sm text-[#1a1a2e] font-[Lato,sans-serif]">Subscription Model Config</h2>
       </div>
 
       <ScenarioPanel projectId={projectId} modelType={productType ?? "subscription"} onProjectCreated={onProjectCreated} />
@@ -329,7 +329,7 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
   }
 
   return (
-    <aside className="w-[360px] border-r bg-background overflow-y-auto h-[calc(100dvh-3.5rem-1rem)] flex-shrink-0" data-tour="config-sidebar">
+    <aside className="w-[360px] border-r bg-background overflow-y-auto h-[calc(100dvh-3.5rem-1rem)] flex-shrink-0 rounded-r-2xl" data-tour="config-sidebar">
       {content}
     </aside>
   );
