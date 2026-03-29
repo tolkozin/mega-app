@@ -14,6 +14,8 @@ interface CostItemsStore {
   initialized: Record<string, boolean>;
   getItems: (key: string) => CostItem[];
   initItems: (key: string, defaults: CostItem[]) => void;
+  /** Update amounts of default items to match current config values */
+  refreshDefaults: (key: string, defaults: CostItem[]) => void;
   setItems: (key: string, items: CostItem[]) => void;
   addItem: (key: string, item: CostItem) => void;
   removeItem: (key: string, id: string) => void;
@@ -34,6 +36,22 @@ export const useCostItemsStore = create<CostItemsStore>()(
           items: { ...s.items, [key]: defaults },
           initialized: { ...s.initialized, [key]: true },
         }));
+      },
+
+      refreshDefaults: (key, defaults) => {
+        const current = get().items[key];
+        if (!current) return;
+        // Build a map of default id → amount from config
+        const defaultMap = new Map(defaults.map((d) => [d.id, d.amount]));
+        // Update only the default items' amounts, preserve custom items
+        const updated = current.map((item) => {
+          const configAmount = defaultMap.get(item.id);
+          if (configAmount !== undefined) {
+            return { ...item, amount: configAmount };
+          }
+          return item;
+        });
+        set((s) => ({ items: { ...s.items, [key]: updated } }));
       },
 
       setItems: (key, items) =>

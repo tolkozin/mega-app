@@ -45,6 +45,7 @@ interface PhaseCostItemsProps {
 
 export function PhaseCostItems({ storeKey, defaults, categories, onSync }: PhaseCostItemsProps) {
   const initItems = useCostItemsStore((s) => s.initItems);
+  const refreshDefaults = useCostItemsStore((s) => s.refreshDefaults);
   const items = useCostItemsStore((s) => s.getItems(storeKey));
   const addItem = useCostItemsStore((s) => s.addItem);
   const removeItem = useCostItemsStore((s) => s.removeItem);
@@ -53,9 +54,11 @@ export function PhaseCostItems({ storeKey, defaults, categories, onSync }: Phase
   const onSyncRef = useRef(onSync);
   onSyncRef.current = onSync;
 
-  // Initialize with defaults on first render (only if not already initialized)
+  // Initialize with defaults on first render, then refresh default items'
+  // amounts to match current config (prevents stale persisted values)
   useEffect(() => {
     initItems(storeKey, defaults);
+    refreshDefaults(storeKey, defaults);
   }, [storeKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Compute and fire sync — called only on user-initiated changes

@@ -597,7 +597,7 @@ function DashboardPage() {
             <SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} monthRange={monthRange} productType={modelType} />
             <button
               onClick={() => setConfigHidden(true)}
-              className="self-center -ml-px w-5 h-10 bg-[#ECECF2] hover:bg-[#DDE0E9] rounded-r-lg flex items-center justify-center text-[#8181A5] hover:text-[#1C1D21] transition-colors z-10"
+              className="self-center -ml-px w-5 h-10 bg-[#ECECF2] hover:bg-[#DDE0E9] rounded-lg flex items-center justify-center text-[#8181A5] hover:text-[#1C1D21] transition-colors z-10"
               title="Hide config panel"
             >
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
