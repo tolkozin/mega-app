@@ -106,7 +106,7 @@ export function V2Shell({
       {!isMobile && !aiOpen && (
         <button
           onClick={toggleAI}
-          className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-[#2163E7] text-white shadow-lg shadow-[#2163E7]/30 hover:bg-[#1650b0] hover:shadow-xl hover:shadow-[#2163E7]/40 hover:-translate-y-0.5 transition-all flex items-center justify-center"
+          className="fixed bottom-16 right-6 z-40 w-12 h-12 rounded-full bg-[#2163E7] text-white shadow-lg shadow-[#2163E7]/30 hover:bg-[#1650b0] hover:shadow-xl hover:shadow-[#2163E7]/40 hover:-translate-y-0.5 transition-all flex items-center justify-center"
           title="AI Assistant"
           aria-label="Open AI Assistant"
         >
