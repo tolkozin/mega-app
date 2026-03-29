@@ -619,7 +619,7 @@ function DashboardPage() {
         )}
         {/* Mobile sidebar (no toggle) */}
         {!configHidden && <div className="md:hidden"><SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} monthRange={monthRange} productType={modelType} /></div>}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-2 space-y-3 sm:space-y-4 relative">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-2 space-y-3 sm:space-y-4 relative bg-[#eef0f6]">
 
           {loading && !results && (
             <div className="flex items-center justify-center py-20">
