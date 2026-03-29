@@ -284,7 +284,7 @@ export function PlansClient() {
 
                 {annual && plan.annualTotal && (
                   <p className="text-xs text-[#8181A5] mb-1">
-                    Billed ${plan.annualTotal.toFixed(2).replace(/\.00$/, "")}/yr
+                    Billed annually
                   </p>
                 )}
 

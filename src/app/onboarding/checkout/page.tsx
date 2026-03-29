@@ -460,7 +460,7 @@ function CheckoutPage() {
           </div>
           {annual && (
             <p className="text-xs text-[#8181A5]">
-              Billed ${plan.annualPrice * 12}/yr
+              Billed annually
             </p>
           )}
           <p className="text-xs text-[#F59E0B] font-bold mt-2">

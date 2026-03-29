@@ -396,7 +396,7 @@ function PricingToggle({ plans }: { plans: Plan[] }) {
             </div>
             {annual && plan.annualTotal && (
               <p className="text-xs text-[#6b7280] mb-1">
-                Billed ${plan.annualTotal}/yr
+                Billed annually
               </p>
             )}
             {plan.monthlyPrice > 0 && (

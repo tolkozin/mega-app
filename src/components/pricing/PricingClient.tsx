@@ -453,7 +453,7 @@ export function PricingClient() {
               </div>
               {annual && plan.annualTotal && (
                 <p className="text-xs text-[#6b7280] mb-1">
-                  Billed ${plan.annualTotal.toFixed(2).replace(/\.00$/, "")}/yr
+                  Billed annually
                 </p>
               )}
               {plan.monthlyPrice > 0 && (
