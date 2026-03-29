@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useScenarios } from "@/hooks/useProject";
+import { useScenarios, UpgradeRequiredError } from "@/hooks/useProject";
 import { useConfigStore } from "@/stores/config-store";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ModelConfig, EcomConfig, SaasConfig } from "@/lib/types";
 import { getModelDef, getBaseEngine } from "@/lib/model-registry";
+import { getPlanLimits } from "@/lib/plan-limits";
+import { useUpgradeStore } from "@/stores/upgrade-store";
 
 interface ScenarioPanelProps {
   projectId: string | null;
@@ -38,6 +40,24 @@ function CreateProjectForm({
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
+
+      // Check project limit
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .single();
+      const limits = getPlanLimits(profile?.plan ?? "free");
+      if (limits.maxProjects !== Infinity) {
+        const { count } = await supabase
+          .from("projects")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id);
+        if ((count ?? 0) >= limits.maxProjects) {
+          useUpgradeStore.getState().showUpgradeModal({ feature: "projects", currentPlan: profile?.plan ?? "free", limitValue: `${limits.maxProjects} project(s)` });
+          return;
+        }
+      }
 
       const { data, error: insertErr } = await supabase
         .from("projects")
@@ -152,7 +172,11 @@ export function ScenarioPanel({ projectId, modelType, onProjectCreated }: Scenar
       setNotes("");
       setShowSave(false);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to save scenario");
+      if (err instanceof UpgradeRequiredError) {
+        useUpgradeStore.getState().showUpgradeModal({ feature: err.feature, currentPlan: err.currentPlan, limitValue: err.limitValue });
+      } else {
+        alert(err instanceof Error ? err.message : "Failed to save scenario");
+      }
     } finally {
       setSaving(false);
     }
@@ -190,7 +214,7 @@ export function ScenarioPanel({ projectId, modelType, onProjectCreated }: Scenar
   };
 
   return (
-    <div className="border-t">
+    <div className="border-t" data-tour="scenario-panel">
       <div className="p-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold">Scenarios</h3>
         {projectId && (

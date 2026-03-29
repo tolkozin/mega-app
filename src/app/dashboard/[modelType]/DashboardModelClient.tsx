@@ -22,6 +22,7 @@ import { V2DashboardHero } from "@/components/v2/dashboard/V2DashboardHero";
 import { V2KPIMetricGrid } from "@/components/v2/charts/V2KPIMetricCard";
 import type { KPICardProps, HealthStatus } from "@/components/v2/charts/V2KPIMetricCard";
 import { fmtK } from "@/components/v2/charts/v2-chart-utils";
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import type { ModelConfig, EcomConfig, SaasConfig } from "@/lib/types";
 
 // ─── Engine-specific component imports ───
@@ -69,7 +70,7 @@ function getConfigSelector(engine: BaseEngine): (s: any) => any {
   return selectors[engine];
 }
 
-const ENGINE_SIDEBAR: Record<BaseEngine, React.ComponentType<{ projectId: string | null; onProjectCreated: (id: string) => void }>> = {
+const ENGINE_SIDEBAR: Record<BaseEngine, React.ComponentType<{ projectId: string | null; onProjectCreated: (id: string) => void; monthRange?: [number, number] | null; productType?: string }>> = {
   subscription: Sidebar,
   ecommerce: EcomSidebar,
   saas: SaasSidebar,
@@ -467,7 +468,7 @@ function DashboardPage() {
   return (
     <AppShell>
       <div className="flex flex-col md:flex-row h-[calc(100dvh-3.5rem)]">
-        {!configHidden && <SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} />}
+        {!configHidden && <SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} monthRange={monthRange} productType={modelType} />}
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 relative">
           {/* Sticky toggle button — stays visible during scroll */}
           <div className="hidden md:block sticky top-1/2 z-10 h-0" style={{ marginLeft: "-1.5rem" }}>
@@ -485,7 +486,7 @@ function DashboardPage() {
           {/* Logo + Model type selector + Engine selector + Date filter */}
           <div className="flex items-center gap-2 flex-wrap">
             {/* Model selector */}
-            <div className="relative inline-block">
+            <div className="relative inline-block" data-tour="model-selector">
               <button
                 onClick={() => { setModelSelectorOpen((v) => !v); setEngineSelectorOpen(false); }}
                 className="flex items-center gap-2 text-sm font-bold text-[#1C1D21] bg-white border border-[#ECECF2] rounded-lg px-3 py-1.5 hover:border-[#2163E7] transition-colors"
@@ -639,6 +640,7 @@ function DashboardPage() {
               )}
 
               {/* v2 Hero Dashboard — MRR chart, metrics, cost donut, break-even */}
+              <div data-tour="main-chart">
               <FadeIn delay={0}>
                 <V2DashboardHero
                   data={(results.base.dataframe || []) as { Month: number; [key: string]: number | string | undefined }[]}
@@ -646,8 +648,10 @@ function DashboardPage() {
                   engine={engine}
                 />
               </FadeIn>
+              </div>
 
               {/* KPI Metric Grid — secondary metrics per engine */}
+              <div data-tour="kpi-metrics">
               <FadeIn delay={0.03}>
                 <V2KPIMetricGrid
                   kpis={buildKPICards(
@@ -658,6 +662,7 @@ function DashboardPage() {
                   initialCount={6}
                 />
               </FadeIn>
+              </div>
 
               <ContentComponent results={results} p1End={p1End} p2End={p2End} />
             </>
@@ -670,6 +675,7 @@ function DashboardPage() {
           )}
         </div>
       </div>
+      <OnboardingTour />
     </AppShell>
   );
 }

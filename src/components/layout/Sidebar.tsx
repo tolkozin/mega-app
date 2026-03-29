@@ -35,14 +35,19 @@ const GROWTH_MODE_OPTIONS = [
 function InfoIcon({ tooltip }: { tooltip: string }) {
   const [show, setShow] = useState(false);
   const ref = React.useRef<HTMLSpanElement>(null);
-  const [above, setAbove] = useState(true);
-  const [alignRight, setAlignRight] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number; above: boolean; alignRight: boolean }>({ top: 0, left: 0, above: true, alignRight: false });
 
   const handleToggle = () => {
     if (!show && ref.current) {
       const rect = ref.current.getBoundingClientRect();
-      setAbove(rect.top > 120);
-      setAlignRight(rect.left > window.innerWidth / 2);
+      const above = rect.top > 160;
+      const alignRight = rect.left > window.innerWidth / 2;
+      setPos({
+        top: above ? rect.top - 8 : rect.bottom + 8,
+        left: alignRight ? rect.right : rect.left,
+        above,
+        alignRight,
+      });
     }
     setShow((v) => !v);
   };
@@ -57,9 +62,16 @@ function InfoIcon({ tooltip }: { tooltip: string }) {
     >
       i
       {show && (
-        <span className={`absolute z-[100] ${above ? "bottom-full mb-2" : "top-full mt-2"} ${alignRight ? "right-0" : "left-0"} px-3 py-2 bg-[#1a1a2e] text-white text-[10px] leading-relaxed rounded-[10px] shadow-lg w-[220px] max-w-[calc(100vw-3rem)] whitespace-normal pointer-events-none font-medium`}>
+        <span
+          className="fixed z-[9999] px-3 py-2 bg-[#1a1a2e] text-white text-[10px] leading-relaxed rounded-[10px] shadow-lg w-[240px] max-w-[calc(100vw-2rem)] whitespace-normal pointer-events-none font-medium"
+          style={{
+            top: pos.above ? pos.top : pos.top,
+            left: pos.alignRight ? 'auto' : pos.left,
+            right: pos.alignRight ? (window.innerWidth - pos.left) : 'auto',
+            transform: pos.above ? 'translateY(-100%)' : 'none',
+          }}
+        >
           {tooltip}
-          <span className={`absolute ${above ? "top-full" : "bottom-full"} ${alignRight ? "right-4" : "left-4"} w-0 h-0 border-l-4 border-r-4 ${above ? "border-t-4 border-t-[#1a1a2e]" : "border-b-4 border-b-[#1a1a2e]"} border-l-transparent border-r-transparent`} />
         </span>
       )}
     </span>
@@ -208,10 +220,10 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
           onSync={handleCostSync}
         />
 
-        <NumberField label="CPI ($)" value={phase.cpi} onChange={(v) => update({ cpi: v })} min={0.01} step={0.5} help="Cost Per Install — how much you pay per app install from ads" />
-        <NumberField label="Conv Trial (%)" value={phase.conv_trial} onChange={(v) => update({ conv_trial: v })} min={0} max={100} step={1} help="% of paid installs that start a free trial" slider />
-        <NumberField label="Conv Paid (%)" value={phase.conv_paid} onChange={(v) => update({ conv_paid: v })} min={0} max={100} step={1} help="% of trial users that convert to a paid subscription" slider />
-        <NumberField label="Churn Mult" value={phase.churn_mult} onChange={(v) => update({ churn_mult: v })} min={0} step={0.1} help="Multiplier applied to base churn rates. 1.0 = default, 0.5 = halved churn, 2.0 = doubled" />
+        <NumberField label="CPI ($)" value={phase.cpi} onChange={(v) => update({ cpi: v })} min={0.01} step={0.5} help="Cost Per Install — the average amount you pay per new app install from paid advertising. Lower CPI means more efficient ad spend. Industry average: $1–5 depending on category." />
+        <NumberField label="Conv Trial (%)" value={phase.conv_trial} onChange={(v) => update({ conv_trial: v })} min={0} max={100} step={1} help="Trial Conversion Rate — percentage of paid installs that start a free trial. Higher means your onboarding funnel is working well. Good benchmark: 20–40%." slider />
+        <NumberField label="Conv Paid (%)" value={phase.conv_paid} onChange={(v) => update({ conv_paid: v })} min={0} max={100} step={1} help="Paid Conversion Rate — percentage of trial users that convert to a paid subscription. This is your monetization efficiency. Good benchmark: 10–25%." slider />
+        <NumberField label="Churn Mult" value={phase.churn_mult} onChange={(v) => update({ churn_mult: v })} min={0} step={0.1} help="Churn Multiplier — scales your base churn rates. 1.0 = default churn, 0.5 = half the churn (better retention), 2.0 = double the churn (worse). Use this to model retention improvements over time." />
 
         <div className="pt-2 text-xs font-medium text-muted-foreground">Ad Growth</div>
         <SegmentedControl
@@ -224,7 +236,7 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
         ) : (
           <NumberField label="Growth ($/mo)" value={phase.ad_growth_abs} onChange={(v) => update({ ad_growth_abs: v })} step={100} help="Fixed dollar increase in ad budget each month" />
         )}
-        <NumberField label="CPI Degradation (%/mo)" value={phase.cpi_degradation} onChange={(v) => update({ cpi_degradation: v })} min={0} max={10} step={0.5} help="Monthly % increase in CPI as audience saturates (higher = worse)" slider />
+        <NumberField label="CPI Degradation (%/mo)" value={phase.cpi_degradation} onChange={(v) => update({ cpi_degradation: v })} min={0} max={10} step={0.5} help="Monthly percentage increase in CPI as your target audience saturates. As you scale ads, it gets harder to find new users cheaply. 0 = stable CPI, 1–3% is typical." slider />
 
         <div className="pt-2 text-xs font-medium text-muted-foreground">Organic</div>
         <SegmentedControl
@@ -258,13 +270,13 @@ function PhaseSection({ phase, phaseNum }: { phase: PhaseConfig; phaseNum: 1 | 2
           <InlineWarning message={`Plan mix sums to ${mixSum}% — should be 100%`} type="error" />
         )}
 
-        <NumberField label="COGS (%)" value={phase.cogs * 100} onChange={(v) => update({ cogs: v / 100 })} min={0} max={100} step={1} help="Cost of Goods Sold as % of revenue (hosting, CDN, support)" />
+        <NumberField label="COGS (%)" value={phase.cogs * 100} onChange={(v) => update({ cogs: v / 100 })} min={0} max={100} step={1} help="Cost of Goods Sold as percentage of revenue. Includes hosting, CDN, customer support, and direct delivery costs. SaaS/app typical: 15–30%." />
       </div>
     </AnimatedAccordion>
   );
 }
 
-export function Sidebar({ projectId, onProjectCreated }: { projectId: string | null; onProjectCreated?: (id: string) => void }) {
+export function Sidebar({ projectId, onProjectCreated, monthRange, productType }: { projectId: string | null; onProjectCreated?: (id: string) => void; monthRange?: [number, number] | null; productType?: string }) {
   const config = useConfigStore((s) => s.subscriptionConfig);
   const setConfig = useConfigStore((s) => s.setSubscriptionConfig);
   const isMobile = useIsMobile();
@@ -283,14 +295,14 @@ export function Sidebar({ projectId, onProjectCreated }: { projectId: string | n
         <h2 className="font-semibold text-sm">Subscription Model Config</h2>
       </div>
 
-      <ScenarioPanel projectId={projectId} modelType="subscription" onProjectCreated={onProjectCreated} />
+      <ScenarioPanel projectId={projectId} modelType={productType ?? "subscription"} onProjectCreated={onProjectCreated} />
 
       {/* Phase Timeline */}
       <div className="px-3 py-2">
         <PhaseTimeline
           phase1Dur={config.phase1_dur}
           phase2Dur={config.phase2_dur}
-          totalMonths={config.total_months}
+          totalMonths={monthRange ? monthRange[1] - monthRange[0] + 1 : config.total_months}
           colors={PHASE_COLORS}
         />
       </div>
@@ -299,12 +311,12 @@ export function Sidebar({ projectId, onProjectCreated }: { projectId: string | n
         <AnimatedAccordion title="General" defaultOpen>
           <div className="space-y-3">
             <NumberField label="Total Months" value={config.total_months} onChange={(v) => setConfig({ total_months: v })} min={6} max={120} help="Total forecast horizon in months" slider />
-            <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch / MVP). Phase 3 = total - P1 - P2" slider />
-            <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = total - P1 - P2" slider />
+            <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Number of months for Phase 1 (launch / MVP stage). This is your initial period with early adopters. Phase 3 duration is automatically calculated: total months minus Phase 1 minus Phase 2." slider />
+            <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Number of months for Phase 2 (growth stage). This is your scaling period with increasing traction. Phase 3 duration is automatically calculated from the remainder." slider />
             {config.total_months - config.phase1_dur - config.phase2_dur < 1 && (
               <InlineWarning message="Phase 3 has no months — increase total or reduce P1/P2" type="error" />
             )}
-            <NumberField label="Starting Organic" value={config.starting_organic} onChange={(v) => setConfig({ starting_organic: v })} min={0} help="Initial organic installs per month at model start" />
+            <NumberField label="Starting Organic" value={config.starting_organic} onChange={(v) => setConfig({ starting_organic: v })} min={0} help="Number of organic (non-paid) installs per month at the start of your model. These come from SEO, word-of-mouth, App Store search, social media, etc." />
           </div>
         </AnimatedAccordion>
 
@@ -314,7 +326,7 @@ export function Sidebar({ projectId, onProjectCreated }: { projectId: string | n
             <NumberField label="Churn (%)" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Adjust churn rates by this %. Positive = more churn (worse)" slider />
             <NumberField label="CPI (%)" value={config.sens_cpi} onChange={(v) => setConfig({ sens_cpi: v })} min={-100} max={100} help="Adjust CPI by this %. Positive = higher cost per install" slider />
             <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic growth by this %. Positive = more organic" slider />
-            <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios around base case" slider />
+            <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="How far optimistic and pessimistic scenarios deviate from your base case. 20% means optimistic is +20% and pessimistic is −20% from base projections." slider />
           </div>
         </AnimatedAccordion>
 
@@ -330,8 +342,8 @@ export function Sidebar({ projectId, onProjectCreated }: { projectId: string | n
             />
             {config.mc_enabled && (
               <>
-                <NumberField label="Iterations" value={config.mc_iterations} onChange={(v) => setConfig({ mc_iterations: v })} min={50} max={1000} step={50} help="Number of random simulations to run. More = smoother distribution" />
-                <NumberField label="Variance (%)" value={config.mc_variance} onChange={(v) => setConfig({ mc_variance: v })} min={1} max={100} help="Max random deviation from base parameters per iteration" />
+                <NumberField label="Iterations" value={config.mc_iterations} onChange={(v) => setConfig({ mc_iterations: v })} min={50} max={1000} step={50} help="Number of random simulation runs. Each iteration randomizes your inputs slightly. More iterations = smoother, more reliable probability distribution. 200–500 is a good range." />
+                <NumberField label="Variance (%)" value={config.mc_variance} onChange={(v) => setConfig({ mc_variance: v })} min={1} max={100} help="Maximum random deviation applied to your base parameters in each Monte Carlo iteration. 10% means each input can randomly vary ±10% from its base value." />
               </>
             )}
           </div>
@@ -380,7 +392,7 @@ export function Sidebar({ projectId, onProjectCreated }: { projectId: string | n
   }
 
   return (
-    <aside className="w-[360px] border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0">
+    <aside className="w-[360px] border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0" data-tour="config-sidebar">
       {content}
     </aside>
   );

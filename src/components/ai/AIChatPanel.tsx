@@ -28,9 +28,9 @@ function getWelcomeMessage(modelType: string): string {
   const engine = getBaseEngine(modelType);
   const metrics = ENGINE_METRICS[engine] ?? ENGINE_METRICS.subscription;
   const tips = ENGINE_TIPS[engine] ?? ENGINE_TIPS.subscription;
-  return `Your ${def.label} financial model has been generated based on your survey answers and industry market benchmarks.
+  return `Welcome to your ${def.label} dashboard. All projections are built on industry benchmarks and real-world data points for your market segment.
 
-All projections use real-world data points for your business type and market segment. Here's what I can help with:
+Here's what I can help with:
 
 • Answer questions about your metrics (${metrics})
 • Adjust parameters — describe what you want to change in plain English
@@ -374,6 +374,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
           ? "fixed inset-0 z-50 bg-white flex flex-col safe-area-inset"
           : "w-[380px] xl:w-[420px] h-full border-l border-[#f0f1f7] bg-white shrink-0 flex flex-col shadow-[-12px_0_40px_rgba(0,0,0,0.1),-2px_0_8px_rgba(33,99,231,0.06)]"
       }
+      data-tour="ai-chat"
       style={{ fontFamily: "Lato, sans-serif" }}
     >
       {/* ── Header (Figma Make style) ── */}

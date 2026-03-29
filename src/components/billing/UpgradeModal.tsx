@@ -17,8 +17,8 @@ interface UpgradeModalProps {
 const planSuggestion: Record<string, { name: string; color: string }> = {
   free: { name: "Plus or Pro", color: "#2163E7" },
   expired: { name: "Plus or Pro", color: "#2163E7" },
-  plus: { name: "Pro", color: "#8B5CF6" },
-  pro: { name: "Enterprise", color: "#F59E0B" },
+  plus: { name: "Pro", color: "#2163E7" },
+  pro: { name: "Enterprise", color: "#1a1a2e" },
 };
 
 export function UpgradeModal({ open, onClose, mode = "upgrade", feature, currentPlan = "free", limitValue }: UpgradeModalProps) {
@@ -82,7 +82,7 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
                   </div>
                   <button
                     onClick={onClose}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-[#8181A5] hover:text-[#1C1D21] hover:bg-black/5 transition-colors"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg text-[#9ca3af] hover:text-[#1a1a2e] hover:bg-black/5 transition-colors"
                     aria-label="Close modal"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -93,10 +93,10 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
 
                 {isExpired ? (
                   <>
-                    <h2 className="text-xl font-bold text-[#1C1D21] mt-4">
+                    <h2 className="text-xl font-bold text-[#1a1a2e] mt-4">
                       {mode === "readonly" ? "Read-Only Mode" : "Your Subscription Has Expired"}
                     </h2>
-                    <p className="text-sm text-[#8181A5] mt-1.5 leading-relaxed">
+                    <p className="text-sm text-[#9ca3af] mt-1.5 leading-relaxed">
                       {mode === "readonly"
                         ? "Your subscription is no longer active. All your data is safe, but you can\u2019t edit or create anything until you resubscribe."
                         : "Your plan has expired. All your projects, scenarios, and data are preserved — but editing and creating are disabled until you subscribe again."
@@ -105,10 +105,10 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
                   </>
                 ) : (
                   <>
-                    <h2 className="text-xl font-bold text-[#1C1D21] mt-4">
+                    <h2 className="text-xl font-bold text-[#1a1a2e] mt-4">
                       Upgrade to {suggestion.name}
                     </h2>
-                    <p className="text-sm text-[#8181A5] mt-1.5 leading-relaxed">
+                    <p className="text-sm text-[#9ca3af] mt-1.5 leading-relaxed">
                       You&apos;ve reached the {feature} limit on your current plan
                       {limitValue && <> ({limitValue})</>}.
                       Upgrade to {suggestion.name} to unlock more.
@@ -118,10 +118,10 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
               </div>
 
               {/* Content */}
-              <div className="px-6 py-4 border-t border-[#ECECF2]">
+              <div className="px-6 py-4 border-t border-[#eef0f6]">
                 {isExpired ? (
                   <>
-                    <p className="text-xs font-bold text-[#8181A5] uppercase tracking-wide mb-3">
+                    <p className="text-xs font-bold text-[#9ca3af] uppercase tracking-wide mb-3">
                       What&apos;s happening
                     </p>
                     <ul className="space-y-2.5">
@@ -131,13 +131,13 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
                       <StatusRow icon="lock" text="Creating projects or scenarios is disabled" />
                       <StatusRow icon="lock" text="AI assistant is disabled" />
                     </ul>
-                    <p className="text-xs text-[#8181A5] mt-3">
+                    <p className="text-xs text-[#9ca3af] mt-3">
                       Resubscribe to Plus or Pro to instantly restore full access. All plans include a 10-day free trial.
                     </p>
                   </>
                 ) : (
                   <>
-                    <p className="text-xs font-bold text-[#8181A5] uppercase tracking-wide mb-3">
+                    <p className="text-xs font-bold text-[#9ca3af] uppercase tracking-wide mb-3">
                       What you get with {suggestion.name}
                     </p>
                     {currentPlan === "plus" ? (
@@ -149,7 +149,7 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
                         <CompareRow label="AI reports / month" current="3" next="Unlimited" />
                       </ul>
                     ) : currentPlan === "pro" ? (
-                      <p className="text-sm text-[#8181A5]">
+                      <p className="text-sm text-[#9ca3af]">
                         Contact us for custom Enterprise limits tailored to your team.
                       </p>
                     ) : (
@@ -160,7 +160,7 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
                         <CompareRow label="Sharing" current="None" next="3 / 10 people" />
                         <CompareRow label="AI messages / month" current="None" next="30 / Unlimited" />
                         <CompareRow label="AI reports / month" current="None" next="3 / Unlimited" />
-                        <li className="text-xs text-[#8181A5] pt-1">All plans include a 10-day free trial.</li>
+                        <li className="text-xs text-[#9ca3af] pt-1">All plans include a 10-day free trial.</li>
                       </ul>
                     )}
                   </>
@@ -168,7 +168,7 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
               </div>
 
               {/* Actions */}
-              <div className="px-6 py-4 border-t border-[#ECECF2] flex items-center gap-3">
+              <div className="px-6 py-4 border-t border-[#eef0f6] flex items-center gap-3">
                 <button
                   onClick={() => {
                     onClose();
@@ -181,7 +181,7 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
                 </button>
                 <button
                   onClick={onClose}
-                  className="h-10 px-5 text-sm font-bold rounded-lg border border-[#ECECF2] text-[#8181A5] hover:text-[#1C1D21] transition-colors"
+                  className="h-10 px-5 text-sm font-bold rounded-lg border border-[#eef0f6] text-[#9ca3af] hover:text-[#1a1a2e] transition-colors"
                 >
                   {isExpired ? "Continue Viewing" : "Maybe Later"}
                 </button>
@@ -197,9 +197,9 @@ export function UpgradeModal({ open, onClose, mode = "upgrade", feature, current
 function CompareRow({ label, current, next }: { label: string; current: string; next: string }) {
   return (
     <li className="flex items-center justify-between text-sm">
-      <span className="text-[#8181A5]">{label}</span>
+      <span className="text-[#9ca3af]">{label}</span>
       <div className="flex items-center gap-2">
-        <span className="text-[#8181A5] line-through text-xs">{current}</span>
+        <span className="text-[#9ca3af] line-through text-xs">{current}</span>
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-[#14A660]">
           <path d="M4.5 3L7.5 6L4.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -222,7 +222,7 @@ function StatusRow({ icon, text }: { icon: "check" | "lock"; text: string }) {
           <path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
         </svg>
       )}
-      <span className="text-[#1C1D21]">{text}</span>
+      <span className="text-[#1a1a2e]">{text}</span>
     </li>
   );
 }

@@ -28,14 +28,19 @@ const PHASE_COLORS: [string, string, string] = ["#2275ed", "#85abf2", "#e8f0ff"]
 function InfoIcon({ tooltip }: { tooltip: string }) {
   const [show, setShow] = useState(false);
   const ref = React.useRef<HTMLSpanElement>(null);
-  const [above, setAbove] = useState(true);
-  const [alignRight, setAlignRight] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number; above: boolean; alignRight: boolean }>({ top: 0, left: 0, above: true, alignRight: false });
 
   const handleToggle = () => {
     if (!show && ref.current) {
       const rect = ref.current.getBoundingClientRect();
-      setAbove(rect.top > 120);
-      setAlignRight(rect.left > window.innerWidth / 2);
+      const above = rect.top > 160;
+      const alignRight = rect.left > window.innerWidth / 2;
+      setPos({
+        top: above ? rect.top - 8 : rect.bottom + 8,
+        left: alignRight ? rect.right : rect.left,
+        above,
+        alignRight,
+      });
     }
     setShow((v) => !v);
   };
@@ -50,9 +55,16 @@ function InfoIcon({ tooltip }: { tooltip: string }) {
     >
       i
       {show && (
-        <span className={`absolute z-[100] ${above ? "bottom-full mb-2" : "top-full mt-2"} ${alignRight ? "right-0" : "left-0"} px-3 py-2 bg-[#1a1a2e] text-white text-[10px] leading-relaxed rounded-[10px] shadow-lg w-[220px] max-w-[calc(100vw-3rem)] whitespace-normal pointer-events-none font-medium`}>
+        <span
+          className="fixed z-[9999] px-3 py-2 bg-[#1a1a2e] text-white text-[10px] leading-relaxed rounded-[10px] shadow-lg w-[240px] max-w-[calc(100vw-2rem)] whitespace-normal pointer-events-none font-medium"
+          style={{
+            top: pos.above ? pos.top : pos.top,
+            left: pos.alignRight ? 'auto' : pos.left,
+            right: pos.alignRight ? (window.innerWidth - pos.left) : 'auto',
+            transform: pos.above ? 'translateY(-100%)' : 'none',
+          }}
+        >
           {tooltip}
-          <span className={`absolute ${above ? "top-full" : "bottom-full"} ${alignRight ? "right-4" : "left-4"} w-0 h-0 border-l-4 border-r-4 ${above ? "border-t-4 border-t-[#1a1a2e]" : "border-b-4 border-b-[#1a1a2e]"} border-l-transparent border-r-transparent`} />
         </span>
       )}
     </span>
@@ -191,11 +203,11 @@ function SaasPhaseSection({ phase, phaseNum }: { phase: SaasPhaseConfig; phaseNu
           onSync={handleCostSync}
         />
 
-        <NumberField label="Seats per Account" value={phase.seats_per_account} onChange={(v) => update({ seats_per_account: v })} min={1} step={1} help="Average number of seats (users) per customer account" />
-        <NumberField label="Price per Seat ($/mo)" value={phase.price_per_seat} onChange={(v) => update({ price_per_seat: v })} min={0} step={1} help="Monthly price charged per seat/user" />
-        <NumberField label="Annual Contract (%)" value={phase.annual_contract_pct} onChange={(v) => update({ annual_contract_pct: v })} min={0} max={100} step={5} help="% of new deals signed as annual contracts (vs monthly)" />
-        <NumberField label="Annual Discount (%)" value={phase.annual_discount} onChange={(v) => update({ annual_discount: v })} min={0} max={50} step={1} help="Discount offered on annual plans vs monthly pricing" />
-        <NumberField label="Cost per Lead ($)" value={phase.cpl} onChange={(v) => update({ cpl: v })} min={1} step={10} help="Average cost to acquire one marketing-qualified lead" />
+        <NumberField label="Seats per Account" value={phase.seats_per_account} onChange={(v) => update({ seats_per_account: v })} min={1} step={1} help="Average number of user seats (licenses) per customer account. Affects your ARPA (Average Revenue Per Account). Larger teams = higher contract value." />
+        <NumberField label="Price per Seat ($/mo)" value={phase.price_per_seat} onChange={(v) => update({ price_per_seat: v })} min={0} step={1} help="Monthly price charged per seat/user. This is your core pricing lever. Consider competitive pricing and willingness to pay. B2B SaaS typical: $10–100/seat." />
+        <NumberField label="Annual Contract (%)" value={phase.annual_contract_pct} onChange={(v) => update({ annual_contract_pct: v })} min={0} max={100} step={5} help="Percentage of new deals signed as annual contracts vs monthly. Annual contracts improve cash flow and reduce churn. Enterprise SaaS often targets 60–80% annual." />
+        <NumberField label="Annual Discount (%)" value={phase.annual_discount} onChange={(v) => update({ annual_discount: v })} min={0} max={50} step={1} help="Discount offered to customers who commit to annual billing vs monthly. Typical: 15–20%. Incentivizes longer commitment and improves retention." />
+        <NumberField label="Cost per Lead ($)" value={phase.cpl} onChange={(v) => update({ cpl: v })} min={1} step={10} help="Average cost to acquire one Marketing Qualified Lead (MQL) through paid channels. Includes ad spend, content marketing, events. B2B SaaS: $30–200 depending on segment." />
 
         <RetentionFunnel steps={[
           { label: "Leads → Demo", value: phase.lead_to_demo, color: "#BDD0F8" },
@@ -203,23 +215,23 @@ function SaasPhaseSection({ phase, phaseNum }: { phase: SaasPhaseConfig; phaseNu
           { label: "Retention", value: Math.max(0, 100 - phase.logo_churn_rate), color: "#2163E7" },
         ]} />
 
-        <NumberField label="Lead-to-Demo (%)" value={phase.lead_to_demo} onChange={(v) => update({ lead_to_demo: v })} min={0} max={100} step={1} help="% of leads that book a product demo" />
-        <NumberField label="Demo-to-Close (%)" value={phase.demo_to_close} onChange={(v) => update({ demo_to_close: v })} min={0} max={100} step={1} help="% of demos that convert to paying customers" />
-        <NumberField label="Sales Cycle (months)" value={phase.sales_cycle_months} onChange={(v) => update({ sales_cycle_months: v })} min={0} max={12} step={1} help="Average months from lead to closed deal. Delays revenue recognition" />
-        <NumberField label="Expansion Rate (%/mo)" value={phase.expansion_rate} onChange={(v) => update({ expansion_rate: v })} min={0} max={50} step={0.5} help="Monthly % of existing MRR that expands (upsells, more seats)" />
-        <NumberField label="Contraction Rate (%/mo)" value={phase.contraction_rate} onChange={(v) => update({ contraction_rate: v })} min={0} max={50} step={0.5} help="Monthly % of existing MRR lost to downgrades (fewer seats, lower plan)" />
-        <NumberField label="Logo Churn Rate (%/mo)" value={phase.logo_churn_rate} onChange={(v) => update({ logo_churn_rate: v })} min={0} max={50} step={0.5} help="Monthly % of customers that fully cancel. Removes all their MRR" />
+        <NumberField label="Lead-to-Demo (%)" value={phase.lead_to_demo} onChange={(v) => update({ lead_to_demo: v })} min={0} max={100} step={1} help="Percentage of leads that book and attend a product demo or sales call. Measures your top-of-funnel effectiveness. Good benchmark: 15–30%." />
+        <NumberField label="Demo-to-Close (%)" value={phase.demo_to_close} onChange={(v) => update({ demo_to_close: v })} min={0} max={100} step={1} help="Percentage of demos that convert to paying customers. Measures your sales team effectiveness. Good benchmark: 20–40%." />
+        <NumberField label="Sales Cycle (months)" value={phase.sales_cycle_months} onChange={(v) => update({ sales_cycle_months: v })} min={0} max={12} step={1} help="Average time from first lead contact to signed deal. Longer cycles mean more delay before revenue recognition. SMB: 1–2mo, Mid-market: 2–4mo, Enterprise: 3–9mo." />
+        <NumberField label="Expansion Rate (%/mo)" value={phase.expansion_rate} onChange={(v) => update({ expansion_rate: v })} min={0} max={50} step={0.5} help="Monthly percentage of existing MRR that grows through upsells, cross-sells, or seat additions. Best-in-class SaaS: 3–5%/mo. Key driver of net revenue retention." />
+        <NumberField label="Contraction Rate (%/mo)" value={phase.contraction_rate} onChange={(v) => update({ contraction_rate: v })} min={0} max={50} step={0.5} help="Monthly percentage of existing MRR lost to downgrades — customers reducing seats or moving to a cheaper plan. Typical: 0.5–2%/mo." />
+        <NumberField label="Logo Churn Rate (%/mo)" value={phase.logo_churn_rate} onChange={(v) => update({ logo_churn_rate: v })} min={0} max={50} step={0.5} help="Monthly percentage of customers that fully cancel and leave. Removes all their MRR. Good: <2%/mo. If >5%, you likely have a product-market fit issue." />
         {phase.logo_churn_rate > 5 && (
           <InlineWarning message={`${phase.logo_churn_rate}% monthly churn = ${Math.round((1 - Math.pow(1 - phase.logo_churn_rate / 100, 12)) * 100)}% annual — consider retention strategies`} />
         )}
-        <NumberField label="COGS per Seat ($/mo)" value={phase.cogs_per_seat} onChange={(v) => update({ cogs_per_seat: v })} min={0} step={1} help="Hosting, support, and infrastructure cost per active seat" />
-        <NumberField label="Organic Leads (%)" value={phase.organic_leads_pct} onChange={(v) => update({ organic_leads_pct: v })} min={0} max={100} step={1} help="% of total leads from organic sources (SEO, referrals, word-of-mouth)" slider />
+        <NumberField label="COGS per Seat ($/mo)" value={phase.cogs_per_seat} onChange={(v) => update({ cogs_per_seat: v })} min={0} step={1} help="Monthly cost per active seat — hosting, infrastructure, support, and direct delivery costs. Typical SaaS: $2–15/seat depending on compute requirements." />
+        <NumberField label="Organic Leads (%)" value={phase.organic_leads_pct} onChange={(v) => update({ organic_leads_pct: v })} min={0} max={100} step={1} help="Percentage of total leads from organic sources — SEO, referrals, word-of-mouth, content marketing. Higher organic share = lower blended CAC." slider />
       </div>
     </AnimatedAccordion>
   );
 }
 
-export function SaasSidebar({ projectId, onProjectCreated }: { projectId: string | null; onProjectCreated?: (id: string) => void }) {
+export function SaasSidebar({ projectId, onProjectCreated, monthRange, productType }: { projectId: string | null; onProjectCreated?: (id: string) => void; monthRange?: [number, number] | null; productType?: string }) {
   const config = useConfigStore((s) => s.saasConfig);
   const setConfig = useConfigStore((s) => s.setSaasConfig);
   const isMobile = useIsMobile();
@@ -238,13 +250,13 @@ export function SaasSidebar({ projectId, onProjectCreated }: { projectId: string
         <h2 className="font-semibold text-sm">B2B SaaS Model Config</h2>
       </div>
 
-      <ScenarioPanel projectId={projectId} modelType="saas" onProjectCreated={onProjectCreated} />
+      <ScenarioPanel projectId={projectId} modelType={productType ?? "saas"} onProjectCreated={onProjectCreated} />
 
       <div className="px-3 py-2">
         <PhaseTimeline
           phase1Dur={config.phase1_dur}
           phase2Dur={config.phase2_dur}
-          totalMonths={config.total_months}
+          totalMonths={monthRange ? monthRange[1] - monthRange[0] + 1 : config.total_months}
           colors={PHASE_COLORS}
         />
       </div>
@@ -311,7 +323,7 @@ export function SaasSidebar({ projectId, onProjectCreated }: { projectId: string
   }
 
   return (
-    <aside className="w-[360px] border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0">
+    <aside className="w-[360px] border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0" data-tour="config-sidebar">
       {content}
     </aside>
   );

@@ -27,14 +27,19 @@ const PHASE_COLORS: [string, string, string] = ["#2275ed", "#85abf2", "#e8f0ff"]
 function InfoIcon({ tooltip }: { tooltip: string }) {
   const [show, setShow] = useState(false);
   const ref = React.useRef<HTMLSpanElement>(null);
-  const [above, setAbove] = useState(true);
-  const [alignRight, setAlignRight] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number; above: boolean; alignRight: boolean }>({ top: 0, left: 0, above: true, alignRight: false });
 
   const handleToggle = () => {
     if (!show && ref.current) {
       const rect = ref.current.getBoundingClientRect();
-      setAbove(rect.top > 120);
-      setAlignRight(rect.left > window.innerWidth / 2);
+      const above = rect.top > 160;
+      const alignRight = rect.left > window.innerWidth / 2;
+      setPos({
+        top: above ? rect.top - 8 : rect.bottom + 8,
+        left: alignRight ? rect.right : rect.left,
+        above,
+        alignRight,
+      });
     }
     setShow((v) => !v);
   };
@@ -49,9 +54,16 @@ function InfoIcon({ tooltip }: { tooltip: string }) {
     >
       i
       {show && (
-        <span className={`absolute z-[100] ${above ? "bottom-full mb-2" : "top-full mt-2"} ${alignRight ? "right-0" : "left-0"} px-3 py-2 bg-[#1a1a2e] text-white text-[10px] leading-relaxed rounded-[10px] shadow-lg w-[220px] max-w-[calc(100vw-3rem)] whitespace-normal pointer-events-none font-medium`}>
+        <span
+          className="fixed z-[9999] px-3 py-2 bg-[#1a1a2e] text-white text-[10px] leading-relaxed rounded-[10px] shadow-lg w-[240px] max-w-[calc(100vw-2rem)] whitespace-normal pointer-events-none font-medium"
+          style={{
+            top: pos.above ? pos.top : pos.top,
+            left: pos.alignRight ? 'auto' : pos.left,
+            right: pos.alignRight ? (window.innerWidth - pos.left) : 'auto',
+            transform: pos.above ? 'translateY(-100%)' : 'none',
+          }}
+        >
           {tooltip}
-          <span className={`absolute ${above ? "top-full" : "bottom-full"} ${alignRight ? "right-4" : "left-4"} w-0 h-0 border-l-4 border-r-4 ${above ? "border-t-4 border-t-[#1a1a2e]" : "border-b-4 border-b-[#1a1a2e]"} border-l-transparent border-r-transparent`} />
         </span>
       )}
     </span>
@@ -189,24 +201,24 @@ function EcomPhaseSection({ phase, phaseNum }: { phase: EcomPhaseConfig; phaseNu
           onSync={handleCostSync}
         />
 
-        <NumberField label="AOV ($)" value={phase.avg_order_value} onChange={(v) => update({ avg_order_value: v })} min={0} step={1} help="Average Order Value — mean revenue per order" />
-        <NumberField label="Repeat Purchase Rate (%)" value={phase.repeat_purchase_rate} onChange={(v) => update({ repeat_purchase_rate: v })} min={0} max={100} step={1} help="% of customers who make a repeat purchase within 30 days" />
-        <NumberField label="Orders/Returning Customer" value={phase.orders_per_returning} onChange={(v) => update({ orders_per_returning: v })} min={1} step={0.1} help="Average orders per returning customer per month" />
-        <NumberField label="COGS (%)" value={phase.cogs_pct} onChange={(v) => update({ cogs_pct: v })} min={0} max={100} step={1} help="Cost of Goods Sold as % of revenue (manufacturing, shipping, packaging)" />
-        <NumberField label="Return Rate (%)" value={phase.return_rate} onChange={(v) => update({ return_rate: v })} min={0} max={100} step={0.5} help="% of orders returned/refunded. Reduces net revenue" />
+        <NumberField label="AOV ($)" value={phase.avg_order_value} onChange={(v) => update({ avg_order_value: v })} min={0} step={1} help="Average Order Value — the mean revenue per order. This is a key driver of your revenue. Affected by product pricing, upsells, and bundles. E-commerce typical: $30–80." />
+        <NumberField label="Repeat Purchase Rate (%)" value={phase.repeat_purchase_rate} onChange={(v) => update({ repeat_purchase_rate: v })} min={0} max={100} step={1} help="Percentage of customers who come back and buy again within 30 days. Higher repeat rates dramatically improve unit economics and reduce reliance on paid acquisition." />
+        <NumberField label="Orders/Returning Customer" value={phase.orders_per_returning} onChange={(v) => update({ orders_per_returning: v })} min={1} step={0.1} help="How many orders a returning customer places per month on average. Subscription boxes might be 1, fashion might be 1.5–2." />
+        <NumberField label="COGS (%)" value={phase.cogs_pct} onChange={(v) => update({ cogs_pct: v })} min={0} max={100} step={1} help="Cost of Goods Sold — manufacturing, shipping, packaging, and fulfillment as a percentage of revenue. Physical products: typically 30–60%." />
+        <NumberField label="Return Rate (%)" value={phase.return_rate} onChange={(v) => update({ return_rate: v })} min={0} max={100} step={0.5} help="Percentage of orders that get returned or refunded. Directly reduces your net revenue. Fashion: 15–30%, electronics: 5–10%." />
         {phase.return_rate > 15 && (
           <InlineWarning message="Return rate above 15% — check product quality or sizing" />
         )}
-        <NumberField label="CPC ($)" value={phase.cpc} onChange={(v) => update({ cpc: v })} min={0.01} step={0.1} help="Cost Per Click — average price per ad click" />
-        <NumberField label="Click-to-Purchase (%)" value={phase.click_to_purchase} onChange={(v) => update({ click_to_purchase: v })} min={0} max={100} step={0.5} help="% of ad clicks that result in a purchase (conversion rate)" slider />
-        <NumberField label="Organic (%)" value={phase.organic_pct} onChange={(v) => update({ organic_pct: v })} min={0} max={100} step={1} help="% of total traffic that is organic (non-paid). Higher = better unit economics" slider />
-        <NumberField label="Discount Rate (%)" value={phase.discount_rate} onChange={(v) => update({ discount_rate: v })} min={0} max={100} step={1} help="Average discount applied to orders. Reduces effective AOV" />
+        <NumberField label="CPC ($)" value={phase.cpc} onChange={(v) => update({ cpc: v })} min={0.01} step={0.1} help="Cost Per Click — average price you pay for each ad click (Google Ads, Facebook, etc.). Lower CPC means more traffic for your budget. Typical: $0.50–$3.00." />
+        <NumberField label="Click-to-Purchase (%)" value={phase.click_to_purchase} onChange={(v) => update({ click_to_purchase: v })} min={0} max={100} step={0.5} help="Conversion rate from ad click to completed purchase. This measures your landing page and checkout effectiveness. Good benchmark: 2–5%." slider />
+        <NumberField label="Organic (%)" value={phase.organic_pct} onChange={(v) => update({ organic_pct: v })} min={0} max={100} step={1} help="Percentage of your total traffic that is organic (free — SEO, direct, social). Higher organic share means better unit economics since you're not paying for those visitors." slider />
+        <NumberField label="Discount Rate (%)" value={phase.discount_rate} onChange={(v) => update({ discount_rate: v })} min={0} max={100} step={1} help="Average discount applied across all orders (promotions, coupons, sales). Reduces your effective AOV. Keep in mind: heavy discounting can hurt brand perception." />
       </div>
     </AnimatedAccordion>
   );
 }
 
-export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string | null; onProjectCreated?: (id: string) => void }) {
+export function EcomSidebar({ projectId, onProjectCreated, monthRange, productType }: { projectId: string | null; onProjectCreated?: (id: string) => void; monthRange?: [number, number] | null; productType?: string }) {
   const config = useConfigStore((s) => s.ecommerceConfig);
   const setConfig = useConfigStore((s) => s.setEcommerceConfig);
   const isMobile = useIsMobile();
@@ -225,13 +237,13 @@ export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string
         <h2 className="font-semibold text-sm">E-commerce Model Config</h2>
       </div>
 
-      <ScenarioPanel projectId={projectId} modelType="ecommerce" onProjectCreated={onProjectCreated} />
+      <ScenarioPanel projectId={projectId} modelType={productType ?? "ecommerce"} onProjectCreated={onProjectCreated} />
 
       <div className="px-3 py-2">
         <PhaseTimeline
           phase1Dur={config.phase1_dur}
           phase2Dur={config.phase2_dur}
-          totalMonths={config.total_months}
+          totalMonths={monthRange ? monthRange[1] - monthRange[0] + 1 : config.total_months}
           colors={PHASE_COLORS}
         />
       </div>
@@ -250,7 +262,7 @@ export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string
 
         <AnimatedAccordion title="OpEx">
           <div className="space-y-3">
-            <NumberField label="Misc Costs ($/mo)" value={config.misc_costs} onChange={(v) => setConfig({ misc_costs: v })} min={0} step={100} help="Office, tools, SaaS subscriptions, legal, and other overhead" />
+            <NumberField label="Misc Costs ($/mo)" value={config.misc_costs} onChange={(v) => setConfig({ misc_costs: v })} min={0} step={100} help="Monthly overhead costs — office rent, tools, SaaS subscriptions, legal, accounting, and other operational expenses not tied to a specific order." />
             <NumberField label="Corporate Tax (%)" value={config.corporate_tax} onChange={(v) => setConfig({ corporate_tax: v })} min={0} max={100} step={0.5} help="Tax rate applied to gross revenue" />
           </div>
         </AnimatedAccordion>
@@ -296,7 +308,7 @@ export function EcomSidebar({ projectId, onProjectCreated }: { projectId: string
   }
 
   return (
-    <aside className="w-[360px] border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0">
+    <aside className="w-[360px] border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0" data-tour="config-sidebar">
       {content}
     </aside>
   );

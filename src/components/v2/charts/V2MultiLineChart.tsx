@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useCallback, useMemo } from "react";
+import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   smooth,
@@ -85,6 +85,18 @@ export function V2MultiLineChart({
     },
     [n]
   );
+
+  useEffect(() => {
+    if (hover === null) return;
+    const handler = (e: TouchEvent) => {
+      if (!svgRef.current?.contains(e.target as Node)) {
+        setHover(null);
+        setTip(null);
+      }
+    };
+    document.addEventListener("touchstart", handler);
+    return () => document.removeEventListener("touchstart", handler);
+  }, [hover]);
 
   const monthLabel = useCallback(
     (i: number) => (months[i] !== undefined ? `M${months[i]}` : `M${i + 1}`),

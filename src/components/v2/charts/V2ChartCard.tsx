@@ -76,7 +76,7 @@ export function FloatingTooltip({ x, y, children }: { x: number; y: number; chil
           borderRadius: 10, padding: '9px 13px',
           border: '1px solid rgba(123,163,240,0.2)',
           boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
-          pointerEvents: 'none', zIndex: 9999, fontFamily: FONT, minWidth: 120,
+          pointerEvents: 'none', zIndex: 9999, fontFamily: FONT, minWidth: 120, maxWidth: 'min(280px, calc(100vw - 16px))',
         }}
       >
         {children}

@@ -36,7 +36,7 @@ export const useLayoutStore = create<LayoutState>()(
     }),
     {
       name: "layout-store",
-      partialize: (s) => ({ navSidebarExpanded: s.navSidebarExpanded, navSidebarHidden: s.navSidebarHidden }),
+      partialize: (s) => ({ navSidebarHidden: s.navSidebarHidden }),
     }
   )
 );

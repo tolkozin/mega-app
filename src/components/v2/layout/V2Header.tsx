@@ -84,7 +84,7 @@ export function V2DateRangeBar({
   const toPct = ((to - 1) / Math.max(totalMonths - 1, 1)) * 100;
 
   return (
-    <div className="relative">
+    <div className="relative" data-tour="date-range">
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-1.5 rounded-[8px] h-8 px-3 bg-white border border-[#eef0f6] hover:border-[#2163E7] transition-colors shadow-v2-sm"
@@ -327,6 +327,12 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: V2
   const setConfigDrawerOpen = useLayoutStore((s) => s.setConfigDrawerOpen);
 
   const [dateSheetOpen, setDateSheetOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/auth/login");
+  };
 
   const isDashboard = pathname?.startsWith("/dashboard");
 
@@ -357,8 +363,30 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: V2
         </button>
 
         {/* Right — Avatar */}
-        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#7BA3F0] to-[#2163E7] flex items-center justify-center text-[10px] text-white font-extrabold">
-          {(user?.email?.[0] ?? "U").toUpperCase()}
+        <div className="relative">
+          <button
+            onClick={() => setUserMenuOpen((v) => !v)}
+            className="w-7 h-7 rounded-full bg-gradient-to-br from-[#7BA3F0] to-[#2163E7] flex items-center justify-center text-[10px] text-white font-extrabold"
+          >
+            {(user?.email?.[0] ?? "U").toUpperCase()}
+          </button>
+          {userMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+              <div className="absolute right-0 top-full mt-2 z-50 bg-white rounded-xl border border-[#eef0f6] shadow-lg p-3 min-w-[180px]">
+                <div className="flex items-center gap-2 mb-2">
+                  <PlanBadge plan={profile?.plan} />
+                </div>
+                <p className="text-[11px] text-[#9ca3af] font-medium mb-3 truncate">{user?.email}</p>
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left text-[12px] text-[#EF4444] font-medium hover:text-[#DC2626] transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </header>
 
