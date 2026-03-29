@@ -510,3 +510,51 @@ export function TripleField({
     </div>
   );
 }
+
+/* ─── SliderField ─── sensitivity slider with gradient bar ─── */
+export function SliderField({ label, value, onChange, min = -100, max = 100, step = 1, help }: {
+  label: string; value: number; onChange: (v: number) => void;
+  min?: number; max?: number; step?: number; help?: string;
+}) {
+  const range = max - min || 1;
+  const pct = Math.max(0, Math.min(100, ((value - min) / range) * 100));
+  const zeroAt = min < 0 && max > 0 ? ((-min) / range) * 100 : null;
+
+  return (
+    <div className="rounded-[11px] p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]">
+      <div className="flex items-center justify-between mb-2">
+        <span className="flex-1 min-w-0 text-[12px] font-semibold text-[#1a1a2e] font-[Lato,sans-serif]">
+          {label}{help && <InfoIcon tooltip={help} />}
+        </span>
+        <span className={`text-[12px] font-bold tabular-nums min-w-[40px] text-right ${
+          value > 0 ? "text-[#2163E7]" : value < 0 ? "text-[#e74c3c]" : "text-[#8181A5]"
+        }`}>
+          {value > 0 ? "+" : ""}{value}%
+        </span>
+      </div>
+      <div className="relative h-[4px] rounded-full bg-[#eef0f6]">
+        {zeroAt !== null ? (
+          value >= 0 ? (
+            <div className="absolute top-0 h-full rounded-full"
+              style={{ left: `${zeroAt}%`, width: `${pct - zeroAt}%`, background: "linear-gradient(90deg, #7BA3F0, #2163E7)" }} />
+          ) : (
+            <div className="absolute top-0 h-full rounded-full"
+              style={{ left: `${pct}%`, width: `${zeroAt - pct}%`, background: "linear-gradient(90deg, #e74c3c, #f0a0a0)" }} />
+          )
+        ) : (
+          <div className="absolute left-0 top-0 h-full rounded-full"
+            style={{ width: `${pct}%`, background: "linear-gradient(90deg, #7BA3F0, #2163E7)" }} />
+        )}
+        {zeroAt !== null && (
+          <div className="absolute top-1/2 -translate-y-1/2 w-[1.5px] h-[10px] bg-[#d0d0d8] rounded-full"
+            style={{ left: `${zeroAt}%` }} />
+        )}
+        <input type="range" min={min} max={max} step={step} value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="absolute top-1/2 -left-[7px] w-[calc(100%+14px)] -translate-y-1/2 opacity-0 cursor-pointer h-5 m-0" />
+        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[14px] h-[14px] rounded-full bg-[#2163E7] border-[2.5px] border-white pointer-events-none"
+          style={{ left: `${pct}%`, boxShadow: "0 2px 6px rgba(33,99,231,0.35)" }} />
+      </div>
+    </div>
+  );
+}

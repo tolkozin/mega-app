@@ -20,6 +20,7 @@ import {
   InlineWarning,
   NumberField,
   TripleField,
+  SliderField,
 } from "./ConfigWidgets";
 import type { CostItem } from "@/stores/cost-items-store";
 import type { PhaseConfig } from "@/lib/types";
@@ -292,11 +293,14 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
 
             <AnimatedAccordion title="Sensitivity">
               <div className="space-y-3">
-                <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust conversion rates" />
-                <NumberField label="Churn (%)" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Adjust churn rates. Positive = more churn" />
-                <NumberField label="CPI (%)" value={config.sens_cpi} onChange={(v) => setConfig({ sens_cpi: v })} min={-100} max={100} help="Adjust CPI. Positive = higher cost" />
-                <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic growth" />
-                <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios" />
+                <p className="text-[10px] text-[#8181A5] leading-relaxed">
+                  Shift key metrics up or down to see how they affect your revenue and profit forecasts.
+                </p>
+                <SliderField label="Conversion" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Shifts trial-to-paid conversion rate. +20% means 20% more users convert — directly increases revenue. Negative values simulate lower conversion." />
+                <SliderField label="Churn" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Shifts monthly churn rate. +20% means 20% more users cancel each month — reduces recurring revenue and LTV. Negative = better retention." />
+                <SliderField label="CPI" value={config.sens_cpi} onChange={(v) => setConfig({ sens_cpi: v })} min={-100} max={100} help="Shifts cost per install. +20% means you pay 20% more per user acquired — increases ad spend, reduces ROI. Negative = cheaper installs." />
+                <SliderField label="Organic" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Shifts organic (free) installs share. +20% means 20% more users come without ads — reduces acquisition cost. Negative = less word-of-mouth." />
+                <SliderField label="Scenario Bound" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Controls the spread between optimistic and pessimistic scenarios. Higher = wider range of possible outcomes on charts. 20% means best/worst case differ by 20% from the base." />
               </div>
             </AnimatedAccordion>
 

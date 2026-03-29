@@ -18,6 +18,7 @@ import {
   InlineWarning,
   NumberField,
   TripleField,
+  SliderField,
 } from "./ConfigWidgets";
 import type { CostItem } from "@/stores/cost-items-store";
 import type { EcomPhaseConfig } from "@/lib/types";
@@ -214,11 +215,14 @@ export function EcomSidebar({ projectId, onProjectCreated, monthRange, productTy
 
             <AnimatedAccordion title="Sensitivity">
               <div className="space-y-3">
-                <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust click-to-purchase rate" />
-                <NumberField label="CPC (%)" value={config.sens_cpc} onChange={(v) => setConfig({ sens_cpc: v })} min={-100} max={100} help="Adjust CPC. Positive = higher cost" />
-                <NumberField label="AOV (%)" value={config.sens_aov} onChange={(v) => setConfig({ sens_aov: v })} min={-100} max={100} help="Adjust average order value" />
-                <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic traffic share" />
-                <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios" />
+                <p className="text-[10px] text-[#8181A5] leading-relaxed">
+                  Shift key metrics up or down to see how they affect your revenue and profit forecasts.
+                </p>
+                <SliderField label="Conversion" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Shifts click-to-purchase rate. +20% means 20% more visitors buy — directly increases orders and revenue. Negative simulates lower conversion." />
+                <SliderField label="CPC" value={config.sens_cpc} onChange={(v) => setConfig({ sens_cpc: v })} min={-100} max={100} help="Shifts cost per click. +20% means ads cost 20% more per click — increases spend, reduces profit margins. Negative = cheaper traffic." />
+                <SliderField label="AOV" value={config.sens_aov} onChange={(v) => setConfig({ sens_aov: v })} min={-100} max={100} help="Shifts average order value. +20% means each order brings 20% more revenue — improves margins without more traffic. Negative = smaller baskets." />
+                <SliderField label="Organic" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Shifts organic (free) traffic share. +20% means more visitors come via SEO/direct — reduces ad dependency. Negative = less organic traffic." />
+                <SliderField label="Scenario Bound" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Controls the spread between optimistic and pessimistic scenarios. Higher = wider range of possible outcomes on charts. 20% means best/worst case differ by 20% from the base." />
               </div>
             </AnimatedAccordion>
 

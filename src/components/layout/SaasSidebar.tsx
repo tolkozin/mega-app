@@ -19,6 +19,7 @@ import {
   InlineWarning,
   NumberField,
   TripleField,
+  SliderField,
 } from "./ConfigWidgets";
 import type { CostItem } from "@/stores/cost-items-store";
 import type { SaasPhaseConfig } from "@/lib/types";
@@ -231,11 +232,14 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
 
             <AnimatedAccordion title="Sensitivity">
               <div className="space-y-3">
-                <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust demo-to-close rate" />
-                <NumberField label="Churn (%)" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Adjust logo churn. Positive = more churn" />
-                <NumberField label="Expansion (%)" value={config.sens_expansion} onChange={(v) => setConfig({ sens_expansion: v })} min={-100} max={100} help="Adjust expansion rate" />
-                <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic leads share" />
-                <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios" />
+                <p className="text-[10px] text-[#8181A5] leading-relaxed">
+                  Shift key metrics up or down to see how they affect your revenue and profit forecasts.
+                </p>
+                <SliderField label="Conversion" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Shifts demo-to-close rate. +20% means 20% more leads become paying customers — directly increases MRR. Negative simulates a harder sales cycle." />
+                <SliderField label="Churn" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Shifts monthly logo churn. +20% means 20% more customers cancel each month — reduces ARR and LTV. Negative = better retention." />
+                <SliderField label="Expansion" value={config.sens_expansion} onChange={(v) => setConfig({ sens_expansion: v })} min={-100} max={100} help="Shifts net revenue expansion (upsells, seat growth). +20% means existing customers spend 20% more — boosts NRR above 100%. Negative = less upsell." />
+                <SliderField label="Organic" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Shifts organic (inbound) leads share. +20% means more leads come from content/SEO — reduces CAC. Negative = more reliance on paid channels." />
+                <SliderField label="Scenario Bound" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Controls the spread between optimistic and pessimistic scenarios. Higher = wider range of possible outcomes on charts. 20% means best/worst case differ by 20% from the base." />
               </div>
             </AnimatedAccordion>
 
