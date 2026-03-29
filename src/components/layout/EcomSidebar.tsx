@@ -253,7 +253,7 @@ export function EcomSidebar({ projectId, onProjectCreated, monthRange, productTy
   }
 
   return (
-    <aside className="w-[360px] bg-[#f8f9fc] overflow-y-auto h-[calc(100dvh-3.5rem-1rem)] flex-shrink-0 m-2 rounded-2xl border border-[#eef0f6] shadow-[0_1px_4px_rgba(0,0,0,0.04)]" data-tour="config-sidebar">
+    <aside className="w-[360px] bg-[#f8f9fc] overflow-y-auto h-[calc(100dvh-3.5rem-1rem)] flex-shrink-0 m-2 rounded-2xl" data-tour="config-sidebar">
       {content}
     </aside>
   );

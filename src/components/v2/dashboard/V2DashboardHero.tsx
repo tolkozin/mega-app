@@ -1343,7 +1343,14 @@ export const V2DashboardHero = memo(function V2DashboardHero({
         </div>
       </div>
 
-      {/* ── Row 2: Cost Structure donut (wider) + Metrics (narrower) ── */}
+      {/* ── Row 2: Break-Even + Milestones (full width) ── */}
+      <BreakEvenCallout
+        month={breakEvenMonth}
+        description={breakEvenDescription}
+        milestones={milestones}
+      />
+
+      {/* ── Row 3: Cost Structure donut (wider) + Metrics (narrower) ── */}
       <div className="flex flex-col lg:flex-row gap-5">
         {donutSegments.length > 0 && (
           <div
@@ -1362,13 +1369,6 @@ export const V2DashboardHero = memo(function V2DashboardHero({
           </div>
         )}
       </div>
-
-      {/* ── Row 3: Break-Even + Milestones (full width) ── */}
-      <BreakEvenCallout
-        month={breakEvenMonth}
-        description={breakEvenDescription}
-        milestones={milestones}
-      />
     </div>
   );
 });

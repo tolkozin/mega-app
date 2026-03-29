@@ -10,12 +10,39 @@
  */
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+
+/* ─── Plan Badge ─── */
+
+const planBadgeStyles: Record<string, string> = {
+  free: "bg-[#f0f1f7] text-[#9ca3af]",
+  plus: "bg-[#EBF0FD] text-[#2163E7]",
+  pro: "bg-[#F3E8FF] text-[#8B5CF6]",
+  enterprise: "bg-[#FEF3C7] text-[#D97706]",
+};
+
+function PlanBadge({ plan }: { plan?: string }) {
+  if (!plan) return null;
+  if (plan === "free" || plan === "expired") {
+    return (
+      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF3C7] text-[#D97706]">
+        No Plan
+      </span>
+    );
+  }
+  const label = plan.charAt(0).toUpperCase() + plan.slice(1);
+  return (
+    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${planBadgeStyles[plan] ?? planBadgeStyles.free}`}>
+      {label}
+    </span>
+  );
+}
 
 /* ─── Nav Items ─── */
 
@@ -86,8 +113,10 @@ function SidebarContent({
   onClose?: () => void;
 }) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, signOut } = useAuth();
   const { profile } = useProfile();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname?.startsWith("/dashboard");
@@ -191,9 +220,12 @@ function SidebarContent({
       </nav>
 
       {/* User avatar — bottom */}
-      <div className="px-5 py-4 border-t border-white/[0.06]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7BA3F0] to-[#2163E7] flex items-center justify-center text-[12px] text-white font-extrabold shrink-0">
+      <div className="px-5 py-4 border-t border-white/[0.06] relative">
+        <button
+          onClick={() => setUserMenuOpen((v) => !v)}
+          className="flex items-center gap-2.5 w-full text-left"
+        >
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7BA3F0] to-[#2163E7] flex items-center justify-center text-[12px] text-white font-extrabold shrink-0 hover:shadow-md transition-shadow cursor-pointer">
             {(user?.email?.[0] ?? "U").toUpperCase()}
           </div>
           {expanded && (
@@ -206,7 +238,46 @@ function SidebarContent({
               </div>
             </div>
           )}
-        </div>
+        </button>
+        <AnimatePresence>
+          {userMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+              <motion.div
+                className="absolute left-3 bottom-full mb-2 z-50 bg-white rounded-2xl border border-[#eef0f6] shadow-lg p-4 min-w-[200px]"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.15 }}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7BA3F0] to-[#2163E7] flex items-center justify-center text-[11px] text-white font-extrabold shrink-0">
+                    {(user?.email?.[0] ?? "U").toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-bold text-[#1a1a2e] truncate">{user?.email?.split("@")[0]}</p>
+                    <p className="text-[10px] text-[#9ca3af] truncate">{user?.email}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mb-3 pt-2 border-t border-[#f0f1f7]">
+                  <PlanBadge plan={profile?.plan} />
+                </div>
+                <button
+                  onClick={() => { setUserMenuOpen(false); router.push("/settings"); }}
+                  className="w-full text-left text-[12px] text-[#6b7280] font-medium hover:text-[#1a1a2e] transition-colors py-1.5"
+                >
+                  Settings
+                </button>
+                <button
+                  onClick={async () => { setUserMenuOpen(false); await signOut(); router.push("/auth/login"); }}
+                  className="w-full text-left text-[12px] text-[#EF4444] font-medium hover:text-[#DC2626] transition-colors py-1.5"
+                >
+                  Sign Out
+                </button>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
