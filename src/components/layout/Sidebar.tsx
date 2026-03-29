@@ -329,7 +329,7 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
   }
 
   return (
-    <aside className="w-[360px] border-r bg-background overflow-y-auto h-[calc(100vh-3.5rem)] flex-shrink-0" data-tour="config-sidebar">
+    <aside className="w-[360px] border-r bg-background overflow-y-auto h-[calc(100dvh-3.5rem-1rem)] flex-shrink-0" data-tour="config-sidebar">
       {content}
     </aside>
   );

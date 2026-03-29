@@ -55,17 +55,18 @@ export function V2Shell({
 
   return (
     <div
-      className="flex min-h-[100dvh] bg-[#f8f9fc] overflow-x-hidden max-w-[100vw]"
+      className="flex min-h-[100dvh] bg-[#eef0f6] overflow-x-hidden max-w-[100vw] gap-0 md:gap-2 p-0 md:p-2"
       style={{
-        paddingTop: "env(safe-area-inset-top)",
-        paddingLeft: "env(safe-area-inset-left)",
-        paddingRight: "env(safe-area-inset-right)",
+        paddingTop: isMobile ? "env(safe-area-inset-top)" : "8px",
+        paddingLeft: isMobile ? "env(safe-area-inset-left)" : "8px",
+        paddingRight: isMobile ? "env(safe-area-inset-right)" : "8px",
+        paddingBottom: isMobile ? undefined : "8px",
       }}
     >
       <LandscapeLock />
       <V2Sidebar />
 
-      <div className="flex-1 flex flex-col h-[100dvh] min-w-0">
+      <div className="flex-1 flex flex-col h-[100dvh] md:h-[calc(100dvh-1rem)] min-w-0 md:rounded-2xl md:overflow-hidden bg-[#f8f9fc]">
         <V2Header
           title={title}
           monthRange={monthRange}

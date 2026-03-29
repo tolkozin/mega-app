@@ -256,7 +256,7 @@ export function V2Sidebar() {
     return (
       <motion.button
         onClick={() => setHidden(false)}
-        className="fixed top-1/2 -translate-y-1/2 left-0 z-30 w-5 h-12 bg-[#1a1a2e] rounded-r-lg flex items-center justify-center text-white/40 hover:text-white hover:w-6 transition-all"
+        className="fixed top-1/2 -translate-y-1/2 left-0 md:left-2 z-30 w-5 h-12 bg-[#1a1a2e] rounded-r-lg md:rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:w-6 transition-all"
         title="Show sidebar"
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
@@ -274,7 +274,7 @@ export function V2Sidebar() {
 
   return (
     <motion.aside
-      className="hidden md:flex flex-col shrink-0 bg-[#1a1a2e] min-h-screen sticky top-0"
+      className="hidden md:flex flex-col shrink-0 bg-[#1a1a2e] sticky top-2 h-[calc(100dvh-1rem)] rounded-2xl overflow-hidden"
       animate={{ width }}
       transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
     >

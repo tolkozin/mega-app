@@ -372,7 +372,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
       className={
         fullscreen
           ? "fixed inset-0 z-50 bg-white flex flex-col safe-area-inset"
-          : "w-[380px] xl:w-[420px] h-full border-l border-[#f0f1f7] bg-white shrink-0 flex flex-col shadow-[-12px_0_40px_rgba(0,0,0,0.1),-2px_0_8px_rgba(33,99,231,0.06)]"
+          : "w-[380px] xl:w-[420px] h-full border-l border-[#f0f1f7] bg-white shrink-0 flex flex-col shadow-[-12px_0_40px_rgba(0,0,0,0.1),-2px_0_8px_rgba(33,99,231,0.06)] rounded-l-2xl overflow-hidden"
       }
       data-tour="ai-chat"
       style={{ fontFamily: "Lato, sans-serif" }}
