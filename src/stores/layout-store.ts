@@ -25,7 +25,7 @@ export const useLayoutStore = create<LayoutState>()(
       navSidebarExpanded: false,
       toggleNavSidebar: () => set((s) => ({ navSidebarExpanded: !s.navSidebarExpanded })),
 
-      navSidebarHidden: true,
+      navSidebarHidden: false,
       setNavSidebarHidden: (hidden) => set({ navSidebarHidden: hidden }),
 
       navSidebarMobileOpen: false,

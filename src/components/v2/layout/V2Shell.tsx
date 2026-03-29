@@ -26,12 +26,14 @@ export function V2Shell({
   monthRange,
   onMonthRangeChange,
   totalMonths,
+  headerActions,
 }: {
   title?: string;
   children: React.ReactNode;
   monthRange?: [number, number] | null;
   onMonthRangeChange?: (range: [number, number] | null) => void;
   totalMonths?: number;
+  headerActions?: React.ReactNode;
 }) {
   const isMobile = useIsMobile();
   const aiOpen = useChatStore((s) => s.isOpen);
@@ -72,6 +74,7 @@ export function V2Shell({
           monthRange={monthRange}
           onMonthRangeChange={onMonthRangeChange}
           totalMonths={totalMonths}
+          headerActions={headerActions}
         />
 
         <div className="flex-1 flex min-h-0 overflow-hidden relative">

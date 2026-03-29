@@ -49,6 +49,7 @@ export interface V2HeaderProps {
   monthRange?: [number, number] | null;
   onMonthRangeChange?: (range: [number, number] | null) => void;
   totalMonths?: number;
+  headerActions?: React.ReactNode;
 }
 
 function fmtLabel(m: number) {
@@ -436,10 +437,11 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: V2
 
 /* ─── Desktop Header ─── */
 
-function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths }: V2HeaderProps) {
+function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths, headerActions }: V2HeaderProps) {
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
   const router = useRouter();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -447,32 +449,65 @@ function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths }: V
   };
 
   return (
-    <header className="h-14 border-b border-[#eef0f6] bg-white flex items-center justify-between px-6 shrink-0">
-      <div className="flex items-center gap-4 min-w-0">
+    <header className="h-14 bg-white flex items-center justify-between px-4 shrink-0 mx-2 mt-2 rounded-2xl border border-[#eef0f6] shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
         {title && <h1 className="text-[16px] font-extrabold text-[#1a1a2e] truncate">{title}</h1>}
 
-        {/* Date range */}
-        <V2DateRangeBar
-          monthRange={monthRange}
-          onMonthRangeChange={onMonthRangeChange}
-          totalMonths={totalMonths}
-        />
-      </div>
+        {/* Dashboard-specific actions (model selector, engine, date range, report, pdf) */}
+        {headerActions}
 
-      <div className="flex items-center gap-3">
-        {user && (
-          <>
-            <PlanBadge plan={profile?.plan} />
-            <span className="text-[12px] text-[#9ca3af] font-medium">{user.email}</span>
-            <button
-              onClick={handleSignOut}
-              className="text-[12px] text-[#c4c9d8] hover:text-[#1a1a2e] transition-colors font-medium"
-            >
-              Sign Out
-            </button>
-          </>
+        {/* Fallback date range for non-dashboard pages */}
+        {!headerActions && (
+          <V2DateRangeBar
+            monthRange={monthRange}
+            onMonthRangeChange={onMonthRangeChange}
+            totalMonths={totalMonths}
+          />
         )}
       </div>
+
+      {/* User avatar with dropdown */}
+      {user && (
+        <div className="relative">
+          <button
+            onClick={() => setUserMenuOpen((v) => !v)}
+            className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7BA3F0] to-[#2163E7] flex items-center justify-center text-[11px] text-white font-extrabold hover:shadow-md transition-shadow cursor-pointer"
+          >
+            {(user.email?.[0] ?? "U").toUpperCase()}
+          </button>
+          {userMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+              <div className="absolute right-0 top-full mt-2 z-50 bg-white rounded-2xl border border-[#eef0f6] shadow-lg p-4 min-w-[200px]">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7BA3F0] to-[#2163E7] flex items-center justify-center text-[11px] text-white font-extrabold shrink-0">
+                    {(user.email?.[0] ?? "U").toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-bold text-[#1a1a2e] truncate">{user.email?.split("@")[0]}</p>
+                    <p className="text-[10px] text-[#9ca3af] truncate">{user.email}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mb-3 pt-2 border-t border-[#f0f1f7]">
+                  <PlanBadge plan={profile?.plan} />
+                </div>
+                <button
+                  onClick={() => { setUserMenuOpen(false); router.push("/settings"); }}
+                  className="w-full text-left text-[12px] text-[#6b7280] font-medium hover:text-[#1a1a2e] transition-colors py-1.5"
+                >
+                  Settings
+                </button>
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left text-[12px] text-[#EF4444] font-medium hover:text-[#DC2626] transition-colors py-1.5"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </header>
   );
 }
@@ -483,3 +518,4 @@ export function V2Header(props: V2HeaderProps) {
   const isMobile = useIsMobile();
   return isMobile ? <MobileHeader {...props} /> : <DesktopHeader {...props} />;
 }
+
