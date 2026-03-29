@@ -1000,7 +1000,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
   const DYNAMIC_PALETTE = [
     "#2275ed", "#85abf2", "#e8f0ff", "#BDD0F8", // Figma blue family
     "#0D3F8A", "#4B82D9", "#A5C2F3", "#D6E5FA", // extended blues
-    "#0891B2", "#10B981", "#7C3AED", "#F59E0B", // accent fallback
+    "#0891B2", "#10B981", "#1650b0", "#F59E0B", // accent fallback
   ];
 
   /* ── Build chart data with segments ── */

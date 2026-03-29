@@ -63,7 +63,7 @@ const covers: CoverData[] = [
     title: "Monthly Recurring Revenue",
     subtitle: "How to Calculate & Track MRR",
     category: "SaaS Metrics",
-    categoryColor: "#8B5CF6",
+    categoryColor: "#2163E7",
     icon: "mrr",
     metrics: [
       { label: "MRR", value: "$48,200", trend: "+$5,400" },
@@ -161,7 +161,7 @@ function CoverSVG({ cover }: { cover: CoverData }) {
           { x: 860, y: 250, h: 30, color: "#3B82F6", label: "Exp" },
           { x: 930, y: 270, h: 20, color: "#F59E0B", label: "Con" },
           { x: 1000, y: 250, h: 40, color: "#EF4444", label: "Churn" },
-          { x: 1070, y: 290, h: 130, color: "#8B5CF6", label: "End" },
+          { x: 1070, y: 290, h: 130, color: "#2163E7", label: "End" },
         ].map(({ x, y, h, color, label }, i) => (
           <g key={i}>
             <rect x={x} y={y} width="50" height={h} rx="4" fill={color} opacity="0.8" />

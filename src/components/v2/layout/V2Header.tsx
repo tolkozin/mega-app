@@ -20,7 +20,7 @@ import { AnimatePresence, motion } from "framer-motion";
 const planBadgeStyles: Record<string, string> = {
   free: "bg-[#f0f1f7] text-[#9ca3af]",
   plus: "bg-[#EBF0FD] text-[#2163E7]",
-  pro: "bg-[#F3E8FF] text-[#8B5CF6]",
+  pro: "bg-[#EBF0FD] text-[#1650b0]",
   enterprise: "bg-[#FEF3C7] text-[#D97706]",
 };
 

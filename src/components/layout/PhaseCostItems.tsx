@@ -104,7 +104,7 @@ export function PhaseCostItems({ storeKey, defaults, categories, onSync }: Phase
       {items.map((item) => (
         <div
           key={item.id}
-          className="flex flex-col gap-1.5 rounded-[11px] p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]"
+          className="flex flex-col gap-1.5 rounded-xl p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]"
         >
           {/* Row 1: dot + label + amount */}
           <div className="flex items-center gap-1.5">
@@ -115,9 +115,9 @@ export function PhaseCostItems({ storeKey, defaults, categories, onSync }: Phase
             <input
               value={item.label}
               onChange={(e) => handleUpdate(item.id, "label", e.target.value)}
-              className="flex-1 min-w-0 bg-transparent border-none outline-none text-[12px] font-semibold text-[#1a1a2e] font-[Lato,sans-serif]"
+              className="flex-1 min-w-0 bg-transparent border-none outline-none text-[12px] font-semibold text-[#1a1a2e] font-lato"
             />
-            <div className="flex items-center bg-white border-[1.5px] border-[#e8eaf0] rounded-[7px] px-2 py-1 w-[90px] shrink-0">
+            <div className="flex items-center bg-white border-[1.5px] border-[#e8eaf0] rounded-lg px-2 py-1 w-[90px] shrink-0">
               <span className="text-[11px] text-[#9ca3af] mr-0.5">$</span>
               <input
                 type="number"
@@ -125,7 +125,7 @@ export function PhaseCostItems({ storeKey, defaults, categories, onSync }: Phase
                 onChange={(e) =>
                   handleUpdate(item.id, "amount", e.target.value === "" ? 0 : Number(e.target.value))
                 }
-                className="w-full bg-transparent border-none outline-none text-[12px] font-bold text-[#1a1a2e] font-[Lato,sans-serif] tabular-nums"
+                className="w-full bg-transparent border-none outline-none text-[12px] font-bold text-[#1a1a2e] font-lato tabular-nums"
                 placeholder="0"
               />
             </div>
@@ -137,7 +137,7 @@ export function PhaseCostItems({ storeKey, defaults, categories, onSync }: Phase
               <select
                 value={item.category}
                 onChange={(e) => handleUpdate(item.id, "category", e.target.value)}
-                className="w-full appearance-none bg-white border-[1.5px] border-[#e8eaf0] rounded-[7px] pl-2 pr-6 py-1 text-[10.5px] text-[#6b7280] font-[Lato,sans-serif] cursor-pointer outline-none"
+                className="w-full appearance-none bg-white border-[1.5px] border-[#e8eaf0] rounded-lg pl-2 pr-6 py-1 text-[10.5px] text-[#6b7280] font-lato cursor-pointer outline-none"
               >
                 {categories.map((c) => (
                   <option key={c.value} value={c.value}>
@@ -163,7 +163,7 @@ export function PhaseCostItems({ storeKey, defaults, categories, onSync }: Phase
       {/* Add button */}
       <button
         onClick={handleAdd}
-        className="flex items-center gap-2 rounded-[11px] border-[1.5px] border-dashed border-[#d1d5db] px-3.5 py-2.5 text-[12px] font-semibold text-[#9ca3af] font-[Lato,sans-serif] hover:border-[#2163E7] hover:text-[#2163E7] transition-colors"
+        className="flex items-center gap-2 rounded-xl border-[1.5px] border-dashed border-[#d1d5db] px-3.5 py-2.5 text-[12px] font-semibold text-[#9ca3af] font-lato hover:border-[#2163E7] hover:text-[#2163E7] transition-colors"
       >
         <Plus size={13} strokeWidth={2.5} />
         Add cost item

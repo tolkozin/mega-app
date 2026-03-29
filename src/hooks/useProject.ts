@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Project, Scenario, ProjectShare } from "@/lib/types";
 import { getPlanLimits, formatLimit } from "@/lib/plan-limits";
@@ -22,7 +22,7 @@ export class UpgradeRequiredError extends Error {
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -94,7 +94,7 @@ export function useProjects() {
 export function useScenarios(projectId: string | null) {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchScenarios = useCallback(async () => {
     if (!projectId) {
@@ -169,7 +169,7 @@ export function useScenarios(projectId: string | null) {
 
 export function useProjectShares(projectId: string | null) {
   const [shares, setShares] = useState<(ProjectShare & { email?: string })[]>([]);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchShares = useCallback(async () => {
     if (!projectId) return;
@@ -270,7 +270,7 @@ export interface SharedProject extends Project {
 export function useSharedProjects() {
   const [sharedProjects, setSharedProjects] = useState<SharedProject[]>([]);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchSharedProjects = useCallback(async () => {
     setLoading(true);

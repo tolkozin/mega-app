@@ -291,7 +291,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
       {/* Table scroll container */}
       <div className="overflow-x-auto overflow-y-auto">
         <table
-          className="border-collapse text-[11px] text-[#1a1a2e] font-[Lato,sans-serif]"
+          className="border-collapse text-[11px] text-[#1a1a2e] font-lato"
           style={{ width: table.getTotalSize(), minWidth: "100%" }}
         >
           {/* THEAD */}

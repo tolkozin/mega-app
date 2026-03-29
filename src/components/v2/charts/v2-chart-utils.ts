@@ -80,7 +80,7 @@ export const PALETTE = {
   green: '#10B981',
   red: '#EF4444',
   amber: '#F59E0B',
-  purple: '#7C3AED',
+  purple: '#1650b0',
   teal: '#0891B2',
   gray: '#6b7280',
   muted: '#9ca3af',

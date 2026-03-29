@@ -111,7 +111,7 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
         />
       )}
       <div className="rounded-2xl bg-white border border-[#eef0f6] px-4 py-3 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
-        <h2 className="font-extrabold text-sm text-[#1a1a2e] font-[Lato,sans-serif]">B2B SaaS Model Config</h2>
+        <h2 className="font-extrabold text-sm text-[#1a1a2e] font-lato">B2B SaaS Model Config</h2>
       </div>
 
       <div className="rounded-2xl bg-white border border-[#eef0f6] shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden">

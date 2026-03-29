@@ -121,7 +121,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     description:
       "Every key metric investors care about — calculated instantly using benchmarks from real SaaS companies.",
     icon: Cloud,
-    color: "#8B5CF6",
+    color: "#2163E7",
     baseEngine: "saas",
     availableEngines: [
       { engine: "saas", label: "Per Seat" },

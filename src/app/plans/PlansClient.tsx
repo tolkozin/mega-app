@@ -95,8 +95,7 @@ export function PlansClient() {
         handleCheckout(pendingPlan);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, profileLoading]);
+  }, [user, profileLoading, profile?.plan]);
 
 
   useEffect(() => {

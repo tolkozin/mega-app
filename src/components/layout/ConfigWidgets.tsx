@@ -40,7 +40,7 @@ export function AnimatedAccordion({
         >
           <ChevronRight size={14} color="#1a1a2e" />
         </span>
-        <span className="text-[13px] font-[800] text-[#1a1a2e] font-[Lato,sans-serif]">
+        <span className="text-[13px] font-[800] text-[#1a1a2e] font-lato">
           {title}
         </span>
       </button>
@@ -125,7 +125,7 @@ export function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
         />
       </button>
       {label && (
-        <span className="text-sm text-[#1a1a2e] font-[Lato,sans-serif]">
+        <span className="text-sm text-[#1a1a2e] font-lato">
           {label}
         </span>
       )}
@@ -252,11 +252,11 @@ export function PhaseSummaryCard({ items }: PhaseSummaryCardProps) {
       <div className="grid grid-cols-2 gap-2">
         {items.map((item, i) => (
           <div key={i}>
-            <p className="text-[9px] uppercase tracking-wide text-[#9ca3af] font-[Lato,sans-serif]">
+            <p className="text-[9px] uppercase tracking-wide text-[#9ca3af] font-lato">
               {item.label}
             </p>
             <p
-              className="text-[14px] font-black text-[#1a1a2e] font-[Lato,sans-serif]"
+              className="text-[14px] font-black text-[#1a1a2e] font-lato"
               style={item.color ? { color: item.color } : undefined}
             >
               {item.value}
@@ -424,7 +424,7 @@ function CardNumberInput({ value, onChange, min, max, step, wide }: {
   }, [value, focused]);
 
   return (
-    <div className={`flex items-center bg-white border-[1.5px] border-[#e8eaf0] rounded-[7px] px-2 py-1 ${wide ? "w-[100px]" : "w-full"} shrink-0`}>
+    <div className={`flex items-center bg-white border-[1.5px] border-[#e8eaf0] rounded-lg px-2 py-1 ${wide ? "w-[100px]" : "w-full"} shrink-0`}>
       <input
         type="number"
         value={display}
@@ -436,7 +436,7 @@ function CardNumberInput({ value, onChange, min, max, step, wide }: {
         onBlur={() => { setFocused(false); if (display === "" || display === "0") setDisplay(""); }}
         placeholder="0"
         min={min} max={max} step={step || 1}
-        className="w-full bg-transparent border-none outline-none text-[12px] font-bold text-[#1a1a2e] font-[Lato,sans-serif] tabular-nums placeholder:text-[#C4C4D4]"
+        className="w-full bg-transparent border-none outline-none text-[12px] font-bold text-[#1a1a2e] font-lato tabular-nums placeholder:text-[#C4C4D4]"
       />
     </div>
   );
@@ -447,8 +447,8 @@ export function NumberField({ label, value, onChange, min, max, step, help }: {
   min?: number; max?: number; step?: number; help?: string;
 }) {
   return (
-    <div className="flex items-center gap-1.5 rounded-[11px] p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]">
-      <span className="flex-1 min-w-0 text-[12px] font-semibold text-[#1a1a2e] font-[Lato,sans-serif]">
+    <div className="flex items-center gap-1.5 rounded-xl p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]">
+      <span className="flex-1 min-w-0 text-[12px] font-semibold text-[#1a1a2e] font-lato">
         {label}{help && <InfoIcon tooltip={help} />}
       </span>
       <CardNumberInput value={value} onChange={onChange} min={min} max={max} step={step} wide />
@@ -489,8 +489,8 @@ export function TripleField({
   }
 
   return (
-    <div className="rounded-[11px] p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]">
-      <div className="text-[12px] font-semibold text-[#1a1a2e] font-[Lato,sans-serif] mb-1.5">
+    <div className="rounded-xl p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]">
+      <div className="text-[12px] font-semibold text-[#1a1a2e] font-lato mb-1.5">
         {label}{help && <InfoIcon tooltip={help} />}
       </div>
       <div className="grid grid-cols-3 gap-1.5">
@@ -521,9 +521,9 @@ export function SliderField({ label, value, onChange, min = -100, max = 100, ste
   const zeroAt = min < 0 && max > 0 ? ((-min) / range) * 100 : null;
 
   return (
-    <div className="rounded-[11px] p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]">
+    <div className="rounded-xl p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]">
       <div className="flex items-center justify-between mb-2">
-        <span className="flex-1 min-w-0 text-[12px] font-semibold text-[#1a1a2e] font-[Lato,sans-serif]">
+        <span className="flex-1 min-w-0 text-[12px] font-semibold text-[#1a1a2e] font-lato">
           {label}{help && <InfoIcon tooltip={help} />}
         </span>
         <span className={`text-[12px] font-bold tabular-nums min-w-[40px] text-right ${

@@ -36,7 +36,7 @@ export const CATEGORY_META: Record<
   "unit-economics": {
     label: "Unit Economics",
     description: "Evaluate per-customer profitability and payback periods",
-    color: "#8B5CF6",
+    color: "#1650b0",
   },
   growth: {
     label: "Growth & Efficiency",

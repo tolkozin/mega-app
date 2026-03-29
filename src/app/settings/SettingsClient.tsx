@@ -50,10 +50,10 @@ const cardStyle =
   "bg-white rounded-[16px] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_6px_20px_rgba(0,0,0,0.06)]";
 
 const inputClass =
-  "w-full h-[40px] px-3 rounded-[10px] border-[1.5px] border-[#eef0f6] bg-[#f8f9fc] text-sm text-[#1a1a2e] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#2163E7] focus:ring-0 transition-colors font-[Lato]";
+  "w-full h-[40px] px-3 rounded-[10px] border-[1.5px] border-[#eef0f6] bg-[#f8f9fc] text-sm text-[#1a1a2e] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#2163E7] focus:ring-0 transition-colors font-lato";
 
 const inputReadonlyClass =
-  "w-full h-[40px] px-3 rounded-[10px] border-[1.5px] border-[#eef0f6] bg-[#f8f9fc] text-sm text-[#9ca3af] cursor-not-allowed select-none font-[Lato]";
+  "w-full h-[40px] px-3 rounded-[10px] border-[1.5px] border-[#eef0f6] bg-[#f8f9fc] text-sm text-[#9ca3af] cursor-not-allowed select-none font-lato";
 
 const sectionDivider = "border-t border-[#f0f1f7] my-8";
 
@@ -68,7 +68,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-semibold text-[#1a1a2e] font-[Lato]">
+      <label className="block text-sm font-semibold text-[#1a1a2e] font-lato">
         {label}
       </label>
       {children}
@@ -88,7 +88,7 @@ function Banner({
     <motion.div
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`text-sm px-4 py-2.5 rounded-[10px] font-[Lato] ${
+      className={`text-sm px-4 py-2.5 rounded-[10px] font-lato ${
         type === "error"
           ? "bg-red-50 text-red-600 border border-red-200"
           : "bg-emerald-50 text-emerald-600 border border-emerald-200"
@@ -107,7 +107,7 @@ function SaveToast({ show }: { show: boolean }) {
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3 rounded-[12px] bg-[#1a1a2e] text-white text-sm font-medium shadow-lg font-[Lato]"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3 rounded-[12px] bg-[#1a1a2e] text-white text-sm font-medium shadow-lg font-lato"
         >
           <Check className="w-4 h-4 text-emerald-400" />
           Changes saved successfully
@@ -138,7 +138,7 @@ function AvatarCircle({
   return (
     <div className="relative group cursor-pointer">
       <div
-        className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-white text-xl font-bold font-[Lato] select-none"
+        className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-white text-xl font-bold font-lato select-none"
         style={{
           background: "linear-gradient(135deg, #7BA3F0, #2163E7)",
         }}
@@ -146,7 +146,7 @@ function AvatarCircle({
         {initials}
       </div>
       <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="text-white text-xs font-medium font-[Lato]">
+        <span className="text-white text-xs font-medium font-lato">
           Change
         </span>
       </div>
@@ -275,14 +275,14 @@ function ProfileTab({
             email={profile.email}
           />
           <div>
-            <h2 className="text-lg font-bold text-[#1a1a2e] font-[Lato]">
+            <h2 className="text-lg font-bold text-[#1a1a2e] font-lato">
               {profile.display_name || profile.username || "User"}
             </h2>
-            <p className="text-sm text-[#6b7280] font-[Lato]">
+            <p className="text-sm text-[#6b7280] font-lato">
               {profile.email}
             </p>
             {memberSince && (
-              <p className="text-xs text-[#9ca3af] mt-1 font-[Lato]">
+              <p className="text-xs text-[#9ca3af] mt-1 font-lato">
                 Member since {memberSince}
               </p>
             )}
@@ -292,7 +292,7 @@ function ProfileTab({
 
       {/* Basic Info card */}
       <div className={`${cardStyle} p-6 mb-6`}>
-        <h3 className="text-base font-bold text-[#1a1a2e] mb-5 font-[Lato]">
+        <h3 className="text-base font-bold text-[#1a1a2e] mb-5 font-lato">
           Basic Info
         </h3>
         <div className="space-y-4">
@@ -321,7 +321,7 @@ function ProfileTab({
 
       {/* Preferences card */}
       <div className={`${cardStyle} p-6 mb-6`}>
-        <h3 className="text-base font-bold text-[#1a1a2e] mb-5 font-[Lato]">
+        <h3 className="text-base font-bold text-[#1a1a2e] mb-5 font-lato">
           Preferences
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -348,7 +348,7 @@ function ProfileTab({
 
         {/* Notification toggles */}
         <div className="space-y-4">
-          <label className="block text-sm font-semibold text-[#1a1a2e] font-[Lato]">
+          <label className="block text-sm font-semibold text-[#1a1a2e] font-lato">
             Notifications
           </label>
           <ToggleRow
@@ -368,7 +368,7 @@ function ProfileTab({
 
       {/* Change Password card */}
       <div className={`${cardStyle} p-6 mb-6`}>
-        <h3 className="text-base font-bold text-[#1a1a2e] mb-5 font-[Lato]">
+        <h3 className="text-base font-bold text-[#1a1a2e] mb-5 font-lato">
           Change Password
         </h3>
         <div className="space-y-4">
@@ -410,7 +410,7 @@ function ProfileTab({
               whileTap={{ scale: 0.98 }}
               onClick={handleChangePassword}
               disabled={pwSaving}
-              className="h-10 px-6 text-sm font-bold rounded-[10px] bg-[#2163E7] hover:bg-[#1a53c7] text-white transition-colors disabled:opacity-50 font-[Lato]"
+              className="h-10 px-6 text-sm font-bold rounded-[10px] bg-[#2163E7] hover:bg-[#1a53c7] text-white transition-colors disabled:opacity-50 font-lato"
             >
               {pwSaving
                 ? "Updating..."
@@ -428,7 +428,7 @@ function ProfileTab({
         whileTap={{ scale: 0.98 }}
         onClick={handleSaveProfile}
         disabled={saving}
-        className="w-full h-12 text-sm font-bold rounded-[10px] text-white transition-all disabled:opacity-50 font-[Lato]"
+        className="w-full h-12 text-sm font-bold rounded-[10px] text-white transition-all disabled:opacity-50 font-lato"
         style={{
           background: saved
             ? "#14A660"
@@ -459,10 +459,10 @@ function ToggleRow({
   return (
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-sm text-[#1a1a2e] font-medium font-[Lato]">
+        <p className="text-sm text-[#1a1a2e] font-medium font-lato">
           {label}
         </p>
-        <p className="text-xs text-[#9ca3af] font-[Lato]">{description}</p>
+        <p className="text-xs text-[#9ca3af] font-lato">{description}</p>
       </div>
       <button
         type="button"
@@ -523,7 +523,7 @@ function ContactsTab({
   return (
     <div className="space-y-6">
       <div className={`${cardStyle} p-6`}>
-        <h3 className="text-base font-bold text-[#1a1a2e] mb-5 font-[Lato]">
+        <h3 className="text-base font-bold text-[#1a1a2e] mb-5 font-lato">
           Contact Info
         </h3>
         <div className="space-y-4">
@@ -558,7 +558,7 @@ function ContactsTab({
           </Field>
           <Field label="Telegram Handle">
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#9ca3af] pointer-events-none select-none font-[Lato]">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#9ca3af] pointer-events-none select-none font-lato">
                 @
               </span>
               <input
@@ -583,7 +583,7 @@ function ContactsTab({
         whileTap={{ scale: 0.98 }}
         onClick={handleSave}
         disabled={saving}
-        className="w-full h-12 text-sm font-bold rounded-[10px] text-white transition-all disabled:opacity-50 font-[Lato]"
+        className="w-full h-12 text-sm font-bold rounded-[10px] text-white transition-all disabled:opacity-50 font-lato"
         style={{
           background: saved
             ? "#14A660"
@@ -810,10 +810,10 @@ function TeamTab({ profile }: { profile: Profile }) {
     <div className="space-y-6">
       {/* Add user card */}
       <div className={`${cardStyle} p-6`}>
-        <h3 className="text-base font-bold text-[#1a1a2e] mb-1 font-[Lato]">
+        <h3 className="text-base font-bold text-[#1a1a2e] mb-1 font-lato">
           Add a team member
         </h3>
-        <p className="text-sm text-[#9ca3af] mb-5 font-[Lato]">
+        <p className="text-sm text-[#9ca3af] mb-5 font-lato">
           Adding a member shares all your projects with them at once.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
@@ -847,7 +847,7 @@ function TeamTab({ profile }: { profile: Profile }) {
             whileTap={{ scale: 0.98 }}
             onClick={handleAdd}
             disabled={adding}
-            className="h-10 px-6 text-sm font-bold rounded-[10px] bg-[#2163E7] hover:bg-[#1a53c7] text-white transition-colors disabled:opacity-50 font-[Lato]"
+            className="h-10 px-6 text-sm font-bold rounded-[10px] bg-[#2163E7] hover:bg-[#1a53c7] text-white transition-colors disabled:opacity-50 font-lato"
           >
             {adding ? "Adding..." : "Add Member"}
           </motion.button>
@@ -857,24 +857,24 @@ function TeamTab({ profile }: { profile: Profile }) {
       {/* Members table card */}
       <div className={`${cardStyle} overflow-hidden`}>
         {loading ? (
-          <div className="py-12 text-center text-sm text-[#9ca3af] font-[Lato]">
+          <div className="py-12 text-center text-sm text-[#9ca3af] font-lato">
             Loading...
           </div>
         ) : members.length === 0 ? (
-          <div className="py-12 text-center text-sm text-[#9ca3af] font-[Lato]">
+          <div className="py-12 text-center text-sm text-[#9ca3af] font-lato">
             No shared access yet. Add team members above.
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#f0f1f7] bg-[#f8f9fc]">
-                <th className="text-left px-5 py-3 font-semibold text-[#6b7280] text-xs uppercase tracking-wider font-[Lato]">
+                <th className="text-left px-5 py-3 font-semibold text-[#6b7280] text-xs uppercase tracking-wider font-lato">
                   Email
                 </th>
-                <th className="text-left px-5 py-3 font-semibold text-[#6b7280] text-xs uppercase tracking-wider font-[Lato]">
+                <th className="text-left px-5 py-3 font-semibold text-[#6b7280] text-xs uppercase tracking-wider font-lato">
                   Role
                 </th>
-                <th className="text-left px-5 py-3 font-semibold text-[#6b7280] text-xs uppercase tracking-wider font-[Lato]">
+                <th className="text-left px-5 py-3 font-semibold text-[#6b7280] text-xs uppercase tracking-wider font-lato">
                   Status
                 </th>
                 <th className="w-20" />
@@ -890,12 +890,12 @@ function TeamTab({ profile }: { profile: Profile }) {
                       : ""
                   } hover:bg-[#f8f9fc] transition-colors`}
                 >
-                  <td className="px-5 py-3.5 text-[#1a1a2e] font-[Lato]">
+                  <td className="px-5 py-3.5 text-[#1a1a2e] font-lato">
                     {m.email}
                   </td>
                   <td className="px-5 py-3.5">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold font-[Lato] ${
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold font-lato ${
                         m.role === "editor"
                           ? "bg-[#2163E7]/10 text-[#2163E7]"
                           : "bg-[#6b7280]/10 text-[#6b7280]"
@@ -905,14 +905,14 @@ function TeamTab({ profile }: { profile: Profile }) {
                     </span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 font-[Lato]">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 font-lato">
                       {m.status}
                     </span>
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     <button
                       onClick={() => handleRemove(m)}
-                      className="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors font-[Lato]"
+                      className="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors font-lato"
                     >
                       Remove
                     </button>
@@ -966,15 +966,15 @@ function DeleteAccountTab({ profile }: { profile: Profile }) {
             <AlertTriangle className="w-5 h-5 text-red-500" />
           </div>
           <div className="flex-1">
-            <h3 className="text-base font-bold text-[#1a1a2e] mb-1 font-[Lato]">
+            <h3 className="text-base font-bold text-[#1a1a2e] mb-1 font-lato">
               Danger Zone
             </h3>
-            <p className="text-sm text-[#6b7280] mb-4 font-[Lato]">
+            <p className="text-sm text-[#6b7280] mb-4 font-lato">
               Permanently delete your account and all associated data. This
               action cannot be undone.
             </p>
 
-            <div className="space-y-3 text-sm text-[#1a1a2e] mb-5 font-[Lato]">
+            <div className="space-y-3 text-sm text-[#1a1a2e] mb-5 font-lato">
               <p className="font-medium">
                 Deleting your account will remove:
               </p>
@@ -1000,7 +1000,7 @@ function DeleteAccountTab({ profile }: { profile: Profile }) {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowModal(true)}
-              className="h-10 px-6 text-sm font-bold rounded-[10px] border-[1.5px] border-red-300 text-red-600 bg-white hover:bg-red-50 transition-colors font-[Lato]"
+              className="h-10 px-6 text-sm font-bold rounded-[10px] border-[1.5px] border-red-300 text-red-600 bg-white hover:bg-red-50 transition-colors font-lato"
             >
               Delete account
             </motion.button>
@@ -1038,12 +1038,12 @@ function DeleteAccountTab({ profile }: { profile: Profile }) {
                 <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
                   <AlertTriangle className="w-5 h-5 text-red-500" />
                 </div>
-                <h3 className="text-lg font-bold text-[#1a1a2e] font-[Lato]">
+                <h3 className="text-lg font-bold text-[#1a1a2e] font-lato">
                   Confirm Deletion
                 </h3>
               </div>
 
-              <p className="text-sm text-[#6b7280] mb-5 font-[Lato]">
+              <p className="text-sm text-[#6b7280] mb-5 font-lato">
                 This action is permanent and cannot be undone. Type{" "}
                 <span className="font-bold text-red-600">DELETE</span> to
                 confirm.
@@ -1078,7 +1078,7 @@ function DeleteAccountTab({ profile }: { profile: Profile }) {
                     setConfirmText("");
                   }}
                   disabled={deleting}
-                  className="flex-1 h-10 text-sm font-semibold rounded-[10px] border-[1.5px] border-[#eef0f6] text-[#6b7280] bg-white hover:bg-[#f8f9fc] transition-colors disabled:opacity-50 font-[Lato]"
+                  className="flex-1 h-10 text-sm font-semibold rounded-[10px] border-[1.5px] border-[#eef0f6] text-[#6b7280] bg-white hover:bg-[#f8f9fc] transition-colors disabled:opacity-50 font-lato"
                 >
                   Cancel
                 </button>
@@ -1087,7 +1087,7 @@ function DeleteAccountTab({ profile }: { profile: Profile }) {
                   whileTap={canDelete ? { scale: 0.98 } : {}}
                   onClick={handleDelete}
                   disabled={!canDelete || deleting}
-                  className="flex-1 h-10 text-sm font-bold rounded-[10px] bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed font-[Lato]"
+                  className="flex-1 h-10 text-sm font-bold rounded-[10px] bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed font-lato"
                 >
                   {deleting ? "Deleting..." : "Delete My Account"}
                 </motion.button>
@@ -1140,7 +1140,7 @@ export function SettingsClient() {
     return (
       <AppShell title="Settings">
         <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
-          <div className="text-sm text-[#9ca3af] font-[Lato]">Loading...</div>
+          <div className="text-sm text-[#9ca3af] font-lato">Loading...</div>
         </div>
       </AppShell>
     );
@@ -1150,7 +1150,7 @@ export function SettingsClient() {
     return (
       <AppShell title="Settings">
         <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
-          <div className="text-sm text-red-500 font-[Lato]">
+          <div className="text-sm text-red-500 font-lato">
             Unable to load profile.
           </div>
         </div>
@@ -1160,7 +1160,7 @@ export function SettingsClient() {
 
   return (
     <AppShell title="Settings">
-      <div className="p-6 max-w-[640px] mx-auto font-[Lato]">
+      <div className="p-6 max-w-[640px] mx-auto font-lato">
         {/* Tab bar */}
         <div className="flex items-center gap-1 bg-[#f8f9fc] border-[1.5px] border-[#eef0f6] rounded-[10px] p-1 mb-8 w-fit">
           {TABS.map((tab) => (
