@@ -16,6 +16,8 @@ interface ConfigStore {
   setEcommerceConfig: (config: Partial<EcomConfig>) => void;
   setSubscriptionPhase: (phase: 1 | 2 | 3, config: Partial<PhaseConfig>) => void;
   setEcommercePhase: (phase: 1 | 2 | 3, config: Partial<EcomPhaseConfig>) => void;
+  setSubscriptionPhaseAll: (config: Partial<PhaseConfig>) => void;
+  setEcommercePhaseAll: (config: Partial<EcomPhaseConfig>) => void;
   loadSubscriptionConfig: (config: ModelConfig) => void;
   loadEcommerceConfig: (config: EcomConfig) => void;
   resetSubscription: () => void;
@@ -23,8 +25,11 @@ interface ConfigStore {
   saasConfig: SaasConfig;
   setSaasConfig: (config: Partial<SaasConfig>) => void;
   setSaasPhase: (phase: 1 | 2 | 3, config: Partial<SaasPhaseConfig>) => void;
+  setSaasPhaseAll: (config: Partial<SaasPhaseConfig>) => void;
   loadSaasConfig: (config: SaasConfig) => void;
   resetSaas: () => void;
+  customizePerPhase: boolean;
+  setCustomizePerPhase: (v: boolean) => void;
 }
 
 export const useConfigStore = create<ConfigStore>()(
@@ -65,6 +70,26 @@ export const useConfigStore = create<ConfigStore>()(
           };
         }),
 
+      setSubscriptionPhaseAll: (partial) =>
+        set((state) => ({
+          subscriptionConfig: {
+            ...state.subscriptionConfig,
+            phase1: { ...state.subscriptionConfig.phase1, ...partial },
+            phase2: { ...state.subscriptionConfig.phase2, ...partial },
+            phase3: { ...state.subscriptionConfig.phase3, ...partial },
+          },
+        })),
+
+      setEcommercePhaseAll: (partial) =>
+        set((state) => ({
+          ecommerceConfig: {
+            ...state.ecommerceConfig,
+            phase1: { ...state.ecommerceConfig.phase1, ...partial },
+            phase2: { ...state.ecommerceConfig.phase2, ...partial },
+            phase3: { ...state.ecommerceConfig.phase3, ...partial },
+          },
+        })),
+
       loadSubscriptionConfig: (config) => set({ subscriptionConfig: config }),
       loadEcommerceConfig: (config) => set({ ecommerceConfig: config }),
       resetSubscription: () => set({ subscriptionConfig: defaultModelConfig }),
@@ -88,8 +113,21 @@ export const useConfigStore = create<ConfigStore>()(
           };
         }),
 
+      setSaasPhaseAll: (partial) =>
+        set((state) => ({
+          saasConfig: {
+            ...state.saasConfig,
+            phase1: { ...state.saasConfig.phase1, ...partial },
+            phase2: { ...state.saasConfig.phase2, ...partial },
+            phase3: { ...state.saasConfig.phase3, ...partial },
+          },
+        })),
+
       loadSaasConfig: (config) => set({ saasConfig: config }),
       resetSaas: () => set({ saasConfig: defaultSaasConfig }),
+
+      customizePerPhase: false,
+      setCustomizePerPhase: (v) => set({ customizePerPhase: v }),
     }),
     {
       name: "revenuemap-config",
