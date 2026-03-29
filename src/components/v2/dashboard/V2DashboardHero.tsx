@@ -1278,6 +1278,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
       {/* ── Row 1: Hero MRR Card + Chart (full width) ── */}
       <div
         className="bg-white overflow-hidden"
+        data-tour="main-chart"
         style={{ borderRadius: CARD_RADIUS, boxShadow: CARD_SHADOW }}
       >
         <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2">

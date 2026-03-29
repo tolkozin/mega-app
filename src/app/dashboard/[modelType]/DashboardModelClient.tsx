@@ -640,7 +640,6 @@ function DashboardPage() {
               )}
 
               {/* v2 Hero Dashboard — MRR chart, metrics, cost donut, break-even */}
-              <div data-tour="main-chart">
               <FadeIn delay={0}>
                 <V2DashboardHero
                   data={(results.base.dataframe || []) as { Month: number; [key: string]: number | string | undefined }[]}
@@ -648,7 +647,6 @@ function DashboardPage() {
                   engine={engine}
                 />
               </FadeIn>
-              </div>
 
               {/* KPI Metric Grid — secondary metrics per engine */}
               <div data-tour="kpi-metrics">

@@ -25,7 +25,7 @@ export const useLayoutStore = create<LayoutState>()(
       navSidebarExpanded: false,
       toggleNavSidebar: () => set((s) => ({ navSidebarExpanded: !s.navSidebarExpanded })),
 
-      navSidebarHidden: false,
+      navSidebarHidden: true,
       setNavSidebarHidden: (hidden) => set({ navSidebarHidden: hidden }),
 
       navSidebarMobileOpen: false,
@@ -36,7 +36,7 @@ export const useLayoutStore = create<LayoutState>()(
     }),
     {
       name: "layout-store",
-      partialize: (s) => ({ navSidebarHidden: s.navSidebarHidden }),
+      partialize: () => ({}),
     }
   )
 );

@@ -82,8 +82,8 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     color: "#5E81F4",
     baseEngine: "subscription",
     availableEngines: [
-      { engine: "subscription", label: "App Subscriptions" },
-      { engine: "ecommerce", label: "In-App Purchases" },
+      { engine: "subscription", label: "Subscription" },
+      { engine: "ecommerce", label: "One-time Payment" },
     ],
     surveyDescription: "Mobile app with subscriptions or in-app purchases",
     headline: "See if your app idea is profitable — in under 5 minutes.",
@@ -104,7 +104,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     baseEngine: "ecommerce",
     availableEngines: [
       { engine: "ecommerce", label: "Per Order" },
-      { engine: "subscription", label: "Subscription Box" },
+      { engine: "subscription", label: "Subscription" },
     ],
     surveyDescription: "Online store selling physical or digital products",
     headline: "Get real numbers on every order — in minutes, not months.",
@@ -125,7 +125,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     baseEngine: "saas",
     availableEngines: [
       { engine: "saas", label: "Per Seat" },
-      { engine: "subscription", label: "Self-Serve Subscription" },
+      { engine: "subscription", label: "Subscription" },
     ],
     surveyDescription: "B2B software-as-a-service platform",
     headline: "The numbers investors actually ask for — ready in minutes.",
@@ -146,7 +146,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     baseEngine: "ecommerce",
     availableEngines: [
       { engine: "ecommerce", label: "Per Transaction" },
-      { engine: "saas", label: "Platform SaaS" },
+      { engine: "saas", label: "Platform" },
     ],
     surveyDescription: "Two-sided marketplace connecting buyers and sellers",
     headline: "Know if your marketplace can reach critical mass — before you build it.",
@@ -166,8 +166,8 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     color: "#EF4444",
     baseEngine: "ecommerce",
     availableEngines: [
-      { engine: "ecommerce", label: "Per Order Delivery" },
-      { engine: "subscription", label: "Meal Kit Subscription" },
+      { engine: "ecommerce", label: "Per Order" },
+      { engine: "subscription", label: "Subscription" },
     ],
     surveyDescription: "Food delivery, cloud kitchen, or food-tech platform",
     headline: "Find out if each order makes money — before you deliver the first one.",
@@ -188,7 +188,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     baseEngine: "ecommerce",
     availableEngines: [
       { engine: "ecommerce", label: "Per Booking" },
-      { engine: "subscription", label: "Travel Membership" },
+      { engine: "subscription", label: "Subscription" },
     ],
     surveyDescription: "Travel booking, hospitality, or tourism platform",
     headline: "Model your travel business across peak and off-peak — instantly.",
@@ -208,8 +208,8 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     color: "#A855F7",
     baseEngine: "subscription",
     availableEngines: [
-      { engine: "subscription", label: "In-Game Subscriptions" },
-      { engine: "ecommerce", label: "In-Game Purchases" },
+      { engine: "subscription", label: "Subscription" },
+      { engine: "ecommerce", label: "One-time Payment" },
     ],
     surveyDescription: "Mobile game, gaming platform, or game studio",
     headline: "Know your player value before spending a dollar on ads.",
@@ -229,7 +229,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     color: "#10B981",
     baseEngine: "saas",
     availableEngines: [
-      { engine: "saas", label: "B2B Platform" },
+      { engine: "saas", label: "Platform" },
       { engine: "ecommerce", label: "Per Transaction" },
     ],
     surveyDescription: "Payments, banking, lending, or insurance platform",
@@ -250,8 +250,8 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     color: "#EC4899",
     baseEngine: "saas",
     availableEngines: [
-      { engine: "saas", label: "B2B Platform" },
-      { engine: "subscription", label: "Patient Subscription" },
+      { engine: "saas", label: "Platform" },
+      { engine: "subscription", label: "Subscription" },
     ],
     surveyDescription: "Digital health, telemedicine, or wellness platform",
     headline: "Model patient acquisition and retention — with real health-tech data.",
@@ -271,9 +271,9 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     color: "#F97316",
     baseEngine: "saas",
     availableEngines: [
-      { engine: "saas", label: "B2B Platform" },
-      { engine: "subscription", label: "Student Subscription" },
-      { engine: "ecommerce", label: "Course Sales" },
+      { engine: "saas", label: "Platform" },
+      { engine: "subscription", label: "Subscription" },
+      { engine: "ecommerce", label: "One-time Payment" },
     ],
     surveyDescription: "Online learning, courses, or education platform",
     headline: "See if your education platform is viable — before creating content.",
@@ -294,7 +294,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     baseEngine: "ecommerce",
     availableEngines: [
       { engine: "ecommerce", label: "Per Deal" },
-      { engine: "saas", label: "Property Management SaaS" },
+      { engine: "saas", label: "Platform" },
     ],
     surveyDescription: "Real estate, property management, or construction platform",
     headline: "Know your cost per deal and margin — before you list anything.",
@@ -314,8 +314,8 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     color: "#14B8A6",
     baseEngine: "saas",
     availableEngines: [
-      { engine: "saas", label: "B2B Platform" },
-      { engine: "subscription", label: "API Subscription" },
+      { engine: "saas", label: "Platform" },
+      { engine: "subscription", label: "Subscription" },
       { engine: "ecommerce", label: "Pay-per-Use" },
     ],
     surveyDescription: "AI/ML product, API, or platform",

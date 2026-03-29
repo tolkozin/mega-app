@@ -121,10 +121,11 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     target: "model-selector",
-    title: "Switch Model Type",
+    title: "12 Business Models",
     description:
-      "Switch between model types — Subscription, E-commerce, SaaS and others. Each model has its own metrics, parameters, and charts tailored to that business type.",
+      "Choose from 12 business models — Mobile App, E-Commerce, SaaS, Marketplace, FinTech, AI/ML, and more. Each model has unique metrics, charts, and parameters. You can also switch the calculation engine within a model for different monetization strategies.",
     icon: IconSwitch,
+    scrollIntoView: true,
   },
   {
     target: "date-range",
@@ -132,6 +133,7 @@ const TOUR_STEPS: TourStep[] = [
     description:
       "Filter the display period — select a range of months to focus on a specific time window. The phase timeline in the config sidebar will automatically adjust to match.",
     icon: IconCalendar,
+    scrollIntoView: true,
   },
 ];
 
@@ -233,45 +235,66 @@ export function OnboardingTour({ onComplete }: { onComplete?: () => void }) {
 
   // Card position relative to spotlight
   const cardStyle = (): React.CSSProperties => {
-    if (!rect || isMobile) {
-      return {
-        position: "fixed",
-        bottom: isMobile ? 16 : "auto",
-        top: isMobile ? "auto" : "50%",
-        left: "50%",
-        transform: isMobile ? "translateX(-50%)" : "translate(-50%, -50%)",
-      };
-    }
-
+    if (typeof window === "undefined") return { position: "fixed", top: 0, left: 0 };
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const cardW = Math.min(380, vw - 32);
+    const cardH = 260; // approximate card height
+
+    // No spotlight (welcome) or mobile without spotlight → center of screen
+    if (!rect) {
+      return {
+        position: "fixed",
+        top: Math.max(16, (vh - cardH) / 2),
+        left: Math.max(16, (vw - cardW) / 2),
+      };
+    }
+
+    // Mobile with spotlight → bottom of screen
+    if (isMobile) {
+      return {
+        position: "fixed",
+        bottom: 16,
+        left: Math.max(16, (vw - cardW) / 2),
+      };
+    }
+
     const spotCenterX = rect.left + rect.width / 2;
     const spotBottom = rect.top + rect.height + padding;
     const spotTop = rect.top - padding;
 
+    // Clamp horizontal position
+    const clampedLeft = Math.max(16, Math.min(spotCenterX - cardW / 2, vw - cardW - 16));
+
     // Try below the spotlight
-    if (spotBottom + 220 < vh) {
-      return {
-        position: "fixed",
-        top: spotBottom + 12,
-        left: Math.max(16, Math.min(spotCenterX - cardW / 2, vw - cardW - 16)),
-      };
+    if (spotBottom + cardH + 12 < vh) {
+      return { position: "fixed", top: spotBottom + 12, left: clampedLeft };
     }
     // Try above
-    if (spotTop - 220 > 0) {
+    if (spotTop - cardH - 12 > 0) {
+      return { position: "fixed", top: spotTop - cardH - 12, left: clampedLeft };
+    }
+    // Try to the right of the spotlight
+    if (rect.left + rect.width + cardW + 24 < vw) {
       return {
         position: "fixed",
-        bottom: vh - spotTop + 12,
-        left: Math.max(16, Math.min(spotCenterX - cardW / 2, vw - cardW - 16)),
+        top: Math.max(16, Math.min(rect.top, vh - cardH - 16)),
+        left: rect.left + rect.width + padding + 12,
+      };
+    }
+    // Try to the left of the spotlight
+    if (rect.left - cardW - 24 > 0) {
+      return {
+        position: "fixed",
+        top: Math.max(16, Math.min(rect.top, vh - cardH - 16)),
+        left: rect.left - padding - cardW - 12,
       };
     }
     // Fallback: center
     return {
       position: "fixed",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
+      top: Math.max(16, (vh - cardH) / 2),
+      left: Math.max(16, (vw - cardW) / 2),
     };
   };
 
