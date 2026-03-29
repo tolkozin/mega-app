@@ -358,7 +358,7 @@ export const RevenueHeroChart = memo(function RevenueHeroChart({
   const svgRef = useRef<SVGSVGElement>(null);
 
   const VW = 780;
-  const VH = 190;
+  const VH = 160;
   const PADDING = { top: 20, right: 16, bottom: 28, left: 52 };
   const chartW = VW - PADDING.left - PADDING.right;
   const chartH = VH - PADDING.top - PADDING.bottom;
@@ -1274,20 +1274,20 @@ export const V2DashboardHero = memo(function V2DashboardHero({
     : "Break-even has not been reached within the modeled timeframe.";
 
   return (
-    <div className="flex flex-col gap-5 font-lato">
+    <div className="flex flex-col gap-3 font-lato">
       {/* ── Row 1: Hero MRR Card + Chart (full width) ── */}
       <div
         className="bg-white overflow-hidden"
         data-tour="main-chart"
         style={{ borderRadius: CARD_RADIUS, boxShadow: CARD_SHADOW }}
       >
-        <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2">
+        <div className="px-4 sm:px-5 pt-3 sm:pt-4 pb-1">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
             <div className="min-w-0">
               <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-1 truncate">
                 {heroLabel}
               </div>
-              <div className="text-[28px] sm:text-[44px] font-black text-[#1a1a2e] leading-none tabular-nums">
+              <div className="text-[24px] sm:text-[36px] font-black text-[#1a1a2e] leading-none tabular-nums">
                 {fmtCurrency(heroValue)}
               </div>
               {data.length >= 2 && columns.revenue && (() => {
@@ -1335,7 +1335,7 @@ export const V2DashboardHero = memo(function V2DashboardHero({
             )}
           </div>
         </div>
-        <div className="px-2 pb-4 min-h-[140px] sm:min-h-0">
+        <div className="px-2 pb-2 min-h-[120px] sm:min-h-0">
           <RevenueHeroChart
             data={chartData}
             breakEvenMonth={breakEvenMonth}

@@ -466,7 +466,7 @@ function DashboardPage() {
   const currentEngineLabel = getEngineLabel(modelType, engine);
 
   const dashboardHeaderActions = (
-    <div className="hidden md:flex items-center gap-2 flex-wrap ml-auto">
+    <div className="hidden md:flex items-center gap-2 flex-wrap w-full">
       {/* Model selector */}
       <div className="relative inline-block" data-tour="model-selector">
         <button
@@ -552,9 +552,9 @@ function DashboardPage() {
         totalMonths={totalMonths}
       />
 
-      {/* Investor Report + PDF */}
+      {/* Investor Report + PDF — right-aligned */}
       {results && (
-        <>
+        <div className="flex items-center gap-2 ml-auto">
           <button
             onClick={() => {
               setShowInvestorReport((v) => {
@@ -583,7 +583,7 @@ function DashboardPage() {
             </svg>
             PDF
           </button>
-        </>
+        </div>
       )}
     </div>
   );
@@ -591,20 +591,22 @@ function DashboardPage() {
   return (
     <AppShell headerActions={dashboardHeaderActions}>
       <div className="flex flex-col md:flex-row h-[calc(100dvh-3.5rem)] md:h-[calc(100dvh-3.5rem-1rem)]">
-        {!configHidden && <SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} monthRange={monthRange} productType={modelType} />}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:px-6 md:pt-3 md:pb-6 space-y-4 sm:space-y-5 relative">
-          {/* Sticky toggle button — stays visible during scroll */}
-          <div className="hidden md:block sticky top-1/2 z-10 h-0" style={{ marginLeft: "-1.5rem" }}>
-            <button
-              onClick={() => setConfigHidden(!configHidden)}
-              className="w-6 h-10 bg-[#ECECF2] hover:bg-[#DDE0E9] rounded-r-lg flex items-center justify-center text-[#8181A5] hover:text-[#1C1D21] transition-colors -translate-y-1/2"
-              title={configHidden ? "Show config panel" : "Hide config panel"}
-            >
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d={configHidden ? "M6 3l5 5-5 5" : "M10 3L5 8l5 5"} />
-              </svg>
-            </button>
-          </div>
+        {/* Config sidebar + toggle button */}
+        <div className="hidden md:flex flex-shrink-0 relative">
+          {!configHidden && <SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} monthRange={monthRange} productType={modelType} />}
+          <button
+            onClick={() => setConfigHidden(!configHidden)}
+            className="absolute top-1/2 -translate-y-1/2 -right-3 z-10 w-6 h-10 bg-[#ECECF2] hover:bg-[#DDE0E9] rounded-r-lg flex items-center justify-center text-[#8181A5] hover:text-[#1C1D21] transition-colors"
+            title={configHidden ? "Show config panel" : "Hide config panel"}
+          >
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d={configHidden ? "M6 3l5 5-5 5" : "M10 3L5 8l5 5"} />
+            </svg>
+          </button>
+        </div>
+        {/* Mobile sidebar (no toggle) */}
+        {!configHidden && <div className="md:hidden"><SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} monthRange={monthRange} productType={modelType} /></div>}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:px-4 md:pt-2 md:pb-4 space-y-3 sm:space-y-4 relative">
 
           {loading && !results && (
             <div className="flex items-center justify-center py-20">

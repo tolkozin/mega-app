@@ -68,7 +68,7 @@ export function V2Shell({
       <LandscapeLock />
       <V2Sidebar />
 
-      <div className="flex-1 flex flex-col h-[100dvh] md:h-[calc(100dvh-1rem)] min-w-0 md:rounded-2xl md:overflow-hidden bg-[#f8f9fc]">
+      <div className="flex-1 flex flex-col h-[100dvh] md:h-[calc(100dvh-1rem)] min-w-0 md:overflow-hidden bg-[#f8f9fc]">
         <V2Header
           title={title}
           monthRange={monthRange}

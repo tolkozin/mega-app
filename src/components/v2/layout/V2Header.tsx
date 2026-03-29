@@ -439,21 +439,19 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: V2
 function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths, headerActions }: V2HeaderProps) {
 
   return (
-    <header className="h-14 bg-white flex items-center justify-between px-4 shrink-0 mx-2 mt-2 rounded-2xl border border-[#eef0f6] shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
-      <div className="flex items-center gap-3 min-w-0">
-        {title && <h1 className="text-[16px] font-extrabold text-[#1a1a2e] truncate">{title}</h1>}
+    <header className="h-14 bg-white flex items-center gap-3 px-4 shrink-0 mx-2 mt-2 rounded-2xl border border-[#eef0f6] shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+      {title && !headerActions && <h1 className="text-[16px] font-extrabold text-[#1a1a2e] truncate">{title}</h1>}
 
-        {/* Fallback date range for non-dashboard pages */}
-        {!headerActions && (
-          <V2DateRangeBar
-            monthRange={monthRange}
-            onMonthRangeChange={onMonthRangeChange}
-            totalMonths={totalMonths}
-          />
-        )}
-      </div>
+      {/* Fallback date range for non-dashboard pages */}
+      {!headerActions && (
+        <V2DateRangeBar
+          monthRange={monthRange}
+          onMonthRangeChange={onMonthRangeChange}
+          totalMonths={totalMonths}
+        />
+      )}
 
-      {/* Dashboard-specific actions (model selector, engine, date range, report, pdf) — right-aligned */}
+      {/* Dashboard-specific actions — full width, left: selectors, right: report/pdf */}
       {headerActions}
     </header>
   );
