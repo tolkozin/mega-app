@@ -134,27 +134,27 @@ export function EcomSidebar({ projectId, onProjectCreated, monthRange, productTy
         </div>
 
         {/* General */}
-        <AnimatedAccordion title="General" defaultOpen>
+        <AnimatedAccordion title="General">
           <div className="space-y-3">
-            <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch). Phase 3 = remaining months." slider />
-            <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = remaining months." slider />
+            <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch). Phase 3 = remaining months." />
+            <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = remaining months." />
           </div>
         </AnimatedAccordion>
 
         {/* Acquisition */}
-        <AnimatedAccordion title="Acquisition" defaultOpen>
+        <AnimatedAccordion title="Acquisition">
           <div className="space-y-3">
             <TripleField label="CPC ($)" help="Cost Per Click — average ad click price. Typical: $0.50–$3.00." values={[p1.cpc, p2.cpc, p3.cpc]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { cpc: v })} onChangeAll={(v) => setPhaseAll({ cpc: v })} min={0.01} step={0.1} />
             {isAdv && (
-              <TripleField label="Organic (%)" help="% of total traffic from organic (free) sources — SEO, direct, social." values={[p1.organic_pct, p2.organic_pct, p3.organic_pct]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { organic_pct: v })} onChangeAll={(v) => setPhaseAll({ organic_pct: v })} min={0} max={100} step={1} slider />
+              <TripleField label="Organic (%)" help="% of total traffic from organic (free) sources — SEO, direct, social." values={[p1.organic_pct, p2.organic_pct, p3.organic_pct]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { organic_pct: v })} onChangeAll={(v) => setPhaseAll({ organic_pct: v })} min={0} max={100} step={1} />
             )}
           </div>
         </AnimatedAccordion>
 
         {/* Conversion */}
-        <AnimatedAccordion title="Conversion" defaultOpen>
+        <AnimatedAccordion title="Conversion">
           <div className="space-y-3">
-            <TripleField label="Click-to-Purchase (%)" help="Conversion rate from ad click to purchase. Good: 2–5%." values={[p1.click_to_purchase, p2.click_to_purchase, p3.click_to_purchase]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { click_to_purchase: v })} onChangeAll={(v) => setPhaseAll({ click_to_purchase: v })} min={0} max={100} step={0.5} slider />
+            <TripleField label="Click-to-Purchase (%)" help="Conversion rate from ad click to purchase. Good: 2–5%." values={[p1.click_to_purchase, p2.click_to_purchase, p3.click_to_purchase]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { click_to_purchase: v })} onChangeAll={(v) => setPhaseAll({ click_to_purchase: v })} min={0} max={100} step={0.5} />
             <TripleField label="Repeat Purchase Rate (%)" help="% of customers who buy again within 30 days." values={[p1.repeat_purchase_rate, p2.repeat_purchase_rate, p3.repeat_purchase_rate]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { repeat_purchase_rate: v })} onChangeAll={(v) => setPhaseAll({ repeat_purchase_rate: v })} min={0} max={100} step={1} />
             {isAdv && (
               <TripleField label="Orders/Returning Customer" help="Monthly orders per returning customer. Typical: 1–2." values={[p1.orders_per_returning, p2.orders_per_returning, p3.orders_per_returning]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { orders_per_returning: v })} onChangeAll={(v) => setPhaseAll({ orders_per_returning: v })} min={1} step={0.1} />
@@ -163,7 +163,7 @@ export function EcomSidebar({ projectId, onProjectCreated, monthRange, productTy
         </AnimatedAccordion>
 
         {/* Pricing & Revenue */}
-        <AnimatedAccordion title="Pricing & Revenue" defaultOpen>
+        <AnimatedAccordion title="Pricing & Revenue">
           <div className="space-y-3">
             <TripleField label="AOV ($)" help="Average Order Value — mean revenue per order. E-commerce: $30–80." values={[p1.avg_order_value, p2.avg_order_value, p3.avg_order_value]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { avg_order_value: v })} onChangeAll={(v) => setPhaseAll({ avg_order_value: v })} min={0} step={1} />
             <TripleField label="Discount Rate (%)" help="Average discount across all orders. Reduces effective AOV." values={[p1.discount_rate, p2.discount_rate, p3.discount_rate]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { discount_rate: v })} onChangeAll={(v) => setPhaseAll({ discount_rate: v })} min={0} max={100} step={1} />
@@ -171,7 +171,7 @@ export function EcomSidebar({ projectId, onProjectCreated, monthRange, productTy
         </AnimatedAccordion>
 
         {/* Costs */}
-        <AnimatedAccordion title="Costs" defaultOpen>
+        <AnimatedAccordion title="Costs">
           <div className="space-y-3">
             {isAdv && perPhase ? (
               <>
@@ -214,11 +214,11 @@ export function EcomSidebar({ projectId, onProjectCreated, monthRange, productTy
 
             <AnimatedAccordion title="Sensitivity">
               <div className="space-y-3">
-                <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust click-to-purchase rate" slider />
-                <NumberField label="CPC (%)" value={config.sens_cpc} onChange={(v) => setConfig({ sens_cpc: v })} min={-100} max={100} help="Adjust CPC. Positive = higher cost" slider />
-                <NumberField label="AOV (%)" value={config.sens_aov} onChange={(v) => setConfig({ sens_aov: v })} min={-100} max={100} help="Adjust average order value" slider />
-                <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic traffic share" slider />
-                <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios" slider />
+                <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust click-to-purchase rate" />
+                <NumberField label="CPC (%)" value={config.sens_cpc} onChange={(v) => setConfig({ sens_cpc: v })} min={-100} max={100} help="Adjust CPC. Positive = higher cost" />
+                <NumberField label="AOV (%)" value={config.sens_aov} onChange={(v) => setConfig({ sens_aov: v })} min={-100} max={100} help="Adjust average order value" />
+                <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic traffic share" />
+                <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios" />
               </div>
             </AnimatedAccordion>
 

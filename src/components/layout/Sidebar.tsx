@@ -155,22 +155,22 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
         </div>
 
         {/* General */}
-        <AnimatedAccordion title="General" defaultOpen>
+        <AnimatedAccordion title="General">
           <div className="space-y-3">
-            <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch). Phase 3 = remaining months." slider />
-            <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = remaining months." slider />
+            <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (launch). Phase 3 = remaining months." />
+            <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (growth). Phase 3 = remaining months." />
             <NumberField label="Starting Organic" value={config.starting_organic} onChange={(v) => setConfig({ starting_organic: v })} min={0} help="Organic (non-paid) installs per month at start" />
           </div>
         </AnimatedAccordion>
 
         {/* Acquisition */}
-        <AnimatedAccordion title="Acquisition" defaultOpen>
+        <AnimatedAccordion title="Acquisition">
           <div className="space-y-3">
             <TripleField label="CPI ($)" help="Cost Per Install — average cost per new app install. Industry: $1–5." values={[p1.cpi, p2.cpi, p3.cpi]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { cpi: v })} onChangeAll={(v) => setPhaseAll({ cpi: v })} min={0.01} step={0.5} />
 
             {isAdv && (
               <>
-                <TripleField label="CPI Degradation (%/mo)" help="Monthly % increase in CPI as audience saturates. 0 = stable, 1–3% typical." values={[p1.cpi_degradation, p2.cpi_degradation, p3.cpi_degradation]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { cpi_degradation: v })} onChangeAll={(v) => setPhaseAll({ cpi_degradation: v })} min={0} max={10} step={0.5} slider />
+                <TripleField label="CPI Degradation (%/mo)" help="Monthly % increase in CPI as audience saturates. 0 = stable, 1–3% typical." values={[p1.cpi_degradation, p2.cpi_degradation, p3.cpi_degradation]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { cpi_degradation: v })} onChangeAll={(v) => setPhaseAll({ cpi_degradation: v })} min={0} max={10} step={0.5} />
 
                 <div className="pt-1 text-[11px] font-medium text-muted-foreground">Ad Growth</div>
                 <SegmentedControl options={GROWTH_MODE_OPTIONS} value={p1.ad_growth_mode} onChange={(v) => setPhaseAll({ ad_growth_mode: v as PhaseConfig["ad_growth_mode"] })} />
@@ -193,39 +193,43 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
         </AnimatedAccordion>
 
         {/* Conversion */}
-        <AnimatedAccordion title="Conversion" defaultOpen>
+        <AnimatedAccordion title="Conversion">
           <div className="space-y-3">
-            <TripleField label="Conv Trial (%)" help="% of paid installs that start a free trial. Good: 20–40%." values={[p1.conv_trial, p2.conv_trial, p3.conv_trial]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { conv_trial: v })} onChangeAll={(v) => setPhaseAll({ conv_trial: v })} min={0} max={100} step={1} slider />
-            <TripleField label="Conv Paid (%)" help="% of trial users that convert to paid. Good: 10–25%." values={[p1.conv_paid, p2.conv_paid, p3.conv_paid]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { conv_paid: v })} onChangeAll={(v) => setPhaseAll({ conv_paid: v })} min={0} max={100} step={1} slider />
+            <TripleField label="Conv Trial (%)" help="% of paid installs that start a free trial. Good: 20–40%." values={[p1.conv_trial, p2.conv_trial, p3.conv_trial]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { conv_trial: v })} onChangeAll={(v) => setPhaseAll({ conv_trial: v })} min={0} max={100} step={1} />
+            <TripleField label="Conv Paid (%)" help="% of trial users that convert to paid. Good: 10–25%." values={[p1.conv_paid, p2.conv_paid, p3.conv_paid]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { conv_paid: v })} onChangeAll={(v) => setPhaseAll({ conv_paid: v })} min={0} max={100} step={1} />
 
             {isAdv && (
               <>
                 <TripleField label="Churn Multiplier" help="Scales base churn. 1.0 = default, 0.5 = half, 2.0 = double." values={[p1.churn_mult, p2.churn_mult, p3.churn_mult]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { churn_mult: v })} onChangeAll={(v) => setPhaseAll({ churn_mult: v })} min={0} step={0.1} />
-                <TripleField label="Organic Conv Trial (%)" help="% of organic installs that start a trial" values={[p1.organic_conv_trial, p2.organic_conv_trial, p3.organic_conv_trial]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { organic_conv_trial: v })} onChangeAll={(v) => setPhaseAll({ organic_conv_trial: v })} min={0} max={100} step={1} slider />
-                <TripleField label="Organic Conv Paid (%)" help="% of organic trial users that convert to paid" values={[p1.organic_conv_paid, p2.organic_conv_paid, p3.organic_conv_paid]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { organic_conv_paid: v })} onChangeAll={(v) => setPhaseAll({ organic_conv_paid: v })} min={0} max={100} step={1} slider />
+                <TripleField label="Organic Conv Trial (%)" help="% of organic installs that start a trial" values={[p1.organic_conv_trial, p2.organic_conv_trial, p3.organic_conv_trial]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { organic_conv_trial: v })} onChangeAll={(v) => setPhaseAll({ organic_conv_trial: v })} min={0} max={100} step={1} />
+                <TripleField label="Organic Conv Paid (%)" help="% of organic trial users that convert to paid" values={[p1.organic_conv_paid, p2.organic_conv_paid, p3.organic_conv_paid]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { organic_conv_paid: v })} onChangeAll={(v) => setPhaseAll({ organic_conv_paid: v })} min={0} max={100} step={1} />
               </>
             )}
           </div>
         </AnimatedAccordion>
 
         {/* Pricing & Revenue */}
-        <AnimatedAccordion title="Pricing & Revenue" defaultOpen>
+        <AnimatedAccordion title="Pricing & Revenue">
           <div className="space-y-3">
             <TripleField label="Weekly ($)" help="Weekly subscription price" values={[p1.price_weekly, p2.price_weekly, p3.price_weekly]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { price_weekly: v })} onChangeAll={(v) => setPhaseAll({ price_weekly: v })} min={0} step={0.99} />
             <TripleField label="Monthly ($)" help="Monthly subscription price" values={[p1.price_monthly, p2.price_monthly, p3.price_monthly]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { price_monthly: v })} onChangeAll={(v) => setPhaseAll({ price_monthly: v })} min={0} step={0.99} />
             <TripleField label="Annual ($)" help="Annual subscription price" values={[p1.price_annual, p2.price_annual, p3.price_annual]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { price_annual: v })} onChangeAll={(v) => setPhaseAll({ price_annual: v })} min={0} step={0.99} />
 
-            <div className="pt-1 text-[11px] font-medium text-muted-foreground">Plan Mix</div>
-            <TripleField label="Weekly (%)" help="% choosing weekly plan. All should sum to 100%." values={[Math.round(p1.mix_weekly * 100), Math.round(p2.mix_weekly * 100), Math.round(p3.mix_weekly * 100)]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { mix_weekly: v / 100 })} onChangeAll={(v) => setPhaseAll({ mix_weekly: v / 100 })} min={0} max={100} step={1} slider />
-            <TripleField label="Monthly (%)" help="% choosing monthly plan" values={[Math.round(p1.mix_monthly * 100), Math.round(p2.mix_monthly * 100), Math.round(p3.mix_monthly * 100)]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { mix_monthly: v / 100 })} onChangeAll={(v) => setPhaseAll({ mix_monthly: v / 100 })} min={0} max={100} step={1} slider />
-            <TripleField label="Annual (%)" help="% choosing annual plan" values={[Math.round(p1.mix_annual * 100), Math.round(p2.mix_annual * 100), Math.round(p3.mix_annual * 100)]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { mix_annual: v / 100 })} onChangeAll={(v) => setPhaseAll({ mix_annual: v / 100 })} min={0} max={100} step={1} slider />
-            <PlanMixBar weekly={Math.round(p1.mix_weekly * 100)} monthly={Math.round(p1.mix_monthly * 100)} annual={Math.round(p1.mix_annual * 100)} />
-            {mixSum !== 100 && <InlineWarning message={`Plan mix sums to ${mixSum}% — should be 100%`} type="error" />}
+            {isAdv && (
+              <>
+                <div className="pt-1 text-[11px] font-medium text-muted-foreground">Plan Mix</div>
+                <TripleField label="Weekly (%)" help="% choosing weekly plan. All should sum to 100%." values={[Math.round(p1.mix_weekly * 100), Math.round(p2.mix_weekly * 100), Math.round(p3.mix_weekly * 100)]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { mix_weekly: v / 100 })} onChangeAll={(v) => setPhaseAll({ mix_weekly: v / 100 })} min={0} max={100} step={1} />
+                <TripleField label="Monthly (%)" help="% choosing monthly plan" values={[Math.round(p1.mix_monthly * 100), Math.round(p2.mix_monthly * 100), Math.round(p3.mix_monthly * 100)]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { mix_monthly: v / 100 })} onChangeAll={(v) => setPhaseAll({ mix_monthly: v / 100 })} min={0} max={100} step={1} />
+                <TripleField label="Annual (%)" help="% choosing annual plan" values={[Math.round(p1.mix_annual * 100), Math.round(p2.mix_annual * 100), Math.round(p3.mix_annual * 100)]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { mix_annual: v / 100 })} onChangeAll={(v) => setPhaseAll({ mix_annual: v / 100 })} min={0} max={100} step={1} />
+                <PlanMixBar weekly={Math.round(p1.mix_weekly * 100)} monthly={Math.round(p1.mix_monthly * 100)} annual={Math.round(p1.mix_annual * 100)} />
+                {mixSum !== 100 && <InlineWarning message={`Plan mix sums to ${mixSum}% — should be 100%`} type="error" />}
+              </>
+            )}
           </div>
         </AnimatedAccordion>
 
         {/* Costs */}
-        <AnimatedAccordion title="Costs" defaultOpen>
+        <AnimatedAccordion title="Costs">
           <div className="space-y-3">
             {isAdv && perPhase ? (
               <>
@@ -278,7 +282,7 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
             <AnimatedAccordion title="Taxes & Fees">
               <div className="space-y-3">
                 <NumberField label="Corporate Tax (%)" value={config.corporate_tax} onChange={(v) => setConfig({ corporate_tax: v })} min={0} max={100} step={0.5} help="Tax rate on gross revenue" />
-                <NumberField label="Store Split (%)" value={config.store_split} onChange={(v) => setConfig({ store_split: v })} min={0} max={100} help="% of revenue from app stores (vs web)" slider />
+                <NumberField label="Store Split (%)" value={config.store_split} onChange={(v) => setConfig({ store_split: v })} min={0} max={100} help="% of revenue from app stores (vs web)" />
                 <NumberField label="App Store Commission (%)" value={config.app_store_comm} onChange={(v) => setConfig({ app_store_comm: v })} min={0} max={50} step={0.5} help="Apple/Google commission (typically 15-30%)" />
                 <NumberField label="Web Commission (%)" value={config.web_comm_pct} onChange={(v) => setConfig({ web_comm_pct: v })} min={0} max={20} step={0.1} help="Payment processor fee (e.g. Stripe 2.9%)" />
                 <NumberField label="Web Fixed Fee ($)" value={config.web_comm_fixed} onChange={(v) => setConfig({ web_comm_fixed: v })} min={0} step={0.1} help="Fixed fee per web transaction (e.g. $0.30)" />
@@ -288,11 +292,11 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
 
             <AnimatedAccordion title="Sensitivity">
               <div className="space-y-3">
-                <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust conversion rates" slider />
-                <NumberField label="Churn (%)" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Adjust churn rates. Positive = more churn" slider />
-                <NumberField label="CPI (%)" value={config.sens_cpi} onChange={(v) => setConfig({ sens_cpi: v })} min={-100} max={100} help="Adjust CPI. Positive = higher cost" slider />
-                <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic growth" slider />
-                <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios" slider />
+                <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust conversion rates" />
+                <NumberField label="Churn (%)" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Adjust churn rates. Positive = more churn" />
+                <NumberField label="CPI (%)" value={config.sens_cpi} onChange={(v) => setConfig({ sens_cpi: v })} min={-100} max={100} help="Adjust CPI. Positive = higher cost" />
+                <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic growth" />
+                <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios" />
               </div>
             </AnimatedAccordion>
 

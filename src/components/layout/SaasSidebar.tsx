@@ -135,27 +135,27 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
         </div>
 
         {/* General */}
-        <AnimatedAccordion title="General" defaultOpen>
+        <AnimatedAccordion title="General">
           <div className="space-y-3">
-            <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (MVP / first customers). Phase 3 = remaining." slider />
-            <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (scaling). Phase 3 = remaining." slider />
+            <NumberField label="Phase 1 Duration" value={config.phase1_dur} onChange={(v) => setConfig({ phase1_dur: v })} min={1} max={24} help="Months in Phase 1 (MVP / first customers). Phase 3 = remaining." />
+            <NumberField label="Phase 2 Duration" value={config.phase2_dur} onChange={(v) => setConfig({ phase2_dur: v })} min={1} max={24} help="Months in Phase 2 (scaling). Phase 3 = remaining." />
             <NumberField label="Initial Customers" value={config.initial_customers} onChange={(v) => setConfig({ initial_customers: v })} min={0} step={1} help="Paying customers at model start (month 0)" />
             <NumberField label="Initial Seats" value={config.initial_seats} onChange={(v) => setConfig({ initial_seats: v })} min={0} step={1} help="Total active seats at start (across all initial customers)" />
           </div>
         </AnimatedAccordion>
 
         {/* Acquisition */}
-        <AnimatedAccordion title="Acquisition" defaultOpen>
+        <AnimatedAccordion title="Acquisition">
           <div className="space-y-3">
             <TripleField label="Cost per Lead ($)" help="Cost to acquire one MQL. B2B SaaS: $30–200." values={[p1.cpl, p2.cpl, p3.cpl]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { cpl: v })} onChangeAll={(v) => setPhaseAll({ cpl: v })} min={1} step={10} />
             {isAdv && (
-              <TripleField label="Organic Leads (%)" help="% of leads from organic sources — SEO, referrals, content." values={[p1.organic_leads_pct, p2.organic_leads_pct, p3.organic_leads_pct]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { organic_leads_pct: v })} onChangeAll={(v) => setPhaseAll({ organic_leads_pct: v })} min={0} max={100} step={1} slider />
+              <TripleField label="Organic Leads (%)" help="% of leads from organic sources — SEO, referrals, content." values={[p1.organic_leads_pct, p2.organic_leads_pct, p3.organic_leads_pct]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { organic_leads_pct: v })} onChangeAll={(v) => setPhaseAll({ organic_leads_pct: v })} min={0} max={100} step={1} />
             )}
           </div>
         </AnimatedAccordion>
 
         {/* Conversion */}
-        <AnimatedAccordion title="Conversion" defaultOpen>
+        <AnimatedAccordion title="Conversion">
           <div className="space-y-3">
             <RetentionFunnel steps={[
               { label: "Leads → Demo", value: p1.lead_to_demo, color: "#BDD0F8" },
@@ -180,7 +180,7 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
         </AnimatedAccordion>
 
         {/* Pricing & Revenue */}
-        <AnimatedAccordion title="Pricing & Revenue" defaultOpen>
+        <AnimatedAccordion title="Pricing & Revenue">
           <div className="space-y-3">
             <TripleField label="Seats per Account" help="Avg seats per customer. Affects ARPA." values={[p1.seats_per_account, p2.seats_per_account, p3.seats_per_account]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { seats_per_account: v })} onChangeAll={(v) => setPhaseAll({ seats_per_account: v })} min={1} step={1} />
             <TripleField label="Price per Seat ($/mo)" help="Monthly price per seat. B2B SaaS: $10–100." values={[p1.price_per_seat, p2.price_per_seat, p3.price_per_seat]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { price_per_seat: v })} onChangeAll={(v) => setPhaseAll({ price_per_seat: v })} min={0} step={1} />
@@ -190,7 +190,7 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
         </AnimatedAccordion>
 
         {/* Costs */}
-        <AnimatedAccordion title="Costs" defaultOpen>
+        <AnimatedAccordion title="Costs">
           <div className="space-y-3">
             {isAdv && perPhase ? (
               <>
@@ -231,11 +231,11 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
 
             <AnimatedAccordion title="Sensitivity">
               <div className="space-y-3">
-                <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust demo-to-close rate" slider />
-                <NumberField label="Churn (%)" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Adjust logo churn. Positive = more churn" slider />
-                <NumberField label="Expansion (%)" value={config.sens_expansion} onChange={(v) => setConfig({ sens_expansion: v })} min={-100} max={100} help="Adjust expansion rate" slider />
-                <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic leads share" slider />
-                <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios" slider />
+                <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust demo-to-close rate" />
+                <NumberField label="Churn (%)" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Adjust logo churn. Positive = more churn" />
+                <NumberField label="Expansion (%)" value={config.sens_expansion} onChange={(v) => setConfig({ sens_expansion: v })} min={-100} max={100} help="Adjust expansion rate" />
+                <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic leads share" />
+                <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios" />
               </div>
             </AnimatedAccordion>
 

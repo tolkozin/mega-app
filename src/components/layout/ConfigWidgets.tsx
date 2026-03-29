@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { ChevronRight, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 /* ─── 1. AnimatedAccordion ─────────────────────────────────── */
 
@@ -321,52 +319,25 @@ interface PhasePresetsProps {
   onApply: (preset: "conservative" | "moderate" | "aggressive") => void;
 }
 
-const presetStyles = {
-  conservative: {
-    border: "#7BA3F0",
-    text: "#7BA3F0",
-    hoverBg: "#EBF0FD",
-  },
-  moderate: {
-    border: "#2163E7",
-    text: "#2163E7",
-    hoverBg: "#EBF0FD",
-  },
-  aggressive: {
-    border: "#1650b0",
-    text: "#1650b0",
-    hoverBg: "#EBF0FD",
-  },
-} as const;
+const PRESET_OPTIONS = [
+  { value: "conservative", label: "Conservative" },
+  { value: "moderate", label: "Moderate" },
+  { value: "aggressive", label: "Aggressive" },
+];
 
 export function PhasePresets({ onApply }: PhasePresetsProps) {
-  const [hovered, setHovered] = useState<string | null>(null);
-
   return (
-    <div className="flex gap-2">
-      {(
-        Object.keys(presetStyles) as Array<keyof typeof presetStyles>
-      ).map((key) => {
-        const s = presetStyles[key];
-        const isHovered = hovered === key;
-        return (
-          <button
-            key={key}
-            type="button"
-            onClick={() => onApply(key)}
-            onMouseEnter={() => setHovered(key)}
-            onMouseLeave={() => setHovered(null)}
-            className="rounded-lg px-3 py-1.5 text-[10.5px] font-bold transition-colors duration-150 cursor-pointer"
-            style={{
-              border: `1.5px solid ${s.border}`,
-              color: s.text,
-              backgroundColor: isHovered ? s.hoverBg : "transparent",
-            }}
-          >
-            {key.charAt(0).toUpperCase() + key.slice(1)}
-          </button>
-        );
-      })}
+    <div className="flex w-full rounded-full bg-[#eef0f6] p-0.5">
+      {PRESET_OPTIONS.map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onApply(opt.value as "conservative" | "moderate" | "aggressive")}
+          className="flex-1 rounded-full px-3 py-1 text-[11px] font-bold text-[#9ca3af] hover:text-[#2163E7] hover:bg-white transition-all duration-200 cursor-pointer"
+        >
+          {opt.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -439,11 +410,11 @@ export function InfoIcon({ tooltip }: { tooltip: string }) {
   );
 }
 
-/* ─── 11. NumberField ──────────────────────────────────────── */
+/* ─── 11. NumberField (card style) ─────────────────────────── */
 
-export function NumberField({ label, value, onChange, min, max, step, help, slider }: {
-  label: string; value: number; onChange: (v: number) => void;
-  min?: number; max?: number; step?: number; help?: string; slider?: boolean;
+function CardNumberInput({ value, onChange, min, max, step, wide }: {
+  value: number; onChange: (v: number) => void;
+  min?: number; max?: number; step?: number; wide?: boolean;
 }) {
   const [display, setDisplay] = useState(value === 0 ? "" : String(value));
   const [focused, setFocused] = useState(false);
@@ -452,92 +423,40 @@ export function NumberField({ label, value, onChange, min, max, step, help, slid
     if (!focused) setDisplay(value === 0 ? "" : String(value));
   }, [value, focused]);
 
-  const sliderMin = min ?? 0;
-  const sliderMax = max ?? 100;
-  const pct = Math.max(0, Math.min(100, ((value - sliderMin) / (sliderMax - sliderMin)) * 100));
-
   return (
-    <div className="space-y-1">
-      <Label className="text-xs">{label}{help && <InfoIcon tooltip={help} />}</Label>
-      <Input
+    <div className={`flex items-center bg-white border-[1.5px] border-[#e8eaf0] rounded-[7px] px-2 py-1 ${wide ? "w-[100px]" : "w-full"} shrink-0`}>
+      <input
         type="number"
         value={display}
         onChange={(e) => {
           setDisplay(e.target.value);
           onChange(e.target.value === "" ? 0 : Number(e.target.value));
         }}
-        onFocus={() => {
-          setFocused(true);
-          if (value === 0) setDisplay("");
-        }}
-        onBlur={() => {
-          setFocused(false);
-          if (display === "" || display === "0") setDisplay("");
-        }}
+        onFocus={() => { setFocused(true); if (value === 0) setDisplay(""); }}
+        onBlur={() => { setFocused(false); if (display === "" || display === "0") setDisplay(""); }}
         placeholder="0"
         min={min} max={max} step={step || 1}
-        className="h-8 text-sm placeholder:text-[#C4C4D4]"
+        className="w-full bg-transparent border-none outline-none text-[12px] font-bold text-[#1a1a2e] font-[Lato,sans-serif] tabular-nums placeholder:text-[#C4C4D4]"
       />
-      {slider && min != null && max != null && (
-        <div className="pt-1 px-[7px]">
-          <div className="flex items-center justify-between mb-1 -mx-[7px]">
-            <span className="text-[10.5px] text-[#c4c9d8] tabular-nums">{min}</span>
-            <span className="text-[10.5px] text-[#c4c9d8] tabular-nums">{max}</span>
-          </div>
-          <div className="relative h-[4px] rounded-full bg-[#eef0f6]">
-            <div
-              className="absolute left-0 top-0 h-full rounded-full"
-              style={{ width: `${pct}%`, background: "linear-gradient(90deg, #7BA3F0, #2163E7)" }}
-            />
-            <input
-              type="range"
-              min={sliderMin}
-              max={sliderMax}
-              step={step || 1}
-              value={value}
-              onChange={(e) => onChange(Number(e.target.value))}
-              className="absolute top-1/2 -left-[7px] w-[calc(100%+14px)] -translate-y-1/2 opacity-0 cursor-pointer h-5 m-0"
-            />
-            <div
-              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[14px] h-[14px] rounded-full bg-[#2163E7] border-[2.5px] border-white pointer-events-none"
-              style={{ left: `${pct}%`, boxShadow: "0 2px 6px rgba(33,99,231,0.35)" }}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-/* ─── 12. TripleField ──────────────────────────────────────── */
-
-function MiniNumberInput({ value, onChange, min, max, step }: {
-  value: number; onChange: (v: number) => void;
-  min?: number; max?: number; step?: number;
+export function NumberField({ label, value, onChange, min, max, step, help }: {
+  label: string; value: number; onChange: (v: number) => void;
+  min?: number; max?: number; step?: number; help?: string;
 }) {
-  const [display, setDisplay] = useState(value === 0 ? "" : String(value));
-  const [focused, setFocused] = useState(false);
-
-  React.useEffect(() => {
-    if (!focused) setDisplay(value === 0 ? "" : String(value));
-  }, [value, focused]);
-
   return (
-    <Input
-      type="number"
-      value={display}
-      onChange={(e) => {
-        setDisplay(e.target.value);
-        onChange(e.target.value === "" ? 0 : Number(e.target.value));
-      }}
-      onFocus={() => { setFocused(true); if (value === 0) setDisplay(""); }}
-      onBlur={() => { setFocused(false); if (display === "" || display === "0") setDisplay(""); }}
-      placeholder="0"
-      min={min} max={max} step={step || 1}
-      className="h-7 text-[11px] px-1.5 placeholder:text-[#C4C4D4]"
-    />
+    <div className="flex items-center gap-1.5 rounded-[11px] p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]">
+      <span className="flex-1 min-w-0 text-[12px] font-semibold text-[#1a1a2e] font-[Lato,sans-serif]">
+        {label}{help && <InfoIcon tooltip={help} />}
+      </span>
+      <CardNumberInput value={value} onChange={onChange} min={min} max={max} step={step} wide />
+    </div>
   );
 }
+
+/* ─── 12. TripleField (card style) ─────────────────────────── */
 
 interface TripleFieldProps {
   label: string;
@@ -549,12 +468,11 @@ interface TripleFieldProps {
   min?: number;
   max?: number;
   step?: number;
-  slider?: boolean;
 }
 
 export function TripleField({
   label, help, values, perPhase, onChange, onChangeAll,
-  min, max, step, slider,
+  min, max, step,
 }: TripleFieldProps) {
   if (!perPhase) {
     return (
@@ -566,19 +484,20 @@ export function TripleField({
         max={max}
         step={step}
         help={help}
-        slider={slider}
       />
     );
   }
 
   return (
-    <div className="space-y-1">
-      <Label className="text-xs">{label}{help && <InfoIcon tooltip={help} />}</Label>
+    <div className="rounded-[11px] p-2.5 border-[1.5px] border-[#eef0f6] bg-[#f8f9fc]">
+      <div className="text-[12px] font-semibold text-[#1a1a2e] font-[Lato,sans-serif] mb-1.5">
+        {label}{help && <InfoIcon tooltip={help} />}
+      </div>
       <div className="grid grid-cols-3 gap-1.5">
         {([1, 2, 3] as const).map((p) => (
           <div key={p}>
             <span className="text-[9px] font-bold text-[#9ca3af] block mb-0.5">P{p}</span>
-            <MiniNumberInput
+            <CardNumberInput
               value={values[p - 1]}
               onChange={(v) => onChange(p, v)}
               min={min}
