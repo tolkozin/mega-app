@@ -854,7 +854,7 @@ export const BreakEvenCallout = memo(function BreakEvenCallout({
     >
       {/* Blue gradient break-even header */}
       <div
-        className="relative overflow-hidden p-5"
+        className="relative overflow-hidden px-5 py-3.5"
         style={{
           background: "linear-gradient(135deg, #2163E7 0%, #1650b0 100%)",
         }}
@@ -882,11 +882,11 @@ export const BreakEvenCallout = memo(function BreakEvenCallout({
       </div>
 
       {/* Key Milestones section */}
-      <div className="bg-white p-5">
-        <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-3">
+      <div className="bg-white px-5 py-3.5">
+        <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-2">
           Key Milestones
         </div>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           {keyMilestones.map((m) => (
             <div key={m.key} className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-[#EBF0FD] text-[#2163E7] flex items-center justify-center flex-shrink-0">
