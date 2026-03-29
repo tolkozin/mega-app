@@ -77,7 +77,7 @@ export function V2Shell({
           headerActions={headerActions}
         />
 
-        <div className="flex-1 flex min-h-0 overflow-hidden relative">
+        <div className="flex-1 flex min-h-0 overflow-clip relative">
           {/* Main content */}
           <div
             className="flex-1 min-w-0 overflow-y-auto"

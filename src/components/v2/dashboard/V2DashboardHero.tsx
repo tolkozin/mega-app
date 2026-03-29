@@ -49,7 +49,7 @@ type EngineType = "subscription" | "ecommerce" | "saas";
    ═══════════════════════════════════════════════════════════════════ */
 
 const CARD_SHADOW =
-  "0 1px 3px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.07)";
+  "0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04)";
 const CARD_RADIUS = "20px";
 
 const COLORS = {

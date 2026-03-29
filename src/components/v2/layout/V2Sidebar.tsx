@@ -251,8 +251,7 @@ function SidebarContent({
                   className="fixed z-[9999] bg-white rounded-2xl border border-[#eef0f6] shadow-lg p-4 min-w-[200px]"
                   style={{
                     left: avatarRef.current ? avatarRef.current.getBoundingClientRect().left : 12,
-                    top: avatarRef.current ? avatarRef.current.getBoundingClientRect().top - 8 : "auto",
-                    transform: "translateY(-100%)",
+                    bottom: avatarRef.current ? window.innerHeight - avatarRef.current.getBoundingClientRect().top + 8 : "auto",
                   }}
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}

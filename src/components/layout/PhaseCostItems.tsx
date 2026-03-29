@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 import { useCostItemsStore, type CostItem } from "@/stores/cost-items-store";
 import { Plus, Trash2, ChevronDown } from "lucide-react";
 
@@ -51,13 +51,17 @@ export function PhaseCostItems({ storeKey, defaults, categories, onSync }: Phase
   const removeItem = useCostItemsStore((s) => s.removeItem);
   const updateItem = useCostItemsStore((s) => s.updateItem);
   const nextId = useRef(100);
+  const [mounted, setMounted] = useState(false);
 
   // Initialize with defaults on first render
   useEffect(() => {
     initItems(storeKey, defaults);
+    // Mark as mounted after a tick so the initial items load doesn't trigger sync
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
   }, [storeKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync totals to config whenever items change
+  // Sync totals to config whenever items change (skip initial mount)
   const syncTotals = useCallback(
     (currentItems: CostItem[]) => {
       const totals: Record<string, number> = {};
@@ -70,10 +74,11 @@ export function PhaseCostItems({ storeKey, defaults, categories, onSync }: Phase
     [categories, onSync]
   );
 
-  // Sync when items change (but skip if empty — not yet initialized)
+  // Sync when items change — but only after component has mounted (skip initial hydration)
   useEffect(() => {
+    if (!mounted) return;
     if (items.length > 0) syncTotals(items);
-  }, [items, syncTotals]);
+  }, [items, syncTotals, mounted]);
 
   const catColor = (cat: string) =>
     categories.find((c) => c.value === cat)?.color ?? "#BDD0F8";

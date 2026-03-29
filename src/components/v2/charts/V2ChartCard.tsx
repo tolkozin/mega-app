@@ -119,7 +119,7 @@ export interface V2ChartCardProps {
 export function V2ChartCard({ title, subtitle, legend, badge, badgeColor = '#2163E7', children, className }: V2ChartCardProps) {
   return (
     <div
-      className={`bg-white overflow-hidden ${className ?? ''}`}
+      className={`bg-white ${className ?? ''}`}
       style={{ borderRadius: 16, boxShadow: CARD_SHADOW, fontFamily: FONT }}
     >
       {/* Header */}
