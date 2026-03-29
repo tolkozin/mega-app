@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
 import { MobileConfigDrawer } from "./MobileConfigDrawer";
@@ -81,20 +81,26 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
   ];
 
   const handleCostSyncAll = useCallback((totals: Record<string, number>) => {
+    const safe = (v: number | undefined) => (v != null && !Number.isNaN(v) ? v : 0);
     setPhaseAll({
-      investment: totals.Investment ?? 0,
-      monthly_salary: totals.Personnel ?? 0,
-      ad_budget: totals.Marketing ?? 0,
+      investment: safe(totals.Investment),
+      monthly_salary: safe(totals.Personnel),
+      ad_budget: safe(totals.Marketing),
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const makeCostSync = useCallback((phaseNum: 1 | 2 | 3) => (totals: Record<string, number>) => {
+    const safe = (v: number | undefined) => (v != null && !Number.isNaN(v) ? v : 0);
     setPhase(phaseNum, {
-      investment: totals.Investment ?? 0,
-      monthly_salary: totals.Personnel ?? 0,
-      ad_budget: totals.Marketing ?? 0,
+      investment: safe(totals.Investment),
+      monthly_salary: safe(totals.Personnel),
+      ad_budget: safe(totals.Marketing),
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const costSyncP1 = useMemo(() => makeCostSync(1), [makeCostSync]);
+  const costSyncP2 = useMemo(() => makeCostSync(2), [makeCostSync]);
+  const costSyncP3 = useMemo(() => makeCostSync(3), [makeCostSync]);
 
   const content = (
     <div className="relative p-2 space-y-2">
@@ -203,7 +209,7 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
                         storeKey={`saas-${num}`}
                         defaults={costDefaultsForPhase(config[`phase${num}`], num)}
                         categories={SAAS_CATEGORIES}
-                        onSync={makeCostSync(num)}
+                        onSync={num === 1 ? costSyncP1 : num === 2 ? costSyncP2 : costSyncP3}
                       />
                     </div>
                   </AnimatedAccordion>

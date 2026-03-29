@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
 import { MobileConfigDrawer } from "./MobileConfigDrawer";
@@ -95,25 +95,31 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
   ];
 
   const handleCostSyncAll = useCallback((totals: Record<string, number>) => {
+    const safe = (v: number | undefined) => (v != null && !Number.isNaN(v) ? v : 0);
     const partial: Partial<PhaseConfig> = {
-      investment: totals.Investment ?? 0,
-      monthly_salary: totals.Personnel ?? 0,
-      misc_total: totals.Operations ?? 0,
-      ad_budget: totals.Marketing ?? 0,
-      organic_spend: totals.Organic ?? 0,
+      investment: safe(totals.Investment),
+      monthly_salary: safe(totals.Personnel),
+      misc_total: safe(totals.Operations),
+      ad_budget: safe(totals.Marketing),
+      organic_spend: safe(totals.Organic),
     };
     setPhaseAll(partial);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const makeCostSync = useCallback((phaseNum: 1 | 2 | 3) => (totals: Record<string, number>) => {
+    const safe = (v: number | undefined) => (v != null && !Number.isNaN(v) ? v : 0);
     setPhase(phaseNum, {
-      investment: totals.Investment ?? 0,
-      monthly_salary: totals.Personnel ?? 0,
-      misc_total: totals.Operations ?? 0,
-      ad_budget: totals.Marketing ?? 0,
-      organic_spend: totals.Organic ?? 0,
+      investment: safe(totals.Investment),
+      monthly_salary: safe(totals.Personnel),
+      misc_total: safe(totals.Operations),
+      ad_budget: safe(totals.Marketing),
+      organic_spend: safe(totals.Organic),
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const costSyncP1 = useMemo(() => makeCostSync(1), [makeCostSync]);
+  const costSyncP2 = useMemo(() => makeCostSync(2), [makeCostSync]);
+  const costSyncP3 = useMemo(() => makeCostSync(3), [makeCostSync]);
 
   const content = (
     <div className="relative p-2 space-y-2">
@@ -242,7 +248,7 @@ export function Sidebar({ projectId, onProjectCreated, monthRange, productType }
                         storeKey={`sub-${num}`}
                         defaults={costDefaultsForPhase(config[`phase${num}`], num)}
                         categories={SUB_CATEGORIES}
-                        onSync={makeCostSync(num)}
+                        onSync={num === 1 ? costSyncP1 : num === 2 ? costSyncP2 : costSyncP3}
                       />
                     </div>
                   </AnimatedAccordion>
