@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback } from "react";
 import { useConfigStore } from "@/stores/config-store";
 import { ScenarioPanel } from "@/components/scenarios/ScenarioPanel";
 import { MobileConfigDrawer } from "./MobileConfigDrawer";
@@ -8,8 +8,10 @@ import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useProfile } from "@/hooks/useProfile";
 import { isActivePlan } from "@/lib/plan-limits";
 import { useUpgradeStore } from "@/stores/upgrade-store";
+import { PhaseCostItems, SAAS_CATEGORIES } from "./PhaseCostItems";
 import {
   AnimatedAccordion,
+  SegmentedControl,
   ToggleSwitch,
   PhaseTimeline,
   RetentionFunnel,
@@ -18,9 +20,15 @@ import {
   NumberField,
   TripleField,
 } from "./ConfigWidgets";
+import type { CostItem } from "@/stores/cost-items-store";
 import type { SaasPhaseConfig } from "@/lib/types";
 
-const PHASE_COLORS: [string, string, string] = ["#2275ed", "#85abf2", "#e8f0ff"];
+const PHASE_COLORS: [string, string, string] = ["#2163E7", "#7BA3F0", "#BDD0F8"];
+
+const MODE_OPTIONS = [
+  { value: "simple", label: "Simple" },
+  { value: "advanced", label: "Advanced" },
+];
 
 const SAAS_CONSERVATIVE: Partial<SaasPhaseConfig> = {
   price_per_seat: 15, seats_per_account: 3, lead_to_demo: 10,
@@ -47,6 +55,8 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
   const setPhaseAll = useConfigStore((s) => s.setSaasPhaseAll);
   const perPhase = useConfigStore((s) => s.customizePerPhase);
   const setPerPhase = useConfigStore((s) => s.setCustomizePerPhase);
+  const mode = useConfigStore((s) => s.sidebarMode);
+  const setMode = useConfigStore((s) => s.setSidebarMode);
   const isMobile = useIsMobile();
   const { profile } = useProfile();
   const readOnly = !isActivePlan(profile?.plan ?? "expired");
@@ -54,6 +64,7 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
   const p1 = config.phase1;
   const p2 = config.phase2;
   const p3 = config.phase3;
+  const isAdv = mode === "advanced";
 
   const handlePreset = (preset: "conservative" | "moderate" | "aggressive") => {
     const values = preset === "conservative" ? SAAS_CONSERVATIVE
@@ -61,6 +72,28 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
       : SAAS_AGGRESSIVE;
     setPhaseAll(values);
   };
+
+  const costDefaultsForPhase = (phase: SaasPhaseConfig, num: number): CostItem[] => [
+    { id: `inv-${num}`, label: "Investment", amount: phase.investment, category: "Investment" },
+    { id: `sal-${num}`, label: "Team Salary", amount: phase.monthly_salary, category: "Personnel" },
+    { id: `ads-${num}`, label: "Ad Budget", amount: phase.ad_budget, category: "Marketing" },
+  ];
+
+  const handleCostSyncAll = useCallback((totals: Record<string, number>) => {
+    setPhaseAll({
+      investment: totals.Investment ?? 0,
+      monthly_salary: totals.Personnel ?? 0,
+      ad_budget: totals.Marketing ?? 0,
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const makeCostSync = useCallback((phaseNum: 1 | 2 | 3) => (totals: Record<string, number>) => {
+    setPhase(phaseNum, {
+      investment: totals.Investment ?? 0,
+      monthly_salary: totals.Personnel ?? 0,
+      ad_budget: totals.Marketing ?? 0,
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const content = (
     <div className="relative">
@@ -86,6 +119,15 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
       </div>
 
       <div className="px-3 space-y-3 py-2">
+        {/* Mode Toggle */}
+        <SegmentedControl options={MODE_OPTIONS} value={mode} onChange={(v) => setMode(v as "simple" | "advanced")} />
+
+        {isAdv && (
+          <div className="flex items-center justify-between py-1">
+            <ToggleSwitch checked={perPhase} onChange={setPerPhase} label="Customize per phase" />
+          </div>
+        )}
+
         {/* Global Presets */}
         <div>
           <p className="text-[10px] text-[#8181A5] mb-1.5">Quick Presets</p>
@@ -102,36 +144,37 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
           </div>
         </AnimatedAccordion>
 
-        {/* Per Phase Toggle */}
-        <div className="flex items-center justify-between py-1">
-          <ToggleSwitch checked={perPhase} onChange={setPerPhase} label="Customize per phase" />
-        </div>
-
         {/* Acquisition */}
         <AnimatedAccordion title="Acquisition" defaultOpen>
           <div className="space-y-3">
-            <TripleField label="Ad Budget ($)" help="Monthly marketing spend" values={[p1.ad_budget, p2.ad_budget, p3.ad_budget]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { ad_budget: v })} onChangeAll={(v) => setPhaseAll({ ad_budget: v })} min={0} step={500} />
-            <TripleField label="Cost per Lead ($)" help="Cost to acquire one MQL. B2B SaaS: $30–200." values={[p1.cpl, p2.cpl, p3.cpl]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { cpl: v })} onChangeAll={(v) => setPhaseAll({ cpl: v })} min={1} step={10} />
-            <TripleField label="Organic Leads (%)" help="% of leads from organic sources — SEO, referrals, content." values={[p1.organic_leads_pct, p2.organic_leads_pct, p3.organic_leads_pct]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { organic_leads_pct: v })} onChangeAll={(v) => setPhaseAll({ organic_leads_pct: v })} min={0} max={100} step={1} slider />
+            <TripleField label="Cost per Lead ($)" help="Cost to acquire one MQL. B2B SaaS: $30–200." values={[p1.cpl, p2.cpl, p3.cpl]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { cpl: v })} onChangeAll={(v) => setPhaseAll({ cpl: v })} min={1} step={10} />
+            {isAdv && (
+              <TripleField label="Organic Leads (%)" help="% of leads from organic sources — SEO, referrals, content." values={[p1.organic_leads_pct, p2.organic_leads_pct, p3.organic_leads_pct]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { organic_leads_pct: v })} onChangeAll={(v) => setPhaseAll({ organic_leads_pct: v })} min={0} max={100} step={1} slider />
+            )}
           </div>
         </AnimatedAccordion>
 
-        {/* Conversion & Retention */}
-        <AnimatedAccordion title="Conversion & Retention" defaultOpen>
+        {/* Conversion */}
+        <AnimatedAccordion title="Conversion" defaultOpen>
           <div className="space-y-3">
             <RetentionFunnel steps={[
               { label: "Leads → Demo", value: p1.lead_to_demo, color: "#BDD0F8" },
               { label: "Demo → Close", value: p1.demo_to_close, color: "#7BA3F0" },
               { label: "Retention", value: Math.max(0, 100 - p1.logo_churn_rate), color: "#2163E7" },
             ]} />
-            <TripleField label="Lead-to-Demo (%)" help="% of leads that book a demo. Good: 15–30%." values={[p1.lead_to_demo, p2.lead_to_demo, p3.lead_to_demo]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { lead_to_demo: v })} onChangeAll={(v) => setPhaseAll({ lead_to_demo: v })} min={0} max={100} step={1} />
-            <TripleField label="Demo-to-Close (%)" help="% of demos that convert to paying customers. Good: 20–40%." values={[p1.demo_to_close, p2.demo_to_close, p3.demo_to_close]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { demo_to_close: v })} onChangeAll={(v) => setPhaseAll({ demo_to_close: v })} min={0} max={100} step={1} />
-            <TripleField label="Sales Cycle (months)" help="Time from lead to signed deal. SMB: 1–2, Mid-market: 2–4, Enterprise: 3–9." values={[p1.sales_cycle_months, p2.sales_cycle_months, p3.sales_cycle_months]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { sales_cycle_months: v })} onChangeAll={(v) => setPhaseAll({ sales_cycle_months: v })} min={0} max={12} step={1} />
-            <TripleField label="Expansion Rate (%/mo)" help="Monthly % MRR growth from upsells/seat additions. Best: 3–5%/mo." values={[p1.expansion_rate, p2.expansion_rate, p3.expansion_rate]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { expansion_rate: v })} onChangeAll={(v) => setPhaseAll({ expansion_rate: v })} min={0} max={50} step={0.5} />
-            <TripleField label="Contraction Rate (%/mo)" help="Monthly % MRR lost to downgrades. Typical: 0.5–2%/mo." values={[p1.contraction_rate, p2.contraction_rate, p3.contraction_rate]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { contraction_rate: v })} onChangeAll={(v) => setPhaseAll({ contraction_rate: v })} min={0} max={50} step={0.5} />
-            <TripleField label="Logo Churn Rate (%/mo)" help="Monthly % of customers that fully cancel. Good: <2%." values={[p1.logo_churn_rate, p2.logo_churn_rate, p3.logo_churn_rate]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { logo_churn_rate: v })} onChangeAll={(v) => setPhaseAll({ logo_churn_rate: v })} min={0} max={50} step={0.5} />
-            {p1.logo_churn_rate > 5 && (
-              <InlineWarning message={`${p1.logo_churn_rate}% monthly churn = ${Math.round((1 - Math.pow(1 - p1.logo_churn_rate / 100, 12)) * 100)}% annual — consider retention strategies`} />
+            <TripleField label="Lead-to-Demo (%)" help="% of leads that book a demo. Good: 15–30%." values={[p1.lead_to_demo, p2.lead_to_demo, p3.lead_to_demo]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { lead_to_demo: v })} onChangeAll={(v) => setPhaseAll({ lead_to_demo: v })} min={0} max={100} step={1} />
+            <TripleField label="Demo-to-Close (%)" help="% of demos that convert to paying customers. Good: 20–40%." values={[p1.demo_to_close, p2.demo_to_close, p3.demo_to_close]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { demo_to_close: v })} onChangeAll={(v) => setPhaseAll({ demo_to_close: v })} min={0} max={100} step={1} />
+
+            {isAdv && (
+              <>
+                <TripleField label="Sales Cycle (months)" help="Time from lead to signed deal. SMB: 1–2, Mid-market: 2–4, Enterprise: 3–9." values={[p1.sales_cycle_months, p2.sales_cycle_months, p3.sales_cycle_months]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { sales_cycle_months: v })} onChangeAll={(v) => setPhaseAll({ sales_cycle_months: v })} min={0} max={12} step={1} />
+                <TripleField label="Expansion Rate (%/mo)" help="Monthly % MRR growth from upsells/seat additions. Best: 3–5%/mo." values={[p1.expansion_rate, p2.expansion_rate, p3.expansion_rate]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { expansion_rate: v })} onChangeAll={(v) => setPhaseAll({ expansion_rate: v })} min={0} max={50} step={0.5} />
+                <TripleField label="Contraction Rate (%/mo)" help="Monthly % MRR lost to downgrades. Typical: 0.5–2%/mo." values={[p1.contraction_rate, p2.contraction_rate, p3.contraction_rate]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { contraction_rate: v })} onChangeAll={(v) => setPhaseAll({ contraction_rate: v })} min={0} max={50} step={0.5} />
+                <TripleField label="Logo Churn Rate (%/mo)" help="Monthly % of customers that fully cancel. Good: <2%." values={[p1.logo_churn_rate, p2.logo_churn_rate, p3.logo_churn_rate]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { logo_churn_rate: v })} onChangeAll={(v) => setPhaseAll({ logo_churn_rate: v })} min={0} max={50} step={0.5} />
+                {p1.logo_churn_rate > 5 && (
+                  <InlineWarning message={`${p1.logo_churn_rate}% monthly churn = ${Math.round((1 - Math.pow(1 - p1.logo_churn_rate / 100, 12)) * 100)}% annual — consider retention strategies`} />
+                )}
+              </>
             )}
           </div>
         </AnimatedAccordion>
@@ -139,49 +182,79 @@ export function SaasSidebar({ projectId, onProjectCreated, monthRange, productTy
         {/* Pricing & Revenue */}
         <AnimatedAccordion title="Pricing & Revenue" defaultOpen>
           <div className="space-y-3">
-            <TripleField label="Seats per Account" help="Avg seats per customer. Affects ARPA." values={[p1.seats_per_account, p2.seats_per_account, p3.seats_per_account]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { seats_per_account: v })} onChangeAll={(v) => setPhaseAll({ seats_per_account: v })} min={1} step={1} />
-            <TripleField label="Price per Seat ($/mo)" help="Monthly price per seat. B2B SaaS: $10–100." values={[p1.price_per_seat, p2.price_per_seat, p3.price_per_seat]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { price_per_seat: v })} onChangeAll={(v) => setPhaseAll({ price_per_seat: v })} min={0} step={1} />
-            <TripleField label="Annual Contract (%)" help="% of deals on annual contracts. Enterprise: 60–80%." values={[p1.annual_contract_pct, p2.annual_contract_pct, p3.annual_contract_pct]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { annual_contract_pct: v })} onChangeAll={(v) => setPhaseAll({ annual_contract_pct: v })} min={0} max={100} step={5} />
-            <TripleField label="Annual Discount (%)" help="Discount for annual vs monthly billing. Typical: 15–20%." values={[p1.annual_discount, p2.annual_discount, p3.annual_discount]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { annual_discount: v })} onChangeAll={(v) => setPhaseAll({ annual_discount: v })} min={0} max={50} step={1} />
+            <TripleField label="Seats per Account" help="Avg seats per customer. Affects ARPA." values={[p1.seats_per_account, p2.seats_per_account, p3.seats_per_account]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { seats_per_account: v })} onChangeAll={(v) => setPhaseAll({ seats_per_account: v })} min={1} step={1} />
+            <TripleField label="Price per Seat ($/mo)" help="Monthly price per seat. B2B SaaS: $10–100." values={[p1.price_per_seat, p2.price_per_seat, p3.price_per_seat]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { price_per_seat: v })} onChangeAll={(v) => setPhaseAll({ price_per_seat: v })} min={0} step={1} />
+            <TripleField label="Annual Contract (%)" help="% of deals on annual contracts. Enterprise: 60–80%." values={[p1.annual_contract_pct, p2.annual_contract_pct, p3.annual_contract_pct]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { annual_contract_pct: v })} onChangeAll={(v) => setPhaseAll({ annual_contract_pct: v })} min={0} max={100} step={5} />
+            <TripleField label="Annual Discount (%)" help="Discount for annual vs monthly billing. Typical: 15–20%." values={[p1.annual_discount, p2.annual_discount, p3.annual_discount]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { annual_discount: v })} onChangeAll={(v) => setPhaseAll({ annual_discount: v })} min={0} max={50} step={1} />
           </div>
         </AnimatedAccordion>
 
         {/* Costs */}
         <AnimatedAccordion title="Costs" defaultOpen>
           <div className="space-y-3">
-            <TripleField label="Investment ($)" help="Initial investment / funding" values={[p1.investment, p2.investment, p3.investment]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { investment: v })} onChangeAll={(v) => setPhaseAll({ investment: v })} min={0} step={1000} />
-            <TripleField label="Monthly Salary ($)" help="Team salaries per month" values={[p1.monthly_salary, p2.monthly_salary, p3.monthly_salary]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { monthly_salary: v })} onChangeAll={(v) => setPhaseAll({ monthly_salary: v })} min={0} step={500} />
-            <TripleField label="COGS per Seat ($/mo)" help="Monthly cost per seat — hosting, support. Typical: $2–15." values={[p1.cogs_per_seat, p2.cogs_per_seat, p3.cogs_per_seat]} perPhase={perPhase} onChange={(p, v) => setPhase(p, { cogs_per_seat: v })} onChangeAll={(v) => setPhaseAll({ cogs_per_seat: v })} min={0} step={1} />
-          </div>
-        </AnimatedAccordion>
-
-        {/* Advanced */}
-        <AnimatedAccordion title="Advanced">
-          <div className="space-y-3">
-            <div className="text-[11px] font-medium text-muted-foreground">OpEx</div>
-            <NumberField label="Misc Costs ($/mo)" value={config.misc_costs} onChange={(v) => setConfig({ misc_costs: v })} min={0} step={100} help="Office, tools, legal, and other overhead" />
-            <NumberField label="Corporate Tax (%)" value={config.corporate_tax} onChange={(v) => setConfig({ corporate_tax: v })} min={0} max={100} step={0.5} help="Tax rate on gross revenue" />
-
-            <div className="pt-2 text-[11px] font-medium text-muted-foreground">Sensitivity</div>
-            <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust demo-to-close rate" slider />
-            <NumberField label="Churn (%)" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Adjust logo churn. Positive = more churn" slider />
-            <NumberField label="Expansion (%)" value={config.sens_expansion} onChange={(v) => setConfig({ sens_expansion: v })} min={-100} max={100} help="Adjust expansion rate" slider />
-            <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic leads share" slider />
-            <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios" slider />
-
-            <div className="pt-2 text-[11px] font-medium text-muted-foreground">Monte Carlo</div>
-            <p className="text-[10px] text-[#8181A5] leading-relaxed">
-              Runs randomized iterations to produce a probability distribution of outcomes.
-            </p>
-            <ToggleSwitch checked={config.mc_enabled} onChange={(v) => setConfig({ mc_enabled: v })} label="Enable Monte Carlo" />
-            {config.mc_enabled && (
+            {isAdv && perPhase ? (
               <>
-                <NumberField label="Iterations" value={config.mc_iterations} onChange={(v) => setConfig({ mc_iterations: v })} min={50} max={1000} step={50} help="Number of simulation runs. 200–500 is good." />
-                <NumberField label="Variance (%)" value={config.mc_variance} onChange={(v) => setConfig({ mc_variance: v })} min={1} max={100} help="Max random deviation per iteration" />
+                {([1, 2, 3] as const).map((num) => (
+                  <AnimatedAccordion key={num} title={`Phase ${num}`} color={PHASE_COLORS[num - 1]}>
+                    <div className="space-y-3">
+                      <PhaseCostItems
+                        storeKey={`saas-${num}`}
+                        defaults={costDefaultsForPhase(config[`phase${num}`], num)}
+                        categories={SAAS_CATEGORIES}
+                        onSync={makeCostSync(num)}
+                      />
+                    </div>
+                  </AnimatedAccordion>
+                ))}
               </>
+            ) : (
+              <PhaseCostItems
+                storeKey="saas-1"
+                defaults={costDefaultsForPhase(p1, 1)}
+                categories={SAAS_CATEGORIES}
+                onSync={handleCostSyncAll}
+              />
             )}
+            <TripleField label="COGS per Seat ($/mo)" help="Monthly cost per seat — hosting, support. Typical: $2–15." values={[p1.cogs_per_seat, p2.cogs_per_seat, p3.cogs_per_seat]} perPhase={isAdv && perPhase} onChange={(p, v) => setPhase(p, { cogs_per_seat: v })} onChangeAll={(v) => setPhaseAll({ cogs_per_seat: v })} min={0} step={1} />
           </div>
         </AnimatedAccordion>
+
+        {/* Advanced-only sections */}
+        {isAdv && (
+          <>
+            <AnimatedAccordion title="OpEx">
+              <div className="space-y-3">
+                <NumberField label="Misc Costs ($/mo)" value={config.misc_costs} onChange={(v) => setConfig({ misc_costs: v })} min={0} step={100} help="Office, tools, legal, and other overhead" />
+                <NumberField label="Corporate Tax (%)" value={config.corporate_tax} onChange={(v) => setConfig({ corporate_tax: v })} min={0} max={100} step={0.5} help="Tax rate on gross revenue" />
+              </div>
+            </AnimatedAccordion>
+
+            <AnimatedAccordion title="Sensitivity">
+              <div className="space-y-3">
+                <NumberField label="Conversion (%)" value={config.sens_conv} onChange={(v) => setConfig({ sens_conv: v })} min={-100} max={100} help="Adjust demo-to-close rate" slider />
+                <NumberField label="Churn (%)" value={config.sens_churn} onChange={(v) => setConfig({ sens_churn: v })} min={-100} max={100} help="Adjust logo churn. Positive = more churn" slider />
+                <NumberField label="Expansion (%)" value={config.sens_expansion} onChange={(v) => setConfig({ sens_expansion: v })} min={-100} max={100} help="Adjust expansion rate" slider />
+                <NumberField label="Organic (%)" value={config.sens_organic} onChange={(v) => setConfig({ sens_organic: v })} min={-100} max={100} help="Adjust organic leads share" slider />
+                <NumberField label="Scenario Bound (%)" value={config.scenario_bound} onChange={(v) => setConfig({ scenario_bound: v })} min={0} max={100} help="Spread for optimistic/pessimistic scenarios" slider />
+              </div>
+            </AnimatedAccordion>
+
+            <AnimatedAccordion title="Monte Carlo">
+              <div className="space-y-3">
+                <p className="text-[10px] text-[#8181A5] leading-relaxed">
+                  Runs randomized iterations to produce a probability distribution of outcomes.
+                </p>
+                <ToggleSwitch checked={config.mc_enabled} onChange={(v) => setConfig({ mc_enabled: v })} label="Enable Monte Carlo" />
+                {config.mc_enabled && (
+                  <>
+                    <NumberField label="Iterations" value={config.mc_iterations} onChange={(v) => setConfig({ mc_iterations: v })} min={50} max={1000} step={50} help="Number of simulation runs. 200–500 is good." />
+                    <NumberField label="Variance (%)" value={config.mc_variance} onChange={(v) => setConfig({ mc_variance: v })} min={1} max={100} help="Max random deviation per iteration" />
+                  </>
+                )}
+              </div>
+            </AnimatedAccordion>
+          </>
+        )}
       </div>
     </div>
   );

@@ -30,6 +30,8 @@ interface ConfigStore {
   resetSaas: () => void;
   customizePerPhase: boolean;
   setCustomizePerPhase: (v: boolean) => void;
+  sidebarMode: "simple" | "advanced";
+  setSidebarMode: (mode: "simple" | "advanced") => void;
 }
 
 export const useConfigStore = create<ConfigStore>()(
@@ -128,6 +130,11 @@ export const useConfigStore = create<ConfigStore>()(
 
       customizePerPhase: false,
       setCustomizePerPhase: (v) => set({ customizePerPhase: v }),
+      sidebarMode: "simple",
+      setSidebarMode: (mode) => set((state) => ({
+        sidebarMode: mode,
+        ...(mode === "simple" ? { customizePerPhase: false } : {}),
+      })),
     }),
     {
       name: "revenuemap-config",

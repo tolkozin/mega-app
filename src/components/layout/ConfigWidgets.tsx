@@ -197,8 +197,6 @@ interface PhaseTimelineProps {
   phase1Dur: number;
   phase2Dur: number;
   totalMonths: number;
-  activePhase?: 1 | 2 | 3;
-  onPhaseClick?: (phase: 1 | 2 | 3) => void;
   colors?: [string, string, string];
 }
 
@@ -206,41 +204,40 @@ export function PhaseTimeline({
   phase1Dur,
   phase2Dur,
   totalMonths,
-  activePhase,
-  onPhaseClick,
-  colors = ["#2275ed", "#85abf2", "#e8f0ff"],
+  colors = ["#2163E7", "#7BA3F0", "#BDD0F8"],
 }: PhaseTimelineProps) {
   const phase3Dur = totalMonths - phase1Dur - phase2Dur;
-  const phases: { label: string; dur: number; color: string; id: 1 | 2 | 3 }[] = [
+  const phases = [
     { label: "P1", dur: phase1Dur, color: colors[0], id: 1 },
     { label: "P2", dur: phase2Dur, color: colors[1], id: 2 },
     { label: "P3", dur: phase3Dur, color: colors[2], id: 3 },
   ];
 
   return (
-    <div className="w-full h-7 rounded-lg overflow-hidden flex">
-      {phases.map((p) => {
-        if (p.dur <= 0) return null;
-        const pct = (p.dur / totalMonths) * 100;
-        const isActive = !activePhase || activePhase === p.id;
-        return (
-          <button
-            key={p.id}
-            type="button"
-            onClick={() => onPhaseClick?.(p.id)}
-            className="h-full flex items-center justify-center cursor-pointer transition-opacity duration-200"
-            style={{
-              width: `${pct}%`,
-              backgroundColor: p.color,
-              opacity: isActive ? 1 : 0.5,
-            }}
-          >
-            <span className={`text-[9px] font-bold whitespace-nowrap ${isLightColor(p.color) ? "text-[#1a1a2e]" : "text-white"}`}>
+    <div className="w-full">
+      <div className="h-3 rounded-full overflow-hidden flex">
+        {phases.map((p) => {
+          if (p.dur <= 0) return null;
+          return (
+            <div
+              key={p.id}
+              className="h-full"
+              style={{ width: `${(p.dur / totalMonths) * 100}%`, backgroundColor: p.color }}
+            />
+          );
+        })}
+      </div>
+      <div className="flex items-center gap-3 mt-1.5">
+        {phases.map((p) => {
+          if (p.dur <= 0) return null;
+          return (
+            <span key={p.id} className="flex items-center gap-1 text-[10px] text-[#6b7280] font-medium">
+              <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: p.color }} />
               {p.label}: {p.dur}mo
             </span>
-          </button>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -285,55 +282,35 @@ interface RetentionFunnelProps {
   steps: RetentionFunnelStep[];
 }
 
-function isLightColor(hex: string): boolean {
-  const c = hex.replace("#", "");
-  const r = parseInt(c.substring(0, 2), 16);
-  const g = parseInt(c.substring(2, 4), 16);
-  const b = parseInt(c.substring(4, 6), 16);
-  return (r * 299 + g * 587 + b * 114) / 1000 > 160;
-}
-
 export function RetentionFunnel({ steps }: RetentionFunnelProps) {
   const maxVal = Math.max(...steps.map((s) => s.value), 1);
 
   return (
-    <div className="flex flex-col gap-1 w-full">
-      {steps.map((step, i) => {
-        const widthPct = Math.max((step.value / maxVal) * 100, 12);
-        const light = isLightColor(step.color);
-        return (
-          <React.Fragment key={i}>
+    <div className="w-full">
+      <div className="flex flex-col gap-1">
+        {steps.map((step, i) => {
+          const widthPct = Math.max((step.value / maxVal) * 100, 12);
+          return (
             <div
-              className="h-6 rounded-lg flex items-center px-2 transition-all duration-300"
+              key={i}
+              className="h-2.5 rounded-full transition-all duration-300"
               style={{
                 width: `${widthPct}%`,
                 backgroundColor: step.color,
-                minWidth: "60px",
+                minWidth: "30px",
               }}
-            >
-              <span
-                className={`text-[10px] font-bold truncate ${
-                  light ? "text-[#1a1a2e]" : "text-white"
-                }`}
-              >
-                {step.label}
-              </span>
-              <span
-                className={`text-[10px] font-bold ml-auto pl-1 ${
-                  light ? "text-[#1a1a2e]" : "text-white"
-                }`}
-              >
-                {step.value}%
-              </span>
-            </div>
-            {i < steps.length - 1 && (
-              <div className="flex items-center pl-2 h-2">
-                <div className="w-px h-full bg-[#c4c9d8]" />
-              </div>
-            )}
-          </React.Fragment>
-        );
-      })}
+            />
+          );
+        })}
+      </div>
+      <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+        {steps.map((step, i) => (
+          <span key={i} className="flex items-center gap-1 text-[10px] text-[#6b7280] font-medium">
+            <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: step.color }} />
+            {step.label} {step.value}%
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -346,19 +323,19 @@ interface PhasePresetsProps {
 
 const presetStyles = {
   conservative: {
-    border: "#10B981",
-    text: "#10B981",
-    hoverBg: "#ecfdf5",
+    border: "#7BA3F0",
+    text: "#7BA3F0",
+    hoverBg: "#EBF0FD",
   },
   moderate: {
     border: "#2163E7",
     text: "#2163E7",
-    hoverBg: "#EBF1FD",
+    hoverBg: "#EBF0FD",
   },
   aggressive: {
-    border: "#F59E0B",
-    text: "#F59E0B",
-    hoverBg: "#FFFBEB",
+    border: "#1650b0",
+    text: "#1650b0",
+    hoverBg: "#EBF0FD",
   },
 } as const;
 
