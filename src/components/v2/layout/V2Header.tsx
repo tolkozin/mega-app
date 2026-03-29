@@ -439,7 +439,7 @@ function MobileHeader({ title, monthRange, onMonthRangeChange, totalMonths }: V2
 function DesktopHeader({ title, monthRange, onMonthRangeChange, totalMonths, headerActions }: V2HeaderProps) {
 
   return (
-    <header className="h-14 bg-white flex items-center gap-3 px-4 shrink-0 mx-2 rounded-2xl border border-[#eef0f6] shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+    <header className="h-14 bg-white flex items-center gap-3 px-4 shrink-0 mx-2 rounded-2xl border border-[#eef0f6] shadow-v2-sm">
       {title && !headerActions && <h1 className="text-[16px] font-extrabold text-[#1a1a2e] truncate">{title}</h1>}
 
       {/* Fallback date range for non-dashboard pages */}

@@ -153,6 +153,7 @@ export function PhaseCostItems({ storeKey, defaults, categories, onSync }: Phase
             <button
               onClick={() => handleRemove(item.id)}
               className="shrink-0 p-1 text-[#d1d5db] hover:text-[#EF4444] transition-colors"
+              aria-label="Remove cost item"
             >
               <Trash2 size={13} strokeWidth={2} />
             </button>

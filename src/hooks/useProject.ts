@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Project, Scenario, ProjectShare } from "@/lib/types";
 import { getPlanLimits, formatLimit } from "@/lib/plan-limits";
@@ -23,6 +23,7 @@ export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
+  const activeRef = useRef(true);
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -36,12 +37,16 @@ export function useProjects() {
       .order("created_at", { ascending: false })
       .limit(50);
 
-    if (!error && data) setProjects(data);
-    setLoading(false);
+    if (activeRef.current) {
+      if (!error && data) setProjects(data);
+      setLoading(false);
+    }
   }, [supabase]);
 
   useEffect(() => {
+    activeRef.current = true;
     fetchProjects();
+    return () => { activeRef.current = false; };
   }, [fetchProjects]);
 
   const createProject = useCallback(
@@ -95,6 +100,7 @@ export function useScenarios(projectId: string | null) {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
+  const activeRef = useRef(true);
 
   const fetchScenarios = useCallback(async () => {
     if (!projectId) {
@@ -110,12 +116,16 @@ export function useScenarios(projectId: string | null) {
       .order("created_at", { ascending: false })
       .limit(50);
 
-    if (!error && data) setScenarios(data);
-    setLoading(false);
+    if (activeRef.current) {
+      if (!error && data) setScenarios(data);
+      setLoading(false);
+    }
   }, [supabase, projectId]);
 
   useEffect(() => {
+    activeRef.current = true;
     fetchScenarios();
+    return () => { activeRef.current = false; };
   }, [fetchScenarios]);
 
   const saveScenario = useCallback(
@@ -170,6 +180,7 @@ export function useScenarios(projectId: string | null) {
 export function useProjectShares(projectId: string | null) {
   const [shares, setShares] = useState<(ProjectShare & { email?: string })[]>([]);
   const supabase = useMemo(() => createClient(), []);
+  const activeRef = useRef(true);
 
   const fetchShares = useCallback(async () => {
     if (!projectId) return;
@@ -179,7 +190,7 @@ export function useProjectShares(projectId: string | null) {
       .eq("project_id", projectId)
       .limit(100);
 
-    if (data) {
+    if (activeRef.current && data) {
       setShares(
         data.map((s: Record<string, unknown>) => ({
           ...s,
@@ -190,7 +201,9 @@ export function useProjectShares(projectId: string | null) {
   }, [supabase, projectId]);
 
   useEffect(() => {
+    activeRef.current = true;
     fetchShares();
+    return () => { activeRef.current = false; };
   }, [fetchShares]);
 
   const addShare = useCallback(
@@ -271,6 +284,7 @@ export function useSharedProjects() {
   const [sharedProjects, setSharedProjects] = useState<SharedProject[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
+  const activeRef = useRef(true);
 
   const fetchSharedProjects = useCallback(async () => {
     setLoading(true);
@@ -286,21 +300,25 @@ export function useSharedProjects() {
       .eq("shared_with_id", user.id)
       .limit(50);
 
-    if (!error && data) {
-      const mapped = data
-        .filter((s: Record<string, unknown>) => s.projects)
-        .map((s: Record<string, unknown>) => ({
-          ...(s.projects as Project),
-          role: s.role as "viewer" | "editor",
-          owner_email: (s.profiles as Record<string, string>)?.email,
-        }));
-      setSharedProjects(mapped);
+    if (activeRef.current) {
+      if (!error && data) {
+        const mapped = data
+          .filter((s: Record<string, unknown>) => s.projects)
+          .map((s: Record<string, unknown>) => ({
+            ...(s.projects as Project),
+            role: s.role as "viewer" | "editor",
+            owner_email: (s.profiles as Record<string, string>)?.email,
+          }));
+        setSharedProjects(mapped);
+      }
+      setLoading(false);
     }
-    setLoading(false);
   }, [supabase]);
 
   useEffect(() => {
+    activeRef.current = true;
     fetchSharedProjects();
+    return () => { activeRef.current = false; };
   }, [fetchSharedProjects]);
 
   return { sharedProjects, loading, fetchSharedProjects };

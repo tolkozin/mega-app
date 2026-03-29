@@ -372,7 +372,7 @@ export function AIChatPanel({ fullscreen = false }: { fullscreen?: boolean }) {
       className={
         fullscreen
           ? "fixed inset-0 z-50 bg-white flex flex-col safe-area-inset"
-          : "w-[380px] xl:w-[420px] border border-[#eef0f6] bg-white shrink-0 flex flex-col shadow-[0_1px_4px_rgba(0,0,0,0.04)] rounded-2xl overflow-hidden my-2 mr-2"
+          : "w-[380px] xl:w-[420px] border border-[#eef0f6] bg-white shrink-0 flex flex-col shadow-v2-sm rounded-2xl overflow-hidden my-2 mr-2"
       }
       data-tour="ai-chat"
       style={{ fontFamily: "Lato, sans-serif" }}

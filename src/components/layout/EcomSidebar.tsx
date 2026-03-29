@@ -109,11 +109,11 @@ export function EcomSidebar({ projectId, onProjectCreated, monthRange, productTy
           onClick={() => useUpgradeStore.getState().showExpiredModal()}
         />
       )}
-      <div className="rounded-2xl bg-white border border-[#eef0f6] px-4 py-3 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+      <div className="rounded-2xl bg-white border border-[#eef0f6] px-4 py-3 shadow-v2-sm">
         <h2 className="font-extrabold text-sm text-[#1a1a2e] font-lato">E-commerce Model Config</h2>
       </div>
 
-      <div className="rounded-2xl bg-white border border-[#eef0f6] shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden">
+      <div className="rounded-2xl bg-white border border-[#eef0f6] shadow-v2-sm overflow-hidden">
       <ScenarioPanel projectId={projectId} modelType={productType ?? "ecommerce"} onProjectCreated={onProjectCreated} />
 
       <div className="px-3 py-2">
