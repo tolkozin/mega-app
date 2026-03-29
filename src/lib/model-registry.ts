@@ -146,7 +146,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     baseEngine: "ecommerce",
     availableEngines: [
       { engine: "ecommerce", label: "Per Transaction" },
-      { engine: "saas", label: "Platform" },
+      { engine: "saas", label: "B2B SaaS" },
     ],
     surveyDescription: "Two-sided marketplace connecting buyers and sellers",
     headline: "Know if your marketplace can reach critical mass — before you build it.",
@@ -229,7 +229,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     color: "#10B981",
     baseEngine: "saas",
     availableEngines: [
-      { engine: "saas", label: "Platform" },
+      { engine: "saas", label: "B2B SaaS" },
       { engine: "ecommerce", label: "Per Transaction" },
     ],
     surveyDescription: "Payments, banking, lending, or insurance platform",
@@ -250,7 +250,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     color: "#EC4899",
     baseEngine: "saas",
     availableEngines: [
-      { engine: "saas", label: "Platform" },
+      { engine: "saas", label: "B2B SaaS" },
       { engine: "subscription", label: "Subscription" },
     ],
     surveyDescription: "Digital health, telemedicine, or wellness platform",
@@ -271,7 +271,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     color: "#F97316",
     baseEngine: "saas",
     availableEngines: [
-      { engine: "saas", label: "Platform" },
+      { engine: "saas", label: "B2B SaaS" },
       { engine: "subscription", label: "Subscription" },
       { engine: "ecommerce", label: "One-time Payment" },
     ],
@@ -294,7 +294,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     baseEngine: "ecommerce",
     availableEngines: [
       { engine: "ecommerce", label: "Per Deal" },
-      { engine: "saas", label: "Platform" },
+      { engine: "saas", label: "B2B SaaS" },
     ],
     surveyDescription: "Real estate, property management, or construction platform",
     headline: "Know your cost per deal and margin — before you list anything.",
@@ -314,7 +314,7 @@ export const MODEL_REGISTRY: Record<ProductType, ModelDefinition> = {
     color: "#14B8A6",
     baseEngine: "saas",
     availableEngines: [
-      { engine: "saas", label: "Platform" },
+      { engine: "saas", label: "B2B SaaS" },
       { engine: "subscription", label: "Subscription" },
       { engine: "ecommerce", label: "Pay-per-Use" },
     ],
