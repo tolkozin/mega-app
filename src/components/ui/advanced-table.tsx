@@ -477,7 +477,7 @@ export function AdvancedTable<T extends Record<string, unknown>>({
       <div
         className={cn(
           "flex items-center justify-between gap-4 px-3 py-2",
-          "border border-t-0 border-[#eef0f6] rounded-b-xl bg-[#f8f9fc]",
+          "border border-t-0 border-[#eef0f6] rounded-b-xl bg-[#eef0f6]",
           "text-sm text-[#9ca3af]"
         )}
       >

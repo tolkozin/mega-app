@@ -10,7 +10,8 @@
  */
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useIsMobile } from "@/hooks/useMediaQuery";
@@ -117,6 +118,7 @@ function SidebarContent({
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const avatarRef = useRef<HTMLButtonElement>(null);
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname?.startsWith("/dashboard");
@@ -220,8 +222,9 @@ function SidebarContent({
       </nav>
 
       {/* User avatar — bottom */}
-      <div className="px-5 py-4 border-t border-white/[0.06] relative">
+      <div className="px-5 py-4 border-t border-white/[0.06]">
         <button
+          ref={avatarRef}
           onClick={() => setUserMenuOpen((v) => !v)}
           className="flex items-center gap-2.5 w-full text-left"
         >
@@ -239,45 +242,53 @@ function SidebarContent({
             </div>
           )}
         </button>
-        <AnimatePresence>
-          {userMenuOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
-              <motion.div
-                className="absolute left-3 bottom-full mb-2 z-50 bg-white rounded-2xl border border-[#eef0f6] shadow-lg p-4 min-w-[200px]"
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                transition={{ duration: 0.15 }}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7BA3F0] to-[#2163E7] flex items-center justify-center text-[11px] text-white font-extrabold shrink-0">
-                    {(user?.email?.[0] ?? "U").toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[12px] font-bold text-[#1a1a2e] truncate">{user?.email?.split("@")[0]}</p>
-                    <p className="text-[10px] text-[#9ca3af] truncate">{user?.email}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 mb-3 pt-2 border-t border-[#f0f1f7]">
-                  <PlanBadge plan={profile?.plan} />
-                </div>
-                <button
-                  onClick={() => { setUserMenuOpen(false); router.push("/settings"); }}
-                  className="w-full text-left text-[12px] text-[#6b7280] font-medium hover:text-[#1a1a2e] transition-colors py-1.5"
+        {typeof document !== "undefined" && createPortal(
+          <AnimatePresence>
+            {userMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-[9998]" onClick={() => setUserMenuOpen(false)} />
+                <motion.div
+                  className="fixed z-[9999] bg-white rounded-2xl border border-[#eef0f6] shadow-lg p-4 min-w-[200px]"
+                  style={{
+                    left: avatarRef.current ? avatarRef.current.getBoundingClientRect().left : 12,
+                    top: avatarRef.current ? avatarRef.current.getBoundingClientRect().top - 8 : "auto",
+                    transform: "translateY(-100%)",
+                  }}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.15 }}
                 >
-                  Settings
-                </button>
-                <button
-                  onClick={async () => { setUserMenuOpen(false); await signOut(); router.push("/auth/login"); }}
-                  className="w-full text-left text-[12px] text-[#EF4444] font-medium hover:text-[#DC2626] transition-colors py-1.5"
-                >
-                  Sign Out
-                </button>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7BA3F0] to-[#2163E7] flex items-center justify-center text-[11px] text-white font-extrabold shrink-0">
+                      {(user?.email?.[0] ?? "U").toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[12px] font-bold text-[#1a1a2e] truncate">{user?.email?.split("@")[0]}</p>
+                      <p className="text-[10px] text-[#9ca3af] truncate">{user?.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mb-3 pt-2 border-t border-[#f0f1f7]">
+                    <PlanBadge plan={profile?.plan} />
+                  </div>
+                  <button
+                    onClick={() => { setUserMenuOpen(false); router.push("/settings"); }}
+                    className="w-full text-left text-[12px] text-[#6b7280] font-medium hover:text-[#1a1a2e] transition-colors py-1.5"
+                  >
+                    Settings
+                  </button>
+                  <button
+                    onClick={async () => { setUserMenuOpen(false); await signOut(); router.push("/auth/login"); }}
+                    className="w-full text-left text-[12px] text-[#EF4444] font-medium hover:text-[#DC2626] transition-colors py-1.5"
+                  >
+                    Sign Out
+                  </button>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
       </div>
     </div>
   );
