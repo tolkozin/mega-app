@@ -7,8 +7,9 @@
  */
 
 import type { PhaseConfig, ModelConfig, EcomPhaseConfig, EcomConfig, SaasPhaseConfig, SaasConfig } from "./types";
-import { getBaseEngine, type BaseEngine } from "./model-registry";
+import { getBaseEngine, type BaseEngine, type ProductType } from "./model-registry";
 import { defaultModelConfig, defaultEcomConfig, defaultSaasConfig } from "@/stores/config-store";
+import { getModelDefaults } from "./model-defaults";
 
 /* ─── Deep-merge helper ─── */
 
@@ -453,23 +454,7 @@ export interface PresetInput {
  * Used when user switches engine in the dashboard.
  */
 export function getModelEngineDefaults(productType: string, engine: BaseEngine): ModelConfig | EcomConfig | SaasConfig {
-  if (engine === "subscription") {
-    let config = { ...defaultModelConfig, phase1: { ...defaultModelConfig.phase1 }, phase2: { ...defaultModelConfig.phase2 }, phase3: { ...defaultModelConfig.phase3 } };
-    const base = SUB_BASE[productType];
-    if (base) config = deepMerge<ModelConfig>(config, base);
-    return config;
-  }
-  if (engine === "ecommerce") {
-    let config = { ...defaultEcomConfig, phase1: { ...defaultEcomConfig.phase1 }, phase2: { ...defaultEcomConfig.phase2 }, phase3: { ...defaultEcomConfig.phase3 } };
-    const base = ECOM_BASE[productType];
-    if (base) config = deepMerge<EcomConfig>(config, base);
-    return config;
-  }
-  // saas
-  let config = { ...defaultSaasConfig, phase1: { ...defaultSaasConfig.phase1 }, phase2: { ...defaultSaasConfig.phase2 }, phase3: { ...defaultSaasConfig.phase3 } };
-  const base = SAAS_BASE[productType];
-  if (base) config = deepMerge<SaasConfig>(config, base);
-  return config;
+  return getModelDefaults(productType as ProductType, engine);
 }
 
 export function getPresetConfig(input: PresetInput): ModelConfig | EcomConfig | SaasConfig {
@@ -478,11 +463,8 @@ export function getPresetConfig(input: PresetInput): ModelConfig | EcomConfig | 
   const budgetInv = budgetToInvestment(input.budget ?? "");
 
   if (engine === "subscription") {
-    let config = { ...defaultModelConfig };
-    // Apply product type base
-    const base = SUB_BASE[input.productType];
-    if (base) config = deepMerge<ModelConfig>(config, base);
-    // Apply industry
+    let config = getModelDefaults(input.productType as ProductType, engine) as ModelConfig;
+    // Apply industry overrides on top of model defaults
     const ind = SUB_INDUSTRY[input.industry];
     if (ind) config = deepMerge<ModelConfig>(config, ind);
     // Apply stage
@@ -501,9 +483,7 @@ export function getPresetConfig(input: PresetInput): ModelConfig | EcomConfig | 
   }
 
   if (engine === "ecommerce") {
-    let config = { ...defaultEcomConfig };
-    const base = ECOM_BASE[input.productType];
-    if (base) config = deepMerge<EcomConfig>(config, base);
+    let config = getModelDefaults(input.productType as ProductType, engine) as EcomConfig;
     const ind = ECOM_INDUSTRY[input.industry];
     if (ind) config = deepMerge<EcomConfig>(config, ind);
     config.phase1_dur = stage.phase1Dur;
@@ -519,9 +499,7 @@ export function getPresetConfig(input: PresetInput): ModelConfig | EcomConfig | 
   }
 
   // saas engine
-  let config = { ...defaultSaasConfig };
-  const base = SAAS_BASE[input.productType];
-  if (base) config = deepMerge<SaasConfig>(config, base);
+  let config = getModelDefaults(input.productType as ProductType, engine) as SaasConfig;
   const ind = SAAS_INDUSTRY[input.industry];
   if (ind) config = deepMerge<SaasConfig>(config, ind);
   config.phase1_dur = stage.phase1Dur;
