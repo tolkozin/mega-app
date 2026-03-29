@@ -496,7 +496,7 @@ export function TripleField({
       <div className="grid grid-cols-3 gap-1.5">
         {([1, 2, 3] as const).map((p) => (
           <div key={p}>
-            <span className="text-[9px] font-bold text-[#9ca3af] block mb-0.5">P{p}</span>
+            <span className="text-[9px] font-bold text-[#9ca3af] block mb-0.5">Phase {p}</span>
             <CardNumberInput
               value={values[p - 1]}
               onChange={(v) => onChange(p, v)}
