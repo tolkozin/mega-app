@@ -20,27 +20,21 @@ import { V2DateRangeBar } from "@/components/v2/layout/V2Header";
 import { FadeIn } from "@/components/v2/ui/FadeIn";
 import { V2DashboardHero } from "@/components/v2/dashboard/V2DashboardHero";
 import { V2KPIMetricGrid } from "@/components/v2/charts/V2KPIMetricCard";
-import type { KPICardProps, HealthStatus } from "@/components/v2/charts/V2KPIMetricCard";
-import { fmtK } from "@/components/v2/charts/v2-chart-utils";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import type { ModelConfig, EcomConfig, SaasConfig } from "@/lib/types";
-
-// ─── Engine-specific component imports ───
-import { Sidebar } from "@/components/layout/Sidebar";
-import { EcomSidebar } from "@/components/layout/EcomSidebar";
-import { SaasSidebar } from "@/components/layout/SaasSidebar";
 
 import { SubscriptionCharts } from "@/components/dashboard/charts/SubscriptionCharts";
 import { EcommerceCharts } from "@/components/dashboard/charts/EcommerceCharts";
 import { SaasCharts } from "@/components/dashboard/charts/SaasCharts";
-
-// Old KPI components removed — milestones & metrics now in V2DashboardHero
-
 import { SubscriptionReports } from "@/components/dashboard/reports/FinancialReports";
 import { EcommerceReports } from "@/components/dashboard/reports/FinancialReports";
 import { SaasReports } from "@/components/dashboard/reports/SaasReports";
 
 import dynamic from "next/dynamic";
+
+import { ENGINE_SIDEBAR, getConfigSelector, AI_CONTEXT_KEYS } from "./engine-maps";
+import { SCENARIO_BUILDERS } from "./scenario-builders";
+import { buildKPICards, type DataRow } from "./kpi-builders";
 
 function ReportLoadingFallback() {
   return (
@@ -58,237 +52,7 @@ const SubscriptionInvestorReport = dynamic(() => import("@/components/dashboard/
 const EcommerceInvestorReport = dynamic(() => import("@/components/dashboard/investor/EcommerceInvestorReport").then(m => ({ default: m.EcommerceInvestorReport })), { ssr: false, loading: ReportLoadingFallback });
 const SaasInvestorReport = dynamic(() => import("@/components/dashboard/investor/SaasInvestorReport").then(m => ({ default: m.SaasInvestorReport })), { ssr: false, loading: ReportLoadingFallback });
 
-// ─── Engine component maps ───
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getConfigSelector(engine: BaseEngine): (s: any) => any {
-  const selectors = {
-    subscription: (s: ReturnType<typeof useConfigStore.getState>) => s.subscriptionConfig,
-    ecommerce: (s: ReturnType<typeof useConfigStore.getState>) => s.ecommerceConfig,
-    saas: (s: ReturnType<typeof useConfigStore.getState>) => s.saasConfig,
-  };
-  return selectors[engine];
-}
-
-const ENGINE_SIDEBAR: Record<BaseEngine, React.ComponentType<{ projectId: string | null; onProjectCreated: (id: string) => void; monthRange?: [number, number] | null; productType?: string }>> = {
-  subscription: Sidebar,
-  ecommerce: EcomSidebar,
-  saas: SaasSidebar,
-};
-
-// AI context key columns per engine
-const AI_CONTEXT_KEYS: Record<BaseEngine, string[]> = {
-  subscription: ["Month", "Product Phase", "Total MRR", "Total Gross Revenue", "Net Revenue", "Net Profit", "EBITDA", "Total Active Users", "Blended CAC", "LTV", "LTV/CAC", "ARPU", "Gross Margin %", "ROI %", "Cash Balance", "Cumulative Net Profit", "Burn Rate", "Runway (Months)", "Cumulative ROAS"],
-  ecommerce: ["Month", "Gross Revenue", "Net Revenue", "Net Profit", "EBITDA", "New Customers", "Returning Customers", "Total Orders", "AOV", "CAC", "LTV", "LTV/CAC", "Gross Margin %", "ROI %", "Cash Balance", "Cumulative Net Profit", "Ad Spend", "ROAS"],
-  saas: ["Month", "ARR", "MRR", "Net Revenue", "Net Profit", "EBITDA", "Total Customers", "Total Seats", "NRR %", "Logo Churn %", "CAC", "LTV", "LTV/CAC", "Gross Margin %", "ROI %", "Cash Balance", "Cumulative Net Profit", "Quick Ratio", "Rule of 40", "Magic Number"],
-};
-
-// ─── Scenario builders per engine ───
-
-function buildSubscriptionScenario(config: Record<string, unknown>) {
-  const base = {
-    conv: (config.sens_conv as number) / 100,
-    churn: (config.sens_churn as number) / 100,
-    cpi: (config.sens_cpi as number) / 100,
-    organic: (config.sens_organic as number) / 100,
-  };
-  const bound = (config.scenario_bound as number) / 100;
-  return {
-    base,
-    pessimistic: { conv: base.conv - bound, churn: base.churn + bound, cpi: base.cpi + bound, organic: base.organic - bound },
-    optimistic: { conv: base.conv + bound, churn: base.churn - bound, cpi: base.cpi - bound, organic: base.organic + bound },
-  };
-}
-
-function buildEcommerceScenario(config: Record<string, unknown>) {
-  const base = {
-    conv: (config.sens_conv as number) / 100,
-    cpc: (config.sens_cpc as number) / 100,
-    aov: (config.sens_aov as number) / 100,
-    organic: (config.sens_organic as number) / 100,
-  };
-  const bound = (config.scenario_bound as number) / 100;
-  return {
-    base,
-    pessimistic: { conv: base.conv - bound, cpc: base.cpc + bound, aov: base.aov - bound, organic: base.organic - bound },
-    optimistic: { conv: base.conv + bound, cpc: base.cpc - bound, aov: base.aov + bound, organic: base.organic + bound },
-  };
-}
-
-function buildSaasScenario(config: Record<string, unknown>) {
-  const base = {
-    conv: (config.sens_conv as number) / 100,
-    churn: (config.sens_churn as number) / 100,
-    expansion: (config.sens_expansion as number) / 100,
-    organic: (config.sens_organic as number) / 100,
-  };
-  const bound = (config.scenario_bound as number) / 100;
-  return {
-    base,
-    pessimistic: { conv: base.conv - bound, churn: base.churn + bound, expansion: base.expansion - bound, organic: base.organic - bound },
-    optimistic: { conv: base.conv + bound, churn: base.churn - bound, expansion: base.expansion + bound, organic: base.organic + bound },
-  };
-}
-
-const SCENARIO_BUILDERS: Record<BaseEngine, (config: Record<string, unknown>) => Record<string, Record<string, number>>> = {
-  subscription: buildSubscriptionScenario,
-  ecommerce: buildEcommerceScenario,
-  saas: buildSaasScenario,
-};
-
-// ─── KPI builder helpers ───
-
-type DataRow = Record<string, number | string | undefined>;
-
-function isNumeric(v: unknown): boolean {
-  if (typeof v === "number") return true;
-  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v))) return true;
-  return false;
-}
-
-function findCol(row: DataRow, ...candidates: string[]): string | null {
-  for (const c of candidates) {
-    const lc = c.toLowerCase();
-    const match = Object.keys(row).find((k) => k.toLowerCase() === lc);
-    if (match && isNumeric(row[match])) return match;
-  }
-  for (const c of candidates) {
-    const lc = c.toLowerCase();
-    const match = Object.keys(row).find((k) => k.toLowerCase() === lc);
-    if (match) return match;
-  }
-  for (const c of candidates) {
-    const lc = c.toLowerCase();
-    const match = Object.keys(row).find((k) => k.toLowerCase().includes(lc) && isNumeric(row[k]));
-    if (match) return match;
-  }
-  return null;
-}
-
-function numVal(row: DataRow, col: string | null): number {
-  if (!col) return 0;
-  const v = row[col];
-  if (typeof v === "number") return v;
-  if (typeof v === "string") { const n = Number(v); return isNaN(n) ? 0 : n; }
-  return 0;
-}
-
-interface KPIDef {
-  label: string;
-  columns: string[];
-  format: "currency" | "pct" | "number" | "ratio" | "months";
-  healthGood?: (v: number) => boolean;
-  healthBad?: (v: number) => boolean;
-  description?: string;
-  /** If true, value is the sum across all rows instead of last row */
-  sumPeriod?: boolean;
-}
-
-const SUB_KPIS: KPIDef[] = [
-  { label: "Total Revenue", columns: ["Total Gross Revenue", "Gross Revenue"], format: "currency", description: "Cumulative gross revenue for the selected period", sumPeriod: true },
-  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Total net profit for the selected period", sumPeriod: true },
-  { label: "End MRR", columns: ["Total MRR", "MRR"], format: "currency", healthGood: (v) => v > 0, description: "Monthly recurring revenue at end of period" },
-  { label: "LTV/CAC", columns: ["LTV/CAC"], format: "ratio", healthGood: (v) => v >= 3, healthBad: (v) => v < 1, description: "Customer lifetime value to acquisition cost ratio (3x+ is healthy)" },
-  { label: "ROI", columns: ["ROI %", "ROI"], format: "pct", healthGood: (v) => v > 0, healthBad: (v) => v < -20, description: "Return on total investment" },
-  { label: "ROAS", columns: ["Cumulative ROAS", "ROAS"], format: "ratio", healthGood: (v) => v >= 2, healthBad: (v) => v < 1, description: "Return on ad spend" },
-  { label: "ARPU", columns: ["ARPU"], format: "currency", description: "Average revenue per user per month" },
-  { label: "Gross Margin", columns: ["Gross Margin", "Gross Profit"], format: "currency", description: "Total gross margin for the selected period", sumPeriod: true },
-  { label: "Burn Rate", columns: ["Burn Rate"], format: "currency", healthGood: (v) => v <= 0, healthBad: (v) => v > 20000, description: "Monthly cash consumption rate" },
-  { label: "Runway", columns: ["Runway (Months)", "Runway"], format: "months", healthGood: (v) => v >= 12, healthBad: (v) => v < 6, description: "Months of cash remaining at current burn" },
-];
-
-const ECOM_KPIS: KPIDef[] = [
-  { label: "Gross Revenue", columns: ["Gross Revenue"], format: "currency", description: "Total gross revenue for the selected period", sumPeriod: true },
-  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Total net profit for the selected period", sumPeriod: true },
-  { label: "AOV", columns: ["AOV", "Avg Order Value"], format: "currency", description: "Average order value" },
-  { label: "CAC", columns: ["CAC"], format: "currency", healthBad: (v) => v > 100, description: "Cost to acquire one customer" },
-  { label: "LTV", columns: ["LTV"], format: "currency", healthGood: (v) => v > 0, description: "Customer lifetime value" },
-  { label: "LTV/CAC", columns: ["LTV/CAC"], format: "ratio", healthGood: (v) => v >= 3, healthBad: (v) => v < 1, description: "Lifetime value to acquisition cost ratio" },
-  { label: "Total Orders", columns: ["Total Orders"], format: "number", description: "Number of orders in the period" },
-  { label: "Gross Margin", columns: ["Gross Margin", "Gross Profit"], format: "currency", description: "Total gross margin for the selected period", sumPeriod: true },
-  { label: "ROI", columns: ["ROI %", "ROI"], format: "pct", healthGood: (v) => v > 0, healthBad: (v) => v < -20, description: "Return on total investment" },
-  { label: "ROAS", columns: ["ROAS"], format: "ratio", healthGood: (v) => v >= 2, healthBad: (v) => v < 1, description: "Return on ad spend" },
-];
-
-const SAAS_KPIS: KPIDef[] = [
-  { label: "ARR", columns: ["ARR"], format: "currency", description: "Annualized recurring revenue" },
-  { label: "Net Profit", columns: ["Net Profit"], format: "currency", healthGood: (v) => v > 0, healthBad: (v) => v < -5000, description: "Total net profit for the selected period", sumPeriod: true },
-  { label: "NRR", columns: ["NRR %", "NRR"], format: "pct", healthGood: (v) => v >= 110, healthBad: (v) => v < 90, description: "Net revenue retention — expansion vs churn" },
-  { label: "Quick Ratio", columns: ["Quick Ratio"], format: "ratio", healthGood: (v) => v >= 4, healthBad: (v) => v < 1, description: "New + expansion MRR / churned + contraction MRR" },
-  { label: "Rule of 40", columns: ["Rule of 40"], format: "pct", healthGood: (v) => v >= 40, healthBad: (v) => v < 20, description: "Revenue growth % + profit margin %" },
-  { label: "Magic Number", columns: ["Magic Number"], format: "ratio", healthGood: (v) => v >= 0.75, healthBad: (v) => v < 0.5, description: "New ARR / sales & marketing spend" },
-  { label: "CAC", columns: ["CAC"], format: "currency", description: "Cost to acquire one customer" },
-  { label: "LTV/CAC", columns: ["LTV/CAC"], format: "ratio", healthGood: (v) => v >= 3, healthBad: (v) => v < 1, description: "Lifetime value to acquisition cost" },
-  { label: "Gross Margin", columns: ["Gross Margin", "Gross Profit"], format: "currency", description: "Total gross margin for the selected period", sumPeriod: true },
-  { label: "Logo Churn", columns: ["Logo Churn %", "Logo Churn"], format: "pct", healthGood: (v) => v <= 3, healthBad: (v) => v >= 8, description: "Percentage of customers lost per period" },
-];
-
-const ENGINE_KPI_DEFS: Record<BaseEngine, KPIDef[]> = {
-  subscription: SUB_KPIS,
-  ecommerce: ECOM_KPIS,
-  saas: SAAS_KPIS,
-};
-
-function buildKPICards(df: DataRow[], engine: BaseEngine): KPICardProps[] {
-  if (!df || df.length < 2) return [];
-  const defs = ENGINE_KPI_DEFS[engine];
-  const lastRow = df[df.length - 1];
-  const prevRow = df[df.length - 2];
-  const cards: KPICardProps[] = [];
-
-  for (const def of defs) {
-    const col = findCol(lastRow, ...def.columns);
-    if (!col) continue;
-
-    // Sum across entire period for marked KPIs, otherwise use last row
-    const val = def.sumPeriod
-      ? df.reduce((sum, r) => sum + numVal(r, col), 0)
-      : numVal(lastRow, col);
-    const prev = def.sumPeriod
-      ? df.slice(0, -1).reduce((sum, r) => sum + numVal(r, col), 0)
-      : numVal(prevRow, col);
-    const pctChange = prev !== 0 ? ((val - prev) / Math.abs(prev)) * 100 : 0;
-
-    // Format value
-    let formatted: string;
-    switch (def.format) {
-      case "currency": formatted = fmtK(val); break;
-      case "pct": formatted = `${val.toFixed(1)}%`; break;
-      case "ratio": formatted = `${val.toFixed(2)}x`; break;
-      case "months": formatted = `${val.toFixed(1)}mo`; break;
-      case "number": formatted = val.toLocaleString("en-US", { maximumFractionDigits: 0 }); break;
-    }
-
-    // Health status
-    let health: HealthStatus = "neutral";
-    if (def.healthGood && def.healthGood(val)) health = "good";
-    else if (def.healthBad && def.healthBad(val)) health = "bad";
-    else if (def.healthGood || def.healthBad) health = "caution";
-
-    // Trend
-    const trendStr = pctChange !== 0 ? `${pctChange > 0 ? "+" : ""}${pctChange.toFixed(1)}%` : undefined;
-    const trendUp = pctChange > 0;
-    const trendNeutral = pctChange === 0;
-
-    // Sparkline from all months
-    const sparkline = df.map((r) => numVal(r, col));
-
-    cards.push({
-      label: def.label,
-      value: formatted,
-      trend: trendStr,
-      trendUp,
-      trendNeutral,
-      health,
-      sparkline,
-      description: def.description,
-    });
-  }
-
-  return cards;
-}
-
-// ─── Render functions per engine ───
+// ─── Engine content & investor report maps ───
 
 function SubscriptionContent({ results, p1End, p2End }: { results: Record<string, import("@/lib/api").RunResult>; p1End: number; p2End: number }) {
   return (
