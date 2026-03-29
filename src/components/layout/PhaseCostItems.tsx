@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback, useState } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import { useCostItemsStore, type CostItem } from "@/stores/cost-items-store";
 import { Plus, Trash2, ChevronDown } from "lucide-react";
 
@@ -46,39 +46,28 @@ interface PhaseCostItemsProps {
 export function PhaseCostItems({ storeKey, defaults, categories, onSync }: PhaseCostItemsProps) {
   const initItems = useCostItemsStore((s) => s.initItems);
   const items = useCostItemsStore((s) => s.getItems(storeKey));
-  const setItems = useCostItemsStore((s) => s.setItems);
   const addItem = useCostItemsStore((s) => s.addItem);
   const removeItem = useCostItemsStore((s) => s.removeItem);
   const updateItem = useCostItemsStore((s) => s.updateItem);
   const nextId = useRef(100);
-  const [mounted, setMounted] = useState(false);
+  const onSyncRef = useRef(onSync);
+  onSyncRef.current = onSync;
 
-  // Initialize with defaults on first render
+  // Initialize with defaults on first render (only if not already initialized)
   useEffect(() => {
     initItems(storeKey, defaults);
-    // Mark as mounted after a tick so the initial items load doesn't trigger sync
-    const id = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(id);
   }, [storeKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync totals to config whenever items change (skip initial mount)
-  const syncTotals = useCallback(
-    (currentItems: CostItem[]) => {
-      const totals: Record<string, number> = {};
-      for (const cat of categories) totals[cat.value] = 0;
-      for (const item of currentItems) {
-        totals[item.category] = (totals[item.category] ?? 0) + item.amount;
-      }
-      onSync(totals);
-    },
-    [categories, onSync]
-  );
-
-  // Sync when items change — but only after component has mounted (skip initial hydration)
-  useEffect(() => {
-    if (!mounted) return;
-    if (items.length > 0) syncTotals(items);
-  }, [items, syncTotals, mounted]);
+  // Compute and fire sync — called only on user-initiated changes
+  const doSync = useCallback(() => {
+    const currentItems = useCostItemsStore.getState().getItems(storeKey);
+    const totals: Record<string, number> = {};
+    for (const cat of categories) totals[cat.value] = 0;
+    for (const item of currentItems) {
+      totals[item.category] = (totals[item.category] ?? 0) + item.amount;
+    }
+    onSyncRef.current(totals);
+  }, [storeKey, categories]);
 
   const catColor = (cat: string) =>
     categories.find((c) => c.value === cat)?.color ?? "#BDD0F8";
@@ -91,14 +80,18 @@ export function PhaseCostItems({ storeKey, defaults, categories, onSync }: Phase
       amount: 0,
       category: categories[1]?.value ?? categories[0].value,
     });
+    // Sync after add (next tick so store is updated)
+    requestAnimationFrame(doSync);
   };
 
   const handleRemove = (id: string) => {
     removeItem(storeKey, id);
+    requestAnimationFrame(doSync);
   };
 
   const handleUpdate = (id: string, field: keyof CostItem, val: string | number) => {
     updateItem(storeKey, id, { [field]: val });
+    requestAnimationFrame(doSync);
   };
 
   const total = items.reduce((s, i) => s + i.amount, 0);

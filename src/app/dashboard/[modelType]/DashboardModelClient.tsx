@@ -593,11 +593,11 @@ function DashboardPage() {
       <div className="flex flex-col md:flex-row h-[calc(100dvh-3.5rem)] md:h-[calc(100dvh-3.5rem-1rem)]">
         {/* Config sidebar + toggle button */}
         {!configHidden && (
-          <div className="hidden md:block flex-shrink-0 relative">
+          <div className="hidden md:flex flex-shrink-0">
             <SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} monthRange={monthRange} productType={modelType} />
             <button
               onClick={() => setConfigHidden(true)}
-              className="absolute top-1/2 -translate-y-1/2 right-4 translate-x-full z-10 w-5 h-10 bg-[#ECECF2] hover:bg-[#DDE0E9] rounded-r-lg flex items-center justify-center text-[#8181A5] hover:text-[#1C1D21] transition-colors"
+              className="self-center -ml-px w-5 h-10 bg-[#ECECF2] hover:bg-[#DDE0E9] rounded-r-lg flex items-center justify-center text-[#8181A5] hover:text-[#1C1D21] transition-colors z-10"
               title="Hide config panel"
             >
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
