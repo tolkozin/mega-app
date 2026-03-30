@@ -12,7 +12,7 @@ import { V2RelativeBarChart } from "@/components/v2/charts/V2RelativeBarChart";
 import { V2DonutChart } from "@/components/v2/charts/V2DonutChart";
 import { V2DualAxisChart } from "@/components/v2/charts/V2DualAxisChart";
 import { V2LineReferenceChart } from "@/components/v2/charts/V2LineReferenceChart";
-import { PALETTE, fmtK } from "@/components/v2/charts/v2-chart-utils";
+import { PALETTE, fmtK, fmtNum } from "@/components/v2/charts/v2-chart-utils";
 
 interface ChartsProps {
   results: Record<string, RunResult>;
@@ -107,6 +107,7 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
             optimistic={getCol(opt, "Total Active Users")}
             months={months}
             phaseLines={phases}
+            formatter={fmtNum}
           />
         </div>
       </TabsContent>
@@ -230,7 +231,7 @@ export const SubscriptionCharts = memo(function SubscriptionCharts({ results, p1
             reference={0}
             referenceLabel="Break-even"
             months={months}
-            color={PALETTE.purple}
+            color={PALETTE.blue}
             unit="%"
             metricLabel="ROI"
             goodAbove={true}

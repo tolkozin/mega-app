@@ -35,6 +35,18 @@ import dynamic from "next/dynamic";
 import { ENGINE_SIDEBAR, getConfigSelector, AI_CONTEXT_KEYS } from "./engine-maps";
 import { SCENARIO_BUILDERS } from "./scenario-builders";
 import { buildKPICards, type DataRow } from "./kpi-builders";
+import { SummaryTab } from "@/components/dashboard/tabs/SummaryTab";
+
+const DASHBOARD_TABS = [
+  { key: "overview", label: "Overview" },
+  { key: "summary", label: "Summary" },
+  { key: "scores", label: "Scores" },
+  { key: "market", label: "Market" },
+  { key: "roadmap", label: "Roadmap" },
+  { key: "tracking", label: "Tracking" },
+] as const;
+
+type DashboardTab = (typeof DASHBOARD_TABS)[number]["key"];
 
 function ReportLoadingFallback() {
   return (
@@ -130,6 +142,7 @@ function DashboardPage() {
   const reportRef = useRef<HTMLDivElement>(null);
   const [showInvestorReport, setShowInvestorReport] = useState(false);
   const [configHidden, setConfigHidden] = useState(false);
+  const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
   const { project, setProjectId } = useCurrentProject(modelType);
   const setDashboardContext = useChatStore((s) => s.setDashboardContext);
   const openAIPanel = useChatStore((s) => s.openPanel);
@@ -385,6 +398,25 @@ function DashboardPage() {
         {!configHidden && <div className="md:hidden"><SidebarComponent projectId={project?.id ?? null} onProjectCreated={setProjectId} monthRange={monthRange} productType={modelType} /></div>}
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-2 space-y-3 sm:space-y-4 relative bg-[#eef0f6]">
 
+          {/* Dashboard tab navigation */}
+          {results && (
+            <div className="inline-flex h-10 items-center rounded-[10px] bg-[#e6e8f0] p-1 overflow-x-auto scrollbar-hide max-w-full">
+              {DASHBOARD_TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`inline-flex items-center justify-center whitespace-nowrap rounded-[8px] px-3 py-1.5 text-[12px] font-bold transition-all ${
+                    activeTab === tab.key
+                      ? "bg-white text-[#1a1a2e] shadow-v2-sm"
+                      : "text-[#6b7280] hover:text-[#1a1a2e]"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {loading && !results && (
             <div className="flex items-center justify-center py-20">
               <div className="text-[#8181A5]">Running model...</div>
@@ -395,7 +427,7 @@ function DashboardPage() {
             <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>
           )}
 
-          {results && (
+          {results && activeTab === "overview" && (
             <>
               {/* Investor Report — right below button bar */}
               {showInvestorReport && (
@@ -432,6 +464,28 @@ function DashboardPage() {
 
               <ContentComponent results={results} p1End={p1End} p2End={p2End} />
             </>
+          )}
+
+          {results && activeTab === "summary" && (
+            <SummaryTab
+              df={(results.base.dataframe || []) as DataRow[]}
+              engine={engine}
+              modelType={modelType}
+              config={JSON.parse(JSON.stringify(config))}
+              milestones={results.base.milestones}
+            />
+          )}
+
+          {results && activeTab !== "overview" && activeTab !== "summary" && (
+            <div className="bg-white rounded-2xl p-8 text-center" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.06)' }}>
+              <div className="text-[32px] mb-3">🚧</div>
+              <p className="text-[13px] font-extrabold text-[#1a1a2e] mb-1">
+                {DASHBOARD_TABS.find((t) => t.key === activeTab)?.label} — Coming Soon
+              </p>
+              <p className="text-[11px] text-[#9ca3af]">
+                This section is under development and will be available soon.
+              </p>
+            </div>
           )}
 
           {loading && results && (

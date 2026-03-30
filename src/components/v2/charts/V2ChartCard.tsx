@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useLayoutEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CARD_SHADOW, FONT, PALETTE } from './v2-chart-utils';
 
@@ -61,7 +62,9 @@ export function FloatingTooltip({ x, y, children }: { x: number; y: number; chil
     setPos({ left, top, flipped });
   }, [x, y]);
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       <motion.div
         ref={ref}
@@ -88,7 +91,8 @@ export function FloatingTooltip({ x, y, children }: { x: number; y: number; chil
           ),
         }} />
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 

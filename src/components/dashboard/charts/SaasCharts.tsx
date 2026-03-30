@@ -9,7 +9,7 @@ import { V2RelativeBarChart } from "@/components/v2/charts/V2RelativeBarChart";
 import { V2DonutChart } from "@/components/v2/charts/V2DonutChart";
 import { V2DualAxisChart } from "@/components/v2/charts/V2DualAxisChart";
 import { V2LineReferenceChart } from "@/components/v2/charts/V2LineReferenceChart";
-import { PALETTE } from "@/components/v2/charts/v2-chart-utils";
+import { PALETTE, fmtNum } from "@/components/v2/charts/v2-chart-utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { RunResult } from "@/lib/api";
 
@@ -84,6 +84,7 @@ export const SaasCharts = memo(function SaasCharts({ results, p1End, p2End }: Ch
           data={getCol(base, "Active Seats")}
           months={months}
           phaseLines={phases}
+          formatter={fmtNum}
         />
 
         <V2StackedBarChart
@@ -231,7 +232,7 @@ export const SaasCharts = memo(function SaasCharts({ results, p1End, p2End }: Ch
             reference={1}
             referenceLabel="1.0 baseline"
             months={months}
-            color={PALETTE.purple}
+            color={PALETTE.blue}
             unit=""
             metricLabel="Magic Number"
             goodAbove={true}
