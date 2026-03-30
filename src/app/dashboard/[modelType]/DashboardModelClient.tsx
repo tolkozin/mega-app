@@ -36,6 +36,9 @@ import { ENGINE_SIDEBAR, getConfigSelector, AI_CONTEXT_KEYS } from "./engine-map
 import { SCENARIO_BUILDERS } from "./scenario-builders";
 import { buildKPICards, type DataRow } from "./kpi-builders";
 import { SummaryTab } from "@/components/dashboard/tabs/SummaryTab";
+import { ScoresTab } from "@/components/dashboard/tabs/ScoresTab";
+import { MarketTab } from "@/components/dashboard/tabs/MarketTab";
+import { useMarketData } from "@/hooks/useMarketData";
 
 const DASHBOARD_TABS = [
   { key: "overview", label: "Overview" },
@@ -144,6 +147,7 @@ function DashboardPage() {
   const [configHidden, setConfigHidden] = useState(false);
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
   const { project, setProjectId } = useCurrentProject(modelType);
+  const { data: marketData, save: saveMarketData, saving: savingMarket } = useMarketData(project?.id ?? null);
   const setDashboardContext = useChatStore((s) => s.setDashboardContext);
   const openAIPanel = useChatStore((s) => s.openPanel);
   const presetsApplied = useRef(false);
@@ -476,7 +480,24 @@ function DashboardPage() {
             />
           )}
 
-          {results && activeTab !== "overview" && activeTab !== "summary" && (
+          {results && activeTab === "scores" && (
+            <ScoresTab
+              df={(results.base.dataframe || []) as DataRow[]}
+              engine={engine}
+              modelType={modelType}
+            />
+          )}
+
+          {activeTab === "market" && (
+            <div className="relative">
+              {savingMarket && (
+                <div className="absolute top-2 right-2 text-[10px] font-bold text-[#9ca3af] z-10">Saving...</div>
+              )}
+              <MarketTab data={marketData} onChange={saveMarketData} />
+            </div>
+          )}
+
+          {results && activeTab !== "overview" && activeTab !== "summary" && activeTab !== "scores" && activeTab !== "market" && (
             <div className="bg-white rounded-2xl p-8 text-center" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.06)' }}>
               <div className="text-[32px] mb-3">🚧</div>
               <p className="text-[13px] font-extrabold text-[#1a1a2e] mb-1">

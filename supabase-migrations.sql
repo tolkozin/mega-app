@@ -14,3 +14,8 @@ CREATE POLICY "Anyone can view public projects"
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT DEFAULT NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS plan TEXT NOT NULL DEFAULT 'free'
     CHECK (plan IN ('free', 'pro', 'enterprise'));
+
+-- Dashboard expansion: market_data, roadmap_data, report_settings (Phase 2+)
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS market_data JSONB DEFAULT NULL;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS roadmap_data JSONB DEFAULT NULL;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS report_settings JSONB DEFAULT NULL;

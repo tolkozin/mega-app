@@ -145,6 +145,15 @@ export interface Project {
   created_at: string;
   public_token?: string;
   is_public?: boolean;
+  market_data?: MarketData | null;
+}
+
+export interface MarketData {
+  tam: { value: number; source: string };
+  sam: { value: number; source: string };
+  som: { value: number; source: string };
+  competitors: { id: string; name: string; price: string; users: string; diff: string }[];
+  audiences: { id: string; name: string; age: string; pain: string }[];
 }
 
 export interface Scenario {
