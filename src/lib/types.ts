@@ -146,12 +146,64 @@ export interface Project {
   public_token?: string;
   is_public?: boolean;
   market_data?: MarketData | null;
+  roadmap_data?: RoadmapData | null;
+  tracking_data?: TrackingData | null;
+}
+
+export interface RoadmapMilestone {
+  id: string;
+  name: string;
+  month: number;
+  description: string;
+  type: "auto" | "custom";
+}
+
+export interface RoadmapData {
+  milestones: RoadmapMilestone[];
+}
+
+export interface TrackingRow {
+  month: number;
+  [key: string]: number | string;
+}
+
+export interface TrackingData {
+  rows: TrackingRow[];
+}
+
+export type ReportTemplate = "minimal" | "corporate" | "startup";
+
+export type ReportSectionKey =
+  | "executiveSummary"
+  | "milestones"
+  | "pnl"
+  | "cashFlow"
+  | "engineMetrics"
+  | "scores"
+  | "market"
+  | "roadmap";
+
+export interface ReportSettings {
+  template: ReportTemplate;
+  accentColor: string;
+  fontFamily: "helvetica" | "times" | "courier";
+  logoUrl: string | null;
+  companyName: string;
+  sections: Record<ReportSectionKey, boolean>;
+  sectionOrder: ReportSectionKey[];
+}
+
+export interface MarketRegion {
+  id: string;
+  name: string;
+  tam: number;
+  sam: number;
+  som: number;
+  source: string;
 }
 
 export interface MarketData {
-  tam: { value: number; source: string };
-  sam: { value: number; source: string };
-  som: { value: number; source: string };
+  regions: MarketRegion[];
   competitors: { id: string; name: string; price: string; users: string; diff: string }[];
   audiences: { id: string; name: string; age: string; pain: string }[];
 }

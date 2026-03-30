@@ -38,7 +38,14 @@ import { buildKPICards, type DataRow } from "./kpi-builders";
 import { SummaryTab } from "@/components/dashboard/tabs/SummaryTab";
 import { ScoresTab } from "@/components/dashboard/tabs/ScoresTab";
 import { MarketTab } from "@/components/dashboard/tabs/MarketTab";
+import { RoadmapTab } from "@/components/dashboard/tabs/RoadmapTab";
+import { TrackingTab } from "@/components/dashboard/tabs/TrackingTab";
+import { ReportTab } from "@/components/dashboard/tabs/ReportTab";
 import { useMarketData } from "@/hooks/useMarketData";
+import { useRoadmapData } from "@/hooks/useRoadmapData";
+import { useTrackingData } from "@/hooks/useTrackingData";
+import { useReportSettings } from "@/hooks/useReportSettings";
+import { generateCustomPDF } from "@/lib/pdf-report";
 
 const DASHBOARD_TABS = [
   { key: "overview", label: "Overview" },
@@ -47,6 +54,7 @@ const DASHBOARD_TABS = [
   { key: "market", label: "Market" },
   { key: "roadmap", label: "Roadmap" },
   { key: "tracking", label: "Tracking" },
+  { key: "report", label: "Report" },
 ] as const;
 
 type DashboardTab = (typeof DASHBOARD_TABS)[number]["key"];
@@ -148,6 +156,10 @@ function DashboardPage() {
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
   const { project, setProjectId } = useCurrentProject(modelType);
   const { data: marketData, save: saveMarketData, saving: savingMarket } = useMarketData(project?.id ?? null);
+  const { data: roadmapData, save: saveRoadmapData, saving: savingRoadmap } = useRoadmapData(project?.id ?? null);
+  const { data: trackingData, save: saveTrackingData, saving: savingTracking } = useTrackingData(project?.id ?? null);
+  const { settings: reportSettings, save: saveReportSettings, saving: savingReport } = useReportSettings(project?.id ?? null);
+  const [generatingPDF, setGeneratingPDF] = useState(false);
   const setDashboardContext = useChatStore((s) => s.setDashboardContext);
   const openAIPanel = useChatStore((s) => s.openPanel);
   const presetsApplied = useRef(false);
@@ -497,15 +509,62 @@ function DashboardPage() {
             </div>
           )}
 
-          {results && activeTab !== "overview" && activeTab !== "summary" && activeTab !== "scores" && activeTab !== "market" && (
-            <div className="bg-white rounded-2xl p-8 text-center" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.06)' }}>
-              <div className="text-[32px] mb-3">🚧</div>
-              <p className="text-[13px] font-extrabold text-[#1a1a2e] mb-1">
-                {DASHBOARD_TABS.find((t) => t.key === activeTab)?.label} — Coming Soon
-              </p>
-              <p className="text-[11px] text-[#9ca3af]">
-                This section is under development and will be available soon.
-              </p>
+          {results && activeTab === "roadmap" && (
+            <div className="relative">
+              {savingRoadmap && (
+                <div className="absolute top-2 right-2 text-[10px] font-bold text-[#9ca3af] z-10">Saving...</div>
+              )}
+              <RoadmapTab
+                df={(results.base.dataframe || []) as DataRow[]}
+                config={JSON.parse(JSON.stringify(config))}
+                engine={engine}
+                roadmapData={roadmapData}
+                onRoadmapChange={saveRoadmapData}
+              />
+            </div>
+          )}
+
+          {results && activeTab === "tracking" && (
+            <div className="relative">
+              {savingTracking && (
+                <div className="absolute top-2 right-2 text-[10px] font-bold text-[#9ca3af] z-10">Saving...</div>
+              )}
+              <TrackingTab
+                df={(results.base.dataframe || []) as DataRow[]}
+                engine={engine}
+                trackingData={trackingData}
+                onTrackingChange={saveTrackingData}
+              />
+            </div>
+          )}
+
+          {results && activeTab === "report" && (
+            <div className="relative">
+              {savingReport && (
+                <div className="absolute top-2 right-2 text-[10px] font-bold text-[#9ca3af] z-10">Saving...</div>
+              )}
+              <ReportTab
+                settings={reportSettings}
+                onChange={saveReportSettings}
+                generating={generatingPDF}
+                onGenerate={async () => {
+                  if (planReadOnly) { useUpgradeStore.getState().showExpiredModal(); return; }
+                  setGeneratingPDF(true);
+                  try {
+                    await generateCustomPDF(
+                      project?.name ?? `${modelDef.label} Model`,
+                      modelType,
+                      engine,
+                      results.base,
+                      reportSettings,
+                      marketData,
+                      roadmapData,
+                    );
+                  } finally {
+                    setGeneratingPDF(false);
+                  }
+                }}
+              />
             </div>
           )}
 

@@ -6,6 +6,8 @@
 import type { RunResult } from "./api";
 import type { BaseEngine } from "./model-registry";
 import { getModelDef } from "./model-registry";
+import type { ReportSettings, ReportSectionKey, MarketData, RoadmapData } from "./types";
+import { computeScores, getPhaseProgress, type ScoreResult, type PhaseInfo } from "./scoring";
 
 // ─── Layout Constants (mm) ─────────────────────────────────────────────────────
 const PW = 210;
@@ -82,6 +84,10 @@ class InvestorPDF {
   private engine: BaseEngine;
   private modelLabel: string;
   private modelColor: string;
+  private settings: ReportSettings | null;
+  private marketData: MarketData | null;
+  private roadmapData: RoadmapData | null;
+  private accentRGB: readonly [number, number, number];
 
   constructor(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -90,6 +96,9 @@ class InvestorPDF {
     modelType: string,
     engine: BaseEngine,
     data: RunResult,
+    settings?: ReportSettings | null,
+    marketData?: MarketData | null,
+    roadmapData?: RoadmapData | null,
   ) {
     this.pdf = new JsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     this.projectName = projectName;
@@ -100,6 +109,21 @@ class InvestorPDF {
     const def = getModelDef(modelType);
     this.modelLabel = def.label;
     this.modelColor = def.color;
+    this.settings = settings ?? null;
+    this.marketData = marketData ?? null;
+    this.roadmapData = roadmapData ?? null;
+
+    // Parse accent color from hex
+    const hex = settings?.accentColor ?? "#2163E7";
+    const r = parseInt(hex.slice(1, 3), 16) || 33;
+    const g = parseInt(hex.slice(3, 5), 16) || 99;
+    const b = parseInt(hex.slice(5, 7), 16) || 231;
+    this.accentRGB = [r, g, b] as const;
+
+    // Apply font from settings
+    if (settings?.fontFamily) {
+      this.pdf.setFont(settings.fontFamily, "normal");
+    }
   }
 
   // ── Core ──────────────────────────────────────────────────────────────────────
@@ -143,7 +167,7 @@ class InvestorPDF {
   private sectionTitle(title: string) {
     this.ensureSpace(SEC_GAP + 6);
     this.y += SEC_GAP;
-    this.pdf.setFont("helvetica", "bold");
+    this.pdf.setFont(this.font, "bold");
     this.pdf.setFontSize(11);
     this.setColor(CLR.text);
     this.text(title.toUpperCase(), M, this.y);
@@ -370,36 +394,75 @@ class InvestorPDF {
 
   // ── Report Header (page 1 only) ──────────────────────────────────────────────
 
+  private get font(): string {
+    return this.settings?.fontFamily ?? "helvetica";
+  }
+
+  private get accent(): readonly [number, number, number] {
+    return this.accentRGB;
+  }
+
   private reportHeader() {
     const firstMonth = n(this.first()["Month"]);
     const lastMonth = n(this.last()["Month"]);
+    const tmpl = this.settings?.template ?? "minimal";
+    const companyName = this.settings?.companyName;
 
-    // Project name
-    this.pdf.setFont("helvetica", "bold");
-    this.pdf.setFontSize(16);
-    this.setColor(CLR.text);
-    this.text(this.projectName, M, M + 6);
+    if (tmpl === "corporate") {
+      // Dark header bar
+      this.setFill(CLR.text);
+      this.pdf.rect(0, 0, PW, M + HEADER_H, "F");
+      this.pdf.setFont(this.font, "bold");
+      this.pdf.setFontSize(16);
+      this.setColor(CLR.white);
+      this.text(this.projectName, M, M + 6);
+      this.pdf.setFont(this.font, "normal");
+      this.pdf.setFontSize(8);
+      this.text(`Financial Report  ·  Month ${firstMonth}–${lastMonth}${companyName ? `  ·  ${companyName}` : ""}`, M, M + 11);
+    } else if (tmpl === "startup") {
+      // Accent gradient-ish header
+      this.setFill(this.accent);
+      this.pdf.rect(0, 0, PW, M + HEADER_H, "F");
+      this.pdf.setFont(this.font, "bold");
+      this.pdf.setFontSize(16);
+      this.setColor(CLR.white);
+      this.text(this.projectName, M, M + 6);
+      this.pdf.setFont(this.font, "normal");
+      this.pdf.setFontSize(8);
+      this.text(`Financial Report  ·  Month ${firstMonth}–${lastMonth}${companyName ? `  ·  ${companyName}` : ""}`, M, M + 11);
+    } else {
+      // Minimal (default)
+      this.pdf.setFont(this.font, "bold");
+      this.pdf.setFontSize(16);
+      this.setColor(CLR.text);
+      this.text(this.projectName, M, M + 6);
+      this.pdf.setFont(this.font, "normal");
+      this.pdf.setFontSize(8);
+      this.setColor(CLR.muted);
+      this.text(`Financial Report  ·  Month ${firstMonth}–${lastMonth}${companyName ? `  ·  ${companyName}` : ""}`, M, M + 11);
+    }
 
-    // Subtitle
-    this.pdf.setFont("helvetica", "normal");
-    this.pdf.setFontSize(8);
-    this.setColor(CLR.muted);
-    this.text(`Financial Investor Report  ·  Month ${firstMonth}–${lastMonth}`, M, M + 11);
-
-    // Model badge (right side)
-    const badgeText = `${this.modelLabel} Model`;
-    this.pdf.setFontSize(7);
-    const badgeW = this.pdf.getTextWidth(badgeText) + 8;
-    const badgeX = PW - M - badgeW;
-    this.setFill(CLR.cardBg);
-    this.setDraw(CLR.border);
-    this.pdf.roundedRect(badgeX, M + 1, badgeW, 6, 3, 3, "FD");
-    this.setColor(CLR.accent);
-    this.pdf.setFont("helvetica", "bold");
-    this.text(badgeText, badgeX + 4, M + 5);
+    // Logo (if provided as base64)
+    if (this.settings?.logoUrl) {
+      try {
+        this.pdf.addImage(this.settings.logoUrl, "PNG", PW - M - 20, M + 1, 20, 10, undefined, "FAST");
+      } catch { /* ignore logo errors */ }
+    } else {
+      // Model badge (right side)
+      const badgeText = `${this.modelLabel} Model`;
+      this.pdf.setFontSize(7);
+      const badgeW = this.pdf.getTextWidth(badgeText) + 8;
+      const badgeX = PW - M - badgeW;
+      this.setFill(CLR.cardBg);
+      this.setDraw(CLR.border);
+      this.pdf.roundedRect(badgeX, M + 1, badgeW, 6, 3, 3, "FD");
+      this.setColor(this.accent);
+      this.pdf.setFont(this.font, "bold");
+      this.text(badgeText, badgeX + 4, M + 5);
+    }
 
     this.y = M + HEADER_H;
-    this.hline(this.y - 2);
+    if (tmpl === "minimal") this.hline(this.y - 2);
   }
 
   // ── Page Footer ───────────────────────────────────────────────────────────────
@@ -892,28 +955,199 @@ class InvestorPDF {
     }
   }
 
+  // ── New Sections: Scores, Market, Roadmap ──────────────────────────────────
+
+  private scoresSection() {
+    const dfRows = this.df as unknown as import("./scoring").DataRow[];
+    const scores: ScoreResult = computeScores(dfRows, this.engine, this.modelType);
+
+    this.sectionTitle("Health Scores");
+
+    // Overall score KPI
+    const healthLabel = scores.health === "good" ? "Good" : scores.health === "caution" ? "Caution" : scores.health === "bad" ? "Bad" : "N/A";
+    this.kpiRow([
+      { label: "Overall Score", value: `${scores.overall}/100`, sub: healthLabel },
+    ]);
+
+    // Breakdown table
+    const rows = scores.breakdown.map((b) => [
+      b.label,
+      `${Math.round(b.score)}/100`,
+      b.score >= 70 ? "Good" : b.score >= 40 ? "Caution" : "Bad",
+    ]);
+    if (rows.length) {
+      this.table(
+        ["Metric", "Score", "Status"],
+        rows,
+        [80, 50, 50],
+      );
+    }
+  }
+
+  private marketSection() {
+    if (!this.marketData) return;
+    const md = this.marketData;
+
+    this.sectionTitle("Market Analysis");
+
+    // TAM/SAM/SOM from regions
+    if (md.regions && md.regions.length > 0) {
+      let totalTam = 0, totalSam = 0, totalSom = 0;
+      for (const r of md.regions) {
+        totalTam += r.tam;
+        totalSam += r.sam;
+        totalSom += r.som;
+      }
+      this.kpiRow([
+        { label: "TAM", value: fC(totalTam), sub: "Total Addressable Market" },
+        { label: "SAM", value: fC(totalSam), sub: "Serviceable Addressable" },
+        { label: "SOM", value: fC(totalSom), sub: "Serviceable Obtainable" },
+      ]);
+
+      // Region breakdown table
+      if (md.regions.length > 1) {
+        const regionRows = md.regions.map((r) => [
+          r.name || "Unnamed",
+          fC(r.tam),
+          fC(r.sam),
+          fC(r.som),
+          r.source || "—",
+        ]);
+        this.table(
+          ["Region", "TAM", "SAM", "SOM", "Source"],
+          regionRows,
+          [40, 30, 30, 30, 50],
+        );
+      }
+    }
+
+    // Competitors
+    if (md.competitors && md.competitors.length > 0) {
+      this.ensureSpace(20);
+      this.y += 4;
+      this.pdf.setFont(this.font, "bold");
+      this.pdf.setFontSize(9);
+      this.setColor(CLR.text);
+      this.text("Competitors", M, this.y);
+      this.y += EL_GAP;
+
+      const compRows = md.competitors.map((c) => [
+        c.name || "—",
+        c.price || "—",
+        c.users || "—",
+        c.diff || "—",
+      ]);
+      this.table(
+        ["Name", "Price", "Users", "Differentiator"],
+        compRows,
+        [40, 30, 30, 80],
+      );
+    }
+
+    // Audiences
+    if (md.audiences && md.audiences.length > 0) {
+      this.ensureSpace(20);
+      this.y += 4;
+      this.pdf.setFont(this.font, "bold");
+      this.pdf.setFontSize(9);
+      this.setColor(CLR.text);
+      this.text("Target Audiences", M, this.y);
+      this.y += EL_GAP;
+
+      const audRows = md.audiences.map((a) => [
+        a.name || "—",
+        a.age || "—",
+        a.pain || "—",
+      ]);
+      this.table(
+        ["Persona", "Age Range", "Pain Point"],
+        audRows,
+        [50, 30, 100],
+      );
+    }
+  }
+
+  private roadmapSection() {
+    const dfRows = this.df as unknown as import("./scoring").DataRow[];
+    const config = { total_months: this.df.length } as Record<string, unknown>;
+    const phases: PhaseInfo[] = getPhaseProgress(config, dfRows);
+
+    this.sectionTitle("Roadmap");
+
+    // Phase overview table
+    const phaseRows = phases.map((p) => [
+      p.label,
+      `Month ${p.startMonth}–${p.endMonth}`,
+      p.status === "done" ? "Completed" : p.status === "active" ? "In Progress" : "Upcoming",
+      `${Math.round(p.progress * 100)}%`,
+    ]);
+    this.table(
+      ["Phase", "Duration", "Status", "Progress"],
+      phaseRows,
+      [35, 50, 50, 45],
+    );
+
+    // Custom milestones
+    if (this.roadmapData?.milestones && this.roadmapData.milestones.length > 0) {
+      this.ensureSpace(20);
+      this.y += 4;
+      this.pdf.setFont(this.font, "bold");
+      this.pdf.setFontSize(9);
+      this.setColor(CLR.text);
+      this.text("Milestones", M, this.y);
+      this.y += EL_GAP;
+
+      const msRows = this.roadmapData.milestones.map((m) => [
+        m.name || "—",
+        `Month ${m.month}`,
+        m.description || "—",
+        m.type === "auto" ? "Auto" : "Custom",
+      ]);
+      this.table(
+        ["Milestone", "Target", "Description", "Type"],
+        msRows,
+        [40, 25, 85, 30],
+      );
+    }
+  }
+
   // ── Main Generator ────────────────────────────────────────────────────────────
 
   generate() {
     if (!this.df.length) return;
 
-    // Page 1: Header + Executive Summary
     this.reportHeader();
-    this.executiveSummary();
 
-    // Page 2+: Milestones + P&L
-    this.milestones();
-    this.pnlTable();
+    // Determine section order
+    const sectionOrder = this.settings?.sectionOrder ?? [
+      "executiveSummary", "milestones", "pnl", "cashFlow", "engineMetrics", "scores", "market", "roadmap",
+    ];
+    const enabled = this.settings?.sections ?? {
+      executiveSummary: true, milestones: true, pnl: true, cashFlow: true,
+      engineMetrics: true, scores: true, market: true, roadmap: true,
+    };
 
-    // Cash Flow
-    this.cashFlow();
+    const sectionMap: Record<ReportSectionKey, () => void> = {
+      executiveSummary: () => this.executiveSummary(),
+      milestones: () => this.milestones(),
+      pnl: () => this.pnlTable(),
+      cashFlow: () => this.cashFlow(),
+      engineMetrics: () => {
+        if (this.engine === "subscription") this.subscriptionSections();
+        else if (this.engine === "ecommerce") this.ecommerceSections();
+        else this.saasSections();
+      },
+      scores: () => this.scoresSection(),
+      market: () => this.marketSection(),
+      roadmap: () => this.roadmapSection(),
+    };
 
-    // Model-specific sections
-    if (this.engine === "subscription") this.subscriptionSections();
-    else if (this.engine === "ecommerce") this.ecommerceSections();
-    else this.saasSections();
+    for (const key of sectionOrder) {
+      if (enabled[key]) {
+        sectionMap[key]();
+      }
+    }
 
-    // Add footers to all pages
     this.addFooters();
   }
 
@@ -934,4 +1168,19 @@ export async function generateInvestorPDF(
   const builder = new InvestorPDF(jsPDF, projectName, modelType, engine, data);
   builder.generate();
   builder.save(`${projectName.replace(/\s+/g, "-")}-investor-report`);
+}
+
+export async function generateCustomPDF(
+  projectName: string,
+  modelType: string,
+  engine: BaseEngine,
+  data: RunResult,
+  settings: ReportSettings,
+  marketData?: MarketData | null,
+  roadmapData?: RoadmapData | null,
+): Promise<void> {
+  const { jsPDF } = await import("jspdf");
+  const builder = new InvestorPDF(jsPDF, projectName, modelType, engine, data, settings, marketData, roadmapData);
+  builder.generate();
+  builder.save(`${projectName.replace(/\s+/g, "-")}-report`);
 }

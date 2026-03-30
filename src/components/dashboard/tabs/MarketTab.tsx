@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { FONT, CARD_SHADOW } from "@/components/v2/charts/v2-chart-utils";
-import type { MarketData } from "@/lib/types";
+import type { MarketData, MarketRegion } from "@/lib/types";
 
 /* ─── Types ─── */
 
@@ -215,7 +215,7 @@ function ConcentricCircles({
   );
 }
 
-/* ─── TAM / SAM / SOM Card ─── */
+/* ─── TAM / SAM / SOM Card (per-region) ─── */
 
 function MarketSizeCard({
   data,
@@ -224,102 +224,194 @@ function MarketSizeCard({
   data: MarketData;
   onChange: (data: MarketData) => void;
 }) {
-  const handleValueChange = useCallback(
-    (field: "tam" | "sam" | "som", raw: string) => {
+  const totals = useMemo(() => {
+    const t = { tam: 0, sam: 0, som: 0 };
+    for (const r of data.regions) {
+      t.tam += r.tam;
+      t.sam += r.sam;
+      t.som += r.som;
+    }
+    return t;
+  }, [data.regions]);
+
+  const handleRegionField = useCallback(
+    (id: string, field: keyof MarketRegion, raw: string) => {
       onChange({
         ...data,
-        [field]: { ...data[field], value: parseDollarInput(raw) },
+        regions: data.regions.map((r) =>
+          r.id === id
+            ? {
+                ...r,
+                [field]:
+                  field === "name" || field === "source"
+                    ? raw
+                    : parseDollarInput(raw),
+              }
+            : r,
+        ),
       });
     },
     [data, onChange],
   );
 
-  const handleSourceChange = useCallback(
-    (field: "tam" | "sam" | "som", source: string) => {
+  const handleAdd = useCallback(() => {
+    onChange({
+      ...data,
+      regions: [
+        ...data.regions,
+        { id: crypto.randomUUID(), name: "", tam: 0, sam: 0, som: 0, source: "" },
+      ],
+    });
+  }, [data, onChange]);
+
+  const handleDelete = useCallback(
+    (id: string) => {
       onChange({
         ...data,
-        [field]: { ...data[field], source },
+        regions: data.regions.filter((r) => r.id !== id),
       });
     },
     [data, onChange],
   );
-
-  const rows: {
-    key: "tam" | "sam" | "som";
-    label: string;
-    tip: string;
-  }[] = [
-    {
-      key: "tam",
-      label: "TAM",
-      tip: "Total Addressable Market — the total revenue opportunity if you captured 100% of the market.",
-    },
-    {
-      key: "sam",
-      label: "SAM",
-      tip: "Serviceable Addressable Market — the portion of TAM you can realistically serve with your product.",
-    },
-    {
-      key: "som",
-      label: "SOM",
-      tip: "Serviceable Obtainable Market — the share of SAM you can realistically capture in the near term.",
-    },
-  ];
 
   return (
     <motion.div {...FADE_IN} className="bg-white rounded-2xl p-6" style={cardStyle}>
-      <h3
-        className="text-[15px] font-bold text-[#1a1a2e] mb-5"
-        style={{ fontFamily: FONT }}
-      >
-        Market Size
-      </h3>
+      <div className="flex items-center justify-between mb-5">
+        <h3
+          className="text-[15px] font-bold text-[#1a1a2e]"
+          style={{ fontFamily: FONT }}
+        >
+          Market Size
+        </h3>
+        <button type="button" className={BTN_PRIMARY} onClick={handleAdd}>
+          + Add Region
+        </button>
+      </div>
 
-      <div className="flex flex-col md:flex-row gap-8 items-center">
-        {/* Left: SVG */}
-        <div className="flex-shrink-0">
+      <div className="flex flex-col md:flex-row gap-8 items-start">
+        {/* Left: SVG (totals) */}
+        <div className="flex-shrink-0 flex flex-col items-center">
           <ConcentricCircles
-            tam={data.tam.value}
-            sam={data.sam.value}
-            som={data.som.value}
+            tam={totals.tam}
+            sam={totals.sam}
+            som={totals.som}
           />
+          <p
+            className="text-[11px] text-[#9ca3af] mt-2"
+            style={{ fontFamily: FONT }}
+          >
+            Total across all regions
+          </p>
         </div>
 
-        {/* Right: Form */}
-        <div className="flex-1 w-full space-y-4">
-          {rows.map((row) => (
-            <div key={row.key} className="space-y-1.5">
-              <label
-                className="text-[12px] font-bold text-[#1a1a2e] flex items-center"
-                style={{ fontFamily: FONT }}
+        {/* Right: Region rows */}
+        <div className="flex-1 w-full">
+          {data.regions.length === 0 ? (
+            <div className="py-10 text-center">
+              <p className="text-[13px] text-[#9ca3af]" style={{ fontFamily: FONT }}>
+                Add regions to define your market size
+              </p>
+              <button
+                type="button"
+                className={BTN_SECONDARY + " mt-3"}
+                onClick={handleAdd}
               >
-                {row.label}
-                <InfoTooltip text={row.tip} />
-              </label>
-              <div className="flex gap-3">
-                <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af] text-sm pointer-events-none">
-                    $
-                  </span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    className={INPUT_CLASS + " pl-7"}
-                    value={data[row.key].value || ""}
-                    onChange={(e) => handleValueChange(row.key, e.target.value)}
-                    placeholder="0"
-                  />
-                </div>
-                <input
-                  type="text"
-                  className={INPUT_CLASS + " flex-1"}
-                  value={data[row.key].source}
-                  onChange={(e) => handleSourceChange(row.key, e.target.value)}
-                  placeholder="Source (e.g. Statista, Gartner)"
-                />
-              </div>
+                + Add Region
+              </button>
             </div>
-          ))}
+          ) : (
+            <div className="space-y-4">
+              {data.regions.map((region) => (
+                <div
+                  key={region.id}
+                  className="relative bg-[#f8f9fc] rounded-xl border border-[#e5e7eb] p-4"
+                >
+                  {/* Delete */}
+                  <button
+                    type="button"
+                    className="absolute top-3 right-3 text-[#9ca3af] hover:text-[#EF4444] transition-colors text-lg leading-none"
+                    onClick={() => handleDelete(region.id)}
+                    aria-label="Delete region"
+                  >
+                    &times;
+                  </button>
+
+                  {/* Region name + source */}
+                  <div className="flex gap-3 mb-3 pr-6">
+                    <input
+                      type="text"
+                      className={INPUT_CLASS + " font-bold flex-1"}
+                      value={region.name}
+                      onChange={(e) =>
+                        handleRegionField(region.id, "name", e.target.value)
+                      }
+                      placeholder="Region (e.g. North America, EU, APAC)"
+                    />
+                    <input
+                      type="text"
+                      className={INPUT_CLASS + " flex-1"}
+                      value={region.source}
+                      onChange={(e) =>
+                        handleRegionField(region.id, "source", e.target.value)
+                      }
+                      placeholder="Source (e.g. Statista)"
+                    />
+                  </div>
+
+                  {/* TAM / SAM / SOM row */}
+                  <div className="grid grid-cols-3 gap-3">
+                    {(["tam", "sam", "som"] as const).map((field) => (
+                      <div key={field} className="space-y-1">
+                        <label
+                          className="text-[10px] font-bold uppercase tracking-wider text-[#9ca3af]"
+                          style={{ fontFamily: FONT }}
+                        >
+                          {field.toUpperCase()}
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af] text-sm pointer-events-none">
+                            $
+                          </span>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            className={INPUT_CLASS + " pl-7"}
+                            value={region[field] || ""}
+                            onChange={(e) =>
+                              handleRegionField(region.id, field, e.target.value)
+                            }
+                            placeholder="0"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {/* Totals row */}
+              {data.regions.length > 1 && (
+                <div
+                  className="flex items-center gap-4 px-4 py-3 rounded-xl bg-[#eef1fb] border border-[#d4daf0]"
+                  style={{ fontFamily: FONT }}
+                >
+                  <span className="text-[12px] font-bold text-[#1a1a2e]">
+                    Total
+                  </span>
+                  <div className="flex-1 grid grid-cols-3 gap-3">
+                    {(["tam", "sam", "som"] as const).map((field) => (
+                      <span
+                        key={field}
+                        className="text-[12px] font-semibold text-[#2163E7]"
+                      >
+                        {field.toUpperCase()}: {formatDollar(totals[field])}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

@@ -5,9 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { MarketData } from "@/lib/types";
 
 const EMPTY_MARKET_DATA: MarketData = {
-  tam: { value: 0, source: "" },
-  sam: { value: 0, source: "" },
-  som: { value: 0, source: "" },
+  regions: [],
   competitors: [],
   audiences: [],
 };
@@ -28,7 +26,33 @@ export function useMarketData(projectId: string | null) {
       .single()
       .then(({ data: row }) => {
         if (row?.market_data) {
-          setData(row.market_data as MarketData);
+          const raw = row.market_data as Record<string, unknown>;
+          // Migrate old single-value format → regions
+          if (raw.tam && !raw.regions) {
+            const old = raw as {
+              tam: { value: number; source: string };
+              sam: { value: number; source: string };
+              som: { value: number; source: string };
+              competitors: MarketData["competitors"];
+              audiences: MarketData["audiences"];
+            };
+            setData({
+              regions: [
+                {
+                  id: crypto.randomUUID(),
+                  name: "Global",
+                  tam: old.tam.value,
+                  sam: old.sam.value,
+                  som: old.som.value,
+                  source: old.tam.source || old.sam.source || old.som.source,
+                },
+              ],
+              competitors: old.competitors || [],
+              audiences: old.audiences || [],
+            });
+          } else {
+            setData(raw as unknown as MarketData);
+          }
         }
       });
   }, [projectId]);
