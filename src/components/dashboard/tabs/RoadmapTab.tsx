@@ -4,7 +4,7 @@ import React, { useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { FONT, CARD_SHADOW } from "@/components/v2/charts/v2-chart-utils";
 import { getPhaseProgress, type DataRow, type PhaseInfo } from "@/lib/scoring";
-import type { RoadmapData, RoadmapMilestone } from "@/lib/types";
+import type { RoadmapData, RoadmapMilestone, PhaseStatus, PhaseOverride } from "@/lib/types";
 
 /* ─── Props ─── */
 
@@ -185,7 +185,7 @@ function TimelineVisual({
           const widthPct =
             ((phase.endMonth - phase.startMonth + 1) / totalMonths) * 100;
           return (
-            <div key={phase.label} style={{ width: `${widthPct}%` }}>
+            <div key={phase.label} style={{ width: `${widthPct}%`, minWidth: 0 }}>
               <div
                 className="h-10 rounded-lg relative overflow-hidden"
                 style={{ backgroundColor: `${PHASE_COLORS[i]}15` }}
@@ -198,10 +198,10 @@ function TimelineVisual({
                   }}
                 />
                 <span
-                  className="absolute inset-0 flex items-center justify-center text-[11px] font-bold"
+                  className="absolute inset-0 flex items-center justify-center text-[10px] font-bold truncate px-1"
                   style={{ color: PHASE_COLORS[i] }}
                 >
-                  {phase.label} (M{phase.startMonth}–{phase.endMonth})
+                  {phase.label} ({phase.startMonth}–{phase.endMonth})
                 </span>
               </div>
             </div>
@@ -227,31 +227,30 @@ function TimelineVisual({
 
       {/* Milestone markers */}
       {allMilestones.length > 0 && (
-        <div className="relative h-8">
+        <div className="relative h-5">
           {allMilestones.map((m) => {
             const leftPct = ((m.month - 1) / Math.max(totalMonths - 1, 1)) * 100;
             const isAuto = m.type === "auto";
             return (
               <div
                 key={m.id}
-                className="absolute -translate-x-1/2 flex flex-col items-center group"
-                style={{ left: `${leftPct}%` }}
+                className="absolute -translate-x-1/2 flex flex-col items-center group cursor-pointer"
+                style={{ left: `${Math.min(Math.max(leftPct, 2), 98)}%` }}
               >
                 <div
-                  className="w-3 h-3 rounded-full border-2 border-white"
+                  className="w-3.5 h-3.5 rounded-full border-2 border-white"
                   style={{
                     backgroundColor: isAuto ? "#F59E0B" : "#2163E7",
                     boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
                   }}
                 />
-                <span className="text-[9px] font-semibold mt-0.5 whitespace-nowrap" style={{ color: "#6b7280" }}>
-                  {m.name}
-                </span>
-                {/* Tooltip */}
+                {/* Tooltip on hover */}
                 <span
-                  className="absolute bottom-full mb-2 w-40 p-2 rounded-lg bg-[#1a1a2e] text-white text-[10px] leading-snug opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 text-center"
+                  className="absolute top-full mt-1 w-44 p-2 rounded-lg bg-[#1a1a2e] text-white text-[10px] leading-snug opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 text-center"
                   style={{ fontFamily: FONT }}
                 >
+                  <span className="font-bold">{m.name}</span>
+                  <br />
                   M{m.month}: {m.description}
                 </span>
               </div>
@@ -418,22 +417,26 @@ function MilestonesList({
 
 /* ─── Phase Detail Cards ─── */
 
-function PhaseDetailCards({ phases }: { phases: PhaseInfo[] }) {
+const STATUS_OPTIONS: { key: PhaseStatus; label: string; color: string }[] = [
+  { key: "not_started", label: "Not Started", color: "#9ca3af" },
+  { key: "in_progress", label: "In Progress", color: "#2163E7" },
+  { key: "completed", label: "Completed", color: "#10B981" },
+];
+
+function PhaseDetailCards({
+  phases,
+  phaseOverrides,
+  onPhaseChange,
+}: {
+  phases: PhaseInfo[];
+  phaseOverrides: Record<string, PhaseOverride>;
+  onPhaseChange: (label: string, override: PhaseOverride) => void;
+}) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {phases.map((phase, i) => {
-        const statusColor =
-          phase.status === "done"
-            ? "#10B981"
-            : phase.status === "active"
-              ? "#2163E7"
-              : "#9ca3af";
-        const statusLabel =
-          phase.status === "done"
-            ? "Completed"
-            : phase.status === "active"
-              ? "In Progress"
-              : "Upcoming";
+        const override = phaseOverrides[phase.label] ?? { status: "not_started" as PhaseStatus, notes: "" };
+        const statusOpt = STATUS_OPTIONS.find((s) => s.key === override.status) ?? STATUS_OPTIONS[0];
 
         return (
           <motion.div
@@ -455,15 +458,21 @@ function PhaseDetailCards({ phases }: { phases: PhaseInfo[] }) {
               >
                 {phase.label}
               </span>
-              <span
-                className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+              <select
+                className="text-[11px] font-bold px-2 py-0.5 rounded-full border-0 outline-none cursor-pointer"
                 style={{
-                  color: statusColor,
-                  backgroundColor: `${statusColor}15`,
+                  color: statusOpt.color,
+                  backgroundColor: `${statusOpt.color}15`,
                 }}
+                value={override.status}
+                onChange={(e) =>
+                  onPhaseChange(phase.label, { ...override, status: e.target.value as PhaseStatus })
+                }
               >
-                {statusLabel}
-              </span>
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s.key} value={s.key}>{s.label}</option>
+                ))}
+              </select>
             </div>
 
             <div className="text-[11px] text-[#6b7280] mb-3" style={{ fontFamily: FONT }}>
@@ -472,7 +481,7 @@ function PhaseDetailCards({ phases }: { phases: PhaseInfo[] }) {
 
             {/* Progress bar */}
             <div
-              className="w-full h-2 rounded-full"
+              className="w-full h-2 rounded-full mb-3"
               style={{ backgroundColor: "#f0f1f7" }}
             >
               <div
@@ -483,12 +492,18 @@ function PhaseDetailCards({ phases }: { phases: PhaseInfo[] }) {
                 }}
               />
             </div>
-            <div
-              className="text-[10px] text-right mt-1 font-semibold"
-              style={{ color: "#9ca3af", fontFamily: FONT }}
-            >
-              {Math.round(phase.progress * 100)}%
-            </div>
+
+            {/* Notes */}
+            <textarea
+              rows={2}
+              className="w-full text-[11px] px-3 py-2 rounded-lg border border-[#e5e7eb] focus:border-[#2163E7] focus:ring-2 focus:ring-[#2163e7]/20 outline-none resize-none"
+              style={{ fontFamily: FONT }}
+              placeholder="Add notes..."
+              value={override.notes}
+              onChange={(e) =>
+                onPhaseChange(phase.label, { ...override, notes: e.target.value })
+              }
+            />
           </motion.div>
         );
       })}
@@ -559,6 +574,19 @@ export function RoadmapTab({
     [roadmapData, onRoadmapChange],
   );
 
+  const handlePhaseChange = useCallback(
+    (label: string, override: PhaseOverride) => {
+      onRoadmapChange({
+        ...roadmapData,
+        phaseOverrides: {
+          ...(roadmapData.phaseOverrides ?? {}),
+          [label]: override,
+        },
+      });
+    },
+    [roadmapData, onRoadmapChange],
+  );
+
   if (df.length < 2) {
     return (
       <div
@@ -595,7 +623,11 @@ export function RoadmapTab({
       </motion.div>
 
       {/* Phase Details */}
-      <PhaseDetailCards phases={phases} />
+      <PhaseDetailCards
+        phases={phases}
+        phaseOverrides={roadmapData.phaseOverrides ?? {}}
+        onPhaseChange={handlePhaseChange}
+      />
 
       {/* Milestones */}
       <motion.div

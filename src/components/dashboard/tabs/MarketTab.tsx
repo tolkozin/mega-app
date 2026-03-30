@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { FONT, CARD_SHADOW } from "@/components/v2/charts/v2-chart-utils";
 import type { MarketData, MarketRegion } from "@/lib/types";
@@ -36,6 +36,45 @@ const BTN_SECONDARY =
 
 const TABLE_HEADER =
   "text-[10px] font-bold uppercase tracking-wider text-[#9ca3af]";
+
+/* ─── Region & Audience Presets ─── */
+
+interface RegionPreset {
+  name: string;
+  tam: number;
+  sam: number;
+  som: number;
+  source: string;
+}
+
+const REGION_PRESETS: RegionPreset[] = [
+  { name: "North America", tam: 850_000_000_000, sam: 120_000_000_000, som: 2_400_000_000, source: "Statista 2025" },
+  { name: "Europe", tam: 620_000_000_000, sam: 95_000_000_000, som: 1_900_000_000, source: "Statista 2025" },
+  { name: "APAC", tam: 780_000_000_000, sam: 110_000_000_000, som: 2_200_000_000, source: "Grand View Research" },
+  { name: "Latin America", tam: 180_000_000_000, sam: 28_000_000_000, som: 560_000_000, source: "Mordor Intelligence" },
+  { name: "Middle East & Africa", tam: 95_000_000_000, sam: 15_000_000_000, som: 300_000_000, source: "Mordor Intelligence" },
+  { name: "Southeast Asia", tam: 220_000_000_000, sam: 35_000_000_000, som: 700_000_000, source: "e-Conomy SEA" },
+  { name: "India", tam: 310_000_000_000, sam: 48_000_000_000, som: 960_000_000, source: "NASSCOM" },
+  { name: "China", tam: 520_000_000_000, sam: 75_000_000_000, som: 1_500_000_000, source: "iResearch" },
+  { name: "Global", tam: 3_500_000_000_000, sam: 500_000_000_000, som: 10_000_000_000, source: "Statista 2025" },
+];
+
+interface AudiencePreset {
+  name: string;
+  age: string;
+  pain: string;
+}
+
+const AUDIENCE_PRESETS: AudiencePreset[] = [
+  { name: "Startup Founders", age: "25-40", pain: "Limited budget, need fast ROI on every tool" },
+  { name: "SMB Owners", age: "30-55", pain: "Overwhelmed by ops, no dedicated tech team" },
+  { name: "Enterprise Managers", age: "35-50", pain: "Slow procurement, need compliance and integrations" },
+  { name: "Freelancers", age: "22-38", pain: "Inconsistent income, need affordable solutions" },
+  { name: "Gen Z Consumers", age: "18-27", pain: "Price-sensitive, expect mobile-first UX" },
+  { name: "Working Parents", age: "28-45", pain: "Time-poor, need convenience and reliability" },
+  { name: "Tech-Savvy Early Adopters", age: "20-35", pain: "Want cutting-edge features, will switch fast" },
+  { name: "Budget-Conscious Shoppers", age: "25-55", pain: "Always comparing prices, loyalty is hard to earn" },
+];
 
 /* ─── Helpers ─── */
 
@@ -254,7 +293,23 @@ function MarketSizeCard({
     [data, onChange],
   );
 
-  const handleAdd = useCallback(() => {
+  const [showRegionMenu, setShowRegionMenu] = useState(false);
+
+  const handleAddPreset = useCallback(
+    (preset: RegionPreset) => {
+      onChange({
+        ...data,
+        regions: [
+          ...data.regions,
+          { id: crypto.randomUUID(), ...preset },
+        ],
+      });
+      setShowRegionMenu(false);
+    },
+    [data, onChange],
+  );
+
+  const handleAddCustom = useCallback(() => {
     onChange({
       ...data,
       regions: [
@@ -262,6 +317,7 @@ function MarketSizeCard({
         { id: crypto.randomUUID(), name: "", tam: 0, sam: 0, som: 0, source: "" },
       ],
     });
+    setShowRegionMenu(false);
   }, [data, onChange]);
 
   const handleDelete = useCallback(
@@ -274,6 +330,10 @@ function MarketSizeCard({
     [data, onChange],
   );
 
+  // Filter out already-added preset names
+  const existingNames = new Set(data.regions.map((r) => r.name));
+  const availablePresets = REGION_PRESETS.filter((p) => !existingNames.has(p.name));
+
   return (
     <motion.div {...FADE_IN} className="bg-white rounded-2xl p-6" style={cardStyle}>
       <div className="flex items-center justify-between mb-5">
@@ -283,9 +343,42 @@ function MarketSizeCard({
         >
           Market Size
         </h3>
-        <button type="button" className={BTN_PRIMARY} onClick={handleAdd}>
-          + Add Region
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            className={BTN_PRIMARY}
+            onClick={() => setShowRegionMenu((v) => !v)}
+          >
+            + Add Region
+          </button>
+          {showRegionMenu && (
+            <div
+              className="absolute right-0 top-full mt-1 w-56 bg-white rounded-xl border border-[#e5e7eb] shadow-lg z-50 py-1 max-h-64 overflow-y-auto"
+              style={{ fontFamily: FONT }}
+            >
+              {availablePresets.map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  className="w-full text-left px-4 py-2 text-[12px] hover:bg-[#f8f9fc] transition-colors"
+                  onClick={() => handleAddPreset(preset)}
+                >
+                  <span className="font-bold text-[#1a1a2e]">{preset.name}</span>
+                  <span className="text-[#9ca3af] ml-2">TAM {formatDollar(preset.tam)}</span>
+                </button>
+              ))}
+              <div className="border-t border-[#e5e7eb] mt-1 pt-1">
+                <button
+                  type="button"
+                  className="w-full text-left px-4 py-2 text-[12px] font-bold text-[#2163E7] hover:bg-[#f8f9fc] transition-colors"
+                  onClick={handleAddCustom}
+                >
+                  + Custom Region
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8 items-start">
@@ -309,12 +402,12 @@ function MarketSizeCard({
           {data.regions.length === 0 ? (
             <div className="py-10 text-center">
               <p className="text-[13px] text-[#9ca3af]" style={{ fontFamily: FONT }}>
-                Add regions to define your market size
+                Select a region to get started with pre-filled benchmarks
               </p>
               <button
                 type="button"
                 className={BTN_SECONDARY + " mt-3"}
-                onClick={handleAdd}
+                onClick={() => setShowRegionMenu(true)}
               >
                 + Add Region
               </button>
@@ -588,7 +681,23 @@ function AudienceCard({
     [data, onChange],
   );
 
-  const handleAdd = useCallback(() => {
+  const [showAudienceMenu, setShowAudienceMenu] = useState(false);
+
+  const handleAddPreset = useCallback(
+    (preset: AudiencePreset) => {
+      onChange({
+        ...data,
+        audiences: [
+          ...data.audiences,
+          { id: crypto.randomUUID(), ...preset },
+        ],
+      });
+      setShowAudienceMenu(false);
+    },
+    [data, onChange],
+  );
+
+  const handleAddCustom = useCallback(() => {
     onChange({
       ...data,
       audiences: [
@@ -596,6 +705,7 @@ function AudienceCard({
         { id: crypto.randomUUID(), name: "", age: "", pain: "" },
       ],
     });
+    setShowAudienceMenu(false);
   }, [data, onChange]);
 
   const handleDelete = useCallback(
@@ -608,6 +718,9 @@ function AudienceCard({
     [data, onChange],
   );
 
+  const existingAudNames = new Set(data.audiences.map((a) => a.name));
+  const availableAudPresets = AUDIENCE_PRESETS.filter((p) => !existingAudNames.has(p.name));
+
   return (
     <motion.div {...FADE_IN} className="bg-white rounded-2xl p-6" style={cardStyle}>
       <div className="flex items-center justify-between mb-4">
@@ -617,20 +730,53 @@ function AudienceCard({
         >
           Target Audience
         </h3>
-        <button type="button" className={BTN_PRIMARY} onClick={handleAdd}>
-          + Add
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            className={BTN_PRIMARY}
+            onClick={() => setShowAudienceMenu((v) => !v)}
+          >
+            + Add
+          </button>
+          {showAudienceMenu && (
+            <div
+              className="absolute right-0 top-full mt-1 w-60 bg-white rounded-xl border border-[#e5e7eb] shadow-lg z-50 py-1 max-h-64 overflow-y-auto"
+              style={{ fontFamily: FONT }}
+            >
+              {availableAudPresets.map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  className="w-full text-left px-4 py-2 text-[12px] hover:bg-[#f8f9fc] transition-colors"
+                  onClick={() => handleAddPreset(preset)}
+                >
+                  <span className="font-bold text-[#1a1a2e]">{preset.name}</span>
+                  <span className="text-[#9ca3af] ml-1">{preset.age}</span>
+                </button>
+              ))}
+              <div className="border-t border-[#e5e7eb] mt-1 pt-1">
+                <button
+                  type="button"
+                  className="w-full text-left px-4 py-2 text-[12px] font-bold text-[#2163E7] hover:bg-[#f8f9fc] transition-colors"
+                  onClick={handleAddCustom}
+                >
+                  + Custom Persona
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {data.audiences.length === 0 ? (
         <div className="py-10 text-center">
           <p className="text-[13px] text-[#9ca3af]" style={{ fontFamily: FONT }}>
-            Define your target audience
+            Select a persona template or create custom
           </p>
           <button
             type="button"
             className={BTN_SECONDARY + " mt-3"}
-            onClick={handleAdd}
+            onClick={() => setShowAudienceMenu(true)}
           >
             + Add Persona
           </button>

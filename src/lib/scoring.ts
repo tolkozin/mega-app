@@ -244,8 +244,8 @@ export interface ScoreResult {
 }
 
 function scoreHealth(score: number): { health: HealthStatus; label: string } {
-  if (score >= 70) return { health: "good", label: "Good" };
-  if (score >= 40) return { health: "caution", label: "Caution" };
+  if (score >= 60) return { health: "good", label: "Good" };
+  if (score >= 35) return { health: "caution", label: "Caution" };
   return { health: "bad", label: "Bad" };
 }
 
@@ -262,6 +262,12 @@ function linearScore(value: number, good: number, bad: number, higherIsBetter: b
   return 35 + ((bad - value) / (bad - good)) * 50;
 }
 
+/** Runway=0 means infinite (profitable, no burn) → best score */
+function runwayScore(runway: number, t: Thresholds): number {
+  if (runway === 0) return 100;
+  return clamp(linearScore(runway, t.runway.good, t.runway.ok, true), 0, 100);
+}
+
 function subscriptionScore(last: DataRow, prev: DataRow, t: Thresholds): ScoreResult {
   const ltvCac = num(last, "LTV/CAC");
   const churn = num(last, "Churn Rate", "Cancel Rate", "Logo Churn %", "Logo Churn", "Monthly Churn");
@@ -274,7 +280,7 @@ function subscriptionScore(last: DataRow, prev: DataRow, t: Thresholds): ScoreRe
   const scores = [
     { label: "LTV/CAC Ratio", score: clamp(linearScore(ltvCac, t.ltvCac.good, t.ltvCac.ok * 0.5, true), 0, 100), weight: t.weights.ltvCac },
     { label: "Churn Rate", score: clamp(linearScore(churn, t.churn.good, t.churn.bad, false), 0, 100), weight: t.weights.churn },
-    { label: "Runway", score: clamp(linearScore(runway, t.runway.good, t.runway.ok, true), 0, 100), weight: t.weights.runway },
+    { label: "Runway", score: runwayScore(runway, t), weight: t.weights.runway },
     { label: "MRR Growth", score: clamp(mrrPrev > 0 ? linearScore(mrrGrowth, 15, -5, true) : (mrr > 0 ? 60 : 0), 0, 100), weight: t.weights.growth },
     { label: "Profitability", score: clamp(netProfit > 0 ? 100 : netProfit > -5000 ? 50 : 20, 0, 100), weight: t.weights.profitability },
   ];
@@ -299,7 +305,7 @@ function ecommerceScore(last: DataRow, prev: DataRow, t: Thresholds): ScoreResul
 
   const scores = [
     { label: "LTV/CAC Ratio", score: clamp(linearScore(ltvCac, t.ltvCac.good, t.ltvCac.ok * 0.5, true), 0, 100), weight: t.weights.ltvCac },
-    { label: "Runway", score: clamp(linearScore(runway, t.runway.good, t.runway.ok, true), 0, 100), weight: t.weights.runway },
+    { label: "Runway", score: runwayScore(runway, t), weight: t.weights.runway },
     { label: "Revenue Growth", score: clamp(revPrev > 0 ? linearScore(revGrowth, 15, -5, true) : (revenue > 0 ? 60 : 0), 0, 100), weight: t.weights.growth },
     { label: "Profitability", score: clamp(netProfit > 0 ? 100 : netProfit > -5000 ? 50 : 20, 0, 100), weight: t.weights.profitability },
     { label: "Gross Margin", score: clamp(linearScore(gmPct, t.grossMargin.good, t.grossMargin.ok * 0.5, true), 0, 100), weight: t.weights.extra1 },
@@ -326,7 +332,7 @@ function saasScore(last: DataRow, prev: DataRow, t: Thresholds): ScoreResult {
 
   const scores = [
     { label: "LTV/CAC Ratio", score: clamp(linearScore(ltvCac, t.ltvCac.good, t.ltvCac.ok * 0.5, true), 0, 100), weight: t.weights.ltvCac },
-    { label: "Runway", score: clamp(linearScore(runway, t.runway.good, t.runway.ok, true), 0, 100), weight: t.weights.runway },
+    { label: "Runway", score: runwayScore(runway, t), weight: t.weights.runway },
     { label: "ARR Growth", score: clamp(arrPrev > 0 ? linearScore(arrGrowth, 20, -5, true) : (arr > 0 ? 60 : 0), 0, 100), weight: t.weights.growth },
     { label: "Profitability", score: clamp(netProfit > 0 ? 100 : netProfit > -5000 ? 50 : 20, 0, 100), weight: t.weights.profitability },
     { label: "Net Revenue Retention", score: clamp(linearScore(nrr, t.nrr.good, t.nrr.ok * 0.8, true), 0, 100), weight: t.weights.extra1 },

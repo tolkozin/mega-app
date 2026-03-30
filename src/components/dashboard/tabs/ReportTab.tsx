@@ -469,14 +469,14 @@ function SectionsCard({
               {/* Toggle */}
               <button
                 type="button"
-                className={`relative w-9 h-5 rounded-full transition-colors ${
+                className={`relative flex-shrink-0 w-9 h-5 rounded-full transition-colors ${
                   enabled ? "bg-[#2163E7]" : "bg-[#d1d5db]"
                 }`}
                 onClick={() => handleToggle(key)}
               >
                 <span
-                  className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                    enabled ? "translate-x-4" : "translate-x-0.5"
+                  className={`absolute top-[2px] left-[2px] w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                    enabled ? "translate-x-4" : "translate-x-0"
                   }`}
                 />
               </button>

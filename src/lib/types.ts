@@ -158,8 +158,16 @@ export interface RoadmapMilestone {
   type: "auto" | "custom";
 }
 
+export type PhaseStatus = "not_started" | "in_progress" | "completed";
+
+export interface PhaseOverride {
+  status: PhaseStatus;
+  notes: string;
+}
+
 export interface RoadmapData {
   milestones: RoadmapMilestone[];
+  phaseOverrides?: Record<string, PhaseOverride>;
 }
 
 export interface TrackingRow {

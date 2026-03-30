@@ -62,8 +62,8 @@ const cardStyle: React.CSSProperties = {
 };
 
 function healthForScore(score: number): HealthStatus {
-  if (score >= 70) return "good";
-  if (score >= 40) return "caution";
+  if (score >= 60) return "good";
+  if (score >= 35) return "caution";
   return "bad";
 }
 
@@ -74,7 +74,7 @@ function RadarChart({
 }: {
   breakdown: ScoreResult["breakdown"];
 }) {
-  const size = 280;
+  const size = 340;
   const center = size / 2;
   const maxR = 100;
   const rings = [0.33, 0.66, 1.0];
