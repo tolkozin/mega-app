@@ -49,7 +49,7 @@ import { generateCustomPDF } from "@/lib/pdf-report";
 
 const DASHBOARD_TABS = [
   { key: "overview", label: "Overview" },
-  { key: "summary", label: "Summary" },
+  { key: "finance", label: "Finance" },
   { key: "scores", label: "Scores" },
   { key: "market", label: "Market" },
   { key: "roadmap", label: "Roadmap" },
@@ -444,6 +444,16 @@ function DashboardPage() {
           )}
 
           {results && activeTab === "overview" && (
+            <SummaryTab
+              df={(results.base.dataframe || []) as DataRow[]}
+              engine={engine}
+              modelType={modelType}
+              config={JSON.parse(JSON.stringify(config))}
+              milestones={results.base.milestones}
+            />
+          )}
+
+          {results && activeTab === "finance" && (
             <>
               {/* Investor Report — right below button bar */}
               {showInvestorReport && (
@@ -480,16 +490,6 @@ function DashboardPage() {
 
               <ContentComponent results={results} p1End={p1End} p2End={p2End} />
             </>
-          )}
-
-          {results && activeTab === "summary" && (
-            <SummaryTab
-              df={(results.base.dataframe || []) as DataRow[]}
-              engine={engine}
-              modelType={modelType}
-              config={JSON.parse(JSON.stringify(config))}
-              milestones={results.base.milestones}
-            />
           )}
 
           {results && activeTab === "scores" && (
